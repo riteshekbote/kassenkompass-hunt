@@ -1,0 +1,9 @@
+## REPOSCAN 2026-09-03 15:47:08 UTC
+[HYP] No candidate repositories identified for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"
+impact: N/A
+verify_steps: N/A - no repos to scan
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
