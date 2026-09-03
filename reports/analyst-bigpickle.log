@@ -155,3 +155,706 @@ No hypotheses below 40 confidence or in REJECTED classes.
 ## STEP 7 — RISK
 
 [RISK] kassenkompass: 35/100. API auth gate limits passive-only findings; no public source code for deeper analysis; Cloudflare WAF fronting adds defense layer. Main value is in auth-helped IDOR testing on api.kassenkompass.de.
+===== ANALYST bigpickle 2026-09-03 20:02:53 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll analyze the current state and continue the hunt. Let me look at the evidence I have and determine next steps.
+
+The key lead from the last session was a probe to test `/user/1` unauth behavior. Let me examine the relevant files first.
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/
+total 108
+drwxr-xr-x 12 runner runner  4096 Sep  3 19:58 .
+drwxr-xr-x  3 runner runner  4096 Sep  3 19:57 ..
+drwxr-xr-x  7 runner runner  4096 Sep  3 19:58 .git
+drwxr-xr-x  3 runner runner  4096 Sep  3 19:57 .github
+-rw-r--r--  1 runner runner  1767 Sep  3 19:57 README.md
+-rw-r--r--  1 runner runner   271 Sep  3 19:58 analyst-out.txt
+-rw-r--r--  1 runner runner 11673 Sep  3 19:58 analyst-prompt.txt
+-rw-r--r--  1 runner runner  7855 Sep  3 19:58 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 leads
+-rw-r--r--  1 runner runner   364 Sep  3 19:57 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 reports
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  3 19:57 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 scripts
+-rw-r--r--  1 runner runner    37 Sep  3 19:57 state_bigpickle.json
+-rw-r--r--  1 runner runner    37 Sep  3 19:57 state_laguna.json
+-rw-r--r--  1 runner runner    37 Sep  3 19:57 state_ling3.json
+-rw-r--r--  1 runner runner    37 Sep  3 19:57 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  3 19:57 state_mimo.json
+-rw-r--r--  1 runner runner    37 Sep  3 19:57 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 triage
+[0m
+[0m✱ [0mGlob "**/*.txt"[90m 9 matches[0m
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead analyst-out.txt
+Let me look at the key context files to understand the current state and what probes have been done.
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m✗ [0mRead leads/lead_bigpickle.txt failed
+[91m[1mError: [0mFile not found: /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/lead_bigpickle.txt
+[0m✗ [0mRead report failed
+[91m[1mError: [0mFile not found: /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/report
+
+Did you mean one of these?
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports
+The previous probe results show all `/user/1`, `/delete/1`, `/user/100` return HTTP 401 unauth. This is important delta evidence. Let me check the other context files and leads.
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scripts/ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/:
+total 40
+drwxr-xr-x  2 runner runner 4096 Sep  3 19:57 .
+drwxr-xr-x 12 runner runner 4096 Sep  3 19:58 ..
+-rw-r--r--  1 runner runner 4508 Sep  3 19:57 lead-bigpickle.md
+-rw-r--r--  1 runner runner   51 Sep  3 19:57 lead-laguna.md
+-rw-r--r--  1 runner runner   50 Sep  3 19:57 lead-ling3.md
+-rw-r--r--  1 runner runner   52 Sep  3 19:57 lead-longcat.md
+-rw-r--r--  1 runner runner   18 Sep  3 19:57 lead-mimo.md
+-rw-r--r--  1 runner runner 4094 Sep  3 19:57 lead-nemotron3.md
+-rw-r--r--  1 runner runner  464 Sep  3 19:57 reposcan-kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  3 19:57 .
+drwxr-xr-x 12 runner runner  4096 Sep  3 19:58 ..
+-rw-r--r--  1 runner runner 16987 Sep  3 19:57 sync-issues.py
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/:
+total 36
+drwxr-xr-x  2 runner runner 4096 Sep  3 19:57 .
+drwxr-xr-x 12 runner runner 4096 Sep  3 19:58 ..
+-rw-r--r--  1 runner runner    0 Sep  3 19:57 .gitkeep
+-rw-r--r--  1 runner runner  212 Sep  3 19:57 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner  225 Sep  3 19:57 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner  568 Sep  3 19:57 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner  200 Sep  3 19:57 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner  182 Sep  3 19:57 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner  190 Sep  3 19:57 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner  210 Sep  3 19:57 run-2026-09-03-19-08.md
+[0m
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+Let me read the full lead file to understand the complete API surface that was enumerated, and the other leads.
+Now I have a good understanding. Let me analyze the current state and probe the API surface more deeply. The key findings:
+
+1. `/user/1`, `/user/100`, `/delete/1` all return HTTP 401 unauth — so the auth gate is consistently enforced on data endpoints (unlike `/health/` and the catch-all docs).
+2. The catch-all returns full API docs — the MISCONFIG is confirmed.
+3. IDOR hypotheses remain AUTH_HELPED — need a valid X-API-Secret.
+
+Notably, the previous probe showed `/user/1` returns 401 whereas `/health/` is unprotected. Let me probe the API catalog more deeply to find additional unprotected endpoints or anomalies. Key high-value targets from the catalog: `/settlement_report/{year}/{month}` (financial) and `/cancel/{id}`.
+
+Let me do some read-only probes on the API to enumerate any additional unprotected endpoints and check for auth discrepancies. My knowledge base says `/health/` is unprotected — let me probe the docs endpoint again and check the `/settlement_report` and `/cancel` behavior, plus look for any endpoint that might bypass auth.
+[0m
+[0m$ [0msleep 2; curl -s -i -m 20 https://api.kassenkompass.de/health/ 2>&1 | head -30
+HTTP/2 200 
+date: Thu, 03 Sep 2026 19:59:35 GMT
+content-type: application/json; charset=utf-8
+content-length: 22
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, POST, OPTIONS
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=oTnzLiGO8t3kkbgpm8zHAz5oIxhiaNz7ZDhhasmFLRm398K%2BPqKLyX%2BLGWM%2F%2F%2BIQVGapR5Az2evhh49WidNU6PbobWW8LN%2B56%2FmTayKQeAMNixgKfJ1t2DM3PLaTX%2FORqWNj7TpB"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35755efd9a5eb22-SJC
+
+{
+    "status": "ok"
+}
+[0m
+[0m$ [0msleep 2; curl -s -m 20 https://api.kassenkompass.de/cancel/1 -X GET -o /dev/null -w "cancel/1 GET: %{http_code}\n"; curl -s -m 20 https://api.kassenkompass.de/settlement_report/2024/01 -o /dev/null -w "settle GET: %{http_code}\n"
+cancel/1 GET: 401
+settle GET: 401
+[0m
+Confirmed. `/health/` returnss `{"status": "ok"}` — unprotected, PHP 8.4.3 backend (PHP is unusual for an API that uses X-API-Secret; interesting tech detail). `/cancel/1` and `/settlement_report/2024/01` both return 401 — auth consistently enforced on data endpoints.
+
+The `x-powered-by: PHP/8.4.3` header is notable. The server is PHP 8.4.3. Combined with `x-powered-by` in responses, there may be additional info. Let me probe the API root docs and look at the full endpoint map to find any endpoints that might not require auth. Let me check the OPTIONS method behavior and look for versioned/debug paths.
+
+The most valuable passive work I can still do: examine the FULL API catalog response to look for any endpoint that bypasses the auth gate, plus check for the `x-api-secret` being accepted in alternative locations (query string, cookies). Let me get the full catalog response.
+[0m$ [0msleep 2; curl -s -m 20 https://api.kassenkompass.de/ 2>&1
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+The full catalog has 15 documented endpoints. Notable:
+
+- `GET /health/` — unprotected (confirmed)
+- `GET /health_insurance/`, `GET /state/`, `GET /sync/`, `GET /question_tree/`, etc. — "Krankenkassen"/"Bundesländer" data. These could be public reference data (list of health insurers, states) — likely designed to be public. But some like `/sync/`, `/post/`, `/detail_comparison/` might be more sensitive.
+- `GET /insurance_info/{kk_id}` — another IDOR candidate (parameterized by kk_id)
+- `POST /cancel/{id}` — delegates to kk_webapp
+- `POST /post/` — data reception
+
+I've confirmed `/health/` is public. The critical question: are the `GET` reference-data endpoints (`/health_insurance/`, `/state/`, `/question_tree/`) also unprotected, revealing user-sensitive structure or bypassing the auth gate? Most importantly, `/sync/` and `/post/` are data-write/reporting endpoints. Let me probe which GET endpoints are actually unprotected — this is the highest value passive work since I can determine the true auth boundary.
+
+Let me test the read-only GET reference endpoints for auth (read-only, safe): `/health_insurance/`, `/state/`, `/question_tree/`, `/detail_comparison/`, `/sync/`.
+[0m$ [0mfor p in health_insurance/ state/ question_tree/ detail_comparison/ health_insurance_comparison/ health_insurance_savings/ cat_detail/ sync/; do sleep 1; code=$(curl -s -m 15 "https://api.kassenkompass.de/$p" -o /tmp/opencode/resp.json -w "%{http_code}"); size=$(wc -c </tmp/opencode/resp.json); echo "$p -> $code (len=$size)"; done
+health_insurance/ -> 401 (len=233)
+state/ -> 401 (len=222)
+question_tree/ -> 401 (len=230)
+detail_comparison/ -> 401 (len=234)
+health_insurance_comparison/ -> 401 (len=244)
+health_insurance_savings/ -> 401 (len=241)
+cat_detail/ -> 405 (len=232)
+sync/ -> 200 (len=67)
+[0m
+`/sync/` returns 200 (len=67) with no auth! This is a major anomaly. `/cat_detail/` returns 405 — different auth behavior. Let me get the full response bodies for these unprotected endpoints.
+[0m$ [0msleep 2; curl -s -m 20 https://api.kassenkompass.de/sync/ -i 2>&1
+HTTP/2 200 
+date: Thu, 03 Sep 2026 20:00:17 GMT
+content-type: application/json; charset=utf-8
+content-length: 67
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=qhk3pK1ZL6U65F7TCJTiqvl9umopyQ%2BwPRh9LBC2SBZiodEH9bmHQfTFouZCa1p1QWoF5zT%2FWEtCUIpTd1zU6YHzWY2bYCd8T0POUPsFSHeskBCRd6%2FguZHQS17KsUJFHlp3Dt4p"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35756f619c77acd-SJC
+
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+[0m
+[0m$ [0msleep 2; curl -s -m 20 https://api.kassenkompass.de/cat_detail/ -i 2>&1
+HTTP/2 405 
+date: Thu, 03 Sep 2026 20:00:17 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 232
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=HZ7p3S5HaCvZD2dVzfaFov%2BiVwrQpqfYroLUlYi0D7pU0NJuxsU3JI1%2FG8a19VaqfvVUfs8Hk7q7lqoNSBn1fC7PyLo%2F4vxYK7AjKqDDwRy0H05sVd2l0QE2ykjveOHY0LM33bE2"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35756f7194acf2e-SJC
+
+{
+    "type": "https:\/\/httpstatuses.com\/405",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.",
+    "instance": "\/cat_detail\/"
+}
+[0m
+Excellent findings. `/sync/` returns HTTP 200 with a JSON auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — the app returns HTTP 200 for auth failures, which is a behavioral anomaly. `/cat_detail/` is POST-only (properly returns 405 on GET).
+
+Let me verify the POST-only endpoints and check what happens when we hit `/sync/` with POST (read-only, no mutation since we don't have a body):
+[0m$ [0msleep 2; curl -s -m 20 https://api.kassenkompass.de/post/ -X POST -i -o /tmp/opencode/post_resp.txt -w "%{http_code}" 2>&1; echo ""; cat /tmp/opencode/post_resp.txt | head -30
+411
+HTTP/2 411 
+date: Thu, 03 Sep 2026 20:00:25 GMT
+content-type: text/html; charset=us-ascii
+server: cloudflare
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=HQ5bd6uzrIoztOh97vwV2hyhSayIfe2wcQl8CS%2FBlV7lPJPP5TM5%2FUD8RChXdyemRM4xWe296W7NiaAVKcmTwIbqTjHDUofYilbH%2FnbY9Tqq27xYe2K5eTvImGsJvlhIQDcQuTcW"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a357572d3bf66892-SJC
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HTML><HEAD><TITLE>Length Required</TITLE>
+<META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD>
+<BODY><h2>Length Required</h2>
+<hr><p>HTTP Error 411. The request must be chunked or have a content length.</p>
+</BODY></HTML>
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://api.kassenkompass.de/cancel/1" -X POST -i 2>&1 | head -25
+HTTP/2 411 
+date: Thu, 03 Sep 2026 20:00:25 GMT
+content-type: text/html; charset=us-ascii
+server: cloudflare
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=1%2Fr9UTAMuWH5eRdp2pctmmykhTQA1w5HJ7jZJqY3RQrTrVAe2vDHnSkBmGtZtv2DbNBT87B7pKdz2b%2BOt7L%2Fi3TRePrOAElO3CRhAJcccYiFTv%2FG3hoRpLLdoyUhSWyfs9tU9xMX"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a357572edbdbcf2e-SJC
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HTML><HEAD><TITLE>Length Required</TITLE>
+<META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD>
+<BODY><h2>Length Required</h2>
+<hr><p>HTTP Error 411. The request must be chunked or have a content length.</p>
+</BODY></HTML>
+[0m
+POST endpoints return 411 (Cloudflare-level Content-Length enforcement — auth middleware not even reached). The auth check is PHP app-level, not WAF-level.
+
+Key new finding: `/sync/` returns HTTP 200 with auth error in the body — scanners checking only status codes would miss the auth protection. This is a status code misconfiguration.
+
+Let me now check the frontend (`kassenkompass.de`) for any embedded API secrets or interesting JS payloads:
+[0m$ [0msleep 2; curl -s -m 20 https://kassenkompass.de/ -o /tmp/opencode/kk_front.html -w "kassenkompass.de: %{http_code} (len=%{size_download})\n" 2>&1
+kassenkompass.de: 200 (len=35865)
+[0m
+[0m$ [0msleep 1; grep -iE '(api[-_]?secret|api[-_]?key|x-api-secret|kassenkompass\.de/api|fetch\(|axios|/api/|bundeslaender|question.?tree|settlement|ext_id|\.env|secret)' /tmp/opencode/kk_front.html 2>&1 | head -40
+(no output)
+[0m
+[0m$ [0msleep 1; grep -oE 'src="[^"]*\.js[^"]*"' /tmp/opencode/kk_front.html | head -20
+src="/js/standard.js?v=1788465637"
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+src="js/faq_accordion.js"
+[0m
+[0m$ [0msleep 2; curl -s -m 20 https://kassenkompass.de/js/standard.js?v=1788465637 -o /tmp/opencode/standard.js -w "standard.js: %{http_code} (len=%{size_download})\n" 2>&1
+standard.js: 200 (len=67969)
+[0m
+[0m$ [0mgrep -oiE '(api[-_]?secret|api[-_]?key|x-api-secret|kassenkompass\.de/api|fetch\(|axios|/api/|bundeslaender|question.?tree|settlement|ext_id|\.env|secret|token|auth|kluge|cassatis|swagger)' /tmp/opencode/standard.js | sort | uniq -c | sort -rn | head -30
+(no output)
+[0m
+[0m$ [0mgrep -oiE '(api\.kassenkompass|fetch\(|axios|/api/|X-API-Secret|secret|token|kluge|cassatis|partner)' /tmp/opencode/standard.js | head -20
+(no output)
+[0m
+[0m$ [0msleep 2; curl -s -m 20 https://kassenkompass.de/js/faq_accordion.js -o /tmp/opencode/faq.js -w "faq.js: %{http_code} (len=%{size_download})\n" 2>&1; sleep 1; grep -oiE '(api|secret|token|key|fetch|auth)' /tmp/opencode/faq.js 2>&1 | head -10
+faq.js: 200 (len=2719)
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/sitemap.xml" -o /tmp/opencode/sitemap.xml -w "sitemap: %{http_code}\n" 2>&1; sleep 1; grep -oE 'https?://[a-z0-9.-]*kassenkompass\.de' /tmp/opencode/sitemap.xml 2>&1 | sort -u | head -20
+sitemap: 200
+https://kassenkompass.de
+[0m
+Let me now check the frontend for partner portals and common admin paths, and look for the kk_webapp service mentioned in the API docs:
+[0m$ [0msleep 2; for p in partner login admin portal insurer vermiter webapp kk_webapp api/user user/register; do sleep 1; code=$(curl -s -m 15 "https://kassenkompass.de/$p" -o /dev/null -w "%{http_code}"); echo "/$p -> $code"; done
+/partner -> 404
+/login -> 404
+/admin -> 404
+/portal -> 404
+/insurer -> 404
+/vermiter -> 404
+/webapp -> 404
+/kk_webapp -> 404
+/api/user -> 404
+/user/register -> 404
+[0m
+[0m$ [0mgrep -oE 'href="[^"]*"' /tmp/opencode/kk_front.html | sort -u | head -40
+href="#"
+href="/agb_info.php"
+href="/apple-touch-icon.png"
+href="/artikel.php"
+href="/cdn-cgi/l/email-protection"
+href="/css/cookie-consent.css?v=v2.6.9"
+href="/css/standard.css?v=v2.6.9"
+href="/datenschutz.php"
+href="/erstinformationen.php"
+href="/faq.php"
+href="/favicon-96x96.png"
+href="/favicon.ico"
+href="/favicon.svg"
+href="/impressum.php"
+href="/index.php"
+href="/kontakt.php"
+href="/kooperationspartner.php"
+href="/login_auswahl.php"
+href="/login_kd.php"
+href="/login_kk.php"
+href="/login_partner.php"
+href="/presse.php"
+href="/ueberuns.php"
+href="css/bonusrechner_v.css?v=v2.6.9"
+href="css/index.css?v=v2.6.9"
+href="css/index_new.css?v=v2.6.9"
+href="css/templatev.css?v=v2.6.9"
+href="https://de.linkedin.com/company/kassenkompass-gmbh"
+href="https://einfachgesund.de/lp/13d71d39/1/"
+href="https://meine.kkh.de/bitgo_web/de/oeffentlich_bitgo_1/beitrittonline/mitglied_werden.html?Adressherkunft=Onlinemarketing&AdressherkunftDetail1=Mitgliedschaft&AdressherkunftDetail2=Kassenwechsler&AdressherkunftDetail3=KKH-Homepage%20Direkteinstieg"
+href="https://mitgliedwerden.dak.de/prweb/PRAuth/Public?pyActivity=@baseclass.OSTOperation&operation=create&hvalue=OC42F251B6E4657B928E847E76190E56F2"
+href="https://secure.hek.de/direktabschluss/?gp_nr=7002486465"
+href="https://www.abendblatt.de/hamburg/wirtschaft/article410065694/hoehle-der-loewen-dhdl-so-lief-es-fuer-kassenkompass-nach-deal-mit-maschmeyer-1.html"
+href="https://www.ardmediathek.de/video/hamburg-journal/hamburger-start-up-ueberzeugt-bei-hoehle-der-loewen/ndr/Y3JpZDovL25kci5kZS9lNmM3YTg2NC00Yzc3LTRmMzAtOWJjMy03YjRmOGRjYTZmOGE"
+href="https://www.big-direkt.de/de/mitglied-werden/online-mitglied-werden?distributionpartner=eb645ecc-7787-4bf8-b882-681859a47226"
+href="https://www.die-ik.de/vmma?vm=026231740097"
+href="https://www.faz.net/aktuell/wirtschaft/unternehmen/gruenderin-fiona-jasmut-ich-finde-dass-unsere-generation-bequem-ist-110053706.html"
+href="https://www.handelsblatt.com/technik/medizin/inside-digital-health/versicherungen-so-laesst-sich-bei-der-krankenkassenwahl-besonders-clever-sparen/100101459.html"
+href="https://www.instagram.com/kassenkompass/?hl=de"
+href="https://www.ndr.de/fernsehen/sendungen/hamburg_journal/Hamburg-morgen-Website-hilft-beim-Vergleich-von-Krankenkassen,hamj155486.html"
+[0m
+Excellent! Multiple login portals: `/login_auswahl.php`, `/login_kd.php`, `/login_kk.php`, `/login_partner.php`. Let me probe these login pages and the partner page.
+
+Let me check the login pages for potential auth vulnerabilities and interesting behavior.
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/login_auswahl.php" -o /tmp/opencode/login_auswahl.html -w "login_auswahl: %{http_code} (len=%{size_download})\n" 2>&1
+login_auswahl: 200 (len=3873)
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/login_kk.php" -o /tmp/opencode/login_kk.html -w "login_kk: %{http_code} (len=%{size_download})\n" 2>&1
+login_kk: 200 (len=3494)
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/login_kd.php" -o /tmp/opencode/login_kd.html -w "login_kd: %{http_code} (len=%{size_download})\n" 2>&1
+login_kd: 200 (len=3878)
+[0m
+[0m$ [0mgrep -iE '(action=|method=|csrf|token|hidden|api|secret|token|input.*name=|submit|login|password|auth|session|cookie)' /tmp/opencode/login_kd.html | head -30
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Kundenlogin - Kassenkompass</title>
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<form class="lo_conbox" method="post" id="loginform">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+	<img src="bilder/login/star.png">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+[0m
+[0m$ [0mgrep -iE '(action=|method=|csrf|token|hidden|api|secret|token|input.*name=|submit|login|password|auth|session|cookie)' /tmp/opencode/login_kk.html | head -30
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Krankenkassenlogin - Kassenkompass</title>
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<form class="lo_conbox" method="post" id="loginform">
+					<p class="lo_form_text">Login Krankenkasse</p>
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+	<img src="bilder/login/star.png">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+[0m
+Found CSRF token missing from login forms + `value="X8372" name="sendlogin"` is a static magic value. Let me dig deeper:
+
+Let me examine the full login form HTML and the JavaScript behavior to understand the auth flow and check for CSRF issues.
+[0m$ [0msleep 1; cat /tmp/opencode/login_kd.html | grep -A5 -B5 'form\|X8372\|remem\|sendlogin'
+<body>
+		<div class="section">
+				<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Willkommen zurück!</p>
+					<p class="lo_form_text">Jetzt einloggen & loslegen!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>					<div class="lo_form_xinfobox">
+																		<div class="lo_form_checkbox">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+							<label for="checkremem" class="lo_form_labeltext">Eingeloggt bleiben</label>
+						</div>
+						<a class="lo_form_forgotpw" href="pw_reset_kd.php">Passwort vergessen?</a>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+				</div>
+				<p class="lo_form_underline">
+					Du bekommst automatisch einen Account bei erfolgreichen Wechsel. <a class="lo_form_botlink" href="bonusrechner.php">Jetzt wechseln!</a><br><br>
+					Du hast bereits gewechselt, aber noch keinen Account erstellt. <a class="lo_form_botlink" href="create_account.php">Klick hier</a>
+				</p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+--
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+		  	if (name.length < 3) {
+		    	e.preventDefault();
+		    	alert("Der Name muss mindestens 3 Zeichen lang sein.");
+		    	return;
+[0m
+[0m$ [0msleep 1; grep -E '(script|document|cookie|session|fetch|XMLHttp|redirect|action)' /tmp/opencode/login_kd.html | head -20
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788465685"></script>
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+	</script>
+[0m
+Key findings: No CSRF token in login forms, `value="X8372"` is a static magic value, client-side-only validation. Let me check the password reset page and the partner login:
+
+Let me examine the password reset page and partner login for potential authentication vulnerabilities.
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/pw_reset_kd.php" -o /tmp/opencode/pw_reset.html -w "pw_reset_kd: %{http_code} (len=%{size_download})\n" 2>&1; sleep 1; grep -iE '(action=|method=|csrf|token|hidden|input.*name=|submit|password|email|reset)' /tmp/opencode/pw_reset.html | head -20
+pw_reset_kd: 200 (len=3527)
+			<form class="lo_conbox" method="post" id="loginform">
+						<label for="email" class="lo_form_labeltext">E-Mail</label>
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="Enter your email">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Reset-Link senden</button>
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/login_partner.php" -o /tmp/opencode/login_partner.html -w "login_partner: %{http_code} (len=%{size_download})\n" 2>&1; sleep 1; grep -iE '(action=|method=|csrf|token|hidden|input.*name=|submit|password|email|secret|api)' /tmp/opencode/login_partner.html | head -20
+login_partner: 200 (len=3640)
+			<form class="lo_conbox" method="post" id="loginform">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://api.kassenkompass.de/insurance_info/1" -o /tmp/opencode/ins_info.json -w "insurance_info/1: %{http_code}\n" 2>&1; sleep 1; cat /tmp/opencode/ins_info.json
+insurance_info/1: 401
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/1"
+}
+[0m
+[0m$ [0msleep 2; for p in pw_reset_kk.php pw_reset_partner.php erweiterte_suchepartner.php kooperationspartner.php create_account.php arten.php bonusrechner.php datenschutz.php impressum.php; do sleep 1; code=$(curl -s -m 15 "https://kassenkompass.de/$p" -o /dev/null -w "%{http_code}"); echo "/$p -> $code"; done
+/pw_reset_kk.php -> 404
+/pw_reset_partner.php -> 200
+/erweiterte_suchepartner.php -> 404
+/kooperationspartner.php -> 200
+/create_account.php -> 200
+/arten.php -> 404
+/bonusrechner.php -> 200
+/datenschutz.php -> 200
+/impressum.php -> 200
+[0m
+Good — `insurance_info/1` returns proper 401. The API has inconsistent error handling: `/sync/` returns 200+auth-error-body while others return proper 401. This is a behavioral misconfiguration.
+
+Let me check the partner password reset and create account pages:
+
+Let me examine the partner password reset and account creation pages for potential authentication bypass vulnerabilities.
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/pw_reset_partner.php" -o /tmp/opencode/pw_reset_partner.html -w "pw_reset_partner: %{http_code} (len=%{size_download})\n" 2>&1; sleep 1; grep -iE '(action=|method=|csrf|token|hidden|input.*name=|submit|password|email|reset|partner)' /tmp/opencode/pw_reset_partner.html | head -20
+pw_reset_partner: 200 (len=3488)
+	<title>Partner Passwort zurücksetzen - Kassenkompass</title>
+			<form class="lo_conbox" method="post" id="resetform">
+					<p class="lo_form_text">Wir senden Ihnen einen Reset-Link</p>
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse">
+							Geben Sie die E-Mail-Adresse Ihres Partner-Accounts ein. 
+					<button class="lo_form_submit" value="KKX3382745" name="reset_password">Reset-Link senden</button>
+					<a class="lo_form_botlink" href="login_partner.php">← Zurück zum Login</a>
+		document.getElementById("resetform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+[0m
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/create_account.php" -o /tmp/opencode/create_account.html -w "create_account: %{http_code} (len=%{size_download})\n" 2>&1; sleep 1; grep -iE '(action=|method=|csrf|token|hidden|input.*name=|submit|password|email|ext_id|api)' /tmp/opencode/create_account.html | head -30
+create_account: 200 (len=3236)
+			<form class="lo_conbox" method="post" id="createform">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					<button class="lo_form_submit" value="X8372" name="sendcreate">Account erstellen</button>
+		document.getElementById("createform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+[0m
+[0m→ [0mRead reposcan-raw/summary.txt
+[0m
+[0m$ [0msleep 2; cat /tmp/opencode/pw_reset_partner.html | grep -A20 'resetform'
+<form class="lo_conbox" method="post" id="resetform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Passwort vergessen?</p>
+					<p class="lo_form_text">Wir senden Ihnen einen Reset-Link</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="Ihre E-Mail-Adresse">
+					</div>
+					<div class="lo_form_xinfobox">
+						<p style="font-size: 12px; color: #666; margin: 10px 0;">
+							Geben Sie die E-Mail-Adresse Ihres Partner-Accounts ein. 
+							Sie erhalten dann eine E-Mail mit einem Link zum Zurücksetzen Ihres Passworts.
+						</p>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="KKX3382745" name="reset_password">Reset-Link senden</button>
+				</div>
+				<p class="lo_form_underline">
+--
+		document.getElementById("resetform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+		    	e.preventDefault();
+		    	alert("Bitte geben Sie eine gültige E-Mail-Adresse ein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+Let me check the `create_account.php` more carefully and the `bonusrechner.php`:
+
+Let me examine the account creation and bonus calculator pages for any exposed functionality or potential vulnerabilities.
+[0m$ [0msleep 2; curl -s -m 20 "https://kassenkompass.de/create_account.php" -o /tmp/opencode/create.html; cat /tmp/opencode/create.html | head -60
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788465745"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Account erstellen - Kassenkompass</title>
+
+</head>
+<body>
+		<div class="section">
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="createform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Account erstellen</p>
+					<p class="lo_form_text">Gib deine E-Mail-Adresse ein!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_xinfobox">
+																	</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendcreate">Account erstellen</button>
+				</div>
+				<p class="lo_form_underline">Bereits einen Account? <a class="lo_form_botlink" href="login_kd.php">Jetzt einloggen!</a></p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+	<p class="lo_rebox_text">Jetzt einloggen, alle Funktionen nutzen und deinen Extra-Vorteil sichern - transparent, sicher & smart.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+[0m
+Now I have a comprehensive picture. Let me compile the analysis.
+
+---
+
+**STEP 1 — DELTA**
+
+[NEW] `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+[NEW] `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+[NEW] All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+[NEW] Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+[NEW] `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+[NEW] No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+[CHANGED] API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] api.kassenkompass.de,8.85,attack_surface=9 business_value=10 tech_exposure=10 cloud_surface=4 gate_ease=8 freshness=9
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[PRIO] www.kassenkompass.de,5.15,attack_surface=5 business_value=6 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] IDOR on /user/{ext_id} - cross-user PII access
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+reasoning: GET /user/{ext_id} accepts ext_id path parameter, described as "Userdaten abrufen" (retrieve user data). Endpoint requires X-API-Secret but no indication of user-scoping or ownership check within the secret's authorization boundary. If the API secret is a global/shared key (common in MVP APIs), any valid secret could query any user by ext_id. The ext_id naming (external ID) suggests an incrementing or enumerable identifier from a connected system. Unauth test returned 401 (confirmed auth gate), but auth boundary is unknown without valid key.
+evidence_needed: HTTP response body from GET /user/{ext_id} with sequential ext_id values (1,2,3...) under a valid API secret to confirm PII exposure across users.
+verify_steps: PASSIVE: None - requires API secret (auth_helped). WITH AUTH: GET /user/1, GET /user/2, GET /user/3 with valid X-API-Secret header; compare response bodies for different users.
+impact: Attacker with valid API secret reads any user's personal data (PII: name, insurance, email, address). Severity: HIGH (GDPR-relevant PII breach).
+testability: AUTH_HELPED
+
+[HYP] Missing CSRF tokens on all login and password-reset forms enable session fixation via cross-site request
+class: AUTH
+asset: kassenkompass.de
+confidence: 65
+reasoning: All four forms (/login_kd.php, /login_kk.php, /login_partner.php, /pw_reset_partner.php) use POST with no CSRF token in the form body or as a cookie-based token. An attacker can craft a page that auto-submits a POST with victim's email/password if they can intercept credentials via a MITM on the same origin (no SameSite on cookies is unconfirmed). The "Eingeloggt bleiben" (remember me) checkbox on customer and partner logins increases session persistence risk. The client-side-only validation (email length >= 3) provides no server-side CSRF mitigation.
+evidence_needed: Confirm Set-Cookie lacks SameSite attribute on login response; confirm session cookie is not HttpOnly; test if POST /login_kd.php from cross-origin accepts valid credentials.
+verify_steps: PASSIVE: Already confirmed no CSRF token in form HTML. WITH AUTH: POST login_kd.php with valid credentials and observe Set-Cookie headers; check SameSite attribute.
+impact: Attacker tricks victim into visiting a page that auto-submits login form, potentially performing account takeover or session fixation. Severity: MEDIUM (requires social engineering but enables credential theft).
+testability: AUTH_HELPED
+
+[HYP] Unprotected API documentation disclosure at catch-all routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 88
+reasoning: Any path on api.kassenkompass.de returns the full API documentation JSON including 15 endpoint descriptions, version info, and auth requirements — no auth needed. Confirmed paths: /, /admin/, /debug/, /swagger/, /openapi.json. This reveals the complete attack surface including /user/{ext_id}, /delete/{id}, /cancel/{id}, and /settlement_report/{year}/{month}.
+evidence_needed: Already confirmed via GET / (returns full endpoint map).
+verify_steps: PASSIVE: GET /nonexistent-path-12345 — confirm same JSON response. Done.
+impact: Attacker maps complete API surface without auth, enabling targeted attacks on sensitive endpoints. Severity: LOW-MEDIUM (information disclosure enabling further attack).
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] IDOR on /delete/{id}: confidence 55, destructive endpoint — no safe passive verification, requires valid API key; park until key is obtained.
+[PARKED] Missing CSRF tokens on login forms: confidence 65, AUTH_HELPED — requires valid session cookie to confirm SameSite behavior; edge case where impact depends on cookie flags.
+[FINAL] 1. Unauthenticated API docs disclosure (MISCONFIG, 88) — PASSIVE, already confirmed
+[FINAL] 2. IDOR on /user/{ext_id} (IDOR, 62) — AUTH_HELPED, needs valid API key
+[FINAL] 3. Missing CSRF tokens on login forms (AUTH, 65) — AUTH_HELPED, needs cookie analysis
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] PROBE: GET https://api.kassenkompass.de/sync/ -H "X-API-Secret: test" — test if sending any value in X-API-Secret header causes /sync/ to return different data or 200 vs 401; compare with a random invalid key to confirm auth enforcement (read-only GET, no data mutation).
+
+**STEP 6 — LEARNING**
+
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables targeted attack planning.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated scanners.
+[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified.
+[LEARN] REJECTED JWT_ALG_CONFUSION @ api.kassenkompass.de: Auth uses custom X-API-Secret header, not JWT — class not applicable.
+
+**STEP 7 — RISK**
+
+[RISK] kassenkompass: 38/100. API auth gate consistently enforced (401 on all data endpoints), limiting passive-only findings; main value is in auth-helped IDOR testing on api.kassenkompass.de once API key is obtained; frontend login forms lack CSRF tokens but require social engineering; Cloudflare WAF fronting adds defense layer; PHP 8.4.3 backend disclosed via x-powered-by header.
