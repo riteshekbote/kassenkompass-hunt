@@ -1,0 +1,2701 @@
+===== ANALYST nemotron3 2026-09-03 17:32:49 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{url_effective}\n" -I --max-time 10 https://api.kassenkompass.de 2>&1 || echo "FAIL"
+200 https://api.kassenkompass.de/
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{url_effective}\n" -I --max-time 10 https://kassenkompass.de 2>&1 || echo "FAIL"
+200 https://kassenkompass.de/
+[0m
+[0m$ [0mhost api.kassenkompass.de kassenkompass.de www.kassenkompass.de
+;; communications error to 172.67.73.143#53: timed out
+;; communications error to 172.67.73.143#53: timed out
+;; communications error to 104.26.13.132#53: timed out
+;; communications error to 104.26.12.132#53: timed out
+;; UDP setup with 2606:4700:20::ac43:498f#53(2606:4700:20::ac43:498f) for api.kassenkompass.de failed: network unreachable.
+;; UDP setup with 2606:4700:20::681a:c84#53(2606:4700:20::681a:c84) for api.kassenkompass.de failed: network unreachable.
+;; UDP setup with 2606:4700:20::681a:d84#53(2606:4700:20::681a:d84) for api.kassenkompass.de failed: network unreachable.
+;; no servers could be reached
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "%{http_code} %{url_effective}\n" -I --max-time 10 https://www.kassenkompass.de 2>&1 || echo "FAIL"
+200 https://www.kassenkompass.de/
+[0m
+[0m$ [0mcurl -s -I --max-time 10 https://kassenkompass.de 2>&1 | head -30
+HTTP/2 200 
+date: Thu, 03 Sep 2026 17:17:26 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=LSMFNruNQbTk1eWeNu3WyVF5qu0Q+7hC8oKr3uf1SSCy1pPwJnHhc/Hiq2KyRefsaCGW02aWtFFLTcb2j9V/Vn3HqeqGzPtRQXiNae6cSCqOPcdqi2mr3fXJbzFp; Expires=Thu, 10 Sep 2026 17:17:26 GMT; Path=/
+set-cookie: AWSALBCORS=LSMFNruNQbTk1eWeNu3WyVF5qu0Q+7hC8oKr3uf1SSCy1pPwJnHhc/Hiq2KyRefsaCGW02aWtFFLTcb2j9V/Vn3HqeqGzPtRQXiNae6cSCqOPcdqi2mr3fXJbzFp; Expires=Thu, 10 Sep 2026 17:17:26 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=0075486bbc36245dc2838fe20fbf289f; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=9gh4RNwI%2Fe6jzOvaMvXXCxDM8MYwHs685mO5hPMUOuGyv1Bb8Ytadwl7R0jIVgSMPA%2FAvfzB8W4KVh3cUmTaw%2FWmYiDvxAD0NPhHzykslypHgltwamUs7OoeAgZ2gCRKAwg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a356686d6b32b231-SJC
+[0m
+[0m$ [0mcurl -s -I --max-time 10 https://api.kassenkompass.de 2>&1 | head -30
+HTTP/2 200 
+date: Thu, 03 Sep 2026 17:17:26 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=lQhQmdRjVmDAoH6eGT8JwSFycPTDW7hJ8jIsXdDyd13GpEp50I3djbfzXNYZyKNwxiqUrHMce0B4RM6rYBzyED3voEh4rkBNf%2BznuAXvMecYKlluxyrUjoMMAl%2FMsRuGEcJnbE6T"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a356686aeddff3db-SJC
+[0m
+[0m$ [0mcurl -s -I --max-time 10 https://www.kassenkompass.de 2>&1 | head -30
+HTTP/2 200 
+date: Thu, 03 Sep 2026 17:17:26 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=ojxwzmov7rNoIfeH98745rZThTKETH5iaTOEHIWbI+qLvlfvIoyCdjVFLlNPdpC0k5gtjo8redQmBJthnO27H8yxGmBvgW6Odl9umYvEQFVI5D61Pdm4aRvdBDw3; Expires=Thu, 10 Sep 2026 17:17:26 GMT; Path=/
+set-cookie: AWSALBCORS=ojxwzmov7rNoIfeH98745rZThTKETH5iaTOEHIWbI+qLvlfvIoyCdjVFLlNPdpC0k5gtjo8redQmBJthnO27H8yxGmBvgW6Odl9umYvEQFVI5D61Pdm4aRvdBDw3; Expires=Thu, 10 Sep 2026 17:17:26 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=3926f61caec1878e295c080179bb3453; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=LHhCRAdHSU3WHCKkzqV6qdEq1LDYh0d5ZKeBgaoqAI7lf8qcwCLFqsRd0amoiw1ih1a5DDEMTFBeuKySiXweBXIUyJ0GXjWv0cAz1jRdPRuxtLN%2Fa9N%2BaeLgKoW97td9uCNKeWtE"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a356686fbffbed39-SJC
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" https://api.kassenkompass.de 2>&1
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/api" 2>&1
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/" 2>&1
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/v1" 2>&1
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health" 2>&1
+<head><title>Document Moved</title></head>
+<body><h1>Object Moved</h1>This document may be found <a HREF="https://api.kassenkompass.de/health/">here</a></body>
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health_insurance" 2>&1
+<head><title>Document Moved</title></head>
+<body><h1>Object Moved</h1>This document may be found <a HREF="https://api.kassenkompass.de/health_insurance/">here</a></body>
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/user/1" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/settlement_report/2024/01" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/settlement_report\/2024\/01"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health/" 2>&1
+{
+    "status": "ok"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health_insurance/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/state/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/state\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/sync/" 2>&1
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/question_tree/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/question_tree\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/detail_comparison/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/detail_comparison\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health_insurance_savings/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance_savings\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health_insurance_comparison/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance_comparison\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/cat_detail/" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/405",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.",
+    "instance": "\/cat_detail\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" -X POST "https://api.kassenkompass.de/post/" 2>&1
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN""http://www.w3.org/TR/html4/strict.dtd">
+<HTML><HEAD><TITLE>Length Required</TITLE>
+<META HTTP-EQUIV="Content-Type" Content="text/html; charset=us-ascii"></HEAD>
+<BODY><h2>Length Required</h2>
+<hr><p>HTTP Error 411. The request must be chunked or have a content length.</p>
+</BODY></HTML>
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/insurance_info/1" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/1"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de" 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456125"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>
+	<title>KassenKompass | Beste Gesetzliche Krankenkasse vergleichen</title>
+
+	<meta name="description" content="Vergleiche deine gesetzliche Krankenversicherung kostenlos in 3 Minuten. Günstiger Beitrag oder mehr Leistungen & Bonusprogramme. Was lohnt sich mehr? Schnell, einfach & jetzt sparen!">
+
+	<link rel="stylesheet" type="text/css" href="css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/index.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/bonusrechner_v.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/index_new.css?v=v2.6.9">
+
+	<style>
+		.bnv_trustcontainer {
+			width: min(90vw, 1136px);
+		}
+	</style>
+</head>
+
+<body>
+		<img src="bilder/index/pattern-left.svg" alt="" class="ind_decopicture_left">
+	<img src="bilder/index/pattern-right.svg" alt="" class="ind_decopicture_right">
+
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+	<div class="section section_hero">
+		<div class="sec sec_ind_hero">
+			<div class="ind_heroleft">
+				<h1 class="ind_herohead">
+					<strong style="font-weight: 500">Finde deine beste
+						gesetzliche Krankenkasse</strong> & sichere dir bis zu 1.500 € Extra-Leistungen pro Jahr
+				</h1>
+				<button type="button" class="primary_button_xl bnv_funnelprimary ind_herobutton" onclick="window.location = 'bonusrechner.php'">
+					<span class="primary_label_xl">Jetzt Vergleich starten</span>
+					<span class="primary_icon_xl" aria-hidden="true">
+						<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+							<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+						</svg>
+					</span>
+				</button>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/bonusrechner.php" 2>&1 | head -150
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456172"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>
+	<title>Kassenkompass - Startseite</title>
+
+
+	<!-- SEO Meta Tags -->
+	<meta name="description" content="KassenKompass – Dein Kompass zur besten Krankenkasse! Spare mehrere hundert Euro pro Jahr – finde in 2 Minuten deine beste Kasse.">
+	<meta name="keywords" content="Krankenkasse, Vergleich, Bonusrechner, gesetzliche Krankenkassen, KassenKompass, Krankenversicherung, Bundesland, Beitrag, Leistungen, Wechsel, sparen">
+	<meta name="author" content="KassenKompass">
+	<meta name="robots" content="index, follow">
+
+	<!-- Open Graph -->
+	<meta property="og:title" content="KassenKompass – Dein Kompass zur besten Krankenkasse!">
+	<meta property="og:description" content="Vergleiche gesetzliche Krankenkassen, finde die beste für dich und spare bares Geld. Schnell, einfach & kostenlos mit KassenKompass.">
+	<meta property="og:type" content="website">
+	<meta property="og:site_name" content="KassenKompass">
+
+	<!-- Wichtig: og:image MUSS vorhanden sein -->
+	<meta property="og:image" content="https://kassenkompass.net/bilder/login/empfehlungspic.jpg?v=6">
+	<meta property="og:image:secure_url" content="https://kassenkompass.net/bilder/login/empfehlungspic.jpg?v=6">
+	<meta property="og:image:width" content="1200">
+	<meta property="og:image:height" content="630">
+	<meta property="og:image:alt" content="KassenKompass – Bonusrechner Vorschau">
+
+	<!-- Kanonische URL ohne User-Parameter -->
+	<meta property="og:url" content="https://kassenkompass.net/bonusrechner.php">
+	<link rel="canonical" href="https://kassenkompass.net/bonusrechner.php">
+
+	<!-- (Optional, schadet nie) -->
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:title" content="KassenKompass – Dein Kompass zur besten Krankenkasse!">
+	<meta name="twitter:description" content="Vergleiche gesetzliche Krankenkassen, finde die beste für dich und spare bares Geld.">
+	<meta name="twitter:image" content="https://kassenkompass.net/bilder/login/empfehlungspic.jpg?v=6">
+
+    
+
+
+	<link rel="stylesheet" type="text/css" href="css/index.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/bonusrechner.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/bonusrechner_v.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/templatev.css?v=v2.6.9">
+
+	<style>
+
+	</style>
+		</head>
+<body class="bn_bodystan">
+		<noscript><iframe src="https://load.awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW " height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>	<div class="bnv_overlaywrapper" id="overlayquest">
+		<div class="bnv_overlaybox">
+			<p class="bnv_overlayheader">Möchtest du den Krankenkassenvergleich wirklich verlassen?</p>
+			<p class="bnv_overlaytext">Deine Eingaben werden nicht gespeichert.</p>
+			<button style="width:100%" type="button" class="primary_button_xl" onclick="toggleoverquest();">
+				<span class="primary_label_xl">Vergleich&nbsp;fortsetzen</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</span>
+			</button>
+			<a href="index.php" class="bnv_overlayleav">Vergleich verlassen</a>
+		</div>
+	</div>
+<script>
+    function toggleoverquest(){
+			const overlayquest = document.getElementById("overlayquest");
+			if(overlayquest.style.display == "flex"){
+				overlayquest.style.display = "none";
+			}else{
+				overlayquest.style.display = "flex";
+			}
+		}
+</script>
+
+		<header class="bnv_header">
+		<div class="bnv_headerinnerbox">
+			<img src="bilder/bonusrechner/Ornament 87.svg" alt="" class="bnv_onl">
+			<img src="./bilder/bonusrechner/bnv_logo.svg" alt="" class="bnv_logo" style="" onclick="toggleoverquest();">
+						<img src="bilder/bonusrechner/Ornament 86.svg" alt="" class="bnv_onr">
+		</div>
+	</header>
+
+	<form method="post" class="bnv_mainframe">
+		<div class="bnv_sparwrapper">
+			<h1 class="bnv_mainheader">Krankenkasse vergleichen &<br>jedes Jahr Geld sparen</h1>
+		</div>
+		<div class="bnv_inputframe">
+			<div class="bnv_questwrapper">
+				<p class="bnv_inputheader">Deine Angaben</p>
+				<div class="in_sec1_conbox bn_selectwrap kk-field">
+					<div class="bn_selectwrap">
+						<input class="bn_questselect bn_kklogoextension bnv_inputupdate" name="kk" id="kk" placeholder="" autocomplete="off" value="">
+						<label class="animated-placeholder" for="kk">Aktuelle Krankenkasse</label>
+						<img class="bn_kk_logo bnv_kk_logo" id="kklogo" src="bilder/stanicons/logo_kl.png">
+						<img class="bnv_img_inputerror" id="errorimg_kk" src="bilder/bonusrechner/alert_input.svg">
+						<div class="in_sec1_vorschlagbox bn_vorschlagbox bnv_inputupdate" id="suggestions">
+						</div>
+					</div>
+					<p class="bn_errortext bnv_errortext" id="error_kk"></p>
+				</div>
+				<div class="bn_selectwrap bund-field">
+					<img class="bn_select_arraow bnv_select_arraow" src="bilder/stanicons/arrow-down.svg">
+					<img class="bnv_img_inputerror bnv_img_inputerror_select" id="errorimg_bund" src="bilder/bonusrechner/alert_input.svg">
+					<select class="bn_questselect bnv_inputupdate" name="bund" id="bund">
+						<option value="none" selected></option>
+						<option value="1">Baden-Württemberg</option><option value="2">Bayern</option><option value="3">Berlin</option><option value="4">Brandenburg</option><option value="5">Bremen</option><option value="6">Hamburg</option><option value="7">Hessen</option><option value="8">Mecklenburg-Vorpommern</option><option value="9">Niedersachsen</option><option value="10">Nordrhein-Westfalen</option><option value="11">Rheinland-Pfalz</option><option value="12">Saarland</option><option value="13">Sachsen</option><option value="14">Sachsen-Anhalt</option><option value="15">Schleswig-Holstein</option><option value="16">Thüringen</option>					</select>
+					<label class="animated-placeholder" for="bund">Bundesland</label>
+					<p class="bn_errortext bnv_errortext" id="error_bund"></p>
+				</div>
+			</div>
+			<div class="bnv_buttonholder" style="margin-top:34px;">
+				<div class="bnv_errortooltip" id="error_tooltip">
+					Fülle alle Felder aus, um den Vergleich zu starten
+				</div>
+				<button type="button" class="primary_button_xl bnv_funnelprimary" onclick="senddata();">
+					<span class="primary_label_xl">Jetzt vergleichen</span>
+					<span class="primary_icon_xl" aria-hidden="true">
+						<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+							<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</span>
+				</button>
+				<button hidden type="submit" name="nextbut" value="B2837X" id="nextbut"></button>
+			</div>
+			<div class="bnv_availiblewrapper" style="margin-top:34px;">
+				<div class="bnv_availiblebox" id="countboxbund">
+					<p class="bnv_availiblenum" id="bund_anzahl">95</p>
+					<p class="bnv_availibletext">gesetzliche Kranken-kassen nehmen dich an</p>
+				</div>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/login_auswahl.php" 2>&1 | head -150
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456172"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<meta name="robots" content="noindex, follow">
+	<title>Login - Kassenkompass</title>
+
+</head>
+<body>
+	<div class="section">
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png" alt="">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<div class="lo_conbox">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" alt="KassenKompass Logo" onclick="goToStart();">
+					<p class="lo_form_headtext">Login auswählen</p>
+					<p class="lo_form_text">Wähle den passenden Login-Bereich.</p>
+				</div>
+				<div class="lsel_cards">
+					<a class="lsel_card" href="login_kd.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_kunde.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Kunden Login</h3>
+							<p class="lsel_card_text">Für Kunden zur Einsicht und Verwaltung ihres Krankenkassenwechsels.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+					<a class="lsel_card" href="login_partner.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_partner.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Partner Login</h3>
+							<p class="lsel_card_text">Für Vermittler, Makler und Kooperationspartner.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+					<a class="lsel_card" href="login_kk.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_krankenkasse.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Krankenkassen Login</h3>
+							<p class="lsel_card_text">Für angebundene Krankenkassen zur Pflege ihrer Leistungsdaten.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+	<p class="lo_rebox_text">Jetzt einloggen, alle Funktionen nutzen und deinen Extra-Vorteil sichern - transparent, sicher & smart.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/login_kd.php" 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456215"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Kundenlogin - Kassenkompass</title>
+
+</head>
+<body>
+		<div class="section">
+				<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Willkommen zurück!</p>
+					<p class="lo_form_text">Jetzt einloggen & loslegen!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>					<div class="lo_form_xinfobox">
+																		<div class="lo_form_checkbox">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+							<label for="checkremem" class="lo_form_labeltext">Eingeloggt bleiben</label>
+						</div>
+						<a class="lo_form_forgotpw" href="pw_reset_kd.php">Passwort vergessen?</a>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+				</div>
+				<p class="lo_form_underline">
+					Du bekommst automatisch einen Account bei erfolgreichen Wechsel. <a class="lo_form_botlink" href="bonusrechner.php">Jetzt wechseln!</a><br><br>
+					Du hast bereits gewechselt, aber noch keinen Account erstellt. <a class="lo_form_botlink" href="create_account.php">Klick hier</a>
+				</p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+	<p class="lo_rebox_text">Jetzt einloggen, alle Funktionen nutzen und deinen Extra-Vorteil sichern - transparent, sicher & smart.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+		  	if (name.length < 3) {
+		    	e.preventDefault();
+		    	alert("Der Name muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/login_partner.php" 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456216"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Partner Login - Kassenkompass</title>
+
+</head>
+<body>
+		<div class="section">
+		
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Partner Login</p>
+					<p class="lo_form_text">Jetzt einloggen & loslegen!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>
+					<div class="lo_form_xinfobox">
+																		<div class="lo_form_checkbox">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+							<label for="checkremem" class="lo_form_labeltext">Eingeloggt bleiben</label>
+						</div>
+						<a class="lo_form_forgotpw" href="pw_reset_partner.php">Passwort vergessen?</a>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+				</div>
+				<p class="lo_form_underline">Sie sind noch kein Partner? <a class="lo_form_botlink" href="kooperationspartner.php">Jetzt Partner werden!</a></p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Hallo, liebe Kooperationspartner!</p>
+	<p class="lo_rebox_text">Login für deine Kundenübersicht und Partnerlinks.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+		    	e.preventDefault();
+		    	alert("Die E-Mail-Adresse muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/login_kk.php" 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456216"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Krankenkassenlogin - Kassenkompass</title>
+
+</head>
+<body>
+	<div class="section">
+		<div class="lo_langswitch">
+			<div class="lo_langswitch_con">
+				<img class="lo_langswitch_flag" src="bilder/lang_icons/en.png">
+				<p class="lo_langswitch_text">English (US)</p>
+			</div>
+			<img class="lo_langswitch_arrow" src="bilder/stanicons/arrow-down.svg">
+		</div>
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Willkommen zurück!</p>
+					<p class="lo_form_text">Login Krankenkasse</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+					<p style="color:red"></p>
+				</div>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Ihr KassenKompass-Zugang – alles im Blick.</p>
+	<p class="lo_rebox_text">Pflegen Sie Ihre Daten, behalten Sie Ihre Präsenz im Blick und erhalten Sie Einblicke zu potenziellen Neuzugängen.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+		  	if (name.length < 3) {
+		    	e.preventDefault();
+		    	alert("Der Name muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/standard.js?v=1788456172" 2>&1 | head -200
+let menuOpen = false;
+
+function togglemenu() {
+    const str1 = document.getElementById("str1");
+    const str2 = document.getElementById("str2");
+    const str3 = document.getElementById("str3");
+
+    if (!menuOpen) {
+        str1.style.transform = "translateY(10px) rotate(45deg)";
+        str1.style.transformOrigin = "center center";
+        str2.style.opacity = "0";
+        str3.style.transform = "translateY(-10px) rotate(-45deg)";
+        str3.style.transformOrigin = "center center";
+        document.getElementById("mobmenu").style.height = "300px";
+        document.getElementById("mobmenu").style.boxShadow = "rgba(0, 0, 0, 0.1) 0px 8px 23px 0px";
+        menuOpen = true;
+    } else {
+        str1.style.transform = "translateY(0px) rotate(0deg)";
+        str2.style.opacity = "1";
+        str3.style.transform = "translateY(0px) rotate(0deg)";
+        document.getElementById("mobmenu").style.height = "0px";
+        document.getElementById("mobmenu").style.boxShadow = "none";
+
+        menuOpen = false;
+    }
+}
+
+function toggleadmenu(triggerElement) {
+    const menu = triggerElement.closest('.ad_menu');
+    const computedTransform = window.getComputedStyle(menu).transform;
+    // The default matrix for translateX(-90%) is not a string match, so check if it's not identity
+    if (computedTransform === "none" || computedTransform === "matrix(1, 0, 0, 1, 0, 0)") {
+        menu.style.transform = "translateX(-90%)";
+        triggerElement.style.transform = "rotate(0deg)";
+    } else {
+        menu.style.transform = "translateX(0%)";
+        triggerElement.style.transform = "rotate(180deg)";
+    }
+}
+
+/*document.addEventListener("DOMContentLoaded", function () {
+  const currentUrl = window.location.href;
+  const newUrl = currentUrl.replace(".php", "");
+  if (newUrl !== currentUrl) {
+    history.replaceState(null, "", newUrl);
+  }
+});*/
+
+function setsuccess(inputfield, color = '#089355') {
+    console.log('setsuccess called for:', inputfield.id, 'with color:', color);
+    inputfield.style.setProperty("border", "1px solid " + color, "important");
+    inputfield.style.setProperty("color", color, "important");
+    console.log('Applied styles - border:', inputfield.style.border, 'color:', inputfield.style.color);
+}
+
+function seterror(inputfield, errorfield, errortext) {
+    inputfield.style.setProperty("border", "1px solid #B91740", "important");
+    errorfield.innerHTML = errortext;
+
+    // Show error icon if it exists
+    const errorIcon = document.getElementById('errorimg_' + inputfield.id);
+    if (errorIcon) {
+        errorIcon.style.display = 'block';
+    }
+}
+
+function resetErrors(inputfield, errorfield, color = '#D5D7DA') {
+    inputfield.style.setProperty("border", "1px solid " + color, "important");
+    errorfield.innerHTML = '';
+    inputfield.style.color = '#717680';
+
+    // Hide error icon if it exists
+    const errorIcon = document.getElementById('errorimg_' + inputfield.id);
+    if (errorIcon) {
+        errorIcon.style.display = 'none';
+    }
+}
+
+function toggleInfoBox(event) {
+  event.stopPropagation(); // verhindert Schließen beim Klick auf das Icon
+
+  const container = event.currentTarget;
+  const isActive = container.classList.contains("active");
+
+  // Alle Boxen schließen
+  document
+    .querySelectorAll(".info-icon-container")
+    .forEach((el) => el.classList.remove("active"));
+
+    // Falls vorher nicht aktiv, jetzt aktivieren
+    if (!isActive) {
+        container.classList.add('active');
+    }
+}
+
+// Klick außerhalb schließt alle Boxen
+document.addEventListener('click', () => {
+    document.querySelectorAll('.info-icon-container').forEach(el => el.classList.remove('active'));
+});
+
+// ===== COOKIE CONSENT MANAGEMENT =====
+
+// Cookie utility functions
+function setCookie(name, value, days) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+}
+
+function getCookie(name) {
+    const nameEQ = name + "=";
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i];
+        while (cookie.charAt(0) === ' ') {
+            cookie = cookie.substring(1, cookie.length);
+        }
+        if (cookie.indexOf(nameEQ) === 0) {
+            return cookie.substring(nameEQ.length, cookie.length);
+        }
+    }
+    return null;
+}
+
+function deleteCookie(name) {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
+}
+
+// Cookie consent state management
+const cookieConsentState = {
+  essential: true, // Always true, cannot be disabled
+  analytics: false,
+  marketing: false,
+  functional: false,
+};
+
+// Google Consent Mode v2 configuration for Server-side Tracking (stape.io)
+function initGoogleConsentMode() {
+    // Initialize gtag with default consent values (denied by default)
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    window.gtag = gtag;
+
+    gtag('consent', 'default', {
+        'ad_storage': 'denied',
+        'ad_user_data': 'denied',
+        'ad_personalization': 'denied',
+        'analytics_storage': 'denied',
+        'functionality_storage': 'denied',
+        'personalization_storage': 'denied',
+        'security_storage': 'granted', // Always granted for essential functionality
+        'wait_for_update': 500
+    });
+
+    // Set up the gtag config for server-side tracking
+    gtag('js', new Date());
+
+    // Initialize server-side tracking
+    initServerSideTracking();
+}
+
+// Initialize Server-side Tracking (stape.io) - DSGVO-konform
+function initServerSideTracking() {
+  // Original stape.io script (moved from head.php and made consent-aware)
+  const stapeScript = `
+        !function(){"use strict";
+            function l(e){for(var t=e,r=0,n=document.cookie.split(";");r<n.length;r++){var o=n[r].split("=");if(o[0].trim()===t)return o[1]}}
+            function s(e){return localStorage.getItem(e)}
+            function u(e){return window[e]}
+            function A(e,t){e=document.querySelector(e);return t?null==e?void 0:e.getAttribute(t):null==e?void 0:e.textContent}
+            var e=window,t=document,r="script",n="dataLayer",o="https://awv.kassenkompass.de",a="https://load.awv.kassenkompass.de",i="ahcfuvbcz",c="b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D",g="stapeUserId",v="",E="",d=!1;
+            try{
+                var d=!!g&&(m=navigator.userAgent,!!(m=new RegExp("Version/([0-9._]+)(.*Mobile)?.*Safari.*").exec(m)))&&16.4<=parseFloat(m[1]),f="stapeUserId"===g,I=d&&!f?function(e,t,r){void 0===t&&(t="");var n={cookie:l,localStorage:s,jsVariable:u,cssSelector:A},t=Array.isArray(t)?t:[t];if(e&&n[e])for(var o=n[e],a=0,i=t;a<i.length;a++){var c=i[a],c=r?o(c,r):o(c);if(c)return c}else console.warn("invalid uid source",e)}(g,v,E):void 0;
+                d=d&&(!!I||f)
+            }catch(e){console.error(e)}
+            var m=e,g=(m[n]=m[n]||[],m[n].push({"gtm.start":(new Date).getTime(),event:"gtm.js"}),t.getElementsByTagName(r)[0]),v=I?"&bi="+encodeURIComponent(I):"",E=t.createElement(r),f=(d&&(i=8<i.length?i.replace(/([a-z]{8}$)/,"kp$1"):"kp"+i),!d&&a?a:o);
+            E.async=!0,E.src=f+"/"+i+".js?"+c+v,null!=(e=g.parentNode)&&e.insertBefore(E,g);
+        }();
+    `;
+
+    // Execute stape.io script only after consent is properly set
+    try {
+        eval(stapeScript);
+    } catch (error) {
+        console.error('❌ Error loading stape.io script:', error);
+    }
+}
+
+// Create cookie banner HTML dynamically if it doesn't exist
+function createCookieBannerHTML() {
+    // Check if banner already exists
+    if (document.getElementById('cookieBanner')) {
+        return; // Already exists
+    }
+
+    // Load CSS if not already loaded
+    loadCookieConsentCSS();
+
+    // Create banner HTML
+    const bannerHTML = `
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/api" 2>&1
+<head><title>Document Moved</title></head>
+<body><h1>Object Moved</h1>This document may be found <a HREF="http://kassenkompass.de/api/">here</a></body>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/api/" 2>&1
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title>403 - Forbidden: Access is denied.</title>
+<style type="text/css">
+<!--
+body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}
+fieldset{padding:0 15px 10px 15px;} 
+h1{font-size:2.4em;margin:0;color:#FFF;}
+h2{font-size:1.7em;margin:0;color:#CC0000;} 
+h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} 
+#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;
+background-color:#555555;}
+#content{margin:0 0 0 2%;position:relative;}
+.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}
+-->
+</style>
+</head>
+<body>
+<div id="header"><h1>Server Error</h1></div>
+<div id="content">
+ <div class="content-container"><fieldset>
+  <h2>403 - Forbidden: Access is denied.</h2>
+  <h3>You do not have permission to view this directory or page using the credentials that you supplied.</h3>
+ </fieldset></div>
+</div>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/standard.js?v=1788456172" 2>&1 | grep -A 50 "senddata"
+(no output)
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/standard.js?v=1788456172" 2>&1 | grep -A 30 "fetch\|axios\|XMLHttpRequest"
+(no output)
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/bonusrechner.js" 2>&1 | head -200
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456385"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+			max-width: 500px;
+		}
+		.sec_404_button {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+	<div class="section">
+		<div class="sec sec_404">
+			<p class="sec_404_head">404</p>
+			<p class="sec_404_subhead">Seite nicht gefunden</p>
+			<p class="sec_404_text">Die Seite, die du suchst, existiert leider nicht oder wurde verschoben.</p>
+			<button type="button" class="primary_button_xl bnv_funnelprimary sec_404_button" onclick="window.location='/'">
+				<span class="primary_label_xl">Zur Startseite</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+				</span>
+			</button>
+		</div>
+	</div>
+
+	<footer class="ind_foot_wrapper">
+		<div class="ind_foot_topline"></div>
+		<img src="/bilder/bonusrechner/bnv_logo.svg" alt="" class="ind_foot_logo">
+		<p class="ind_foot_text">
+			<span class="ind_foot_text_highlite">Du wechselst deinen Stromanbieter oder Handytarif in Minuten.<br class="ind_foot_text_break"><br class="ind_foot_text_break">
+			Warum nicht auch deine Krankenkasse</span> – wenn du dadurch jedes Jahr hunderte Euro zurückbekommst?
+		</p>
+		<button type="button" class="primary_button_xl bnv_funnelprimary ind_foot_but" onclick="window.location = '/bonusrechner.php'">
+			<span class="primary_label_xl ind_foot_butlabel">Jetzt Vergleich starten</span>
+			<span class="primary_icon_xl" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+					<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="#6a3dc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+			</span>
+		</button>
+		<div class="ind_foot_linkwrap">
+			<a href="/login_kd.php" class="ind_foot_link">Kunden Login</a>
+			<a href="/login_partner.php" class="ind_foot_link">Partner Login</a>
+			<a href="/login_kk.php" class="ind_foot_link">Krankenkassen Login</a>
+			<!--<a href="#" class="ind_foot_link">Für Kooperationspartner</a>-->
+			<a href="/faq.php" class="ind_foot_link">Häufige Fragen</a>
+			<a href="/ueberuns.php" class="ind_foot_link">Über KassenKompass</a>
+			<a href="/kontakt.php" class="ind_foot_link">Hilfe & Kontakt</a>
+		</div>
+		<div class="ind_foot_konbox">
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_tel.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext">+49 40 877 09693</p>
+			</div>
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_mail.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="36455344405f5553765d57454553585d595b46574545185253">[email&#160;protected]</a></p>
+			</div>
+		</div>
+		<div class="ind_foot_legalrow">
+			<div class="ind_foot_legalbox">
+				<a href="/impressum.php" class="ind_foot_leagllink">Impressum</a>
+				<a href="/datenschutz.php" class="ind_foot_leagllink">Datenschutz</a>
+				<a href="/erstinformationen.php" class="ind_foot_leagllink">Erstinformation</a>
+				<a href="/agb_info.php" class="ind_foot_leagllink">AGB</a>
+			</div>
+			<div class="ind_foot_socialbox">
+				<a href="https://www.instagram.com/kassenkompass/?hl=de" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_insta.png?v=1.0" alt="" class="ind_foot_socialpic">
+				</a>
+				<a href="https://de.linkedin.com/company/kassenkompass-gmbh" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_linked.png" alt="" class="ind_foot_socialpic">
+				</a>
+			</div>
+			<p class="ind_foot_address">KassenKompass GmbH,<br class="ind_foot_text_break"> Wendenstraße 130,<br class="ind_foot_text_break"> 20537 Hamburg</p>
+		</div>
+	</footer><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/bonusrechner_v.js" 2>&1 | head -200
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456388"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+			max-width: 500px;
+		}
+		.sec_404_button {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+	<div class="section">
+		<div class="sec sec_404">
+			<p class="sec_404_head">404</p>
+			<p class="sec_404_subhead">Seite nicht gefunden</p>
+			<p class="sec_404_text">Die Seite, die du suchst, existiert leider nicht oder wurde verschoben.</p>
+			<button type="button" class="primary_button_xl bnv_funnelprimary sec_404_button" onclick="window.location='/'">
+				<span class="primary_label_xl">Zur Startseite</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+				</span>
+			</button>
+		</div>
+	</div>
+
+	<footer class="ind_foot_wrapper">
+		<div class="ind_foot_topline"></div>
+		<img src="/bilder/bonusrechner/bnv_logo.svg" alt="" class="ind_foot_logo">
+		<p class="ind_foot_text">
+			<span class="ind_foot_text_highlite">Du wechselst deinen Stromanbieter oder Handytarif in Minuten.<br class="ind_foot_text_break"><br class="ind_foot_text_break">
+			Warum nicht auch deine Krankenkasse</span> – wenn du dadurch jedes Jahr hunderte Euro zurückbekommst?
+		</p>
+		<button type="button" class="primary_button_xl bnv_funnelprimary ind_foot_but" onclick="window.location = '/bonusrechner.php'">
+			<span class="primary_label_xl ind_foot_butlabel">Jetzt Vergleich starten</span>
+			<span class="primary_icon_xl" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+					<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="#6a3dc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+			</span>
+		</button>
+		<div class="ind_foot_linkwrap">
+			<a href="/login_kd.php" class="ind_foot_link">Kunden Login</a>
+			<a href="/login_partner.php" class="ind_foot_link">Partner Login</a>
+			<a href="/login_kk.php" class="ind_foot_link">Krankenkassen Login</a>
+			<!--<a href="#" class="ind_foot_link">Für Kooperationspartner</a>-->
+			<a href="/faq.php" class="ind_foot_link">Häufige Fragen</a>
+			<a href="/ueberuns.php" class="ind_foot_link">Über KassenKompass</a>
+			<a href="/kontakt.php" class="ind_foot_link">Hilfe & Kontakt</a>
+		</div>
+		<div class="ind_foot_konbox">
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_tel.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext">+49 40 877 09693</p>
+			</div>
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_mail.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="36455344405f5553765d57454553585d595b46574545185253">[email&#160;protected]</a></p>
+			</div>
+		</div>
+		<div class="ind_foot_legalrow">
+			<div class="ind_foot_legalbox">
+				<a href="/impressum.php" class="ind_foot_leagllink">Impressum</a>
+				<a href="/datenschutz.php" class="ind_foot_leagllink">Datenschutz</a>
+				<a href="/erstinformationen.php" class="ind_foot_leagllink">Erstinformation</a>
+				<a href="/agb_info.php" class="ind_foot_leagllink">AGB</a>
+			</div>
+			<div class="ind_foot_socialbox">
+				<a href="https://www.instagram.com/kassenkompass/?hl=de" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_insta.png?v=1.0" alt="" class="ind_foot_socialpic">
+				</a>
+				<a href="https://de.linkedin.com/company/kassenkompass-gmbh" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_linked.png" alt="" class="ind_foot_socialpic">
+				</a>
+			</div>
+			<p class="ind_foot_address">KassenKompass GmbH,<br class="ind_foot_text_break"> Wendenstraße 130,<br class="ind_foot_text_break"> 20537 Hamburg</p>
+		</div>
+	</footer><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/bonusrechner.php" 2>&1 | grep -A 100 "senddata"
+<button type="button" class="primary_button_xl bnv_funnelprimary" onclick="senddata();">
+					<span class="primary_label_xl">Jetzt vergleichen</span>
+					<span class="primary_icon_xl" aria-hidden="true">
+						<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+							<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</span>
+				</button>
+				<button hidden type="submit" name="nextbut" value="B2837X" id="nextbut"></button>
+			</div>
+			<div class="bnv_availiblewrapper" style="margin-top:34px;">
+				<div class="bnv_availiblebox" id="countboxbund">
+					<p class="bnv_availiblenum" id="bund_anzahl">95</p>
+					<p class="bnv_availibletext">gesetzliche Kranken-kassen nehmen dich an</p>
+				</div>
+			</div>
+			<div class="bnv_infowrapper">
+				<p class="bnv_infoheader">Wechseln ohne Risiko!</p>
+				<div class="bnv_infocheckholder">
+					<div class="bnv_infocheckbox">
+						<svg class="bnv_infocheck" width="13" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+	<path d="M4.49935 8.39844L5.83268 9.73177L8.49935 7.0651M11.8327 9.06508C11.8327 12.3984 9.49935 14.0651 6.72602 15.0317C6.58079 15.081 6.42304 15.0786 6.27935 15.0251C3.49935 14.0651 1.16602 12.3984 1.16602 9.06508V4.39841C1.16602 4.2216 1.23625 4.05203 1.36128 3.92701C1.4863 3.80198 1.65587 3.73175 1.83268 3.73175C3.16602 3.73175 4.83268 2.93175 5.99268 1.91841C6.13392 1.79774 6.31358 1.73145 6.49935 1.73145C6.68511 1.73145 6.86478 1.79774 7.00602 1.91841C8.17268 2.93841 9.83268 3.73175 11.166 3.73175C11.3428 3.73175 11.5124 3.80198 11.6374 3.92701C11.7624 4.05203 11.8327 4.2216 11.8327 4.39841V9.06508Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+						<p class="bnv_infochecktext">Grundleistungen sind gesetzlich geregelt</p>
+					</div>
+					<div class="bnv_infocheckbox">
+						<svg class="bnv_infocheck" width="13" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+	<path d="M4.49935 8.39844L5.83268 9.73177L8.49935 7.0651M11.8327 9.06508C11.8327 12.3984 9.49935 14.0651 6.72602 15.0317C6.58079 15.081 6.42304 15.0786 6.27935 15.0251C3.49935 14.0651 1.16602 12.3984 1.16602 9.06508V4.39841C1.16602 4.2216 1.23625 4.05203 1.36128 3.92701C1.4863 3.80198 1.65587 3.73175 1.83268 3.73175C3.16602 3.73175 4.83268 2.93175 5.99268 1.91841C6.13392 1.79774 6.31358 1.73145 6.49935 1.73145C6.68511 1.73145 6.86478 1.79774 7.00602 1.91841C8.17268 2.93841 9.83268 3.73175 11.166 3.73175C11.3428 3.73175 11.5124 3.80198 11.6374 3.92701C11.7624 4.05203 11.8327 4.2216 11.8327 4.39841V9.06508Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+						<p class="bnv_infochecktext">Alle 12 Monate kannst du wechseln</p>
+					</div>
+					<div class="bnv_infocheckbox">
+						<svg class="bnv_infocheck" width="13" height="17" viewBox="0 0 13 17" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+	<path d="M4.49935 8.39844L5.83268 9.73177L8.49935 7.0651M11.8327 9.06508C11.8327 12.3984 9.49935 14.0651 6.72602 15.0317C6.58079 15.081 6.42304 15.0786 6.27935 15.0251C3.49935 14.0651 1.16602 12.3984 1.16602 9.06508V4.39841C1.16602 4.2216 1.23625 4.05203 1.36128 3.92701C1.4863 3.80198 1.65587 3.73175 1.83268 3.73175C3.16602 3.73175 4.83268 2.93175 5.99268 1.91841C6.13392 1.79774 6.31358 1.73145 6.49935 1.73145C6.68511 1.73145 6.86478 1.79774 7.00602 1.91841C8.17268 2.93841 9.83268 3.73175 11.166 3.73175C11.3428 3.73175 11.5124 3.80198 11.6374 3.92701C11.7624 4.05203 11.8327 4.2216 11.8327 4.39841V9.06508Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+						<p class="bnv_infochecktext">Gesetzliche Annahmepflicht</p>
+					</div>
+				</div>
+			</div>
+			<div class="bnv_stylestripe"></div>
+			
+		</div>
+		<div class="bnv_trustwrapper">
+    <p class="bnv_trustheader">Sicher wechseln & sofort sparen</p>
+    <div class="bnv_trustcontainer">
+        <div class="bnv_trustadvanbox">
+            <p class="bnv_trustadvanheader">Deine Vorteile beim Wechsel</p>
+            <div class="bnv_trustadvancheckwrapper">
+                <div class="bnv_trustadvancheckcon">
+                    <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt="">
+                    <p class="bnv_trustadvanchecktext">Grundleistungen sind per Gesetz identisch</p>
+                </div>
+                <div class="bnv_trustadvancheckcon">
+                    <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt="">
+                    <p class="bnv_trustadvanchecktext">Absicherung bleibt lückenlos bestehen</p>
+                </div>
+                <div class="bnv_trustadvancheckcon">
+                    <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt="">
+                    <p class="bnv_trustadvanchecktext">Wechseln ohne Papierkram</p>
+                </div>
+            </div>
+        </div>
+        <div class="bnv_trustratebox">
+            <p class="bnv_trustrateheader">Mehr als 10.893 Kunden vertrauen KassenKompass</p>
+            <img class="bnv_trustratepeople" src="bilder/bonusrechner/people2.png" alt="">
+            <div class="bnv_trustratebotbox">
+                <p class="bnv_trustraterate">4,8</p>
+                <img class="bnv_trustratestar" src="bilder/bonusrechner/gstar.png" alt="">
+                <p class="bnv_trustrategoogle">auf Google</p>
+                <img src="bilder/bonusrechner/gpic.png" alt="" class="bnv_trustrategpic">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bnv_logowrapper">
+    <div class="bnv_logobox">
+        <a href="https://www.ardmediathek.de/video/hamburg-journal/hamburg-morgen-website-hilft-beim-vergleich-von-krankenkassen/ndr/Y3JpZDovL25kci5kZS81ODI1MDdhMy05ZWU3LTRjYjUtYjRjMi1hM2Q4OTlkNDUxMTg" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/ndr.png" alt="" class="bnv_trustlogo"></a>
+        <a href="https://finanzplatz-hamburg.com/de/ueber-uns/mitglieder.html" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/hk.png" alt="" class="bnv_trustlogo"></a>
+        <a href="https://www.handelsblatt.com/technik/medizin/inside-digital-health/versicherungen-so-laesst-sich-bei-der-krankenkassenwahl-besonders-clever-sparen/100101459.html" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/handelbla.png" alt="" class="bnv_trustlogo"></a>
+        <a href="https://www.faz.net/aktuell/wirtschaft/unternehmen/gruenderin-fiona-jasmut-ich-finde-dass-unsere-generation-bequem-ist-110053706.html" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/faz.png" alt="" class="bnv_trustlogo"></a>
+        <a href="https://innovationsstarter.com/portfolio/" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/ifb.png" alt="" class="bnv_trustlogo"></a>
+        <a href="https://www.abendblatt.de/hamburg/wirtschaft/article408042172/beitrag-gestiegen-wie-man-bei-der-krankenkasse-hunderte-euro-sparen.html" class="bnv_logolink" target="_blank"><img src="bilder/extlogos/hama.png" alt="" class="bnv_trustlogo"></a>
+    </div>
+</div>	</form>
+
+<!-- Alter Bereich ---------------------------------------------------------------------------------------------------------------->
+
+	
+	<script defer type="text/javascript">
+
+		// Get wrapper elements for animated placeholders
+		const kkWrapper = document.querySelector('.kk-field');
+		const bundWrapper = document.querySelector('.bund-field');
+		const errortooltipp = document.getElementById("error_tooltip");
+		const countboxbund = document.getElementById("countboxbund");
+		
+		// übergabe verfügbare Bundesländer an JS
+		const availableBund = {"13":46,"16":40,"1":48,"2":50,"3":45,"5":41,"7":49,"9":47,"10":50,"14":41,"6":46,"4":42,"8":39,"11":44,"12":40,"15":40};
+		// übergabe verfügbare Krankenkassen UIDs pro Bundesland an JS
+		const availableKkByBund = {"13":["9","26","49","27","73","57","14","16","28","30","35","36","42","46","48","52","54","55","58","59","62","65","32","67","69","70","75","76","77","41","44","45","64","71","72","66","15","18","21","31","51","19","61","68","50","47"],"16":["9","49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","45","64","71","66","15","18","51","19","61","68","50","47","34"],"1":["26","49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","38","44","45","64","71","72","66","15","18","21","31","40","39","51","1","19","61","68","50","47"],"2":["26","49","27","73","2","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","25","29","44","45","64","71","72","66","43","15","18","21","31","40","51","19","61","68","50","47","20"],"3":["26","49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","56","64","71","72","66","15","18","21","51","7","19","61","68","50","47"],"5":["26","49","73","3","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","64","72","66","15","21","31","51","19","61","68","50"],"7":["26","49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","29","44","45","60","64","71","72","66","43","15","18","21","31","51","4","19","61","68","50","47"],"9":["26","49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","29","44","45","64","71","72","66","15","18","21","31","40","51","6","19","61","68","50","47"],"10":["26","49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","23","41","44","45","64","71","72","8","66","15","18","21","22","31","51","10","19","61","68","50","47"],"14":["26","49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","45","71","66","15","21","31","51","13","19","61","68","50","47","64"],"6":["26","49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","23","41","44","45","64","71","72","66","15","18","21","51","10","19","61","68","50","47"],"4":["49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","56","71","66","15","21","31","51","7","19","61","68","50","47","64"],"8":["49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","64","71","66","15","18","21","51","7","19","61","68","50","47"],"11":["49","27","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","60","64","71","66","15","21","34","40","51","11","19","61","68","50","47"],"12":["49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","60","64","72","66","15","51","11","19","61","68","50","47"],"15":["49","73","14","16","28","30","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","64","71","72","8","66","15","21","31","51","19","61","68","50","34"]};
+--
+		function senddata(){
+			//alles okay status
+			let validate = true;
+
+			//reset errors
+			resetErrors(input_kk, error_kk);
+			resetErrors(input_bund, error_bund);
+			errortooltipp.style.display = "none";
+			buttonholder.style.marginTop = "34px";
+
+			//abfragelogik
+			if(input_kk.value != "" && input_kk.value != null){
+				if(suggestions.includes(input_kk.value)){
+					setsuccess(input_kk);
+				}else{
+					seterror(input_kk, error_kk, 'Wähle deine aktuelle Krankenkasse aus der Liste');
+					validate = false;
+				}
+			}else{
+				seterror(input_kk, error_kk, 'Wähle deine aktuelle Krankenkasse aus');
+				validate = false;
+			}
+
+			if(input_bund.value != "none"){
+				setsuccess(input_bund);
+			}else{
+				seterror(input_bund, error_bund, 'Wähle dein Bundesland aus');
+				validate = false;
+			}
+
+			//abschluss bei erfolg
+			if(validate){
+				document.getElementById("nextbut").click();
+			}else{
+				errortooltipp.style.display = "initial";
+				buttonholder.style.marginTop = "120px";
+			}
+
+		}
+
+
+
+
+		
+
+	</script>
+	<script src="js/whitelabel_live.js?v=v2.6.9"></script>
+	</body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/bonusrechner.php" 2>&1 | grep -E "api\.kassenkompass|fetch|axios|XMLHttpRequest"
+(no output)
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/js/whitelabel_live.js?v=v2.6.9" 2>&1 | head -300
+/**
+ * Whitelabel Live-Preview Receiver
+ *
+ * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+ * die vom Server gerenderten CSS-Variablen + Hooks in einem dedizierten
+ * <style id="wl-vars-live">-Block.
+ *
+ * WICHTIG: Die hier abgebildete CSS-Build-Logik ist ein 1:1-JS-Spiegel von
+ *   htmlincludes/whitelabel/whitelabel_styles.php
+ * Jede neue Style-Hook-Regel muss auch hier ergänzt werden, sonst greift
+ * sie zwar nach dem Speichern, aber nicht im Live-Editor.
+ *
+ * Erwartete Message:
+ *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+ *
+ * Sicherheit:
+ * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+ * - postMessage erlaubt zwar Cross-Origin, aber wir validieren strikt
+ *   den Message-Typ + Whitelisten die Brand-Keys + Sanitize jeden Wert
+ */
+(function () {
+	'use strict';
+
+	const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
+	const isHex = v => typeof v === 'string' && HEX.test(v);
+	const pickEnum = (v, allowed) => allowed.indexOf(v) !== -1 ? v : null;
+	const sanitizeFont = v => (typeof v === 'string') ? v.replace(/[^a-zA-Z0-9 _\-,']/g, '') : '';
+
+	const RADIUS_MAP = { leicht: '4px', mittel: '10px', stark: '20px' };
+
+	const BTN_SELECTORS =
+		'body.wl-active button, body.wl-active input[type="submit"], ' +
+		'body.wl-active .bn_searchbut, body.wl-active .bnv_button, ' +
+		'body.wl-active .ad_changebut';
+
+	const BTN_TEXT_SELECTORS =
+		'body.bn_bodystan.wl-active button, body.bn_bodystan.wl-active button *, ' +
+		'body.bn_bodystan.wl-active input[type="submit"], ' +
+		'body.bn_bodystan.wl-active .bn_searchbut, body.bn_bodystan.wl-active .bn_searchbut *, ' +
+		'body.bn_bodystan.wl-active .bnv_button, body.bn_bodystan.wl-active .bnv_button *, ' +
+		'body.bn_bodystan.wl-active .ad_changebut, body.bn_bodystan.wl-active .ad_changebut *';
+
+	const BTN_SVG_SELECTORS =
+		'body.bn_bodystan.wl-active button svg path, ' +
+		'body.bn_bodystan.wl-active input[type="submit"] svg path, ' +
+		'body.bn_bodystan.wl-active .bn_searchbut svg path, ' +
+		'body.bn_bodystan.wl-active .bnv_button svg path, ' +
+		'body.bn_bodystan.wl-active .ad_changebut svg path';
+
+	function buildCss(brand) {
+		const col_primary     = isHex(brand.color_primary)         ? brand.color_primary         : null;
+		const col_secondary   = isHex(brand.color_secondary)       ? brand.color_secondary       : null;
+		const col_background  = isHex(brand.color_background)      ? brand.color_background      : null;
+		const col_text        = isHex(brand.color_text)            ? brand.color_text            : null;
+		const col_button      = isHex(brand.color_button)          ? brand.color_button          : null;
+		const col_button_text = isHex(brand.color_button_text)     ? brand.color_button_text     : null;
+		const col_card_bg     = isHex(brand.color_card_background) ? brand.color_card_background : null;
+		const col_card_border = isHex(brand.color_card_border)     ? brand.color_card_border     : null;
+		const col_highlight   = isHex(brand.color_highlight)       ? brand.color_highlight       : null;
+
+		const button_style = pickEnum(brand.button_style, ['clean', 'solid', 'outline']);
+		const border_radius = pickEnum(brand.border_radius, ['leicht', 'mittel', 'stark']);
+		const card_style = pickEnum(brand.card_style, ['minimal', 'modern', 'elevated']);
+		const font_family = sanitizeFont(brand.font_family);
+
+		// Dekorations-Toggles (Default = sichtbar; explizit 0 → ausblenden)
+		const asBool = v => (v === 1 || v === '1' || v === true) ? 1 : (v === 0 || v === '0' || v === false ? 0 : 1);
+		const show_ornaments      = asBool(brand.show_ornaments);
+		const show_stars          = asBool(brand.show_stars);
+		const show_deco_pattern   = asBool(brand.show_deco_pattern);
+		const show_side_structure = asBool(brand.show_side_structure);
+
+		const btn_text_color = col_button_text || '#ffffff';
+
+		const out = [];
+
+		// Auto-Hide (Spiegel von whitelabel_styles.php)
+		out.push(
+			'body.wl-active .bnv_inputframe.bnve_kk_card.assup_con,' +
+			'body.wl-active .assup_con,' +
+			'body.wl-active .bnv_trustwrapper,' +
+			'body.wl-active .bnv_logowrapper,' +
+			'body.wl-active .bnv_trustratebox,' +
+			'body.wl-active .bnv2_trust_wrapper,' +
+			'body.wl-active .bnv2_trust_badge_text,' +
+			'body.wl-active .bnv2_trust_badge,' +
+			'body.wl-active .bnv_trustraterate,' +
+			'body.wl-active .bn_ver_faq,' +
+			'body.wl-active #faqcon,' +
+			'body.wl-active .bn_ver_faqheader,' +
+			'body.wl-active .bn_ver_faqmorewrapper,' +
+			'body.wl-active .bn_det_toggleaccord#faqcon,' +
+			'body.wl-active .bnve_faqwrapper,' +
+			'body.wl-active .bnve_support,' +
+			'body.wl-active .bnv_footer,' +
+			'body.wl-active .bnv_footer2,' +
+			'body.wl-active .bnv_legalmenu { display: none !important; }'
+		);
+
+		// Gegenstück zum Legal-Menü-Hide: rechtes Header-Ornament bei WL wieder zeigen (Spiegel von whitelabel_styles.php;
+		// Ornament ist visibility:hidden-Platzhalter im Flex-Flow — nur Sichtbarkeit zurückdrehen, kein display)
+		out.push('body.wl-active .bnv_legalmenu_ornamentfallback { visibility: visible !important; }');
+
+		// Dekorations-Toggles — nur Hide-Regel ausgeben, wenn explizit deaktiviert
+		if (show_ornaments === 0) {
+			out.push('body.wl-active .bnv_onl, body.wl-active .bnv_onr { display: none !important; }');
+		}
+		if (show_stars === 0) {
+			out.push('body.wl-active .bnve_headstarsleft, body.wl-active .bnve_headstarsright { display: none !important; }');
+		}
+		if (show_deco_pattern === 0) {
+			out.push('body.wl-active .ind_decopicture_left, body.wl-active .ind_decopicture_right { display: none !important; }');
+		}
+		if (show_side_structure === 0) {
+			out.push('body.wl-active .bnv2_sidestructureleft, body.wl-active .bnv2_sidestructureright { display: none !important; }');
+		}
+
+		// F5: Padding-Bottom-Bug-Fix nach Trust-Wrapper-Hide
+		out.push('body.wl-active .bnv_inputframe { padding-bottom: 100px !important; }');
+
+		// F7: Gender-Quest-Wrapper auf Brand-Farben (nur Farben, kein Layout)
+		if (col_card_bg) {
+			out.push('body.wl-active .bnv_genderquestwrapper { background-color: ' + col_card_bg + ' !important; }');
+		}
+		if (col_card_border) {
+			out.push('body.wl-active .bnv_genderquestwrapper { border-color: ' + col_card_border + ' !important; }');
+		}
+		if (col_text) {
+			out.push('body.wl-active .bnv_genderquestwrapper { color: ' + col_text + ' !important; }');
+		}
+
+		// Background / Text
+		if (col_background) {
+			out.push('body.wl-active, body.wl-active .bn_bodystan { background-color: ' + col_background + ' !important; }');
+		}
+		if (col_text) {
+			out.push('body.wl-active, body.wl-active p, body.wl-active label, body.wl-active span:not(.wl_status_badge) { color: ' + col_text + ' !important; }');
+		}
+
+		// Primärfarbe (nur Überschriften)
+		if (col_primary) {
+			out.push('body.wl-active h1, body.wl-active h2, body.wl-active .bnv_mainheader, body.wl-active .bnv_inputheader { color: ' + col_primary + ' !important; }');
+		}
+
+		// Karte
+		if (col_card_bg) {
+			out.push('body.wl-active .bnv_inputframe { background-color: ' + col_card_bg + ' !important; }');
+		}
+		if (col_card_border) {
+			out.push('body.wl-active .bnv_inputframe { border: 2px solid ' + col_card_border + ' !important; }');
+		}
+
+		// Highlight (Vorschlags-Dropdown)
+		if (col_highlight) {
+			out.push('body.wl-active .in_sec1_vorschlag:hover, body.wl-active .in_sec1_vorschlag.highlighted { background-color: ' + col_highlight + ' !important; }');
+		}
+
+		// Sekundärfarbe — Info-Box (lila Info-Marker = Text + inline-SVG-Icon)
+		if (col_secondary) {
+			out.push('body.wl-active .bnv_infochecktext, body.wl-active .bnv_infocheck { color: ' + col_secondary + ' !important; }');
+		}
+
+		// Sekundärbutton (.bnve_detailbutton): Rahmen + Schrift Primärfarbe, BG Kartenhintergrund
+		// Bewusst unabhängig vom button_style-Setting.
+		if (col_primary) {
+			let secBtn = 'body.wl-active .bnve_detailbutton { border: 2px solid ' + col_primary + ' !important; color: ' + col_primary + ' !important;';
+			if (col_card_bg) secBtn += ' background-color: ' + col_card_bg + ' !important;';
+			secBtn += ' }';
+			out.push(secBtn);
+			out.push('body.wl-active .bnve_detailbutton .bnve_detailbuttext, body.wl-active .bnve_detailbutton p, body.wl-active .bnve_detailbutton span { color: ' + col_primary + ' !important; }');
+			out.push('body.wl-active .bnve_detailbutton svg path { stroke: ' + col_primary + ' !important; }');
+		}
+
+		// Button-Hintergrund + Text
+		if (col_button) {
+			out.push(BTN_SELECTORS + ' { background: ' + col_button + ' !important; background-image: none !important; border-color: ' + col_button + ' !important; }');
+			out.push(BTN_TEXT_SELECTORS + ' { color: ' + btn_text_color + ' !important; }');
+		}
+
+		// Button-SVG-Stroke
+		if (col_button || col_button_text) {
+			out.push(BTN_SVG_SELECTORS + ' { stroke: ' + btn_text_color + ' !important; }');
+		}
+
+		// Buttonstil
+		if (button_style === 'clean') {
+			out.push(BTN_SELECTORS + ' { border: none !important; box-shadow: none !important; }');
+		} else if (button_style === 'outline' && col_button) {
+			out.push(BTN_SELECTORS + ' { background: transparent !important; background-image: none !important; border: 2px solid ' + col_button + ' !important; }');
+			out.push(BTN_TEXT_SELECTORS + ' { color: ' + col_button + ' !important; }');
+			out.push(BTN_SVG_SELECTORS + ' { stroke: ' + col_button + ' !important; }');
+		}
+
+		// Border-Radius (Buttons + Karte + Sekundärbutton)
+		if (border_radius && RADIUS_MAP[border_radius]) {
+			out.push(BTN_SELECTORS + ', body.wl-active .bnve_detailbutton, body.wl-active .bnv_inputframe { border-radius: ' + RADIUS_MAP[border_radius] + ' !important; }');
+		}
+
+		// Kartenstil
+		if (card_style === 'minimal') {
+			out.push('body.wl-active .bnv_inputframe { border: none !important; box-shadow: none !important; }');
+		} else if (card_style === 'modern') {
+			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }');
+		} else if (card_style === 'elevated') {
+			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important; transform: translateY(-2px); }');
+		}
+
+		// Schriftart
+		if (font_family) {
+			out.push("body.wl-active, body.wl-active * { font-family: '" + font_family + "', Arial, sans-serif !important; }");
+		}
+
+		return out.join('\n');
+	}
+
+	function ensureLiveStyle() {
+		let el = document.getElementById('wl-vars-live');
+		if (!el) {
+			el = document.createElement('style');
+			el.id = 'wl-vars-live';
+			document.head.appendChild(el);
+		}
+		return el;
+	}
+
+	window.addEventListener('message', function (event) {
+		const data = event.data;
+		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+		// wl-active sicherstellen (Live-Preview funktioniert auch wenn WL noch nicht aktiv ist)
+		document.body.classList.add('wl-active');
+		ensureLiveStyle().textContent = buildCss(data.brand);
+	});
+
+	// Editor mitteilen, dass wir bereit sind (für initialen Push nach iframe-Load)
+	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+})();
+[0m
+[0m$ [0mcurl -s --max-time 10 -X POST "https://kassenkompass.de/bonusrechner.php" -H "Content-Type: application/x-www-form-urlencoded" -d "kk=1&bund=1&nextbut=B2837X" 2>&1 | head -200
+(no output)
+[0m
+[0m$ [0mcurl -s -i --max-time 10 -X POST "https://kassenkompass.de/bonusrechner.php" -H "Content-Type: application/x-www-form-urlencoded" -d "kk=1&bund=1&nextbut=B2837X" 2>&1 | head -80
+HTTP/2 302 
+date: Thu, 03 Sep 2026 17:29:16 GMT
+content-type: text/html; charset=UTF-8
+location: bonusrechner_daten.php
+set-cookie: AWSALB=cFF7OBqU4TAd1R8+VAdW6GB9UIsQ1gF3HNY50mPFUkSzbCfW2RjzcGthZ2QLxTHKnxiD8b+9A8zAx064csfTyuIj1BKueC4qNT21mAB8EeLW92PL3D2sZRB+3iu6; Expires=Thu, 10 Sep 2026 17:29:16 GMT; Path=/
+set-cookie: AWSALBCORS=cFF7OBqU4TAd1R8+VAdW6GB9UIsQ1gF3HNY50mPFUkSzbCfW2RjzcGthZ2QLxTHKnxiD8b+9A8zAx064csfTyuIj1BKueC4qNT21mAB8EeLW92PL3D2sZRB+3iu6; Expires=Thu, 10 Sep 2026 17:29:16 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=e484e59b7db2e45ca82032aaed4c89b4; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: akt_kk=1; expires=Mon, 08 Mar 2027 17:29:16 GMT; Max-Age=16070400
+set-cookie: akt_kk_id=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0
+set-cookie: akt_bund=1; expires=Mon, 08 Mar 2027 17:29:16 GMT; Max-Age=16070400
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=kSJwr9b%2FCOQA7T%2B86Tl0OWntYftIdTpBjUtDLp17Fmj4g9G0dVjBBqZcVoSlz3pQlIPqTFxjpIZ20XZeG3oSUf1XUJd8xr8LFfa9BOsqP91W9EhWqb%2BAS37HHBKef0cJB5o%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35679c2bf805c1d-SJC
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Cookie: PHPSESSID=e484e59b7db2e45ca82032aaed4c89b4; akt_kk=1; akt_bund=1" "https://kassenkompass.de/bonusrechner_daten.php" 2>&1 | head -200
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456594"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>
+	<title>Kassenkompass - Startseite</title>
+	<link rel="stylesheet" type="text/css" href="css/index.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/bonusrechner.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/bonusrechner_v.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="css/templatev.css?v=v2.6.9">
+	<script type="text/javascript" src="js/moneycalc.js?v=v2.6.9"></script>
+	<style>
+		/* Animierter Placeholder-Effekt für Berufsgruppe Select */
+		.bn_selectwrap.employ-field {
+			position: relative;
+		}
+		
+		.bn_selectwrap.employ-field .bn_labelinput {
+			position: absolute;
+			left: 11%;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #717680;
+			font-size: 16px;
+			pointer-events: none;
+			transition: all 0.3s ease;
+			background: white;
+			padding: 0 5px;
+			z-index: 2;
+		}
+		
+		.bn_selectwrap.employ-field .bn_questselect:focus + .bn_labelinput,
+		.bn_selectwrap.employ-field .bn_questselect.has-value + .bn_labelinput,
+		.bn_selectwrap.employ-field.focused .bn_labelinput {
+			top: 0;
+			transform: translateY(-50%);
+			font-size: 12px;
+			color: #079455;
+		}
+		
+		.bn_selectwrap.employ-field .bn_questselect {
+			color: transparent;
+		}
+		
+		.bn_selectwrap.employ-field .bn_questselect:focus,
+		.bn_selectwrap.employ-field .bn_questselect.has-value,
+		.bn_selectwrap.employ-field.focused .bn_questselect {
+			color: #717680;
+		}
+		
+		.bn_selectwrap.employ-field .bn_questselect option:first-child {
+			display: none;
+		}
+		/* Animierter Placeholder-Effekt für Jahresgehalt Input */
+		.bn_selectwrap.salary-field {
+			position: relative;
+		}
+		
+		.bn_selectwrap.salary-field .animated-placeholder {
+			position: absolute;
+			left: 11%;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #717680;
+			font-size: 16px;
+			pointer-events: none;
+			transition: all 0.3s ease;
+			background: white;
+			padding: 0 5px;
+			z-index: 2;
+		}
+		
+		.bn_selectwrap.salary-field .bn_questselect:focus + .animated-placeholder,
+		.bn_selectwrap.salary-field .bn_questselect.has-value + .animated-placeholder,
+		.bn_selectwrap.salary-field.focused .animated-placeholder {
+			top: 0;
+			transform: translateY(-50%);
+			font-size: 12px;
+			color: #079455;
+		}
+		
+		.bn_selectwrap.salary-field .bn_questselect {
+			color: #717680;
+		}
+		
+		.bn_selectwrap.salary-field .bn_questselect:focus,
+		.bn_selectwrap.salary-field .bn_questselect.has-value,
+		.bn_selectwrap.salary-field.focused .bn_questselect {
+			color: #717680;
+		}
+		
+		.bn_selectwrap.salary-field .bn_labelinput {
+			display: none;
+		}
+		.bnv2_trustwrapper{
+			margin-top: 14px;
+			padding: 2px 8px;
+			background-color: #F3F4F8;
+			border: 1px solid #C5C9DC;
+			border-radius: 5px;
+		}
+		.bnv2_ratingtext{
+			margin: 0;
+			font-weight: 700;
+			font-size: 14px;
+			color: #474A73;
+		}
+		.bnv_xl_wrapper{
+			width: 100%;
+			display: flex;
+			justify-content: center;
+			justify-items: center;
+			align-items: center;
+		}
+	</style>
+		</head>
+<body class="bn_bodystan">
+	<noscript><iframe src="https://load.awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW " height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>	<div class="bnv_overlaywrapper" id="overlayquest">
+		<div class="bnv_overlaybox">
+			<p class="bnv_overlayheader">Möchtest du den Krankenkassenvergleich wirklich verlassen?</p>
+			<p class="bnv_overlaytext">Deine Eingaben werden nicht gespeichert.</p>
+			<button style="width:100%" type="button" class="primary_button_xl" onclick="toggleoverquest();">
+				<span class="primary_label_xl">Vergleich&nbsp;fortsetzen</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+					</svg>
+				</span>
+			</button>
+			<a href="index.php" class="bnv_overlayleav">Vergleich verlassen</a>
+		</div>
+	</div>
+<script>
+    function toggleoverquest(){
+			const overlayquest = document.getElementById("overlayquest");
+			if(overlayquest.style.display == "flex"){
+				overlayquest.style.display = "none";
+			}else{
+				overlayquest.style.display = "flex";
+			}
+		}
+</script>
+		<header class="bnv_header">
+		<div class="bnv_headerinnerbox">
+			<img src="bilder/bonusrechner/Ornament 87.svg" alt="" class="bnv_onl">
+			<img src="./bilder/bonusrechner/bnv_logo.svg" alt="" class="bnv_logo" style="" onclick="toggleoverquest();">
+						<img src="bilder/bonusrechner/Ornament 86.svg" alt="" class="bnv_onr">
+		</div>
+	</header>
+
+	<form method="post" class="bnv_mainframe">
+		
+
+				<div class="bnv_sparwrapper">
+			<h1 class="bnv_mainheader">Krankenkasse vergleichen &<br>jedes Jahr Geld sparen</h1>
+			<div class="bnv_sparbox">
+				<p class="bnv_spartext">Spare im Jahr bis zu</p>
+				<p class="bnv_sparnum"><span id="sparsummer">---</span>&thinsp;€</p>
+			</div>
+		</div>
+		
+		
+		<div class="bnv_inputframe" >
+			<div class="bnv_questwrapper">
+								<p class="bnv_inputheader">Deine Angaben</p>
+								<div class="in_sec1_conbox bn_selectwrap kk-field">
+					<div class="bn_selectwrap">
+						<input class="bn_questselect bn_kklogoextension bnv_inputupdate" name="kk" id="kk" placeholder="" autocomplete="off" value="1">
+						<label class="animated-placeholder" for="kk">Aktuelle Krankenkasse</label>
+						<img class="bn_kk_logo bnv_kk_logo" id="kklogo" src="bilder/stanicons/logo_kl.png">
+						<img class="bnv_img_inputerror" id="errorimg_kk" src="bilder/bonusrechner/alert_input.svg">
+						<div class="in_sec1_vorschlagbox bn_vorschlagbox bnv_inputupdate" id="suggestions">
+						</div>
+					</div>
+					<p class="bn_errortext bnv_errortext" id="error_kk"></p>
+				</div>				<div class="bn_selectwrap bund-field">
+					<img class="bn_select_arraow bnv_select_arraow" src="bilder/stanicons/arrow-down.svg">
+					<img class="bnv_img_inputerror bnv_img_inputerror_select" id="errorimg_bund" src="bilder/bonusrechner/alert_input.svg">
+					<select class="bn_questselect bnv_inputupdate" name="bund" id="bund">
+						<option value="none" selected></option>
+						<option value="1" selected>Baden-Württemberg</option><option value="2" >Bayern</option><option value="3" >Berlin</option><option value="4" >Brandenburg</option><option value="5" >Bremen</option><option value="6" >Hamburg</option><option value="7" >Hessen</option><option value="8" >Mecklenburg-Vorpommern</option><option value="9" >Niedersachsen</option><option value="10" >Nordrhein-Westfalen</option><option value="11" >Rheinland-Pfalz</option><option value="12" >Saarland</option><option value="13" >Sachsen</option><option value="14" >Sachsen-Anhalt</option><option value="15" >Schleswig-Holstein</option><option value="16" >Thüringen</option>					</select>
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.com/health/" 2>&1
+(no output)
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/user/1" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/user/999999" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/999999",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 -H "Accept: application/json" "https://api.kassenkompass.de/health_insurance/" -H "X-API-Secret: test" 2>&1
+{
+    "type": "https:\/\/httpstatuses.com\/403",
+    "title": "Forbidden",
+    "status": 403,
+    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",
+    "instance": "\/health_insurance\/"
+}
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/api/v1/health_insurance/" 2>&1
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456678"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+			max-width: 500px;
+		}
+		.sec_404_button {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+	<div class="section">
+		<div class="sec sec_404">
+			<p class="sec_404_head">404</p>
+			<p class="sec_404_subhead">Seite nicht gefunden</p>
+			<p class="sec_404_text">Die Seite, die du suchst, existiert leider nicht oder wurde verschoben.</p>
+			<button type="button" class="primary_button_xl bnv_funnelprimary sec_404_button" onclick="window.location='/'">
+				<span class="primary_label_xl">Zur Startseite</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+				</span>
+			</button>
+		</div>
+	</div>
+
+	<footer class="ind_foot_wrapper">
+		<div class="ind_foot_topline"></div>
+		<img src="/bilder/bonusrechner/bnv_logo.svg" alt="" class="ind_foot_logo">
+		<p class="ind_foot_text">
+			<span class="ind_foot_text_highlite">Du wechselst deinen Stromanbieter oder Handytarif in Minuten.<br class="ind_foot_text_break"><br class="ind_foot_text_break">
+			Warum nicht auch deine Krankenkasse</span> – wenn du dadurch jedes Jahr hunderte Euro zurückbekommst?
+		</p>
+		<button type="button" class="primary_button_xl bnv_funnelprimary ind_foot_but" onclick="window.location = '/bonusrechner.php'">
+			<span class="primary_label_xl ind_foot_butlabel">Jetzt Vergleich starten</span>
+			<span class="primary_icon_xl" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+					<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="#6a3dc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+			</span>
+		</button>
+		<div class="ind_foot_linkwrap">
+			<a href="/login_kd.php" class="ind_foot_link">Kunden Login</a>
+			<a href="/login_partner.php" class="ind_foot_link">Partner Login</a>
+			<a href="/login_kk.php" class="ind_foot_link">Krankenkassen Login</a>
+			<!--<a href="#" class="ind_foot_link">Für Kooperationspartner</a>-->
+			<a href="/faq.php" class="ind_foot_link">Häufige Fragen</a>
+			<a href="/ueberuns.php" class="ind_foot_link">Über KassenKompass</a>
+			<a href="/kontakt.php" class="ind_foot_link">Hilfe & Kontakt</a>
+		</div>
+		<div class="ind_foot_konbox">
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_tel.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext">+49 40 877 09693</p>
+			</div>
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_mail.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3d4e584f4b545e587d565c4e4e58535652504d5c4e4e135958">[email&#160;protected]</a></p>
+			</div>
+		</div>
+		<div class="ind_foot_legalrow">
+			<div class="ind_foot_legalbox">
+				<a href="/impressum.php" class="ind_foot_leagllink">Impressum</a>
+				<a href="/datenschutz.php" class="ind_foot_leagllink">Datenschutz</a>
+				<a href="/erstinformationen.php" class="ind_foot_leagllink">Erstinformation</a>
+				<a href="/agb_info.php" class="ind_foot_leagllink">AGB</a>
+			</div>
+			<div class="ind_foot_socialbox">
+				<a href="https://www.instagram.com/kassenkompass/?hl=de" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_insta.png?v=1.0" alt="" class="ind_foot_socialpic">
+				</a>
+				<a href="https://de.linkedin.com/company/kassenkompass-gmbh" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_linked.png" alt="" class="ind_foot_socialpic">
+				</a>
+			</div>
+			<p class="ind_foot_address">KassenKompass GmbH,<br class="ind_foot_text_break"> Wendenstraße 130,<br class="ind_foot_text_break"> 20537 Hamburg</p>
+		</div>
+	</footer><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/api/v2/health_insurance/" 2>&1
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456678"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+			max-width: 500px;
+		}
+		.sec_404_button {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+	<div class="section">
+		<div class="sec sec_404">
+			<p class="sec_404_head">404</p>
+			<p class="sec_404_subhead">Seite nicht gefunden</p>
+			<p class="sec_404_text">Die Seite, die du suchst, existiert leider nicht oder wurde verschoben.</p>
+			<button type="button" class="primary_button_xl bnv_funnelprimary sec_404_button" onclick="window.location='/'">
+				<span class="primary_label_xl">Zur Startseite</span>
+				<span class="primary_icon_xl" aria-hidden="true">
+					<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+						<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+					</svg>
+				</span>
+			</button>
+		</div>
+	</div>
+
+	<footer class="ind_foot_wrapper">
+		<div class="ind_foot_topline"></div>
+		<img src="/bilder/bonusrechner/bnv_logo.svg" alt="" class="ind_foot_logo">
+		<p class="ind_foot_text">
+			<span class="ind_foot_text_highlite">Du wechselst deinen Stromanbieter oder Handytarif in Minuten.<br class="ind_foot_text_break"><br class="ind_foot_text_break">
+			Warum nicht auch deine Krankenkasse</span> – wenn du dadurch jedes Jahr hunderte Euro zurückbekommst?
+		</p>
+		<button type="button" class="primary_button_xl bnv_funnelprimary ind_foot_but" onclick="window.location = '/bonusrechner.php'">
+			<span class="primary_label_xl ind_foot_butlabel">Jetzt Vergleich starten</span>
+			<span class="primary_icon_xl" aria-hidden="true">
+				<svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+					<path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="#6a3dc4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+				</svg>
+			</span>
+		</button>
+		<div class="ind_foot_linkwrap">
+			<a href="/login_kd.php" class="ind_foot_link">Kunden Login</a>
+			<a href="/login_partner.php" class="ind_foot_link">Partner Login</a>
+			<a href="/login_kk.php" class="ind_foot_link">Krankenkassen Login</a>
+			<!--<a href="#" class="ind_foot_link">Für Kooperationspartner</a>-->
+			<a href="/faq.php" class="ind_foot_link">Häufige Fragen</a>
+			<a href="/ueberuns.php" class="ind_foot_link">Über KassenKompass</a>
+			<a href="/kontakt.php" class="ind_foot_link">Hilfe & Kontakt</a>
+		</div>
+		<div class="ind_foot_konbox">
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_tel.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext">+49 40 877 09693</p>
+			</div>
+			<div class="ind_foot_concon">
+				<img src="/bilder/index/foot_mail.png" alt="" class="ind_foot_conconpic">
+				<p class="ind_footconcontext"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1162746367787274517a706262747f7a7e7c617062623f7574">[email&#160;protected]</a></p>
+			</div>
+		</div>
+		<div class="ind_foot_legalrow">
+			<div class="ind_foot_legalbox">
+				<a href="/impressum.php" class="ind_foot_leagllink">Impressum</a>
+				<a href="/datenschutz.php" class="ind_foot_leagllink">Datenschutz</a>
+				<a href="/erstinformationen.php" class="ind_foot_leagllink">Erstinformation</a>
+				<a href="/agb_info.php" class="ind_foot_leagllink">AGB</a>
+			</div>
+			<div class="ind_foot_socialbox">
+				<a href="https://www.instagram.com/kassenkompass/?hl=de" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_insta.png?v=1.0" alt="" class="ind_foot_socialpic">
+				</a>
+				<a href="https://de.linkedin.com/company/kassenkompass-gmbh" target="_blank" rel="noopener">
+					<img src="/bilder/index/foot_social_linked.png" alt="" class="ind_foot_socialpic">
+				</a>
+			</div>
+			<p class="ind_foot_address">KassenKompass GmbH,<br class="ind_foot_text_break"> Wendenstraße 130,<br class="ind_foot_text_break"> 20537 Hamburg</p>
+		</div>
+	</footer><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script></body>
+</html>
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/swagger" 2>&1 | head -50
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456679"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+[0m
+[0m$ [0mcurl -s --max-time 10 "https://kassenkompass.de/openapi.json" 2>&1 | head -50
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788456679"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+[0m
+Now I have sufficient reconnaissance data. Let me execute the 8-step analysis.
+
+---
+
+### STEP 1 — DELTA
+
+**NEW** api.kassenkompass.de exposes full REST endpoint catalog at `GET /` without authentication (14 endpoints including `/user/{ext_id}`, `/delete/{id}`, `/settlement_report/{year}/{month}`, `/cancel/{id}`, `/post/`)  
+**NEW** api.kassenkompass.de `/health/` endpoint returns 200 OK unauthenticated  
+**NEW** Main site funnel: `bonusrechner.php` → `bonusrechner_daten.php` (collects KK, Bundesland, then Berufsgruppe, Gehalt)  
+**NEW** Three distinct login portals: `login_kd.php` (customers), `login_partner.php` (brokers), `login_kk.php` (insurers)  
+**NEW** API auth uses custom `X-API-Secret` header (not JWT/OAuth), returns 401 missing, 403 invalid  
+**CHANGED** Previous inventory showed 0 live HTTP; all 3 hosts now confirmed live (200 OK)
+
+---
+
+### STEP 2 — PRIORITIZE
+
+| Asset | attack_surface | business_value | tech_exposure | gate_ease | cloud_surface | freshness | **priority** |
+|-------|---------------|----------------|---------------|-----------|---------------|-----------|-------------|
+| api.kassenkompass.de | 9 | 9 | 8 | 10 | 7 | 9 | **8.75** |
+| kassenkompass.de (funnel) | 7 | 8 | 5 | 10 | 6 | 8 | **7.15** |
+| login_kd.php / login_partner.php / login_kk.php | 6 | 7 | 4 | 10 | 5 | 7 | **6.45** |
+| www.kassenkompass.de | 4 | 5 | 3 | 10 | 4 | 6 | **5.15** |
+
+**Top-3 assets for depth:** api.kassenkompass.de, kassenkompass.de funnel, login portals
+
+---
+
+### STEP 3 — HYPOTHESES
+
+[HYP] API Endpoint Catalog Disclosure Enables Targeted IDOR/BOLA Recon
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 90
+reasoning: GET / returns complete endpoint list including sensitive endpoints (/user/{ext_id}, /delete/{id}, /settlement_report/{year}/{month}, /cancel/{id}) without any authentication; this is excessive information disclosure that maps the attack surface for auth-bypass/IDOR attempts
+evidence_needed: Confirm endpoint list matches actual implemented endpoints; verify no rate-limiting on catalog endpoint
+verify_steps: GET https://api.kassenkompass.de/ (already done); GET https://api.kassenkompass.de/user/1 (401); GET https://api.kassenkompass.de/delete/1 (401); confirm all 14 endpoints respond
+impact: Attacker gains full API map for targeted auth-bypass, IDOR, BOLA testing; reduces reconnaissance time from hours to seconds; HIGH if any endpoint has auth flaw
+testability: PASSIVE
+
+[HYP] User Data Access via /user/{ext_id} IDOR/BOLA After Auth Acquisition
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 65
+reasoning: Endpoint `/user/{ext_id}` explicitly returns "Userdaten abrufen" per catalog; ext_id likely external user identifier (predictable/sequential); if X-API-Secret is obtainable (leak, weak generation, partner compromise) or authz check missing, cross-user data access possible
+evidence_needed: Valid X-API-Secret to test authorization enforcement across ext_id values; or evidence of secret leakage in client code/GitHub/logs
+verify_steps: Obtain valid X-API-Secret (partner/insurer flow); GET /user/1, /user/2, /user/999999 with valid secret; compare responses for data isolation
+impact: Cross-tenant PII dump (health insurance data, personal info, financial); HIGH/CRITICAL
+testability: AUTH_HELPED
+
+[HYP] Settlement Report Endpoint Exposes Financial Data via BOLA
+class: BUSLOGIC
+asset: api.kassenkompass.de
+confidence: 60
+reasoning: `/settlement_report/{year}/{month}` returns "Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)" - financial settlement data; if authz missing or weak (e.g., partner can access other partners' reports), mass financial data exposure
+evidence_needed: Valid X-API-Secret with partner/insurer scope; test access to reports for different year/month combos and cross-account access
+verify_steps: With valid partner/insurer secret: GET /settlement_report/2024/01, /settlement_report/2023/12; attempt to access other tenant IDs if parameter exists
+impact: Financial/commission data leakage across insurers/partners; HIGH
+testability: AUTH_HELPED
+
+---
+
+### STEP 4 — SELF-CRITIQUE
+
+[PARKED] User Data Access via /user/{ext_id} IDOR/BOLA After Auth Acquisition: confidence 65 but requires valid X-API-Secret (AUTH_HELPED) - no passive path to obtain secret; cannot verify without partner/insurer cooperation
+[PARKED] Settlement Report Endpoint Exposes Financial Data via BOLA: confidence 60 but same AUTH_HELPED limitation; requires valid scoped secret
+
+[FINAL] 1. API Endpoint Catalog Disclosure Enables Targeted IDOR/BOLA Recon (confidence 90, PASSIVE) — **TOP PRIORITY**
+
+---
+
+### STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: GET https://api.kassenkompass.de/delete/1 — confirm auth requirement and error shape for destructive endpoint (read-only, no mutation)
+
+---
+
+### STEP 6 — LEARNING
+
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (14 endpoints) without auth — violates principle of least privilege, enables targeted attack planning
+[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+[LEARN] REJECTED JWT_ALG_CONFUSION @ api.kassenkompass.de: Auth uses custom X-API-Secret header, not JWT — class not applicable
+
+---
+
+### STEP 7 — RISK
+
+[RISK] kassenkompass: 72 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
