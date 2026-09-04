@@ -76,3 +76,9 @@ www.kassenkompass.de
 - NEW `/cat_detail/` catalog advertises GET but actually requires POST (returns 405 for GET) — catalog discrepancy
 - CHANGED `/settlement_report/9999/13` confirmed: 401 (no auth) / 403 (invalid auth) — proper RFC 9457 format, consistent with majority of endpoints
 - CHANGED `/sync/` remains sole endpoint returning HTTP 200 with auth error body (known MISCONFIG)
+
+## 2026-09-04 09:51:41 UTC
+- NEW Two distinct 403 error messages across API endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only `/user/{ext_id}`) — two separate auth middleware stacks
+- NEW `/cat_detail/` catalog says GET but returns 405, requires POST — catalog method-spec inaccuracy
+- CHANGED Settlement_report endpoint confirmed: proper 401/403 RFC 9457 format — no misconfiguration here
+- CHANGED `/sync/` remains sole endpoint returning HTTP 200 + auth error body

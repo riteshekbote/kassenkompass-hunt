@@ -53,3 +53,10 @@ https://api.kassenkompass.de/delete/1 -> HTTP 401
 https://api.kassenkompass.de/sync/ -> 200 len=0
 https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
 https://kassenkompass.de/login -> HTTP 404
+
+## 2026-09-04 09:51:51 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/sync/ -> 200 len=0
+https://api.kassenkompass.de/insurance_info/1 -> HTTP 401

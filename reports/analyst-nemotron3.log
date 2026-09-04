@@ -3013,3 +3013,741 @@ testability: PASSIVE
 
 ## STEP 7 — RISK
 [RISK] kassenkompass: 72 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-04 09:51:41 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/ 2>&1 | head -20
+HTTP/2 200 
+date: Fri, 04 Sep 2026 09:47:46 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=j0e7HAh23HfkhSmjWkLDy%2ByHH4uo%2FaEaViO%2FRTMoKwt9uya3DUKOX6c25IkSl35%2FcNAA85oZb%2BL6%2BjYG9xn9L6zH1AAxeNFTZAePLHHCKg7AHqNRzVjifonvElORfp4z3B7n691v"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c131b9e8b69cb-DFW
+[0m
+[0m$ [0mcurl -s -I https://kassenkompass.de/login 2>&1 | head -20
+HTTP/2 404 
+date: Fri, 04 Sep 2026 09:47:46 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=rVQtCAfVCuAxd5ubq0FBFgSDC5/xXiCAKDurQX50dDFAg7cNomyxSK6ttUveLpW0+MShPkqqYQWOeS1sIu42kbQMmoeVqj5tMeSuZCNov7MUELPbgY5mTrYEWQBH; Expires=Fri, 11 Sep 2026 09:47:46 GMT; Path=/
+set-cookie: AWSALBCORS=rVQtCAfVCuAxd5ubq0FBFgSDC5/xXiCAKDurQX50dDFAg7cNomyxSK6ttUveLpW0+MShPkqqYQWOeS1sIu42kbQMmoeVqj5tMeSuZCNov7MUELPbgY5mTrYEWQBH; Expires=Fri, 11 Sep 2026 09:47:46 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=8b708a14efec8a3167ab8a48856d6fd4; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=b241JaJAU5LR22xTxBl573F5VO%2BrMFrBqCO39iZv2zfFmjSS3a6Q6F5Fdkcl7Im69iDsm3sAO0txSn9Axy6xU3pnKtlOZwJGGdXKu6yXtPgWYF%2FigdIuk4Vr%2FP%2FsbgkKRyk%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c131e3991e54a-DFW
+[0m
+[0m$ [0mcurl -s https://api.kassenkompass.de/ 2>&1 | head -50
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/health/ 2>&1 | head -20
+HTTP/2 200 
+date: Fri, 04 Sep 2026 09:48:08 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, POST, OPTIONS
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=bzjxyWzoQKX115M%2BSnLsqbQKtpwrNRKlfc6F6z%2FfECdZIqNZhfqV%2F7uTYTE5vjPqbZc14mCp3sK5gQNLY%2Bi8mzJyBdrt2vYlN3ml%2BC1bU0NJQdjeXmHqAFPxkY2geAUsbp6rHZU1"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c13ab4e8269f5-DFW
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/sync/ 2>&1 | head -20
+HTTP/2 200 
+date: Fri, 04 Sep 2026 09:48:09 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Sqf0N%2FpYLH%2FMG2xU238amLwJvPY3Zfd4nC4YBRpLQHy%2FgRVMiF8OvxEOAZvo4PijU%2F3O8gcjNdJrnZIM7EQKnOE05ENxwDCbbkOAxyaL47F8g7fhMd9H9yjIO7CkMHrIItlnITv4"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c13a8ea263593-DFW
+[0m
+[0m$ [0mcurl -s -I https://kassenkompass.de/ 2>&1 | head -20
+HTTP/2 200 
+date: Fri, 04 Sep 2026 09:48:09 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=Gok5eC1rbiI7zrHDxfMfgYrfaXE2wVG/yH57PARyMZ4guuhX3JBMo/3JJHFctarN5TTavIVRPYCgYpARvOi4bpeGOWo6imiiHzzW6AWEoLEQWzAJ+FD4RCh6FJo9; Expires=Fri, 11 Sep 2026 09:48:09 GMT; Path=/
+set-cookie: AWSALBCORS=Gok5eC1rbiI7zrHDxfMfgYrfaXE2wVG/yH57PARyMZ4guuhX3JBMo/3JJHFctarN5TTavIVRPYCgYpARvOi4bpeGOWo6imiiHzzW6AWEoLEQWzAJ+FD4RCh6FJo9; Expires=Fri, 11 Sep 2026 09:48:09 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=42d1d43ef673db8ddb1f84735fe66750; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Ua82e0S9%2FnxvkZ7yWRL2MpNdUchpmlMrFoOmt%2FN6A%2BRuWzyaWrbuPpyalA%2F1X92HiEq2Uy%2B24hH25AohoOD%2Ff%2FoJo7pxc39ej6qOTC%2BcfVtmUXjlbA8%2B9YtjF6Ygl8sW1wg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c13ad99b597ae-DFW
+[0m
+[0m$ [0mcurl -s https://kassenkompass.de/login 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788515347"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<title>Seite nicht gefunden | KassenKompass</title>
+	<link rel="stylesheet" type="text/css" href="/css/templatev.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/index_new.css?v=v2.6.9">
+	<link rel="stylesheet" type="text/css" href="/css/bonusrechner_v.css?v=v2.6.9">
+	<style>
+		.sec_404 {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			min-height: 60vh;
+			gap: 20px;
+		}
+		.sec_404_head {
+			font-size: 72px;
+			font-weight: 700;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_subhead {
+			font-size: 24px;
+			font-weight: 500;
+			color: #1a1a1a;
+			margin: 0;
+		}
+		.sec_404_text {
+			font-size: 16px;
+			color: #666;
+			margin: 0;
+			max-width: 500px;
+		}
+		.sec_404_button {
+			margin-top: 10px;
+		}
+	</style>
+</head>
+<body>
+	<header class="section section_header">
+    <div class="sec navbar">
+        <a href="/index.php" class="navbar_logo_link">
+            <img src="/bilder/bonusrechner/bnv_logo.svg" alt="Kassenkompass GmbH Logo" class="navbar_logo">
+        </a>
+        <nav class="navbar_link_wrapper">
+            <a href="/ueberuns.php" class="navbar_link">Über Uns</a>
+            <a href="/kontakt.php" class="navbar_link">Kontakt</a>
+            <a href="/faq.php" class="navbar_link">FAQ</a>
+            <a href="/artikel.php" class="navbar_link">Ratgeber</a>
+            <a href="/presse.php" class="navbar_link">Presse</a>
+            <a href="/kooperationspartner.php" class="navbar_link">Kooperation</a>
+            <a href="/login_auswahl.php" class="navbar_link">Login</a>
+        </nav>
+        <div class="navbar_button_mobbox">
+            <button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'">
+                <span class="primary_label_xl navbar_but_text">Jetzt vergleichen</span>
+                <span class="primary_icon_xl" aria-hidden="true">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="14" viewBox="0 0 15 14" fill="none">
+                        <path d="M1.66663 7.00033H13.3333M13.3333 7.00033L7.49996 1.16699M13.3333 7.00033L7.49996 12.8337" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+            </button>
+            <div onclick="togglemenu();" id="strwr" class="navbar_hamwrapper">
+				<div id="str1" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+				<div id="str2" class="hamstripe" style="opacity: 1;"></div>
+				<div id="str3" class="hamstripe" style="transform: translateY(0px) rotate(0deg); transform-origin: center center;"></div>
+			</div>
+        </div>
+    </div>
+    <div class="navbar_mobmenu" id="mobmenu">
+        <a href="/ueberuns.php" class="navbar_mob_link">Über Uns</a>
+        <a href="/kontakt.php" class="navbar_mob_link">Kontakt</a>
+        <a href="/faq.php" class="navbar_mob_link">FAQ</a>
+        <a href="/artikel.php" class="navbar_mob_link">Ratgeber</a>
+        <a href="/presse.php" class="navbar_mob_link">Presse</a>
+        <a href="/kooperationspartner.php" class="navbar_mob_link">Kooperation</a>
+        <a href="/login_auswahl.php" class="navbar_mob_link">Login</a>
+    </div>
+</header>
+[0m
+[0m$ [0mcurl -s https://kassenkompass.de/login_kd.php 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788515348"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Kundenlogin - Kassenkompass</title>
+
+</head>
+<body>
+		<div class="section">
+				<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Willkommen zurück!</p>
+					<p class="lo_form_text">Jetzt einloggen & loslegen!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>					<div class="lo_form_xinfobox">
+																		<div class="lo_form_checkbox">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+							<label for="checkremem" class="lo_form_labeltext">Eingeloggt bleiben</label>
+						</div>
+						<a class="lo_form_forgotpw" href="pw_reset_kd.php">Passwort vergessen?</a>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+				</div>
+				<p class="lo_form_underline">
+					Du bekommst automatisch einen Account bei erfolgreichen Wechsel. <a class="lo_form_botlink" href="bonusrechner.php">Jetzt wechseln!</a><br><br>
+					Du hast bereits gewechselt, aber noch keinen Account erstellt. <a class="lo_form_botlink" href="create_account.php">Klick hier</a>
+				</p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+	<p class="lo_rebox_text">Jetzt einloggen, alle Funktionen nutzen und deinen Extra-Vorteil sichern - transparent, sicher & smart.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+		  	if (name.length < 3) {
+		    	e.preventDefault();
+		    	alert("Der Name muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s https://kassenkompass.de/login_kk.php 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788515348"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Krankenkassenlogin - Kassenkompass</title>
+
+</head>
+<body>
+	<div class="section">
+		<div class="lo_langswitch">
+			<div class="lo_langswitch_con">
+				<img class="lo_langswitch_flag" src="bilder/lang_icons/en.png">
+				<p class="lo_langswitch_text">English (US)</p>
+			</div>
+			<img class="lo_langswitch_arrow" src="bilder/stanicons/arrow-down.svg">
+		</div>
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Willkommen zurück!</p>
+					<p class="lo_form_text">Login Krankenkasse</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+					<p style="color:red"></p>
+				</div>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Ihr KassenKompass-Zugang – alles im Blick.</p>
+	<p class="lo_rebox_text">Pflegen Sie Ihre Daten, behalten Sie Ihre Präsenz im Blick und erhalten Sie Einblicke zu potenziellen Neuzugängen.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const name = document.getElementById("email").value.trim();
+		  	if (name.length < 3) {
+		    	e.preventDefault();
+		    	alert("Der Name muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s https://kassenkompass.de/login_partner.php 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788515370"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<title>Partner Login - Kassenkompass</title>
+
+</head>
+<body>
+		<div class="section">
+		
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<form class="lo_conbox" method="post" id="loginform">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" onclick="goToStart();">
+					<p class="lo_form_headtext">Partner Login</p>
+					<p class="lo_form_text">Jetzt einloggen & loslegen!</p>
+				</div>
+				<div class="lo_form_mid">
+					<div class="lo_form_questwrapper">
+						<input required class="lo_form_input" id="email" type="email" name="email" placeholder="E-Mail">
+					</div>
+					<div class="lo_form_questwrapper">
+						<input required id="password" class="lo_form_input" type="password" name="password" placeholder="Passwort">
+					</div>
+					<div class="lo_form_xinfobox">
+																		<div class="lo_form_checkbox">
+							<input id="checkremem" class="lo_form_checkbox" type="checkbox" name="remem">
+							<label for="checkremem" class="lo_form_labeltext">Eingeloggt bleiben</label>
+						</div>
+						<a class="lo_form_forgotpw" href="pw_reset_partner.php">Passwort vergessen?</a>
+					</div>
+				</div>
+				<div class="lo_form_bot">
+					<button class="lo_form_submit" value="X8372" name="sendlogin">Login</button>
+				</div>
+				<p class="lo_form_underline">Sie sind noch kein Partner? <a class="lo_form_botlink" href="kooperationspartner.php">Jetzt Partner werden!</a></p>
+			</form>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Hallo, liebe Kooperationspartner!</p>
+	<p class="lo_rebox_text">Login für deine Kundenübersicht und Partnerlinks.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		document.getElementById("loginform").addEventListener("submit", function(e) {
+			const email = document.getElementById("email").value.trim();
+		  	if (email.length < 3) {
+		    	e.preventDefault();
+		    	alert("Die E-Mail-Adresse muss mindestens 3 Zeichen lang sein.");
+		    	return;
+		  	}
+		});
+
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s https://kassenkompass.de/login_auswahl.php 2>&1 | head -100
+<!DOCTYPE html>
+<html>
+<head>
+
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788515371"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>	<link rel="stylesheet" type="text/css" href="css/login.css?v=v2.6.9">
+	<meta name="robots" content="noindex, follow">
+	<title>Login - Kassenkompass</title>
+
+</head>
+<body>
+	<div class="section">
+		<div class="lo_left">
+			<img class="lo_bgpad" src="bilder/login/bg_paddern.png" alt="">
+			<p class="lo_coptext">© KassenKompass 2026</p>
+			<div class="lo_conbox">
+				<div class="lo_form_head">
+					<img class="lo_form_pic lo_logopic_gohome" src="bilder/stanicons/logo_kl.png" alt="KassenKompass Logo" onclick="goToStart();">
+					<p class="lo_form_headtext">Login auswählen</p>
+					<p class="lo_form_text">Wähle den passenden Login-Bereich.</p>
+				</div>
+				<div class="lsel_cards">
+					<a class="lsel_card" href="login_kd.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_kunde.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Kunden Login</h3>
+							<p class="lsel_card_text">Für Kunden zur Einsicht und Verwaltung ihres Krankenkassenwechsels.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+					<a class="lsel_card" href="login_partner.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_partner.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Partner Login</h3>
+							<p class="lsel_card_text">Für Vermittler, Makler und Kooperationspartner.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+					<a class="lsel_card" href="login_kk.php">
+						<span class="lsel_card_iconbox"><img class="lsel_card_icon" src="bilder/login/lsel_krankenkasse.svg" alt=""></span>
+						<div class="lsel_card_textbox">
+							<h3 class="lsel_card_title">Krankenkassen Login</h3>
+							<p class="lsel_card_text">Für angebundene Krankenkassen zur Pflege ihrer Leistungsdaten.</p>
+						</div>
+						<img class="lsel_card_arrow" src="bilder/login/lsel_pfeil.svg" alt="">
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="lo_right lo_kd_rightpic">
+			<div class="lo_rebox">
+	<img src="bilder/login/star.png">
+	<p class="lo_rebox_header">Krankenkasse erfolgreich gewechselt? Willkommen zurück!</p>
+	<p class="lo_rebox_text">Jetzt einloggen, alle Funktionen nutzen und deinen Extra-Vorteil sichern - transparent, sicher & smart.</p>
+	<div class="lo_rebox_stylebox">
+		<img class="lo_rebox_people" src="bilder/login/people.png">
+		<div class="lo_rebox_starwra">
+			<div class="lo_rebox_starbox_top">
+				<img class="lo_rebox_starspic" src="bilder/login/stars_login.png">
+				<p class="lo_rebox_startext">5.0</p>
+			</div>
+			<p class="lo_rebox_starunderliner">aus 20 Bewertungen</p>
+		</div>
+	</div>
+</div>		</div>
+	</div>
+
+	<script type="text/javascript">
+		function goToStart(){
+			window.location = 'index.php';
+		}
+	</script>
+</body>
+</html>
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/user/1 2>&1 | head -20
+HTTP/2 401 
+date: Fri, 04 Sep 2026 09:49:52 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=kQlYmaGBWhIzdylmtUe%2FNz5VnmpzNaSC49pHs20yxoUdu4yGoyTRyt40VY3IyOyfZvzoHNly8MBEdwPszsWGfYO4btiIejEvRgJ%2F%2BJLjHwnQMzNr4ATUkHxwvpg3k0d6AT3g90Qd"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c16306fb4d41c-DFW
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/insurance_info/1 2>&1 | head -20
+HTTP/2 401 
+date: Fri, 04 Sep 2026 09:49:53 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2BL%2FdGKcst%2FYi4fLZdf3pC1PgxBehlgfERhu%2FLuxJ%2BtjFdqIw%2B0S%2F0BZ41HCscwTun9YFpXEisrnZtD3dwceZJ2br4dC3A%2BFBREwXAUeXvE%2FAvXLItxcHT1mtS3BmdgXUPogOFBo9"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c1633ef433ab6-DFW
+[0m
+[0m$ [0mcurl -s -I https://api.kassenkompass.de/settlement_report/2024/1 2>&1 | head -20
+HTTP/2 401 
+date: Fri, 04 Sep 2026 09:49:54 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=p8vbr2UlNCXIJz1YvO9RgoVrXT3bquvrpA9Ga7XvptVzGFXz7NXE0bgnJ2V7GFYDTgPesfHIPwT57Sw9gyX3SqtLGOHXEqEE6EUDK6DJTMbrLnlgj66aOAFUCSltK%2BiXM%2BKCr6ji"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a35c163c2cfd143e-DFW
+[0m
+[0m$ [0mcurl -s https://api.kassenkompass.de/sync/ 2>&1
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+[0m
+**STEP 1 — DELTA**
+- [NEW] `/sync/` confirms HTTP 200 with auth-error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — behavioral misconfig persists
+- [NEW] `/health/` unprotected, discloses `x-powered-by: PHP/8.4.3` — version exposure unchanged
+- [NEW] All three login portals (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) are traditional form-post, no OAuth authorize endpoint discovered in passive enumeration
+- [NEW] `/login` route returns 404 — login selection at `/login_auswahl.php` only
+- [CHANGED] API catalog at `/` still returns 15 endpoints unauthenticated; structure identical to 2026-09-04 05:10 snapshot
+- [CHANGED] Data endpoints (`/user/{ext_id}`, `/insurance_info/{kk_id}`, `/settlement_report/{year}/{month}`) all return RFC 9457 401 — consistent majority behavior
+- NO_DELTA on CORS (no arbitrary origin reflection), SSRF (no user-supplied URL params), JWT (custom header auth), CRED_REUSE (magic values not valid API secrets)
+
+**STEP 2 — PRIORITIZE**
+[PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=8
+[PRIO] kassenkompass.de,6.7,attack_surface=7 business_value=8 tech_exposure=6 gate_ease=5 cloud_surface=6 freshness=7
+[PRIO] www.kassenkompass.de,5.2,attack_surface=5 business_value=6 tech_exposure=5 gate_ease=4 cloud_surface=5 freshness=6
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] API Endpoint Catalog Disclosure Enables Targeted IDOR/BOLA Recon
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 90
+reasoning: Root endpoint `/` and all catch-all paths return full 15-endpoint catalog (including `/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`, `/settlement_report/{year}/{month}`) without any authentication; violates least privilege; enables attacker to map attack surface for targeted testing
+evidence_needed: Confirm catalog matches actual implemented endpoints; verify no rate-limiting on catalog endpoint
+verify_steps: GET https://api.kassenkompass.de/ (already done); GET https://api.kassenkompass.de/user/1 (401); GET https://api.kassenkompass.de/delete/1 (401); confirm all 15 endpoints respond
+impact: Attacker gains full API map for targeted auth-bypass, IDOR, BOLA testing; reduces reconnaissance from hours to seconds; HIGH if any endpoint has auth flaw
+testability: PASSIVE
+
+[HYP] Inconsistent Auth Error Handling — /sync/ Returns 200 Instead of 401
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 85
+reasoning: `/sync/` returns HTTP 200 with `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` while `/insurance_info/{kk_id}`, `/user/{ext_id}`, `/settlement_report/{year}/{month}` return proper RFC 9457 401; behavioral misconfiguration could bypass automated scanners expecting 4xx/5xx for auth failures
+evidence_needed: Confirm scanner bypass potential; enumerate all endpoints for error handling consistency
+verify_steps: GET https://api.kassenkompass.de/sync/ (no auth → 200 with error body); GET https://api.kassenkompass.de/insurance_info/1 (no auth → 401 RFC 9457); test other catalog endpoints for error shape
+impact: Auth failures hidden from automated security tooling; delays detection of auth bypass flaws; MEDIUM
+testability: PASSIVE
+
+[HYP] Two-Tier Auth Middleware — Differential 403 Messages Suggest Scoping Bypass Potential
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 60
+reasoning: Two distinct 403 error messages observed across endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only `/user/{ext_id}`) — suggests two separate auth middleware paths with potentially different scoping logic; could allow cross-tenant access if middleware misapplied
+evidence_needed: Map which endpoints use which error message; test with valid-but-wrong-scope secret on `/user/{ext_id}` vs others
+verify_steps: GET https://api.kassenkompass.de/user/1 with invalid X-API-Secret (expect 403 "Ungültiger X-API-Secret"); GET https://api.kassenkompass.de/insurance_info/1 with invalid X-API-Secret (expect 403 "ungültig oder nicht berechtigt"); compare response bodies
+impact: If middleware scoping differs, valid secret for one endpoint class may grant access to another; potential BOLA across tenant boundaries; HIGH
+testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+[PARKED] OAuth redirect_uri Validation Bypass Across Multi-Tenant Login Portals: No OAuth authorize endpoint discovered in passive enumeration; all three portals use traditional form-post auth; hypothesis not verifiable passively
+[PARKED] IDOR on /user/{ext_id} — Cross-User PII Access: AUTH_HELPED — requires valid X-API-Secret; no passive path to obtain secret
+[PARKED] BOLA on /delete/{id} — Authenticated Arbitrary Resource Deletion: AUTH_HELPED — requires valid X-API-Secret; no passive path to obtain secret
+[PARKED] BOLA on /settlement_report/{year}/{month} — Cross-Tenant Financial Data: AUTH_HELPED — requires valid scoped X-API-Secret; no passive path to obtain secret
+[FINAL] 1. API Endpoint Catalog Disclosure Enables Targeted IDOR/BOLA Recon (confidence 90, PASSIVE)
+[FINAL] 2. Inconsistent Auth Error Handling — /sync/ Returns 200 Instead of 401 (confidence 85, PASSIVE)
+[FINAL] 3. Two-Tier Auth Middleware — Differential 403 Messages Suggest Scoping Bypass Potential (confidence 60, AUTH_HELPED)
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: GET https://api.kassenkompass.de/user/1 with header `X-API-Secret: invalid` — confirm 403 error message variant "Ungültiger X-API-Secret" vs other endpoints' "ungültig oder nicht berechtigt" (read-only, passive enumeration of error shape)
+
+**STEP 6 — LEARNING**
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables targeted attack planning
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated scanners
+[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+[LEARN] REJECTED JWT_ALG_CONFUSION @ api.kassenkompass.de: Auth uses custom X-API-Secret header, not JWT — class not applicable
+[LEARN] REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /cat_detail/ catalog says GET but requires POST — catalog inaccuracy, confirms 15-endpoint catalog is authoritative in structure but not in method-spec
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Three distinct auth error paths (RFC 9457 403 message A, RFC 9457 403 message B, HTTP 200 + error body on /sync/) — indicates separate auth middleware stacks, potential scoping differential
+
+**STEP 7 — RISK**
+[RISK] kassenkompass: 72 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
