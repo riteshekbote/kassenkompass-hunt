@@ -84,3 +84,5 @@ www.kassenkompass.de
 - CHANGED `/sync/` remains sole endpoint returning HTTP 200 + auth error body
 
 ## 2026-09-04 14:21:08 UTC
+
+## 2026-09-04 17:44:02 UTC
