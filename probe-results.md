@@ -36,3 +36,12 @@ https://api.kassenkompass.delete/1 -> ERR <urlopen error [Errno -2] Name or serv
 https://api.kassenkompass.de/user/100 -> HTTP 401
 https://kassenkompass.de/login -> HTTP 404
 https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
+
+## 2026-09-04 00:35:52 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/sync/ -> 200 len=0
+https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/login -> HTTP 404
+https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
