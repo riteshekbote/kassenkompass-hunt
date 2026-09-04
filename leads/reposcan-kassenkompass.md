@@ -32,3 +32,5 @@ reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: 
 impact: N/A — source-code secret scan surface is empty
 verify_steps: N/A — nothing to confirm; the org either has no public GitHub repos or uses a different org name
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 23:17:29 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
