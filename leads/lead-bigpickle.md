@@ -468,3 +468,20 @@ testability: AUTH_HELPED
 [RISK] kassenkompass: 42/100. Auth genuinely enforced across all data endpoints with three distinct handler paths (two RFC 9457 403 messages + /sync/ HTTP 200 path); no passive bypass found. Unauthenticated catalog disclosure + differential error messages reveal internal architecture but don't directly enable data access. High-value IDOR/BOLA gated behind single shared X-API-Secret — AUTH_HELPED only. All passive credential-reuse, CORS, SSRF vectors exhausted. Frontend OAuth enumeration not yet completed but no evidence of OAuth SSO flows found on login pages (PHP form-based auth). Two-tier middleware differential is a structural signal worth testing with a valid key but not a standalone finding. No source code, Cloudflare-fronted, PHP 8.4.3.
 ## 2026-09-04 14:08:20 UTC [target] (model bigpickle)
 ## 2026-09-04 17:43:52 UTC [target] (model bigpickle)
+## 2026-09-04 20:00:00 UTC [target] (model bigpickle)
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+reasoning: GET /user/{ext_id} is the ONLY endpoint using auth middleware B ("Ungültiger X-API-Secret"); single shared X-API-Secret with no visible per-resource scoping in catalog; ext_id externally enumerable. The middleware differential makes this the most probable scoping flaw.
+evidence_needed: Valid X-API-Secret; GET /user/1 vs /user/2 yield different PII.
+verify_steps: WITH AUTH: GET /user/1 and /user/2 with valid secret; compare bodies for distinct user data; then verify same secret returns both (cross-tenant).
+impact: Attacker with one valid secret reads any user's PII (name, insurance, email, address) — GDPR-relevant. Severity HIGH.
+testability: AUTH_HELPED
+class: BUSLOGIC
+asset: api.kassenkompass.de
+confidence: 60
+reasoning: Financial settlement CSV/json keyed by year/month, gated by X-API-Secret only (middleware A); no evidence report access is scoped to the secret's partner/insurer tenant.
+evidence_needed: Valid secret; /settlement_report/2024/01 vs /2023/12 return other-tenants' financial data.
+verify_steps: WITH AUTH: GET /settlement_report/2024/01, /2023/12 with valid secret; observe cross-tenant commission/settlement data.
+impact: Attacker with valid secret exfiltrates financial settlement data across partners/insurers. Severity HIGH.
+testability: AUTH_HELPED
