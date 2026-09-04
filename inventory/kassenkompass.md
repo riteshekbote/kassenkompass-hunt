@@ -82,3 +82,5 @@ www.kassenkompass.de
 - NEW `/cat_detail/` catalog says GET but returns 405, requires POST — catalog method-spec inaccuracy
 - CHANGED Settlement_report endpoint confirmed: proper 401/403 RFC 9457 format — no misconfiguration here
 - CHANGED `/sync/` remains sole endpoint returning HTTP 200 + auth error body
+
+## 2026-09-04 14:21:08 UTC
