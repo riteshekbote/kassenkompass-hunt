@@ -23,3 +23,12 @@ TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-04 19:10:24 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-04 21:33:50 UTC
+[HYP] No candidate repositories identified for source-code audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"; GitHub API returns 404 for KassenKompass org (case-insensitive); no public GitHub org exists under this name
+impact: N/A — source-code secret scan surface is empty
+verify_steps: N/A — nothing to confirm; the org either has no public GitHub repos or uses a different org name
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
