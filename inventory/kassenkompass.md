@@ -70,3 +70,9 @@ www.kassenkompass.de
 - NEW `/post/` also requires X-API-Secret; GET/OPTIONS reveal no bypass
 - CHANGED All API data endpoints remain auth-gated; no egress to AUTH_HELPED hypotheses this session
 - CHANGED Probe confirmation: `/user/1`, `/delete/1`, `/user/100`, `/insurance_info/1`, `/settlement_report/9999/13` all return HTTP 401 without auth
+
+## 2026-09-04 05:10:14 UTC
+- NEW Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only `/user/{ext_id}`) — suggests two separate auth middleware paths
+- NEW `/cat_detail/` catalog advertises GET but actually requires POST (returns 405 for GET) — catalog discrepancy
+- CHANGED `/settlement_report/9999/13` confirmed: 401 (no auth) / 403 (invalid auth) — proper RFC 9457 format, consistent with majority of endpoints
+- CHANGED `/sync/` remains sole endpoint returning HTTP 200 with auth error body (known MISCONFIG)

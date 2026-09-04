@@ -369,3 +369,50 @@ testability: PASSIVE
 [LEARN] REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins.
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret.
 [RISK] kassenkompass: 38/100. API auth gate genuinely enforced across all data endpoints (invalid-vs-missing distinction, no header-presence bypass, no CORS reflection); only /health/ unprotected. High-value IDOR/BOLA gated behind single shared X-API-Secret — value is AUTH_HELPED, no passive egress found; partner magic value not reusable; Cloudflare + PHP 8.4.3; no source code; reposcan N/A.
+## 2026-09-04 05:09:08 UTC [target] (model bigpickle)
+[NEW] Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only `/user/{ext_id}`) — suggests two separate auth middleware paths
+[NEW] `/cat_detail/` catalog advertises GET but actually requires POST (returns 405 for GET) — catalog discrepancy
+[CHANGED] `/settlement_report/9999/13` confirmed: 401 (no auth) / 403 (invalid auth) — proper RFC 9457 format, consistent with majority of endpoints
+[CHANGED] `/sync/` remains sole endpoint returning HTTP 200 with auth error body (known MISCONFIG)
+[PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=10 tech_exposure=10 cloud_surface=4 gate_ease=8 freshness=8
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[PRIO] www.kassenkompass.de,5.15,attack_surface=5 business_value=6 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[HYP] Two-tier auth middleware exposes differential authorization paths — BOLA/endpoint-scoping bypass potential
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 55
+reasoning: Two distinct 403 messages detected: (A) "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt" on /settlement_report/, /question_tree/, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /detail_comparison/, /state/, /insurance_info/{kk_id} (8 endpoints); (B) "Ungültiger X-API-Secret" on /user/{ext_id} only. /sync/ uses yet a third path (HTTP 200 + error body). Three different error handlers across 15 endpoints indicates separate auth middleware classes/stacks. If a valid secret passes middleware A but the authorization scope check is only in middleware B (or vice versa), cross-endpoint access may differ.
+evidence_needed: Valid X-API-Secret tested against both middleware groups; whether a secret valid for group A works on group B endpoints.
+verify_steps: WITH AUTH: test valid secret against /user/1 (group B) vs /health_insurance/ (group A); compare 200 vs 403 response shapes. PASSIVE: No additional passive verification possible.
+impact: If middleware groups enforce different authorization scopes, a secret scoped to read endpoints (group A) might bypass authorization on /user/{ext_id} (group B) or vice versa — cross-tenant PII or financial data access. Severity: HIGH (depends on actual scoping).
+testability: AUTH_HELPED
+[HYP] API catalog discrepancy on /cat_detail/ — method mismatch reveals undocumented POST endpoint
+class: MISCONFIG
+asset: api.kassenkompass.de/cat_detail/
+confidence: 42
+reasoning: Catalog at root lists "GET /cat_detail/" as an endpoint. Actual behavior: GET returns 405 "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST." The catalog is inaccurate — the endpoint requires POST. POST with empty body returns 401 (auth required). OPTIONS returns 200. This indicates undocumented data-submission endpoint whose request schema is unknown.
+evidence_needed: POST body schema for /cat_detail/ with valid auth; whether it accepts arbitrary/overly-broad parameters.
+verify_steps: WITH AUTH: POST /cat_detail/ with empty body, then with {"kk_id":"1"}, observe response. PASSIVE: Already confirmed catalog mismatch.
+impact: Undocumented POST endpoint may accept broader parameters than intended, potentially enabling excessive data retrieval or parameter injection. Severity: LOW-MEDIUM (speculative without schema).
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} - cross-user PII access
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+reasoning: GET /user/{ext_id} returns "Userdaten abrufen"; ext_id is external/enumerable; single shared X-API-Secret with no visible resource scoping in catalog. The endpoint uses a distinct auth middleware (message B) from most other endpoints — if authorization is not per-resource, any valid secret reads any user.
+evidence_needed: Valid X-API-Secret; GET /user/1 vs /user/2 produce different PII.
+verify_steps: WITH AUTH: GET /user/1, /user/2 with valid secret; compare bodies for different user data.
+impact: Attacker with valid secret reads any user's PII (name, insurance, email, address) — GDPR-relevant. Severity: HIGH.
+testability: AUTH_HELPED
+[PARKED] Two-tier auth middleware: 55, AUTH_HELPED — needs valid key to confirm whether differential behavior exists; interesting signal but not a standalone finding without live key test
+[PARKED] Catalog discrepancy /cat_detail/: 42, AUTH_HELPED — catalog mismatch confirmed but below 45 threshold and impact is speculative without POST schema
+[FINAL] 1. Unauthenticated API catalog disclosure (MISCONFIG, 88) — PASSIVE, verified
+[FINAL] 2. IDOR on /user/{ext_id} (IDOR, 62) — AUTH_HELPED, needs valid key
+[FINAL] 3. BOLA on /settlement_report (BUSLOGIC, 60) — AUTH_HELPED, needs valid scoped key
+[NEXT] PROBE: HEAD https://api.kassenkompass.de/ with custom Origin header (e.g. https://evil.com) — confirm CORS policy on root endpoint; also test whether /health/ leaks additional headers (Cache-Control, Server-Timing) that weren't captured. If nothing new, pivot: enumerate kassenkompass.de frontend for OAuth flows, password-reset logic, or admin panels that might leak credentials usable as X-API-Secret.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /cat_detail/ catalog says GET but requires POST — catalog inaccuracy, confirms 15-endpoint catalog is authoritative in structure but not in method-spec.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Three distinct auth error paths (RFC 9457 403 message A, RFC 9457 403 message B, HTTP 200 + error body on /sync/) — indicates separate auth middleware stacks, potential scoping differential.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /settlement_report/ returns proper 401/403 in RFC 9457 format — consistent with majority of endpoints, no status-code misconfiguration here.
+[LEARN] REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins — confirmed again this session.
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret — re-confirmed.
+[RISK] kassenkompass: 40/100. Auth genuinely enforced across all data endpoints with three distinct handler paths; no passive bypass found. Unauthenticated catalog disclosure + differential error messages reveal internal architecture but don't directly enable data access. High-value targets (IDOR/BOLA on /user/ and /settlement_report/) gated behind single shared X-API-Secret — AUTH_HELPED only. No source code, Cloudflare-fronted, PHP 8.4.3. Broadening surface: check frontend OAuth/credential flows for potential secret leakage vectors.
