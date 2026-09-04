@@ -409,3 +409,48 @@ testability: PASSIVE
 [LEARN] REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins — confirmed across sessions
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret — re-confirmed
 [RISK] kassenkompass: 72 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-04 22:18:20 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=8
+[PRIO] kassenkompass.de,6.7,attack_surface=7 business_value=8 tech_exposure=6 gate_ease=5 cloud_surface=6 freshness=7
+[PRIO] www.kassenkompass.de,5.2,attack_surface=5 business_value=6 tech_exposure=5 gate_ease=4 cloud_surface=5 freshness=6
+[HYP] Two-Tier Auth Middleware — Differential 403 Messages Enable Scope Confusion
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 65
+reasoning: Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (8 endpoints: /settlement_report/, /question_tree/, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /detail_comparison/, /state/, /insurance_info/{kk_id}) vs "Ungültiger X-API-Secret" (only /user/{ext_id}) — confirms two separate auth middleware paths; /sync/ adds third error path (HTTP 200 + body); middleware separation suggests different authorization scoping logic that could be confused
+evidence_needed: Map all 15 endpoints to their respective 403 error message variant; confirm middleware assignment is endpoint-based not secret-scope-based
+verify_steps: GET https://api.kassenkompass.de/user/1 with header `X-API-Secret: invalid` (expect 403 "Ungültiger X-API-Secret"); GET https://api.kassenkompass.de/insurance_info/1 with header `X-API-Secret: invalid` (expect 403 "ungültig oder nicht berechtigt"); GET https://api.kassenkompass.de/settlement_report/2024/01 with header `X-API-Secret: invalid` (expect 403 variant); repeat for all catalog endpoints
+impact: If middleware scoping differs, valid secret issued for one endpoint class (e.g., comparison endpoints) may be accepted by another middleware (e.g., /user/{ext_id}) enabling cross-tenant PII access; HIGH
+testability: PASSIVE
+[HYP] Weak Static Magic Values in Partner/Customer Password Reset Flows
+class: AUTH
+asset: kassenkompass.de
+confidence: 55
+reasoning: Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`; both are short, predictable, global constants; no rate limiting observed on reset endpoints in prior reconnaissance; magic values not tied to user session or time-limited tokens
+evidence_needed: Confirm magic value is global (not per-partner/customer); verify no rate limiting or CAPTCHA on reset submission; check if magic value appears in client-side JS or leaked in logs
+verify_steps: GET https://kassenkompass.de/pw_reset_partner.php (observe form structure, hidden fields); POST to partner reset endpoint with magic `KKX3382745` and arbitrary email; repeat 10x rapidly to test rate limiting; GET https://kassenkompass.de/login_kd.php (customer login form) inspect for `X8372` usage
+impact: Partner/customer account takeover via password reset; access to portals with PII, health data, insurance comparisons; HIGH
+testability: PASSIVE
+[HYP] Subdomain Mirror Configuration Drift — www.kassenkompass.de Security Header Divergence
+class: MISCONFIG
+asset: www.kassenkompass.de
+confidence: 48
+reasoning: Inventory marks www.kassenkompass.de as mirror of kassenkompass.de; mirrors commonly drift in CSP, HSTS, cookie flags (SameSite, Secure, Domain), exposed debug endpoints, or header disclosure (Server, X-Powered-By); no independent header/body comparison performed in current dataset
+evidence_needed: Full security header diff between www and apex; cookie scope/attribute comparison; endpoint enumeration parity check
+verify_steps: GET https://www.kassenkompass.de/ (capture all response headers, body hash); GET https://kassenkompass.de/ (capture all response headers, body hash); diff headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Set-Cookie attributes); GET https://www.kassenkompass.de/login_kd.php vs https://kassenkompass.de/login_kd.php (form parity); OPTIONS both for CORS header differences
+impact: Weaker security posture on www could bypass controls on primary domain; cookie Domain misconfiguration could leak sessions across subdomains; missing CSP/HSTS on www enables MITM/XSS chains; MEDIUM
+testability: PASSIVE
+[PARKED] Subdomain Mirror Configuration Drift — www.kassenkompass.de Security Header Divergence: confidence 48 near threshold; impact speculative without confirmed divergence
+[FINAL] 1. Two-Tier Auth Middleware — Differential 403 Messages Enable Scope Confusion (confidence 65, PASSIVE mapping only)
+[FINAL] 2. Weak Static Magic Values in Partner/Customer Password Reset Flows (confidence 55, PASSIVE)
+[NEXT] PROBE: GET https://api.kassenkompass.de/user/1 with header `X-API-Secret: invalid` — confirm 403 error message "Ungültiger X-API-Secret"; GET https://api.kassenkompass.de/insurance_info/1 with header `X-API-Secret: invalid` — confirm 403 error message "ungültig oder nicht berechtigt"; GET https://api.kassenkompass.de/settlement_report/2024/01 with header `X-API-Secret: invalid` — map third endpoint to middleware variant (read-only, passive error-shape enumeration, 1 rps)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables targeted attack planning
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated scanners
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only /user/{ext_id}) — indicates separate auth middleware stacks with potentially different authorization scopes
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /cat_detail/ catalog says GET but requires POST — catalog inaccuracy, confirms 15-endpoint catalog is structural but not method-authoritative
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /settlement_report/ returns proper 401/403 RFC 9457 format — consistent with majority of endpoints, no status-code misconfiguration here
+[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+[LEARN] REJECTED JWT_ALG_CONFUSION @ api.kassenkompass.de: Auth uses custom X-API-Secret header, not JWT — class not applicable
+[LEARN] REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins — confirmed across sessions
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret — re-confirmed
+[RISK] kassenkompass: 72 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu

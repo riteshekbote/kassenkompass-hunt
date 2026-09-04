@@ -1,4 +1,4 @@
-## 2026-09-04 20:04:15 UTC [target] (model nemotron3)
+## 2026-09-04 22:18:20 UTC [target] (model nemotron3)
 [PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=8
 [PRIO] kassenkompass.de,6.7,attack_surface=7 business_value=8 tech_exposure=6 gate_ease=5 cloud_surface=6 freshness=7
 [PRIO] www.kassenkompass.de,5.2,attack_surface=5 business_value=6 tech_exposure=5 gate_ease=4 cloud_surface=5 freshness=6
@@ -29,12 +29,9 @@ evidence_needed: Full security header diff between www and apex; cookie scope/at
 verify_steps: GET https://www.kassenkompass.de/ (capture all response headers, body hash); GET https://kassenkompass.de/ (capture all response headers, body hash); diff headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Set-Cookie attributes); GET https://www.kassenkompass.de/login_kd.php vs https://kassenkompass.de/login_kd.php (form parity); OPTIONS both for CORS header differences
 impact: Weaker security posture on www could bypass controls on primary domain; cookie Domain misconfiguration could leak sessions across subdomains; missing CSP/HSTS on www enables MITM/XSS chains; MEDIUM
 testability: PASSIVE
-[PARKED] Two-Tier Auth Middleware — Differential 403 Messages Enable Scope Confusion: confidence 65 but AUTH_HELPED for full exploitation (requires valid secret to test cross-middleware acceptance); passive mapping of error variants only confirms architectural separation, not exploitability
-[PARKED] Weak Static Magic Values in Partner/Customer Password Reset Flows: confidence 55 but brute-force/rate-limit testing edges toward active auth interaction; program scope allows passive enumeration only for auth flows
-[PARKED] Subdomain Mirror Configuration Drift: confidence 48 near threshold; impact speculative without confirmed divergence
+[PARKED] Subdomain Mirror Configuration Drift — www.kassenkompass.de Security Header Divergence: confidence 48 near threshold; impact speculative without confirmed divergence
 [FINAL] 1. Two-Tier Auth Middleware — Differential 403 Messages Enable Scope Confusion (confidence 65, PASSIVE mapping only)
 [FINAL] 2. Weak Static Magic Values in Partner/Customer Password Reset Flows (confidence 55, PASSIVE)
-[FINAL] 3. Subdomain Mirror Configuration Drift — www.kassenkompass.de Security Header Divergence (confidence 48, PASSIVE)
 [NEXT] PROBE: GET https://api.kassenkompass.de/user/1 with header `X-API-Secret: invalid` — confirm 403 error message "Ungültiger X-API-Secret"; GET https://api.kassenkompass.de/insurance_info/1 with header `X-API-Secret: invalid` — confirm 403 error message "ungültig oder nicht berechtigt"; GET https://api.kassenkompass.de/settlement_report/2024/01 with header `X-API-Secret: invalid` — map third endpoint to middleware variant (read-only, passive error-shape enumeration, 1 rps)
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables targeted attack planning
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated scanners

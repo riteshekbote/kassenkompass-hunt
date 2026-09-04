@@ -85,3 +85,14 @@ https://kassenkompass.de/login_kd.php -> 200 len=?
 https://www.kassenkompass.de/ -> 200 len=?
 https://kassenkompass.de/ -> 200 len=?
 https://www.kassenkompass.de/login_kd.php -> 200 len=?
+
+## 2026-09-04 22:21:40 UTC
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/settlement_report/2024/01 -> HTTP 401
+https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
+https://kassenkompass.de/login_kd.php -> 200 len=?
+https://www.kassenkompass.de/ -> 200 len=?
+https://kassenkompass.de/ -> 200 len=?
+https://www.kassenkompass.de/login_kd.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401

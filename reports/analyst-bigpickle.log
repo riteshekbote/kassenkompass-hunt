@@ -2165,3 +2165,460 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] kassenkompass: 42/100. Auth genuinely enforced across all 15 data endpoints via three distinct handler paths; passive bypass exhausted. Only reliable findings are recon-level (catalog disclosure, differential error paths, /sync/ status-code anomaly) — these map architecture but don't grant data access. High-value IDOR/BOLA confirmed as the realistic attack chain but fully gated behind the shared X-API-Secret (AUTH_HELPED). Blocked on credential acquisition; risk static without key access or a newly discovered credential-leaking vector.
+===== ANALYST bigpickle 2026-09-04 22:21:25 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "---" && ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/art 2>/dev/null
+total 148
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:16 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 22:16 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:16 .github
+-rw-r--r--  1 runner runner  1767 Sep  4 22:16 README.md
+-rw-r--r--  1 runner runner    32 Sep  4 22:16 analyst-out.txt
+-rw-r--r--  1 runner runner 29502 Sep  4 22:16 analyst-prompt.txt
+-rw-r--r--  1 runner runner 25684 Sep  4 22:16 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 leads
+-rw-r--r--  1 runner runner  3181 Sep  4 22:16 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  4 22:16 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 triage
+---
+[0m
+[0m✱ [0mGlob "**/*.yml"[90m 1 match[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage 2>/dev/null
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory:
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner 4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 6852 Sep  4 22:16 kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge:
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner 4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 5772 Sep  4 22:16 index.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads:
+total 136
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 56910 Sep  4 22:16 lead-bigpickle.md
+-rw-r--r--  1 runner runner   459 Sep  4 22:16 lead-laguna.md
+-rw-r--r--  1 runner runner   450 Sep  4 22:16 lead-ling3.md
+-rw-r--r--  1 runner runner   468 Sep  4 22:16 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  4 22:16 lead-mimo.md
+-rw-r--r--  1 runner runner 53050 Sep  4 22:16 lead-nemotron3.md
+-rw-r--r--  1 runner runner  1843 Sep  4 22:16 reposcan-kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage:
+total 84
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner     0 Sep  4 22:16 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep  4 22:16 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep  4 22:16 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep  4 22:16 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep  4 22:16 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep  4 22:16 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep  4 22:16 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep  4 22:16 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep  4 22:16 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep  4 22:16 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep  4 22:16 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep  4 22:16 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep  4 22:16 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep  4 22:16 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep  4 22:16 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep  4 22:16 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep  4 22:16 run-2026-09-04-21-35.md
+[0m
+[0m$ [0mcat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_bigpickle.json /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt && echo "---git---" && cd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && git log --oneline -5 && git status --short
+{"phase": "POC", "target": "api"}[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "---" && ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/art 2>/dev/null
+total 148
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:16 ..
+drwxr-xr-x  7 runner runner  4096 Sep  4 22:16 .git
+drwxr-xr-x  3 runner runner  4096 Sep  4 22:16 .github
+-rw-r--r--  1 runner runner  1767 Sep  4 22:16 README.md
+-rw-r--r--  1 runner runner    32 Sep  4 22:16 analyst-out.txt
+-rw-r--r--  1 runner runner 29502 Sep  4 22:16 analyst-prompt.txt
+-rw-r--r--  1 runner runner 25684 Sep  4 22:16 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 leads
+-rw-r--r--  1 runner runner  3181 Sep  4 22:16 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 reports
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  4 22:16 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 scripts
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  4 22:16 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 triage
+---
+[0m
+[0m✱ [0mGlob "**/*.yml"[90m 1 match[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage 2>/dev/null
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory:
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner 4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 6852 Sep  4 22:16 kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge:
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner 4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 5772 Sep  4 22:16 index.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads:
+total 136
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 56910 Sep  4 22:16 lead-bigpickle.md
+-rw-r--r--  1 runner runner   459 Sep  4 22:16 lead-laguna.md
+-rw-r--r--  1 runner runner   450 Sep  4 22:16 lead-ling3.md
+-rw-r--r--  1 runner runner   468 Sep  4 22:16 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  4 22:16 lead-mimo.md
+-rw-r--r--  1 runner runner 53050 Sep  4 22:16 lead-nemotron3.md
+-rw-r--r--  1 runner runner  1843 Sep  4 22:16 reposcan-kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage:
+total 84
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner     0 Sep  4 22:16 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep  4 22:16 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep  4 22:16 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep  4 22:16 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep  4 22:16 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep  4 22:16 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep  4 22:16 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep  4 22:16 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep  4 22:16 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep  4 22:16 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep  4 22:16 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep  4 22:16 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep  4 22:16 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep  4 22:16 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep  4 22:16 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep  4 22:16 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep  4 22:16 run-2026-09-04-21-35.md
+[0m
+---git---
+f078fbc triage 2026-09-04-21-35
+?? analyst-out.txt
+?? analyst-prompt.txt
+?? ctx.txt
+[0m
+[0m→ [0mRead knowledge/index.md
+[0m→ [0mRead triage/run-2026-09-04-21-35.md
+[0m→ [0mRead triage/run-2026-09-04-19-20.md
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/recon-notes /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scripts 2>/dev/null; echo "---new-leads---"; cat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/new-leads.txt 2>/dev/null
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner 4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner  828 Sep  4 22:16 DEDICATED-DEEP.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports:
+total 444
+drwxr-xr-x  2 runner runner   4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner   4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 212804 Sep  4 22:16 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   1953 Sep  4 22:16 analyst-laguna.log
+-rw-r--r--  1 runner runner   1944 Sep  4 22:16 analyst-ling3.log
+-rw-r--r--  1 runner runner   1962 Sep  4 22:16 analyst-longcat.log
+-rw-r--r--  1 runner runner 219422 Sep  4 22:16 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   1406 Sep  4 22:16 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  4 22:16 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  4 22:16 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  4 22:16 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   7727 Sep  4 22:16 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  19805 Sep  4 22:16 hypotheses.md
+-rw-r--r--  1 runner runner    205 Sep  4 22:16 valid-bugs.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  4 22:16 .
+drwxr-xr-x 12 runner runner  4096 Sep  4 22:16 ..
+-rw-r--r--  1 runner runner 16987 Sep  4 22:16 sync-issues.py
+---new-leads---
+[0m
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m→ [0mRead reports/valid-bugs.md
+No new probe data since my last cycle (20:04). Running a fresh low-rate GET breadth pass on the API (versioned/diagnostic paths + 403-variant confirmation) and the frontend (asset breadth + www/apex header diff) before outputting.
+[0m
+[0m$ [0mu="https://api.kassenkompass.de"
+reqs=(
+"health/|"
+"v2/|"
+"beta/|"
+"internal/|"
+"api/v1/|"
+"swagger-resources|"
+"actuator/|"
+"openapi.json|"
+"health/?lang=de|"
+"user/1|X-API-Secret: invalid"
+"settlement_report/2024/01|X-API-Secret: invalid"
+"sync/|X-API-Secret: invalid"
+"state/|X-API-Secret: invalid"
+)
+for r in "${reqs[@]}"; do
+  path="${r%%|*}"; hdr="${r#*|}"
+  args=(-s --max-time 12 -o /tmp/opencode/body.txt -w "%{http_code}" "$u/$path")
+  if [ -n "$hdr" ]; then args+=(-H "$hdr"); fi
+  code=$(curl "${args[@]}")
+  ctype=$(curl -s -o /dev/null -D - --max-time 12 "$u/$path" | awk 'tolower($1)=="content-type:"{print $2; exit}' | tr -d '\r')
+  body=$(tr -d '\n' </tmp/opencode/body.txt | head -c 140)
+  echo "[$path] HTTP $code | $ctype | $body"
+  sleep 1.1
+done
+[health/] HTTP 200 | application/json; | {    "status": "ok"}
+[v2/] HTTP 200 | application/json; | {    "api_info": "KK API v2 - REST (breite Variante)",    "version": "2.0",    "authentication": "X-API-Secret header required",    "endpoin
+[beta/] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[internal/] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[api/v1/] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[swagger-resources] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[actuator/] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[openapi.json] HTTP 200 | application/json; | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/
+[health/?lang=de] HTTP 200 | application/json; | {    "status": "ok"}
+[user/1] HTTP 403 | application/problem+json; | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "instance": "\/user\/1",    "detail": "Ungült
+[settlement_report/2024/01] HTTP 403 | application/problem+json; | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret is
+[sync/] HTTP 200 | application/json; | {"table":401,"success":false,"message":"Ungültiger X-API-Secret"}
+[state/] HTTP 403 | application/problem+json; | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret is
+[0m
+New distinct surface found: `/v2/` returns a *different* catalog ("KK API v2 - REST (breite Variante)", version 2.0) unlike the v1.0 catch-all on every other path. Capturing the full v2 catalog and headers.
+[0m$ [0mcurl -s --max-time 15 -D /tmp/opencode/v2headers.txt https://api.kassenkompass.de/v2/ -o /tmp/opencode/v2body.txt; echo "=== STATUS ==="; curl -s -o /dev/null -w "%{http_code}\n" --max-time 15 https://api.kassenkompass.de/v2/; echo "=== HEADERS ==="; cat /tmp/opencode/v2headers.txt | tr -d '\r' | grep -iE '^(HTTP|content-type|x-powered-by|server|access-control|set-cookie|x-)' ; echo "=== V2 BODY (first 5000 chars) ==="; head -c 5000 /tmp/opencode/v2body.txt
+=== STATUS ===
+200
+=== HEADERS ===
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+=== V2 BODY (first 5000 chars) ===
+{
+    "api_info": "KK API v2 - REST (breite Variante)",
+    "version": "2.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/v2\/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse (breite Variante: inkl. Entwurfs-Kategorien und aufgelöster Referenzen)"
+    }
+}
+[0m
+`/v2/` exposes a NEW endpoint: `GET /v2/insurance_info/{kk_id}` — a "wide variant" including **draft categories and resolved references** (more data than v1). This is genuine new attack surface. Probing its auth behavior and route scoping.
+[0m$ [0mu="https://api.kassenkompass.de"
+reqs=(
+"v2/insurance_info/1|"
+"v2/insurance_info/1|X-API-Secret: invalid"
+"v2/user/1|"
+"v2/settlement_report/2024/01|"
+"v2/|X-API-Secret: invalid"
+"v2/insurance_info/999999|X-API-Secret: invalid"
+)
+for r in "${reqs[@]}"; do
+  path="${r%%|*}"; hdr="${r#*|}"
+  args=(-s --max-time 12 -o /tmp/opencode/b2.txt -w "%{http_code}" "$u/$path")
+  if [ -n "$hdr" ]; then args+=(-H "$hdr"); fi
+  code=$(curl "${args[@]}")
+  body=$(tr -d '\n' </tmp/opencode/b2.txt | head -c 260)
+  echo "[$path] HTTP $code | $body"
+  sleep 1.1
+done
+[v2/insurance_info/1] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "instance": "\/v2\/insurance_info\/1"}
+[v2/insurance_info/1] HTTP 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",    "instance": "\/v2\/insurance_info\/1"}
+[v2/user/1] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/user' nicht gefunden.","instance":"\/v2\/user\/1"}
+[v2/settlement_report/2024/01] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/settlement_report' nicht gefunden.","instance":"\/v2\/settlement_report\/2024\/01"}
+[v2/] HTTP 200 | {    "api_info": "KK API v2 - REST (breite Variante)",    "version": "2.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/v2\/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse (breite Variant
+[v2/insurance_info/999999] HTTP 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",    "instance": "\/v2\/insurance_info\/999999"}
+[0m
+Major delta confirmed: `/v2/` is a **live versioned router** — unknown v2 paths return a structured 404 oracle (`"API-Endpunkt 'v2/X' nicht gefunden"`, distinct from the v1 catch-all). Only `/v2/insurance_info/{kk_id}` is registered. Enumerating the v2 namespace + running the frontend breadth pass.
+[0m$ [0mu="https://api.kassenkompass.de"
+for p in "v2/health" "v2/post" "v2/delete/1" "v2/cat_detail" "v2/categories" "v2/insurance" "v2/insurance_info/1/extra" "v1/v2/"; do
+  code=$(curl -s --max-time 12 -o /tmp/opencode/b3.txt -w "%{http_code}" "$u/$p")
+  body=$(tr -d '\n' </tmp/opencode/b3.txt | head -c 150)
+  echo "[/$p] HTTP $code | $body"
+  sleep 1.1
+done
+[/v2/health] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health' nicht gefunden.","ins
+[/v2/post] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/post' nicht gefunden.","insta
+[/v2/delete/1] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/delete' nicht gefunden.","ins
+[/v2/cat_detail] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/cat_detail' nicht gefunden.",
+[/v2/categories] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/categories' nicht gefunden.",
+[/v2/insurance] HTTP 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/insurance' nicht gefunden.","
+[/v2/insurance_info/1/extra] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforde
+[/v1/v2/] HTTP 200 | {    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/health_ins
+[0m
+v2 namespace fully mapped — only `insurance_info` registered; route param accepts trailing slashes (`/v2/insurance_info/1/extra` → 401). Now the frontend breadth + www/apex header diff.
+[0m$ [0mfor p in "" "impressum.php" "datenschutz.php" "register.php" "registrierung.php" "api/" "admin/" "sitemap.xml" "pw_reset_kd.php" "kontakt.php" "agb.php" "partner/login.php" "mitglieder/"; do
+  code=$(curl -s -L --max-time 12 -o /tmp/opencode/f1.txt -w "%{http_code}" "https://kassenkompass.de/$p")
+  ctype=$(curl -s -o /dev/null -D - --max-time 12 "https://kassenkompass.de/$p" | awk 'tolower($1)=="content-type:"{print $2; exit}' | tr -d '\r')
+  size=$(wc -c </tmp/opencode/f1.txt)
+  title=$(tr -d '\n' </tmp/opencode/f1.txt | grep -oE '<title>[^<]*</title>' | head -1 | cut -c1-90)
+  echo "[/$p] HTTP $code | $ctype | ${size}B | $title"
+  sleep 1.1
+done
+[/] HTTP 200 | text/html; | 36070B | <title>KassenKompass | Beste Gesetzliche Krankenkasse vergleichen</title>
+[/impressum.php] HTTP 200 | text/html; | 11733B | <title>KassenKompass | Impressum</title>
+[/datenschutz.php] HTTP 200 | text/html; | 72653B | <title>Kassenkompass | Datenschutz</title>
+[/register.php] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[/registrierung.php] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[/api/] HTTP 403 | text/html | 1233B | <title>403 - Forbidden: Access is denied.</title>
+[/admin/] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[/sitemap.xml] HTTP 200 | text/xml | 3119B | 
+[/pw_reset_kd.php] HTTP 200 | text/html; | 3527B | <title>Kundenlogin - Kassenkompass</title>
+[/kontakt.php] HTTP 200 | text/html; | 17176B | <title>KassenKompass | Kontakt - Fragen & Beratung zur Krankenkasse</title>
+[/agb.php] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[/partner/login.php] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[/mitglieder/] HTTP 404 | text/html; | 8372B | <title>Seite nicht gefunden | KassenKompass</title>
+[0m
+[0m$ [0mecho "=== APEX HEADERS ==="; curl -s -D - -o /dev/null --max-time 12 https://kassenkompass.de/ | tr -d '\r' | grep -iE '^(HTTP|server|cf-ray|x-powered-by|content-security|strict-transport|x-frame|x-content-type|referrer|set-cookie|access-control)'
+sleep 1.1
+echo "=== WWW HEADERS ==="; curl -s -D - -o /dev/null --max-time 12 https://www.kassenkompass.de/ | tr -d '\r' | grep -iE '^(HTTP|server|cf-ray|x-powered-by|content-security|strict-transport|x-frame|x-content-type|referrer|set-cookie|access-control)'
+sleep 1.1
+echo "=== SITEMAP URLS ==="; curl -s --max-time 12 https://kassenkompass.de/sitemap.xml | tr -d '\n' | grep -oE '<loc>[^<]*</loc>' | sed 's/<[^>]*>//g' | head -40
+=== APEX HEADERS ===
+HTTP/2 200 
+set-cookie: AWSALB=XuQeLDPCRTz1nzH7JaO4q4+0tA3kn/Yo73rMfsYC/d9+U+gdyJ0i41zsyukYyarCtR5WhRTtOa2XxjXXTxvqlzmbiW2eEZv8wTcm0IesCXTZ9BZcfjAOA9zK+4tG; Expires=Fri, 11 Sep 2026 22:19:38 GMT; Path=/
+set-cookie: AWSALBCORS=XuQeLDPCRTz1nzH7JaO4q4+0tA3kn/Yo73rMfsYC/d9+U+gdyJ0i41zsyukYyarCtR5WhRTtOa2XxjXXTxvqlzmbiW2eEZv8wTcm0IesCXTZ9BZcfjAOA9zK+4tG; Expires=Fri, 11 Sep 2026 22:19:38 GMT; Path=/; SameSite=None; Secure
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-ray: a360607e8d7a3ac6-DFW
+=== WWW HEADERS ===
+HTTP/2 200 
+set-cookie: AWSALB=CjoTieS4aEgQbMaH5Jk0CB6TYt0+qscP1Z8BC+UBnhxnN4fYac4i6R0wBvl8PNv5mbELxKFdSTaozhjoUTWadMpH3Vcq1w3KNMc5tf3bDOjZpbi5PuH++3aCOTs0; Expires=Fri, 11 Sep 2026 22:19:40 GMT; Path=/
+set-cookie: AWSALBCORS=CjoTieS4aEgQbMaH5Jk0CB6TYt0+qscP1Z8BC+UBnhxnN4fYac4i6R0wBvl8PNv5mbELxKFdSTaozhjoUTWadMpH3Vcq1w3KNMc5tf3bDOjZpbi5PuH++3aCOTs0; Expires=Fri, 11 Sep 2026 22:19:40 GMT; Path=/; SameSite=None; Secure
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-ray: a3606087a86f6c56-DFW
+=== SITEMAP URLS ===
+https://kassenkompass.de
+https://kassenkompass.de/ueberuns.php
+https://kassenkompass.de/kontakt.php
+https://kassenkompass.de/faq.php
+https://kassenkompass.de/artikel.php
+https://kassenkompass.de/presse.php
+https://kassenkompass.de/kooperationspartner.php
+https://kassenkompass.de/bonusrechner.php
+https://kassenkompass.de/artikel/krankenkasse-wechseln.php
+https://kassenkompass.de/artikel/krankenkasse-wechseln/fristen-kuendigung.php
+https://kassenkompass.de/artikel/krankenkasse-wechseln/beste-krankenkasse-familien.php
+https://kassenkompass.de/artikel/krankenkasse-wechseln/zusatzbeitrag-krankenkassen.php
+https://kassenkompass.de/artikel/krankenkasse-wechseln/pkv-zurueck-in-gkv-wechsel.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/regelleistungen-zusatzleistungen.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/zahnleistungen.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/bonusprogramme.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/zahnreinigung.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/impfungen.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/vorsorgeuntersuchungen.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/grippeimpfung.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/schwangerschaft.php
+https://kassenkompass.de/artikel/krankenkassen-leistungen/kuenstliche-befruchtung.php
+https://kassenkompass.de/artikel/gkv-vs-pkv.php
+https://kassenkompass.de/artikel/gkv-vs-pkv/pkv-wechsel-regeln.php
+https://kassenkompass.de/artikel/gkv-vs-pkv/zusatzversicherung.php
+https://kassenkompass.de/artikel/gkv-vs-pkv/zweiklassenmedizin.php
+https://kassenkompass.de/artikel/krankenkassen-system.php
+https://kassenkompass.de/artikel/krankenkassen-system/krankenkasse-irrtuemer.php
+https://kassenkompass.de/artikel/krankenkassen-system/elektronische-patientenakte.php
+https://kassenkompass.de/artikel/krankenkassen-system/pflegegrad.php
+https://kassenkompass.de/artikel/erkaeltung-oder-covid.php
+https://kassenkompass.de/artikel/pflegehilfsmittel-beantragen-pflegegrad.php
+https://kassenkompass.de/krankenkasse/dak-gesundheit.php
+[0m
+Last validation probe: v2 route-normalization quirks (double slash / dot-segment aliasing of `kk_id`) — pure GET, then reporting.
+[0m$ [0mu="https://api.kassenkompass.de"
+for p in "v2//insurance_info/1" "v2/./insurance_info/1" "v2/insurance_info//1" "v2/insurance_info/1/" "v2/insurance_info/%31"; do
+  code=$(curl -s --max-time 12 -o /tmp/opencode/b4.txt -w "%{http_code}" "$u/$p")
+  body=$(tr -d '\n' </tmp/opencode/b4.txt | head -c 130)
+  echo "[/$p] HTTP $code | $body"
+  sleep 1.1
+done
+[/v2//insurance_info/1] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secre
+[/v2/./insurance_info/1] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secre
+[/v2/insurance_info//1] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secre
+[/v2/insurance_info/1/] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secre
+[/v2/insurance_info/%31] HTTP 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secre
+[0m
+STEP 1 — DELTA
+- NEW: api.kassenkompass.de `/v2/` — distinct versioned router (v2.0, "KK API v2 - REST (breite Variante)"), undocumented in all prior recon; registers exactly one endpoint: `GET /v2/insurance_info/{kk_id}` = "API Kategorien und Leistungswerte einer Krankenkasse (breite Variante: inkl. Entwurfs-Kategorien und aufgelöster Referenzen)" — i.e., DRAFT (unreleased) categories + resolved references, more data than the v1 twin.
+- NEW: unknown `/v2/*` paths return structured router 404 oracle `{"type":"https://api.kassenkompass.de/errors/not-found","detail":"API-Endpunkt 'v2/X' nicht gefunden."}` — unlike v1 catch-all (v1 returns full catalog on EVERY path), enabling exact v2 endpoint enumeration; confirmed `v2/user|post|delete|settlement_report|cat_detail|categories|insurance|health` all 404 → only `insurance_info` live.
+- NEW: v2 router greedily matches the `insurance_info/` prefix — `/v2/insurance_info/1/extra`, `/v2//insurance_info/1`, `/v2/insurance_info//1`, `/v2/insurance_info/1/`, `/v2/insurance_info/%31` ALL reach the protected handler (401) — `kk_id` segment is not validated as numeric/single at routing.
+- NEW: v2 auth behavior confirmed — 401 (missing secret, middleware-A detail "X-API-Secret Header ist erforderlich...") / 403 (invalid, "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); same X-API-Secret gate as v1 group-A.
+- CHANGED: www.kassenkompass.de vs apex serve IDENTICAL security headers (X-Frame-Options SAMEORIGIN, X-Content-Type-Options nosniff, HSTS max-age=31536000 includeSubDomains, Referrer-Policy strict-origin-when-cross-origin, no CSP on either); AWS ALB + AWSALB/AWSALBCORS sticky cookies confirmed behind Cloudflare on both — mirror-drift hypothesis neutralized.
+- CHANGED: sitemap.xml (3119B) adds frontend paths `/ueberuns.php /faq.php /bonusrechner.php /kooperationspartner.php /presse.php` + `/artikel/*` subtree; `/api/` returns 403 "Access is denied" (WAF/rule default-deny, no page).
+
+STEP 2 — PRIORITIZE
+[PRIO] api.kassenkompass.de,8.3,attack_surface=8 business_value=9 tech_exposure=7 gate_ease=9 cloud_surface=6 freshness=10
+[PRIO] kassenkompass.de,6.4,attack_surface=6 business_value=8 tech_exposure=5 gate_ease=5 cloud_surface=6 freshness=8
+[PRIO] www.kassenkompass.de,5.0,attack_surface=5 business_value=6 tech_exposure=4 gate_ease=4 cloud_surface=5 freshness=5
+
+STEP 3 — HYPOTHESES
+[HYP] Draft-Category BOLA via v2 insurance_info wide-variant — unreleased data across all insurers
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: /v2/ catalog documents one endpoint returning "Entwurfs-Kategorien" (draft categories) and "aufgelöste Referenzen" — data v1 /insurance_info/{kk_id} does not expose; auth is the single shared X-API-Secret with no per-insurer resource scoping visible in either catalog; kk_id routing accepts any segment (verified: /v2/insurance_info/1/extra → 401); v1 twin endpoint already grouped in auth-middleware-A across partners/insurers, implying a platform-wide shared key.
+evidence_needed: Valid X-API-Secret; GET /v2/insurance_info/1 vs /v1 insurance_info/1 — v2 body contains draft/resolved-reference fields absent in v1; sweep of kk_id small integers yields distinct insurer datasets under one key.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/v2/insurance_info/1 and /v2/insurance_info/2 with valid secret; diff v2 vs v1 responses for added draft/reference fields; confirm same secret serves multiple kk_ids.
+impact: Any partner/integration holding the shared secret retrieves pre-release draft insurance product data across all insurers — business-confidential, pre-publication disclosure; GDPR-adjacent if references resolve to identifiable insurer/benefit data. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] v2 greedy kk_id path-param smuggling (confidence 45): routing accepts extraneous segments/encodings, but exploitability depends on backend kk_id validation — unobservable without valid key; not a standalone finding.
+[PARKED] Frontend www/apex header drift (confidence 45 prior): REJECTED this session — headers byte-identical on both hosts; HSTS includeSubDomains present; no differential.
+[FINAL] 1. IDOR on /user/{ext_id} (IDOR, 62) — AUTH_HELPED, middleware-B endpoint, unchanged from prior cycles.
+[FINAL] 2. BOLA on /settlement_report/{year}/{month} (BUSLOGIC, 60) — AUTH_HELPED, unchanged.
+[FINAL] 3. Draft-Category BOLA via /v2/insurance_info/{kk_id} (IDOR, 58) — NEW this session; widest data surface per request (draft + resolved refs).
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://api.kassenkompass.de/v2/insurance_info/1 with header `X-API-Secret: KKX3382745` — rule cross-asset credential reuse against the NEW v2 surface (password-reset magic vs v2 secret); expect 403 "ungültig" if gate enforced (CRED_REUSE closed on v2), else HIGH-signal.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: `/v2/` exposes a distinct versioned router (v2.0 "breite Variante") with `GET /v2/insurance_info/{kk_id}` returning draft categories + resolved references — undocumented in 4+ prior recon sessions; widest per-request data surface on the API.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 unknown paths return structured router-404 oracle (`API-Endpunkt 'v2/X' nicht gefunden`) vs v1's full-catalog catch-all — versioned endpoint enumeration primitive; only `insurance_info` registered so far.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: v2 router greedy-segment match — `/v2/insurance_info/{anything}` (incl. `/1/extra`, `//1`, `/1/`, `%31`) all reach the protected handler (401); kk_id not validated at routing.
+[LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
+[LEARN] REJECTED CORS @ api.kassenkompass.de: no access-control-allow-origin reflection observed on v1 or v2 endpoints — unchanged.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 45/100 — Unauthenticated v1 catalog disclosure (recon amplifier) + /sync/ HTTP-200 misconfig remain confirmed; NEW v2 wide-variant endpoint doubles the per-secret data surface (draft categories, resolved references) but stays gated behind the single shared X-API-Secret, so egress to AUTH_HELPED still requires a key; three auth error paths (A/B/sync-200) plus v2 router-404 confirm a heterogeneous stack — single secret = single point of full PII+financial+draft-data exposure if leaked. Frontend posture consistent across hosts. No passive bypass found; all high-value IDOR/BOLA remain key-gated.
