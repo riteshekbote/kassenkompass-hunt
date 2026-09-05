@@ -4807,3 +4807,61 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] kassenkompass: 50/100 — No new surface this cycle; surface saturated for passive testing. API remains key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 recon amplifiers, v2 single route). Highest-confidence live finding remains server-side unvalidated attribution-cookie stuffing across the entire public funnel (1-year persistence, commission-hijack dependent on partner-settlement trust). All top hypotheses await valid credentials; no data exposure during passive testing.
+===== ANALYST bigpickle 2026-09-05 12:14:55 UTC =====
+[0m
+> build · big-pickle
+[0m
+**STEP 1 — DELTA**
+
+NO_DELTA. No new hosts or endpoints discovered since last session. awv.kassenkompass.de GTM proxy confirmed (root=404, debug=404, preview=404). All prior findings carried forward.
+
+**STEP 2 — PRIORITIZE**
+
+`[PRIO] api.kassenkompass.de,9,attack_surface=9 business_value=9 tech_exposure=6 gate_ease=2 cloud_surface=3 freshness=5,reason=15-endpoint REST API with dual auth middleware stacks, X-API-Secret sole channel, v2 draft surface, catalog disclosure; sole high-value target until auth help received`
+`[PRIO] kassenkompass.de,7,attack_surface=7 business_value=8 tech_exposure=4 gate_ease=7 cloud_surface=3 freshness=6,reason=Full insurance funnel with unvalidated cookie-stuffing, PII flows, 3 login portals, partner settlement — but app-layer authz untested`
+`[PRIO] awv.kassenkompass.de,3,attack_surface=2 business_value=2 tech_exposure=2 gate_ease=8 cloud_surface=1 freshness=3,reason=Self-hosted GTM proxy; debug/preview endpoints return 404; minimal surface; only gtm.js confirmed live`
+
+**STEP 3 — HYPOTHESES**
+
+`[HYP] Whole-funnel attribution-cookie stuffing → partner commission/lead hijack`
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*/daten/fragen/suche/vergleich2/wechsel2/abschluss.php, termin.php)
+confidence: 65
+reasoning: Every public funnel entry mirrors raw pass-params into 1-year cookies with NO validation — lizenz→afilcode, jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn→poolpartnernummer, advisorid, employeenumber, frab; nonexistent codes accepted verbatim; termin.php same; stuffing precedes legitimate landing.
+evidence_needed: kk_webapp/partner-settlement reads cookie (not clicked-link query) into lead/commission record; attacker code appears in partner "linkklick"/lead report.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel page then fresh-session navigate rest of flow; inspect lead attribution; else diff vs clicked-link partner (AUTH_HELPED).
+impact: Any visitor's lead/click attributable to attacker-chosen partner license — commission theft/lead hijack, 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+`[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint`
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only endpoint on middleware B (distinct 401/403 wording + path echo); single shared X-API-Secret with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid secret; /user/1 vs /user/2 return different tenants' PII under same key.
+verify_steps: WITH AUTH: GET /user/1 and /user/2; diff bodies; sweep ids.
+impact: One valid secret dumps any user PII across tenants; HIGH.
+testability: AUTH_HELPED
+
+`[HYP] Cross-version BOLA draft-category via /v2/insurance_info/{kk_id}`
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route, reuses middleware A; routing accepts any kk_id (incl. trailing segments); returns draft categories + resolved references absent in v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returning multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/1.
+impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+
+All three hypotheses require valid X-API-Secret or partner-portal access. No passive verification path exists. No new hypotheses surfaced below confidence 40.
+
+`[FINAL] Whole-funnel attribution-cookie stuffing, confidence 65 — highest independent verification potential (observe cookie presence in requests)`
+`[FINAL] /user/{ext_id} IDOR, confidence 62 — highest impact if authenticated`
+`[FINAL] v2 draft-BOLA, confidence 58 — only versioned surface, unreleased data`
+
+**STEP 5 — NEXT ACTION**
+
+`[NEXT] HUMAN: Request a scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu — all three final hypotheses require valid credentials; no further passive egress available this cycle.`
+`[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 — capture Set-Cookie headers and response (passive, 1 rps, confirm cookie attributes across entry variants)`

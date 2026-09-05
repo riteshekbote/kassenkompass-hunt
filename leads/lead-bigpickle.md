@@ -719,3 +719,28 @@ impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
 testability: AUTH_HELPED
 [NEXT] HUMAN: Request a scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu — the only open high-value hypotheses (funnel attribution-cookie downstream settlement consumption, /user/{ext_id} IDOR, v2 draft-BOLA) all require valid credentials; no passive egress remains this cycle.
 [RISK] kassenkompass: 50/100 — No new surface this cycle; surface saturated for passive testing. API remains key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 recon amplifiers, v2 single route). Highest-confidence live finding remains server-side unvalidated attribution-cookie stuffing across the entire public funnel (1-year persistence, commission-hijack dependent on partner-settlement trust). All top hypotheses await valid credentials; no data exposure during passive testing.
+## 2026-09-05 12:08:35 UTC [target] (model bigpickle)
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*/daten/fragen/suche/vergleich2/wechsel2/abschluss.php, termin.php)
+confidence: 65
+reasoning: Every public funnel entry mirrors raw pass-params into 1-year cookies with NO validation — lizenz→afilcode, jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn→poolpartnernummer, advisorid, employeenumber, frab; nonexistent codes accepted verbatim; termin.php same; stuffing precedes legitimate landing.
+evidence_needed: kk_webapp/partner-settlement reads cookie (not clicked-link query) into lead/commission record; attacker code appears in partner "linkklick"/lead report.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel page then fresh-session navigate rest of flow; inspect lead attribution; else diff vs clicked-link partner (AUTH_HELPED).
+impact: Any visitor's lead/click attributable to attacker-chosen partner license — commission theft/lead hijack, 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only endpoint on middleware B (distinct 401/403 wording + path echo); single shared X-API-Secret with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid secret; /user/1 vs /user/2 return different tenants' PII under same key.
+verify_steps: WITH AUTH: GET /user/1 and /user/2; diff bodies; sweep ids.
+impact: One valid secret dumps any user PII across tenants; HIGH.
+testability: AUTH_HELPED
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route, reuses middleware A; routing accepts any kk_id (incl. trailing segments); returns draft categories + resolved references absent in v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returning multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/1.
+impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
