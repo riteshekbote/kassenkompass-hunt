@@ -381,3 +381,19 @@
 - LEARN: REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 erforderlich; X-A
 - LEARN: REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths incl. middleware-B and v2 — closed completely
 - LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface exposed; root returns 404 not 400
+
+## RANKED HYPOTHESES 2026-09-05 21:47:42 UTC
+- [70] kassenkompass.de: Funnel Parameter-to-Cookie Injection — Unvalidated PII/Identity Fields Persisted for 1 Year (from art/lead_nemotron3.txt)
+- [55] api.kassenkompass.de: Undocumented v2 route beyond v1-mirror set — enumeration gap on router-404 oracle (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://api.kassenkompass.de/v2/health/ (compare body to recorded router-404 baseline; sweep continues at 1 rps: /v2/admin/, /v2/internal/, /v2/swagg
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 — capture Set-Cookie headers (passive, HEAD/GET, 1 rps); GET https://ka
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: v2 sweep gap confirmed — prior 24-name sweep omitted non-v1-mirror names (health/admin/internal/docs/schema/swagger/opena
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: X-API-Secret via query-string/cookie never tested — prior "sole channel" proof covers header names + api_key query only; 
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: Set-Cookie write primitive (setcookie vs header) undetermined; CRLF discriminator probe chosen on .net to avoid Cloudflare v
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: Canonical IIS/10.0 + PHP 8.4.3 backend (og:url, canonical link, form POST target); sets identical unvalidated pass-param att
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Attribution cookie attributes asymmetric — `afilcode` lacking Secure/HttpOnly; `customerid`/`agenturnummer`/`poolpartnernumme
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Duplicate `customerid` Set-Cookie in one response when both `jid` and `customerid` passed (jid alias then direct; last-wins a
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Pass-params are NOT reflected into HTML (0 hits for probe tokens in 200 body) — cookie mirror only, no stored/reflected XSS v
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de: `frab` param did NOT set a cookie on bonusrechner this probe — single-sample; alias map may be entry-specific (termin vs 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 greedy-segment match — `/v2/insurance_info/{anything}` (incl. `/1/extra`, `//1`, `/1/`, `%31`) all reach the prote
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface exposed; root returns 404 not 400

@@ -5437,3 +5437,67 @@ testability: AUTH_HELPED
 
 === STEP 7 — RISK ===
 [RISK] kassenkompass: 52/100 — Funnel surface deepened (new canonical .net IIS backend + re-confirmed live attribution-cookie stuffing with server-side-consumption evidence, 1-yr persistence). API remains fully key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 oracles, v2 single route). Live high-confidence finding is the unvalidated attribution-cookie stuffing across the whole funnel; all top API hypotheses await valid credentials; no data exposure during passive testing.
+===== ANALYST bigpickle 2026-09-05 21:47:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA
+[NEW] Identified two untested api channels: `X-API-Secret=` as query-string/cookie (prior "sole channel" proof only covered header names + `api_key` query) — source-merge oracle never tested.
+[NEW] v2 route sweep gap: prior 24-name sweep only mirrored v1 names + user/partner/products/config/status/search/offers/rates — health/admin/internal/docs/schema/swagger/openapi/beta/staging never probed as v2 routes; v1 catch-all saturates enumeration, so v2 oracle is the only remaining name-primitive.
+[NEW] Funnel Set-Cookie value source (PHP `setcookie()` blocks CRLF vs `header()` allows) undetermined — CRLF probe discriminates; kassenkompass.net is the clean host (no Cloudflare filter, 302 returns Set-Cookie before redirect).
+
+STEP 2 — PRIORITIZE
+[PRIO] api.kassenkompass.de, 5.6, attack_surface:v2-router-oracle+query/cookie-auth-source | business_value:10 | tech_exposure:6 | gate_ease:0 | cloud_surface:2 | freshness:6
+[PRIO] kassenkompass.net, 7.0, attack_surface:canonical-IIS-funnel-cookie-core+CRLF-discriminator | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:1 | freshness:9
+[PRIO] kassenkompass.de, 6.9, attack_surface:funnel-phps,cookies,pass-params,cloudflare | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:2 | freshness:7
+
+STEP 3 — HYPOTHESES
+[HYP] Undocumented v2 route beyond v1-mirror set — enumeration gap on router-404 oracle
+class: MISCONFIG
+asset: api.kassenkompass.de (/v2/)
+confidence: 55
+reasoning: v2 unknown-name responses produce structured router-404 ("API-Endpunkt 'v2/X' nicht gefunden") but only 24 names were tested (v1 mirrors + config/status/etc); non-mirror names never swept; v1 catch-all makes v1 enumeration useless, v2 oracle is the sole primitive; any non-404 response is a new registered route.
+evidence_needed: GET /v2/<name>/ returns 200 or 401 (registered) instead of router-404 for any name outside the swept set.
+verify_steps: GET https://api.kassenkompass.de/v2/health/ then /v2/admin/, /v2/internal/, /v2/swagger/, /v2/openapi.json, /v2/schema/, /v2/users/, /v2/beta/, /v2/staging/, /v2/docs/ (1 rps; any non-404 → follow-up GET on that path).
+impact: Discoverable undocumented versioned endpoint → draft/BOLA surface analogous to insurance_info (draft categories + resolved refs); MEDIUM.
+testability: PASSIVE
+
+[HYP] CRLF header/cookie injection via pass-param on funnel Set-Cookie values
+class: OTHER
+asset: kassenkompass.net (/bonusrechner.php)
+confidence: 45
+reasoning: Server mirrors unvalidated pass-params into 1-yr Set-Cookie values (re-confirmed live this cycle on .net and .de); PHP `setcookie()` refuses CRLF in value, manual `header("Set-Cookie: ...")` does not — response-header diff discriminates the write primitive; .net is IIS-direct behind no WAF, so probe is not Cloudflare-filtered.
+evidence_needed: Response contains injected header `X-KK-Probe` or an unexpected extra Set-Cookie when param value embeds %0d%0a.
+verify_steps: GET https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected — inspect response headers only (1 rps); repeat via direct `customerid=` to test the HttpOnly path; expect 302→.de with Set-Cookie in the 302.
+impact: Reflected response-header/cookie injection on canonical funnel host → cookie fixing / response splitting; MEDIUM (same-origin, no Domain attribute unless chained).
+testability: PASSIVE
+
+[HYP] Auth source-merge: middleware A/B may accept X-API-Secret via query-string or cookie channel
+class: AUTH
+asset: api.kassenkompass.de (/insurance_info/1, /user/1)
+confidence: 40
+reasoning: "Sole channel" proof (2026-09-05) tested bearer/X-API-Key/X-Api-Token headers and `api_key=` query only — never `X-API-Secret=` as GET param or `Cookie: X-API-Secret=`; a `$_REQUEST`-style or gateway-param-syncing middleware would widen the channel silently.
+evidence_needed: /insurance_info/1?X-API-Secret=x returns "ungültig..." (invalid) instead of "erforderlich" (missing) — body/status shift proves the query channel is parsed; repeat for middleware B on /user/1.
+verify_steps: GET https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x and GET with `Cookie: X-API-Secret=x` (no header), 1 rps, compare body vs known missing-header baseline.
+impact: If parsed, secret exposure via shared links/referrer/logs widens; effective only combined with a leaked key; LOW-MEDIUM.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] Auth source-merge (40, PASSIVE) — survivable, lowest value; kept only because query-string channel is genuinely untested and the probe is one GET.
+[PARKED] Whole-funnel attribution-cookie stuffing 70 — unchanged, downstream settlement-consumption proof still AUTH_HELPED.
+[PARKED] /user/{ext_id} middleware-B IDOR 62 — AUTH_HELPED, unchanged.
+[PARKED] v2 draft BOLA 58 — AUTH_HELPED, unchanged.
+[FINAL] 1. v2 undocumented-route enumeration (55) — cheapest high-yield passive primitive left in the whole inventory.
+[FINAL] 2. Funnel CRLF header/cookie injection (45) — discriminator resolves the Set-Cookie write primitive; .net bypasses Cloudflare filter.
+[FINAL] 3. Auth source-merge X-API-Secret via query/cookie (40) — closes the last untested auth channel.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://api.kassenkompass.de/v2/health/ (compare body to recorded router-404 baseline; sweep continues at 1 rps: /v2/admin/, /v2/internal/, /v2/swagger/, /v2/openapi.json, /v2/schema/, /v2/users/, /v2/beta/, /v2/staging/, /v2/docs/, any non-404 = NEW route → GET it); then companion one-shots GET https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x and GET https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: v2 sweep gap confirmed — prior 24-name sweep omitted non-v1-mirror names (health/admin/internal/docs/schema/swagger/openapi/beta/staging); v2 router-404 oracle enumeration not saturated.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: X-API-Secret via query-string/cookie never tested — prior "sole channel" proof covers header names + api_key query only; auth source-merge {query,cookie} open oracle.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: Set-Cookie write primitive (setcookie vs header) undetermined; CRLF discriminator probe chosen on .net to avoid Cloudflare value-filtering on .de.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 53/100 — Surface saturated for canonical probes; the only remaining PASSIVE primitives are the v2 non-mirror route sweep (single undiscovered-endpoint oracle), the funnel CRLF discriminator on .net, and the query/cookie auth-source one-shots. All money hypotheses (attribution-cookie downstream consumption, /user IDOR, v2 draft BOLA) unchanged at AUTH_HELPED; no data exposure during passive testing; top picks require scoped test credentials from bugs.olivermaicher.eu.
