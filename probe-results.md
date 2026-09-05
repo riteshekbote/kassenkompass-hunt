@@ -148,3 +148,13 @@ https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/%31 -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/1%2fextra -> HTTP 401
+
+## 2026-09-05 17:47:41 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/%31 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1%2fextra -> HTTP 401

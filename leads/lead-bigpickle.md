@@ -772,3 +772,44 @@ evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key
 verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/{1}.
 impact: Pre-release draft insurance data across insurers; MEDIUM-HIGH.
 testability: AUTH_HELPED
+## 2026-09-05 17:40:39 UTC [target] (model bigpickle)
+[PRIO] api.kassenkompass.de, 7.2, attack_surface:15+2endpoints,v2router,middleware-split | business_value:10 | tech_exposure:6 (custom auth, no JWT/OAuth) | gate_ease:0 (all auth-gated) | cloud_surface:2 | freshness:5
+[PRIO] kassenkompass.de, 6.8, attack_surface:funnel-phps,cookies,pass-params | business_value:10 | tech_exposure:4 (PHP, no modern framework) | gate_ease:7 (public funnel) | cloud_surface:1 | freshness:6
+[PRIO] awv.kassenkompass.de, 3.5, attack_surface:1endpoint(gtm.js) | business_value:3 | tech_exposure:2 (nginx proxy) | gate_ease:9 (no auth observed) | cloud_surface:1 | freshness:2
+[HYP] Whole-funnel attribution-cookie stuffing → partner commission/lead hijack
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*.php, termin.php)
+confidence: 65
+reasoning: Server mirrors raw pass-params (lizenz→afilcode, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer, advisorid, employeenumber, frab) into 1-year cookies with NO validation; nonexistent codes accepted; no Secure/HttpOnly flags; stuffing precedes legitimate landing flow.
+evidence_needed: partner-settlement/kk_webapp reads cookie (not clicked-link query) into lead/commission record; attacker code appears in partner "linkklick"/lead report.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel page then fresh-session navigate rest of flow; inspect lead attribution; else diff vs clicked-link partner (AUTH_HELPED).
+impact: Any visitor's lead/click attributable to attacker-chosen partner license → commission theft/lead hijack, 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only endpoint on middleware B (distinct 401/403 wording + path echo); single shared X-API-Secret with no per-resource scope; ext_id externally enumerable; owner-side real caller path unresolved.
+evidence_needed: Valid secret; /user/1 vs /user/2 return different tenants' PII under same key.
+verify_steps: WITH AUTH: GET /user/1 and /user/2; diff bodies; sweep ids.
+impact: One valid secret dumps any user PII across tenants; HIGH.
+testability: AUTH_HELPED
+[HYP] Cross-version BOLA draft-category via /v2/insurance_info/{kk_id}
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route, reuses middleware A; router greedily accepts any kk_id (incl. trailing segments); prior session noted draft categories + resolved references absent in v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returning multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/1.
+impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[FINAL] Whole-funnel attribution-cookie stuffing: 65 — strongest passive evidence chain, highest business impact (commission theft), awaiting auth.
+[FINAL] IDOR /user/{ext_id}: 62 — middleware B fingerprint unique, single shared key, HIGH if confirmed.
+[FINAL] v2 BOLA draft-category: 58 — single v2 route, draft data surface, confirmed greedy routing; awaiting auth for differential.
+[NEXT] HUMAN: Request a scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu — the only open high-value hypotheses (funnel attribution-cookie downstream settlement consumption, /user/{ext_id} IDOR, v2 draft-BOLA) all require valid credentials; no passive egress remains this cycle.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=404) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts".
+[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface exposed; root returns 404 not 400.
+[LEARN] REJECTED CORS @ api.kassenkompass.de: no access-control-allow-origin reflection observed on v1 or v2 endpoints — unchanged.
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic KKX3382745 is not a valid API secret — re-confirmed.
+[LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
+[RISK] kassenkompass: 50/100 — No new surface this cycle; surface saturated for passive testing. API remains key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 recon amplifiers, v2 single route). Highest-confidence live finding remains server-side unvalidated attribution-cookie stuffing across the entire public funnel (1-year persistence, commission-hijack dependent on partner-settlement trust). All top hypotheses await valid credentials; no data exposure during passive testing.

@@ -72,3 +72,6 @@
 - 2026-09-05 REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic KKX3382745 is not a valid API secret — re-confirmed
 - 2026-09-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map corrected — v1 majority and v2 share middleware A (Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt); only /user/{ext_id} middleware B (Ungültiger X-API-Secret + instance echo); /sync/ legacy HTTP-200 custom JSON; two stacks + one legacy, not three
 - 2026-09-05 REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 erforderlich; X-API-Secret sole channel; no header-name bypass
+- 2026-09-05 ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=404) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts".
+- 2026-09-05 ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface exposed; root returns 404 not 400.
+- 2026-09-05 REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic KKX3382745 is not a valid API secret — re-confirmed.

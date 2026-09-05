@@ -1,10 +1,9 @@
-## 2026-09-05 15:32:45 UTC [target] (model nemotron3)
-[NEW] awv.kassenkompass.de: Root returns 404 (not 400 noindex) — prior "400 noindex" was inference; actual response is 404
-[NEW] awv.kassenkompass.de: GTM proxy debug/preview/auth endpoints all 404 — no standard GTM debug surface exposed; reduces config leakage surface
-[CHANGED] api.kassenkompass.de: v2 router confirmed single-endpoint surface (only `insurance_info` registered via 24-name sweep)
-[CHANGED] api.kassenkompass.de: Auth middleware map finalized — v1 majority + v2 share middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); only `/user/{ext_id}` uses middleware B ("Ungültiger X-API-Secret" + instance echo); `/sync/` legacy HTTP-200 custom JSON; two stacks + one legacy
-[CHANGED] api.kassenkompass.de: X-API-Secret confirmed SOLE auth channel — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all return 401 "erforderlich" on middleware A and B; no alternate channel
-[CHANGED] api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
+## 2026-09-05 17:47:17 UTC [target] (model nemotron3)
+[NEW] api.kassenkompass.de: v2 greedy-segment match confirmed — `/v2/insurance_info/1/extra`, `//1`, `%31`, `1%2fextra` all return HTTP 401 (reach auth handler); kk_id not validated at routing layer
+[NEW] kassenkompass.de: Funnel probes active — `bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` and `bonusrechner.php?jid=X&customerid=Y` return 200; Set-Cookie headers not yet captured in probe-results.md
+[NEW] awv.kassenkompass.de: GTM proxy `/gtm.js?id=GTM-TT4LBVMW&l=dataLayer` returns 200 (dataLayer param accepted); `/gtm/debug`, `/gtm/preview`, root all 404
+[CHANGED] load.awv.kassenkompass.de: Consistent HTTP 403 (Cloudflare challenge) — not directly accessible
+[CHANGED] api.kassenkompass.de: v2 router sweep finalized — only `insurance_info` registered (24 names tested → router-404 oracle); single-endpoint versioned surface confirmed
 [PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=8
 [PRIO] kassenkompass.de,7.2,attack_surface=8 business_value=8 tech_exposure=7 gate_ease=6 cloud_surface=6 freshness=8
 [PRIO] awv.kassenkompass.de,5.3,attack_surface=5 business_value=5 tech_exposure=5 gate_ease=5 cloud_surface=5 freshness=9
