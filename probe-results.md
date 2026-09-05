@@ -106,3 +106,14 @@ https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
 https://kassenkompass.de/login_kd.php -> 200 len=?
 https://kassenkompass.de/bonusrechner.php?lizzen=SECPROBE1&ppn=77&advisorid=7 -> 200 len=?
 https://kassenkompass.de/bonusrechner.php?lizenz=SECPROBE1&advisorid=7&ppn=77 -> 200 len=?
+
+## 2026-09-05 04:47:32 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW -> 200 len=?
+https://awv.kassenkompass.de/gtm/debug -> HTTP 404
+https://awv.kassenkompass.de/gtm/preview -> HTTP 404
+https://awv.kassenkompass.de/ -> HTTP 404
+https://load.awv.kassenkompass.de/ -> HTTP 403

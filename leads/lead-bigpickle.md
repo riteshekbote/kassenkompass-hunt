@@ -583,3 +583,33 @@ testability: AUTH_HELPED
 [LEARN] REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 "erforderlich"; X-API-Secret sole channel; no header-name bypass.
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths incl. middleware-B and v2 — closed completely.
 [RISK] kassenkompass: 50/100 — API auth genuinely enforced across two middleware stacks (A: v1+v2, B: /user) + legacy /sync HTTP-200; unauthenticated catalog + router-404 recon amplifiers remain. NEW this cycle: confirmation that the marketing funnel's server-side attribution cookie injection is unvalidated and attacker-settable for 1 year — a real (if downstream-trust-dependent) business-logic surface on money flow, gating the top hypothesis on partner access. NEW surface identified (awv/load.awv GTM infra). All high-value IDOR/BOLA on the API remain behind the single shared secret; no passive bypass found; no data exposure during testing.
+## 2026-09-05 04:47:07 UTC [target] (model bigpickle)
+[HYP] Cookie-stuffing attribution fraud across entire public funnel
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*.daten|fragen|suche|vergleich2|wechsel2|abschluss.php, termin.php)
+confidence: 65
+reasoning: Verified live this session — EVERY public entry point server-side mirrors raw pass-params into 1-year cookies with no allowlist/referrer-signature/funnel-state check: lizenz→afilcode (no Secure/HttpOnly), ppn→poolpartnernummer, advisorid, jid→customerid, agn|connectionnumber→agenturnummer, fra→frab; nonexistent codes (ANALYSTPROBE*) accepted verbatim; termin.php ("Vielen Dank") does the same, so cookie-stuffing works before legitimate landing; size=8372 404 on param_passthrough.js but mapping moved server-side.
+evidence_needed: kk_webapp/partner-settlement reads cookie (not clicked link query) into lead/commission record.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via any funnel page then fresh session navigate remaining flow; inspect "linkklick"/lead report for chosen code; else diff attribution vs clicked-link partner.
+impact: Any visitor's lead/click swappable to attacker-chosen partner license (commission theft/lead hijack), 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only endpoint on middleware B (distinct 401/403 wording + path echo instance — re-verified this session); single shared X-API-Secret with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid secret; /user/1 vs /user/2 return different tenants' PII under same key.
+verify_steps: WITH AUTH: GET /user/1 and /user/2; diff bodies; sweep ids.
+impact: One valid secret dumps any user PII across tenants; HIGH.
+testability: AUTH_HELPED
+[HYP] Draft-category BOLA via /v2/insurance_info/{kk_id} wide-variant
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route (24+19-name sweep incl. German names → all router-404); reuses middleware A; routing accepts any kk_id segment; OPTIONS shows intentional browser secret use; only versioned surface.
+evidence_needed: Valid secret; v2 vs v1 body diff (draft/references); multi-kk_id return.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2} with secret; diff vs v1 /insurance_info/1.
+impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[NEXT] HUMAN: Request a scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu — the only open high-value hypotheses (funnel attribution-cookie downstream consumption, /user/{ext_id} IDOR, v2 draft-BOLA) all require valid credentials; no further passive egress available this cycle.
+[RISK] kassenkompass: 50/100 — API key-gated surface unchanged (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 recon amplifiers, v2 single route). NEW this cycle: unvalidated server-side attribution-cookie stuffing confirmed across ALL public funnel entry points incl. booking — full funnel is a cookie-stuffing/commission-hijack surface dependent on partner-settlement trust (AUTH_HELPED for end-to-end); afilcode cookie minimally flagged. No data exposure during testing; no bypass or new IDOR found; all top hypotheses await valid credentials.
