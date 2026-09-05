@@ -117,3 +117,15 @@ https://awv.kassenkompass.de/gtm/debug -> HTTP 404
 https://awv.kassenkompass.de/gtm/preview -> HTTP 404
 https://awv.kassenkompass.de/ -> HTTP 404
 https://load.awv.kassenkompass.de/ -> HTTP 403
+
+## 2026-09-05 08:46:25 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW&l=dataLayer -> 200 len=?
+https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW -> 200 len=?
+https://load.awv.kassenkompass.de/ -> HTTP 403
+https://awv.kassenkompass.de/gtm/debug -> HTTP 404
+https://awv.kassenkompass.de/gtm/preview -> HTTP 404
+https://awv.kassenkompass.de/ -> HTTP 404

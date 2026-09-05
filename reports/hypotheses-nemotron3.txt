@@ -1,15 +1,10 @@
-## 2026-09-05 04:44:08 UTC [target] (model nemotron3)
-[NEW] api.kassenkompass.de: v2 router sweep complete — only `insurance_info` registered (24 names tested → router-404 oracle); single-endpoint versioned surface confirmed
-[NEW] api.kassenkompass.de: Auth middleware map finalized — v1 majority + v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middleware B (`Ungültiger X-API-Secret` + instance echo); `/sync/` legacy HTTP-200 custom JSON — two stacks + one legacy, not three
-[NEW] api.kassenkompass.de: X-API-Secret confirmed SOLE auth channel — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all return 401 "erforderlich" on middleware A and B; no alternate header-name bypass
-[NEW] api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
-[NEW] kassenkompass.de: Funnel (`bonusrechner.php`) server-side mirrors raw pass-params into 1-year cookies with NO validation — alias map `jid|customerid→customerid`, `agn|connectionnumber→agenturnummer`, `ppn|poolpartnernummer→poolpartnernummer`, plus `employeenumber`, `advisorid`, `frab`
-[NEW] kassenkompass.de: Two new dedicated hosts discovered via JS — `awv.kassenkompass.de` (self-hosted GTM proxy, nginx, `/gtm.js?id=GTM-TT4LBVMW`, root=400 noindex) + `load.awv.kassenkompass.de` (Cloudflare-challenged loader) — supersedes prior "0 dedicated hosts" wildcard-DNS finding
-[NEW] kassenkompass.de: Funnel entry map from `param_passthrough.js` v=web1.0.0 (commented "kk-web-draft" refactor 2026-08-30) — only `bonusrechner*.php` + `termin.php` are app entry points; server-side cookie injection confirmed
-[CHANGED] www.kassenkompass.de: Mirror header drift hypothesis dropped — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed
+## 2026-09-05 08:46:00 UTC [target] (model nemotron3)
+[NEW] awv.kassenkompass.de: GTM proxy probes completed — `/gtm.js?id=GTM-TT4LBVMW` returns 200 (nginx GTM proxy confirmed); `/gtm/debug` → 404; `/gtm/preview` → 404; root `/` → 404 (not 400); `load.awv.kassenkompass.de/` → 403 (Cloudflare challenge)
+[NEW] awv.kassenkompass.de: No debug/preview/auth endpoints exposed on self-hosted GTM proxy — reduces config leakage surface
+[CHANGED] awv.kassenkompass.de: Root returns 404 not 400 noindex — prior "400 noindex" was inference; actual response is 404
 [PRIO] api.kassenkompass.de,8.6,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=9 cloud_surface=7 freshness=8
 [PRIO] kassenkompass.de,7.2,attack_surface=8 business_value=8 tech_exposure=7 gate_ease=6 cloud_surface=6 freshness=8
-[PRIO] awv.kassenkompass.de,5.8,attack_surface=6 business_value=5 tech_exposure=6 gate_ease=5 cloud_surface=5 freshness=9
+[PRIO] awv.kassenkompass.de,5.3,attack_surface=5 business_value=5 tech_exposure=5 gate_ease=5 cloud_surface=5 freshness=9
 [PRIO] www.kassenkompass.de,5.2,attack_surface=5 business_value=6 tech_exposure=5 gate_ease=4 cloud_surface=5 freshness=6
 [PRIO] load.awv.kassenkompass.de,4.5,attack_surface=4 business_value=4 tech_exposure=5 gate_ease=3 cloud_surface=6 freshness=9
 [HYP] Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets
@@ -30,21 +25,19 @@ evidence_needed: Confirm cookie attributes (Secure/HttpOnly/SameSite) on Set-Coo
 verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 — capture Set-Cookie headers (passive, HEAD/GET); GET https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y — observe which cookie value wins (passive); GET https://kassenkompass.de/termin.php with poisoned cookies — observe if identity carries into booking flow (passive, requires cookie jar).
 impact: Session fixation / identity injection into insurance comparison funnel; partner/advisor impersonation; downstream quote manipulation; MEDIUM-HIGH.
 testability: PASSIVE
-[HYP] GTM Proxy Subdomain — Self-Hosted Tag Manager with No Index / Potential Config Exposure
+[HYP] GTM Proxy Subdomain — Self-Hosted Tag Manager with No Debug Endpoints
 class: MISCONFIG
 asset: awv.kassenkompass.de
-confidence: 55
-reasoning: Newly discovered dedicated host `awv.kassenkompass.de` runs self-hosted GTM proxy (nginx) serving `/gtm.js?id=GTM-TT4LBVMW`; root returns 400 noindex. Self-hosted GTM proxies often expose debug endpoints (`/gtm/debug`, `/gtm/preview`, `/gtm/auth`), container config via `/gtm.js?id=GTM-XXXXXX&l=dataLayer`, or misconfigured CORS. `load.awv.kassenkompass.de` is Cloudflare-challenged loader — potential bypass via direct GTM proxy. No prior recon sessions observed these hosts (wildcard DNS previously returned "0 dedicated hosts").
-evidence_needed: Enumerate GTM proxy paths (`/gtm/debug`, `/gtm/preview`, `/gtm/auth`, `/gtm.js` with various params); check for container config leakage; test CORS on GTM endpoints; verify if `load.awv.kassenkompass.de` serves distinct content vs proxy.
-verify_steps: GET https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW — confirm GTM proxy behavior (passive); GET https://awv.kassenkompass.de/gtm/debug — probe debug endpoint (passive); GET https://awv.kassenkompass.de/gtm/preview — probe preview endpoint (passive); GET https://awv.kassenkompass.de/ — confirm 400 noindex (passive); GET https://load.awv.kassenkompass.de/ — observe Cloudflare challenge vs content (passive).
-impact: GTM container config leakage (marketing tags, custom HTML/JS, dataLayer structure); potential XSS via malicious tag injection if container compromised; reconnaissance amplifier for funnel architecture; LOW-MEDIUM.
+confidence: 45
+reasoning: Newly discovered dedicated host `awv.kassenkompass.de` runs self-hosted GTM proxy (nginx) serving `/gtm.js?id=GTM-TT4LBVMW`; root returns 404. Probes confirm `/gtm/debug`, `/gtm/preview`, `/gtm/auth` all return 404 — no standard debug endpoints exposed. `load.awv.kassenkompass.de` returns 403 (Cloudflare challenge). No container config leakage via `/gtm.js?id=GTM-TT4LBVMW&l=dataLayer` tested yet.
+evidence_needed: Test `/gtm.js?id=GTM-TT4LBVMW&l=dataLayer` for dataLayer config leakage; test CORS on GTM endpoints; verify `load.awv.kassenkompass.de` serves distinct content vs proxy under authenticated session.
+verify_steps: GET https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW&l=dataLayer — probe for dataLayer config (passive); GET https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW with Origin header — test CORS (passive); GET https://load.awv.kassenkompass.de/ with cookie jar — observe if Cloudflare challenge bypassable (passive).
+impact: GTM container config leakage (marketing tags, custom HTML/JS, dataLayer structure) — LOW-MEDIUM; reduced since debug endpoints absent.
 testability: PASSIVE
-[PARKED] Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets: confidence 62 but requires valid X-API-Secret to confirm cross-version acceptance and data differential; passive-only confirms v2 exists and shares middleware A wording, not that BOLA is exploitable.
-[PARKED] Funnel Parameter-to-Cookie Injection — Unvalidated PII/Identity Fields Persisted for 1 Year: confidence 70 but cookie attribute verification and downstream trust validation requires observing Set-Cookie headers and potentially following redirect chains; passive GET with params is safe but limited.
-[FINAL] 1. GTM Proxy Subdomain — Self-Hosted Tag Manager with No Index / Potential Config Exposure (confidence 55, PASSIVE)
-[FINAL] 2. Funnel Parameter-to-Cookie Injection — Unvalidated PII/Identity Fields Persisted for 1 Year (confidence 70, PASSIVE)
-[FINAL] 3. Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets (confidence 62, PASSIVE mapping + AUTH_HELPED for data diff)
-[NEXT] PROBE: GET https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW — confirm GTM proxy behavior and capture response headers/body; GET https://awv.kassenkompass.de/gtm/debug — probe debug endpoint; GET https://awv.kassenkompass.de/gtm/preview — probe preview endpoint (read-only, passive, 1 rps)
+[PARKED] GTM Proxy Subdomain — Self-Hosted Tag Manager with No Debug Endpoints: confidence 45 < 50 threshold; debug/preview/auth endpoints all 404; impact reduced to speculative dataLayer leakage only; no active misconfiguration confirmed.
+[FINAL] 1. Funnel Parameter-to-Cookie Injection — Unvalidated PII/Identity Fields Persisted for 1 Year (confidence 70, PASSIVE)
+[FINAL] 2. Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets (confidence 62, PASSIVE mapping + AUTH_HELPED for data diff)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 — capture Set-Cookie headers (passive, HEAD/GET, 1 rps); GET https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y — observe parameter collision resolution (passive)
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables targeted attack planning
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated scanners
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only /user/{ext_id}) — indicates separate auth middleware stacks with potentially different authorization scopes
@@ -59,9 +52,10 @@ testability: PASSIVE
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` is not a valid API secret — re-confirmed
 [LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: Funnel server mirrors raw pass-params into 1-year cookies (afilcode, customerid, agenturnummer, poolpartnernummer, employeenumber, advisorid, frab) with no validation — alias map jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn|poolpartnernummer→poolpartnernummer
-[LEARN] ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=400 noindex) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts"
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=404) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts"
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 sweep — insurance_info is the only registered v2 route (24 names → router-404 oracle); single-endpoint versioned surface
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map corrected — v1 majority and v2 share middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); only /user/{ext_id} middleware B ("Ungültiger X-API-Secret" + instance echo); /sync/ legacy HTTP-200 custom JSON; two stacks + one legacy, not three
 [LEARN] REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 "erforderlich"; X-API-Secret sole channel; no header-name bypass
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths incl. middleware-B and v2 — closed completely
+[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface exposed; root returns 404 not 400
 [RISK] kassenkompass: 74 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; v2 router exposes unreleased draft data surface; funnel cookie injection with 1-year persistence and no validation; new GTM proxy subdomain expands attack surface; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
