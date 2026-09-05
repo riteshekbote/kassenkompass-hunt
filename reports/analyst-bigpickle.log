@@ -5501,3 +5501,1212 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] kassenkompass: 53/100 — Surface saturated for canonical probes; the only remaining PASSIVE primitives are the v2 non-mirror route sweep (single undiscovered-endpoint oracle), the funnel CRLF discriminator on .net, and the query/cookie auth-source one-shots. All money hypotheses (attribution-cookie downstream consumption, /user IDOR, v2 draft BOLA) unchanged at AUTH_HELPED; no data exposure during passive testing; top picks require scoped test credentials from bugs.olivermaicher.eu.
+===== ANALYST bigpickle 2026-09-05 23:48:57 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la *.md 2>/dev/null
+total 200
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:42 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 23:43 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:42 .github
+-rw-r--r--  1 runner runner  1767 Sep  5 23:42 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 23:43 analyst-out.txt
+-rw-r--r--  1 runner runner 55735 Sep  5 23:43 analyst-prompt.txt
+-rw-r--r--  1 runner runner 51917 Sep  5 23:43 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 leads
+-rw-r--r--  1 runner runner  8055 Sep  5 23:42 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  5 23:42 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 triage
+-rw-r--r-- 1 runner runner 1767 Sep  5 23:42 README.md
+-rw-r--r-- 1 runner runner 8055 Sep  5 23:42 probe-results.md
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la scripts leads knowledge recon-notes triage reports inventory 2>/dev/null
+inventory:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 18998 Sep  5 23:42 kassenkompass.md
+
+knowledge:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 16906 Sep  5 23:42 index.md
+
+leads:
+total 300
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 119929 Sep  5 23:42 lead-bigpickle.md
+-rw-r--r--  1 runner runner    918 Sep  5 23:42 lead-laguna.md
+-rw-r--r--  1 runner runner    900 Sep  5 23:42 lead-ling3.md
+-rw-r--r--  1 runner runner    936 Sep  5 23:42 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 23:42 lead-mimo.md
+-rw-r--r--  1 runner runner 152477 Sep  5 23:42 lead-nemotron3.md
+-rw-r--r--  1 runner runner   2851 Sep  5 23:42 reposcan-kassenkompass.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner  828 Sep  5 23:42 DEDICATED-DEEP.md
+
+reports:
+total 872
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 454769 Sep  5 23:42 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   3906 Sep  5 23:42 analyst-laguna.log
+-rw-r--r--  1 runner runner   3888 Sep  5 23:42 analyst-ling3.log
+-rw-r--r--  1 runner runner   3924 Sep  5 23:42 analyst-longcat.log
+-rw-r--r--  1 runner runner 361734 Sep  5 23:42 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   6791 Sep  5 23:42 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 23:42 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 23:42 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 23:42 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner  10445 Sep  5 23:42 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  57797 Sep  5 23:42 hypotheses.md
+-rw-r--r--  1 runner runner    205 Sep  5 23:42 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 23:42 sync-issues.py
+
+triage:
+total 120
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner     0 Sep  5 23:42 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep  5 23:42 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep  5 23:42 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep  5 23:42 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep  5 23:42 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep  5 23:42 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep  5 23:42 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep  5 23:42 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep  5 23:42 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep  5 23:42 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep  5 23:42 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep  5 23:42 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep  5 23:42 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep  5 23:42 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep  5 23:42 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep  5 23:42 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep  5 23:42 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Sep  5 23:42 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Sep  5 23:42 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Sep  5 23:42 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Sep  5 23:42 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Sep  5 23:42 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Sep  5 23:42 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Sep  5 23:42 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Sep  5 23:42 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Sep  5 23:42 run-2026-09-05-22-41.md
+[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead triage/run-2026-09-05-22-41.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mcat > /tmp/probe.py <<'PY'
+import subprocess, sys, time
+urls = sys.argv[1:]
+for u in urls:
+    try:
+        p = subprocess.run(["curl","-sS","-m","15","-D","-","-o","/tmp/body.txt","-w","%{http_code}",u],capture_output=True,text=True)
+        code = p.stdout.strip().splitlines()[-1]
+        body = ""
+        try:
+            with open("/tmp/body.txt","rb") as f:
+                raw=f.read()
+            body = raw[:250].decode("utf-8","replace").replace("\n","\\n")
+        except Exception as e:
+            body = f"<no body {e}>"
+        print(f"### {u}")
+        print(f"  status={code}")
+        print(f"  body={body}")
+        hdrs = p.stderr if False else ""
+    except Exception as e:
+        print(f"### {u} ERROR {e}")
+    time.sleep(1.1)
+PY
+echo got; true
+got
+[0m
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/v2/health/" \
+"https://api.kassenkompass.de/v2/admin/" \
+"https://api.kassenkompass.de/v2/internal/" \
+"https://api.kassenkompass.de/v2/swagger/" \
+"https://api.kassenkompass.de/v2/schema/" \
+"https://api.kassenkompass.de/v2/users/" \
+"https://api.kassenkompass.de/v2/beta/" \
+"https://api.kassenkompass.de/v2/docs/" \
+"https://api.kassenkompass.de/v2/version/" \
+"https://api.kassenkompass.de/v2/draft/"
+### https://api.kassenkompass.de/v2/health/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health' nicht gefunden.","instance":"\/v2\/health\/"}
+### https://api.kassenkompass.de/v2/admin/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/admin' nicht gefunden.","instance":"\/v2\/admin\/"}
+### https://api.kassenkompass.de/v2/internal/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/internal' nicht gefunden.","instance":"\/v2\/internal\/"}
+### https://api.kassenkompass.de/v2/swagger/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/swagger' nicht gefunden.","instance":"\/v2\/swagger\/"}
+### https://api.kassenkompass.de/v2/schema/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/schema' nicht gefunden.","instance":"\/v2\/schema\/"}
+### https://api.kassenkompass.de/v2/users/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/users' nicht gefunden.","instance":"\/v2\/users\/"}
+### https://api.kassenkompass.de/v2/beta/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/beta' nicht gefunden.","instance":"\/v2\/beta\/"}
+### https://api.kassenkompass.de/v2/docs/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/docs' nicht gefunden.","instance":"\/v2\/docs\/"}
+### https://api.kassenkompass.de/v2/version/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/version' nicht gefunden.","instance":"\/v2\/version\/"}
+### https://api.kassenkompass.de/v2/draft/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/draft' nicht gefunden.","instance":"\/v2\/draft\/"}
+[0m
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/insurance_info/1" \
+"https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x" \
+"https://api.kassenkompass.de/user/1?X-API-Secret=x" \
+"https://api.kassenkompass.de/v2/insurance_info/1?X-API-Secret=x"
+### https://api.kassenkompass.de/insurance_info/1
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/insurance_info\/1"\n}
+### https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/insurance_info\/1?X-API-Secret=x"\n}
+### https://api.kassenkompass.de/user/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instance": "\/user\/1?X-API-Secret=x",\n    "detail": "X-API-Secret Header fehlt"\n}
+### https://api.kassenkompass.de/v2/insurance_info/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/v2\/insurance_info\/1?X-API-Secret=x"\n
+[0m
+[0m$ [0mcat > /tmp/probe2.py <<'PY'
+import subprocess, sys, time
+specs = sys.argv[1:]
+for s in specs:
+    u, extra = s.split("||",1)
+    hargs = []
+    for h in extra.split("|"):
+        hargs += ["-H", h]
+    try:
+        p = subprocess.run(["curl","-sS","-m","15","-D","-","-o","/tmp/body2.txt","-w","%{http_code}",u]+hargs,capture_output=True,text=True)
+        raw = p.stdout
+        code = p.stderr
+        lines = raw.split("\n")
+        print(f"### {u} extra={extra}")
+        print(f"  status={lines[-1].strip()}")
+        print("  RESPONSE_HEADERS:")
+        for ln in lines:
+            if ln.strip():
+                print("    "+ln.rstrip())
+        try:
+            with open("/tmp/body2.txt","rb") as f:
+                b=f.read()
+            print("  body="+b[:120].decode("utf-8","replace").replace("\n","\\n"))
+        except Exception as e:
+            print(f"  body=<err {e}>")
+    except Exception as e:
+        print(f"### {u} ERROR {e}")
+    time.sleep(1.1)
+PY
+python3 /tmp/probe2.py \
+"https://api.kassenkompass.de/user/1||Cookie: X-API-Secret=x" \
+"https://api.kassenkompass.de/v2/insurance_info/1||Cookie: X-API-Secret=x"
+### https://api.kassenkompass.de/user/1 extra=Cookie: X-API-Secret=x
+  status=401
+  RESPONSE_HEADERS:
+    HTTP/2 401
+    date: Sat, 05 Sep 2026 23:44:23 GMT
+    content-type: application/problem+json; charset=utf-8
+    content-length: 180
+    server: cloudflare
+    x-powered-by: PHP/8.4.3
+    access-control-allow-methods: GET, OPTIONS
+    access-control-allow-headers: X-API-Secret, Content-Type
+    x-content-type-options: nosniff
+    x-frame-options: DENY
+    referrer-policy: strict-origin-when-cross-origin
+    strict-transport-security: max-age=31536000; includeSubDomains
+    permissions-policy: camera=(), microphone=(), geolocation=()
+    cf-cache-status: DYNAMIC
+    report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FDV6qO4%2FEpxaLlsnw9DTRl%2Bwj2pZQ%2FJMwS2WyTAM3M9Hgb9VEde2RzJXDPhoctUU8R0IvP%2F3ITeYoMS516C4AIAgLVcBaIyMC8Xf44vmIzVxVbYBEu%2FRWb%2FhUhZPQMWAx5938vHO"}]}
+    nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+    cf-ray: a3691a009e220a91-IAD
+    401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instanc
+### https://api.kassenkompass.de/v2/insurance_info/1 extra=Cookie: X-API-Secret=x
+  status=401
+  RESPONSE_HEADERS:
+    HTTP/2 401
+    date: Sat, 05 Sep 2026 23:44:25 GMT
+    content-type: application/problem+json; charset=utf-8
+    content-length: 236
+    server: cloudflare
+    x-powered-by: PHP/8.4.3
+    access-control-allow-methods: GET, OPTIONS
+    access-control-allow-headers: X-API-Secret, Content-Type
+    x-content-type-options: nosniff
+    x-frame-options: DENY
+    referrer-policy: strict-origin-when-cross-origin
+    strict-transport-security: max-age=31536000; includeSubDomains
+    permissions-policy: camera=(), microphone=(), geolocation=()
+    cf-cache-status: DYNAMIC
+    report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=d5uEaOhT5qs7FXeqFYC99YgUr2UGNnNNcab9o99dm8%2FEL1%2FpsyNboaYUgU1hvqXvt6F48POUJWUUjG6BUdYdPlyglZMXmt%2F5GVp%2BuYi48GYcUDKqxA0%2BqsrgBlfsfJnFK1Bn4KC0"}]}
+    nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+    cf-ray: a3691a0b8d0e185d-IAD
+    401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail"
+[0m
+Auth source-merge: query + cookie channels both return the missing-header 401 on middleware A, B, and v2 — header remains sole channel. Now the CRLF discriminator on the clean .net host.
+[0m$ [0mpython3 /tmp/probe2.py \
+"https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner.php?customerid=KKXCUST%0d%0aX-KK-Probe2:%20injected||Accept: text/html"
+### https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=a2d2c68fce5859bd9279992e7e054e28; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:44:29 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner.php?customerid=KKXCUST%0d%0aX-KK-Probe2:%20injected extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=a2b4a143df79f4119f39e020af703520; path=/; secure; HttpOnly; SameSite=Lax
+    set-cookie: customerid=KKXCUST%0D%0AX-KK-Probe2%3A%20injected; expires=Sun, 05 Sep 2027 23:44:31 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:44:31 GMT
+    content-length: 0
+    302
+  body=
+[0m
+CRLF discriminator resolved — `customerid` value was percent-encoded (`%0D%0A` literal), `lizzen` cookie suppressed entirely; no injected header. Closing the funnel-entry-specific gap and finishing v2 sweep with German-domain names.
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/v2/tarife/" \
+"https://api.kassenkompass.de/v2/anbieter/" \
+"https://api.kassenkompass.de/v2/gkv/" \
+"https://api.kassenkompass.de/v2/pkv/" \
+"https://api.kassenkompass.de/v2/krankenkasse/" \
+"https://api.kassenkompass.de/v2/kasse/" \
+"https://api.kassenkompass.de/v2/category/" \
+"https://api.kassenkompass.de/v2/categories/"
+### https://api.kassenkompass.de/v2/tarife/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/tarife' nicht gefunden.","instance":"\/v2\/tarife\/"}
+### https://api.kassenkompass.de/v2/anbieter/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/anbieter' nicht gefunden.","instance":"\/v2\/anbieter\/"}
+### https://api.kassenkompass.de/v2/gkv/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/gkv' nicht gefunden.","instance":"\/v2\/gkv\/"}
+### https://api.kassenkompass.de/v2/pkv/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/pkv' nicht gefunden.","instance":"\/v2\/pkv\/"}
+### https://api.kassenkompass.de/v2/krankenkasse/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/krankenkasse' nicht gefunden.","instance":"\/v2\/krankenkasse\/"}
+### https://api.kassenkompass.de/v2/kasse/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/kasse' nicht gefunden.","instance":"\/v2\/kasse\/"}
+### https://api.kassenkompass.de/v2/category/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/category' nicht gefunden.","instance":"\/v2\/category\/"}
+### https://api.kassenkompass.de/v2/categories/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/categories' nicht gefunden.","instance":"\/v2\/categories\/"}
+[0m
+[0m$ [0mpython3 /tmp/probe2.py \
+"https://kassenkompass.net/termin.php?lizzen=test&jid=123&agn=456&ppn=789&frab=fr33||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner2.php?lizzen=test||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner_alt.php?lizzen=test||Accept: text/html"
+### https://kassenkompass.net/termin.php?lizzen=test&jid=123&agn=456&ppn=789&frab=fr33 extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=919838b691520ade762a0ccf20db0467; path=/; secure; HttpOnly; SameSite=Lax
+    set-cookie: customerid=123; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    set-cookie: agenturnummer=456; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    set-cookie: poolpartnernummer=789; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:19 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner2.php?lizzen=test extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=86e101d113189c28582771adf4b9c600; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:20 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner_alt.php?lizzen=test extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=55f18594224bb75dfd5eb703020be685; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:22 GMT
+    content-length: 0
+    302
+  body=
+[0m
+v2 sweep now at 42 names — all router-404 except `insurance_info`. Let me re-fetch the v1 catalog root to diff the 15 endpoints against probes already done, ensuring no endpoint has been left un-probed.
+[0m$ [0mpython3 /tmp/probe.py "https://api.kassenkompass.de/"
+### https://api.kassenkompass.de/
+  status=200
+  body={\n    "api_info": "KK API - REST",\n    "version": "1.0",\n    "authentication": "X-API-Secret header required",\n    "endpoints": {\n        "GET \/health_insurance\/": "API Krankenkassen",\n        "GET \/state\/": "API Bundesländer",\n        "GET \/he
+[0m
+[0m$ [0mcurl -sS -m 15 "https://api.kassenkompass.de/" -o /tmp/catalog.json && python3 -c "
+import json
+d=json.load(open('/tmp/catalog.json'))
+eps=d.get('endpoints',{})
+print('version',d.get('version'),'| auth',d.get('authentication'))
+for k,v in eps.items():
+    print(k,'->',v)
+print('TOTAL',len(eps))
+"
+version 1.0 | auth X-API-Secret header required
+GET /health_insurance/ -> API Krankenkassen
+GET /state/ -> API Bundesländer
+GET /health/ -> API- und Datenbank-Status (Health Check)
+GET /sync/ -> API Datensynchronisation
+GET /question_tree/ -> API Fragebaum
+GET /detail_comparison/ -> API Detailvergleich
+GET /health_insurance_savings/ -> API Krankenkasseneinsparungen
+GET /health_insurance_comparison/ -> API Krankenkassenvergleich
+POST /post/ -> API Datenempfang (POST)
+DELETE /delete/{id} -> API Benutzerdaten löschen
+POST /cancel/{id} -> API FG-Wechsel-Storno (delegiert an kk_webapp)
+GET /user/{ext_id} -> Userdaten abrufen
+GET /cat_detail/ -> API Detaillierte Kategorien-Informationen
+GET /insurance_info/{kk_id} -> API Kategorien und Leistungswerte einer Krankenkasse
+GET /settlement_report/{year}/{month} -> API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)
+TOTAL 15
+[0m
+Catalog contains 15 endpoints; 7 have never been probed (incl. `/cancel/{id}` — only endpoint delegating to the kk_webapp). Probing all for middleware attribution (no auth → 401 baseline).
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/health_insurance/" \
+"https://api.kassenkompass.de/state/" \
+"https://api.kassenkompass.de/question_tree/" \
+"https://api.kassenkompass.de/detail_comparison/" \
+"https://api.kassenkompass.de/health_insurance_savings/" \
+"https://api.kassenkompass.de/health_insurance_comparison/" \
+"https://api.kassenkompass.de/cancel/1"
+### https://api.kassenkompass.de/health_insurance/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance\/"\n}
+### https://api.kassenkompass.de/state/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/state\/"\n}
+### https://api.kassenkompass.de/question_tree/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/question_tree\/"\n}
+### https://api.kassenkompass.de/detail_comparison/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/detail_comparison\/"\n}
+### https://api.kassenkompass.de/health_insurance_savings/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance_savings\/"\n}
+### https://api.kassenkompass.de/health_insurance_comparison/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance_comparison\/"\n}
+### https://api.kassenkompass.de/cancel/1
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instance": "\/cancel\/1",\n    "detail": "X-API-Secret Header fehlt"\n}
+[0m
+[0m$ [0mcat analyst-out.txt; echo; cat state_bigpickle.json; echo; git log --oneline -5
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la *.md 2>/dev/null
+total 200
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:42 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 23:43 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 23:42 .github
+-rw-r--r--  1 runner runner  1767 Sep  5 23:42 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 23:43 analyst-out.txt
+-rw-r--r--  1 runner runner 55735 Sep  5 23:43 analyst-prompt.txt
+-rw-r--r--  1 runner runner 51917 Sep  5 23:43 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 leads
+-rw-r--r--  1 runner runner  8055 Sep  5 23:42 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  5 23:42 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 23:42 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 triage
+-rw-r--r-- 1 runner runner 1767 Sep  5 23:42 README.md
+-rw-r--r-- 1 runner runner 8055 Sep  5 23:42 probe-results.md
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.md
+[0m
+[0m$ [0mls -la scripts leads knowledge recon-notes triage reports inventory 2>/dev/null
+inventory:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 18998 Sep  5 23:42 kassenkompass.md
+
+knowledge:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 16906 Sep  5 23:42 index.md
+
+leads:
+total 300
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 119929 Sep  5 23:42 lead-bigpickle.md
+-rw-r--r--  1 runner runner    918 Sep  5 23:42 lead-laguna.md
+-rw-r--r--  1 runner runner    900 Sep  5 23:42 lead-ling3.md
+-rw-r--r--  1 runner runner    936 Sep  5 23:42 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  5 23:42 lead-mimo.md
+-rw-r--r--  1 runner runner 152477 Sep  5 23:42 lead-nemotron3.md
+-rw-r--r--  1 runner runner   2851 Sep  5 23:42 reposcan-kassenkompass.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner  828 Sep  5 23:42 DEDICATED-DEEP.md
+
+reports:
+total 872
+drwxr-xr-x  2 runner runner   4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 454769 Sep  5 23:42 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   3906 Sep  5 23:42 analyst-laguna.log
+-rw-r--r--  1 runner runner   3888 Sep  5 23:42 analyst-ling3.log
+-rw-r--r--  1 runner runner   3924 Sep  5 23:42 analyst-longcat.log
+-rw-r--r--  1 runner runner 361734 Sep  5 23:42 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   6791 Sep  5 23:42 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 23:42 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 23:42 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 23:42 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner  10445 Sep  5 23:42 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  57797 Sep  5 23:42 hypotheses.md
+-rw-r--r--  1 runner runner    205 Sep  5 23:42 valid-bugs.md
+
+scripts:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 23:42 sync-issues.py
+
+triage:
+total 120
+drwxr-xr-x  2 runner runner  4096 Sep  5 23:42 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 23:43 ..
+-rw-r--r--  1 runner runner     0 Sep  5 23:42 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep  5 23:42 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep  5 23:42 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep  5 23:42 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep  5 23:42 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep  5 23:42 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep  5 23:42 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep  5 23:42 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep  5 23:42 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep  5 23:42 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep  5 23:42 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep  5 23:42 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep  5 23:42 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep  5 23:42 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep  5 23:42 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep  5 23:42 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep  5 23:42 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Sep  5 23:42 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Sep  5 23:42 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Sep  5 23:42 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Sep  5 23:42 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Sep  5 23:42 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Sep  5 23:42 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Sep  5 23:42 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Sep  5 23:42 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Sep  5 23:42 run-2026-09-05-22-41.md
+[0m
+[0m→ [0mRead README.md
+[0m→ [0mRead triage/run-2026-09-05-22-41.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m
+[0m$ [0mcat > /tmp/probe.py <<'PY'
+import subprocess, sys, time
+urls = sys.argv[1:]
+for u in urls:
+    try:
+        p = subprocess.run(["curl","-sS","-m","15","-D","-","-o","/tmp/body.txt","-w","%{http_code}",u],capture_output=True,text=True)
+        code = p.stdout.strip().splitlines()[-1]
+        body = ""
+        try:
+            with open("/tmp/body.txt","rb") as f:
+                raw=f.read()
+            body = raw[:250].decode("utf-8","replace").replace("\n","\\n")
+        except Exception as e:
+            body = f"<no body {e}>"
+        print(f"### {u}")
+        print(f"  status={code}")
+        print(f"  body={body}")
+        hdrs = p.stderr if False else ""
+    except Exception as e:
+        print(f"### {u} ERROR {e}")
+    time.sleep(1.1)
+PY
+echo got; true
+got
+[0m
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/v2/health/" \
+"https://api.kassenkompass.de/v2/admin/" \
+"https://api.kassenkompass.de/v2/internal/" \
+"https://api.kassenkompass.de/v2/swagger/" \
+"https://api.kassenkompass.de/v2/schema/" \
+"https://api.kassenkompass.de/v2/users/" \
+"https://api.kassenkompass.de/v2/beta/" \
+"https://api.kassenkompass.de/v2/docs/" \
+"https://api.kassenkompass.de/v2/version/" \
+"https://api.kassenkompass.de/v2/draft/"
+### https://api.kassenkompass.de/v2/health/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health' nicht gefunden.","instance":"\/v2\/health\/"}
+### https://api.kassenkompass.de/v2/admin/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/admin' nicht gefunden.","instance":"\/v2\/admin\/"}
+### https://api.kassenkompass.de/v2/internal/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/internal' nicht gefunden.","instance":"\/v2\/internal\/"}
+### https://api.kassenkompass.de/v2/swagger/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/swagger' nicht gefunden.","instance":"\/v2\/swagger\/"}
+### https://api.kassenkompass.de/v2/schema/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/schema' nicht gefunden.","instance":"\/v2\/schema\/"}
+### https://api.kassenkompass.de/v2/users/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/users' nicht gefunden.","instance":"\/v2\/users\/"}
+### https://api.kassenkompass.de/v2/beta/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/beta' nicht gefunden.","instance":"\/v2\/beta\/"}
+### https://api.kassenkompass.de/v2/docs/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/docs' nicht gefunden.","instance":"\/v2\/docs\/"}
+### https://api.kassenkompass.de/v2/version/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/version' nicht gefunden.","instance":"\/v2\/version\/"}
+### https://api.kassenkompass.de/v2/draft/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/draft' nicht gefunden.","instance":"\/v2\/draft\/"}
+[0m
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/insurance_info/1" \
+"https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x" \
+"https://api.kassenkompass.de/user/1?X-API-Secret=x" \
+"https://api.kassenkompass.de/v2/insurance_info/1?X-API-Secret=x"
+### https://api.kassenkompass.de/insurance_info/1
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/insurance_info\/1"\n}
+### https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/insurance_info\/1?X-API-Secret=x"\n}
+### https://api.kassenkompass.de/user/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instance": "\/user\/1?X-API-Secret=x",\n    "detail": "X-API-Secret Header fehlt"\n}
+### https://api.kassenkompass.de/v2/insurance_info/1?X-API-Secret=x
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/v2\/insurance_info\/1?X-API-Secret=x"\n
+[0m
+[0m$ [0mcat > /tmp/probe2.py <<'PY'
+import subprocess, sys, time
+specs = sys.argv[1:]
+for s in specs:
+    u, extra = s.split("||",1)
+    hargs = []
+    for h in extra.split("|"):
+        hargs += ["-H", h]
+    try:
+        p = subprocess.run(["curl","-sS","-m","15","-D","-","-o","/tmp/body2.txt","-w","%{http_code}",u]+hargs,capture_output=True,text=True)
+        raw = p.stdout
+        code = p.stderr
+        lines = raw.split("\n")
+        print(f"### {u} extra={extra}")
+        print(f"  status={lines[-1].strip()}")
+        print("  RESPONSE_HEADERS:")
+        for ln in lines:
+            if ln.strip():
+                print("    "+ln.rstrip())
+        try:
+            with open("/tmp/body2.txt","rb") as f:
+                b=f.read()
+            print("  body="+b[:120].decode("utf-8","replace").replace("\n","\\n"))
+        except Exception as e:
+            print(f"  body=<err {e}>")
+    except Exception as e:
+        print(f"### {u} ERROR {e}")
+    time.sleep(1.1)
+PY
+python3 /tmp/probe2.py \
+"https://api.kassenkompass.de/user/1||Cookie: X-API-Secret=x" \
+"https://api.kassenkompass.de/v2/insurance_info/1||Cookie: X-API-Secret=x"
+### https://api.kassenkompass.de/user/1 extra=Cookie: X-API-Secret=x
+  status=401
+  RESPONSE_HEADERS:
+    HTTP/2 401
+    date: Sat, 05 Sep 2026 23:44:23 GMT
+    content-type: application/problem+json; charset=utf-8
+    content-length: 180
+    server: cloudflare
+    x-powered-by: PHP/8.4.3
+    access-control-allow-methods: GET, OPTIONS
+    access-control-allow-headers: X-API-Secret, Content-Type
+    x-content-type-options: nosniff
+    x-frame-options: DENY
+    referrer-policy: strict-origin-when-cross-origin
+    strict-transport-security: max-age=31536000; includeSubDomains
+    permissions-policy: camera=(), microphone=(), geolocation=()
+    cf-cache-status: DYNAMIC
+    report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=%2FDV6qO4%2FEpxaLlsnw9DTRl%2Bwj2pZQ%2FJMwS2WyTAM3M9Hgb9VEde2RzJXDPhoctUU8R0IvP%2F3ITeYoMS516C4AIAgLVcBaIyMC8Xf44vmIzVxVbYBEu%2FRWb%2FhUhZPQMWAx5938vHO"}]}
+    nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+    cf-ray: a3691a009e220a91-IAD
+    401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instanc
+### https://api.kassenkompass.de/v2/insurance_info/1 extra=Cookie: X-API-Secret=x
+  status=401
+  RESPONSE_HEADERS:
+    HTTP/2 401
+    date: Sat, 05 Sep 2026 23:44:25 GMT
+    content-type: application/problem+json; charset=utf-8
+    content-length: 236
+    server: cloudflare
+    x-powered-by: PHP/8.4.3
+    access-control-allow-methods: GET, OPTIONS
+    access-control-allow-headers: X-API-Secret, Content-Type
+    x-content-type-options: nosniff
+    x-frame-options: DENY
+    referrer-policy: strict-origin-when-cross-origin
+    strict-transport-security: max-age=31536000; includeSubDomains
+    permissions-policy: camera=(), microphone=(), geolocation=()
+    cf-cache-status: DYNAMIC
+    report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=d5uEaOhT5qs7FXeqFYC99YgUr2UGNnNNcab9o99dm8%2FEL1%2FpsyNboaYUgU1hvqXvt6F48POUJWUUjG6BUdYdPlyglZMXmt%2F5GVp%2BuYi48GYcUDKqxA0%2BqsrgBlfsfJnFK1Bn4KC0"}]}
+    nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+    cf-ray: a3691a0b8d0e185d-IAD
+    401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail"
+[0m
+Auth source-merge: query + cookie channels both return the missing-header 401 on middleware A, B, and v2 — header remains sole channel. Now the CRLF discriminator on the clean .net host.
+[0m$ [0mpython3 /tmp/probe2.py \
+"https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner.php?customerid=KKXCUST%0d%0aX-KK-Probe2:%20injected||Accept: text/html"
+### https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=a2d2c68fce5859bd9279992e7e054e28; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:44:29 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner.php?customerid=KKXCUST%0d%0aX-KK-Probe2:%20injected extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=a2b4a143df79f4119f39e020af703520; path=/; secure; HttpOnly; SameSite=Lax
+    set-cookie: customerid=KKXCUST%0D%0AX-KK-Probe2%3A%20injected; expires=Sun, 05 Sep 2027 23:44:31 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:44:31 GMT
+    content-length: 0
+    302
+  body=
+[0m
+CRLF discriminator resolved — `customerid` value was percent-encoded (`%0D%0A` literal), `lizzen` cookie suppressed entirely; no injected header. Closing the funnel-entry-specific gap and finishing v2 sweep with German-domain names.
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/v2/tarife/" \
+"https://api.kassenkompass.de/v2/anbieter/" \
+"https://api.kassenkompass.de/v2/gkv/" \
+"https://api.kassenkompass.de/v2/pkv/" \
+"https://api.kassenkompass.de/v2/krankenkasse/" \
+"https://api.kassenkompass.de/v2/kasse/" \
+"https://api.kassenkompass.de/v2/category/" \
+"https://api.kassenkompass.de/v2/categories/"
+### https://api.kassenkompass.de/v2/tarife/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/tarife' nicht gefunden.","instance":"\/v2\/tarife\/"}
+### https://api.kassenkompass.de/v2/anbieter/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/anbieter' nicht gefunden.","instance":"\/v2\/anbieter\/"}
+### https://api.kassenkompass.de/v2/gkv/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/gkv' nicht gefunden.","instance":"\/v2\/gkv\/"}
+### https://api.kassenkompass.de/v2/pkv/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/pkv' nicht gefunden.","instance":"\/v2\/pkv\/"}
+### https://api.kassenkompass.de/v2/krankenkasse/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/krankenkasse' nicht gefunden.","instance":"\/v2\/krankenkasse\/"}
+### https://api.kassenkompass.de/v2/kasse/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/kasse' nicht gefunden.","instance":"\/v2\/kasse\/"}
+### https://api.kassenkompass.de/v2/category/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/category' nicht gefunden.","instance":"\/v2\/category\/"}
+### https://api.kassenkompass.de/v2/categories/
+  status=404
+  body={"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/categories' nicht gefunden.","instance":"\/v2\/categories\/"}
+[0m
+[0m$ [0mpython3 /tmp/probe2.py \
+"https://kassenkompass.net/termin.php?lizzen=test&jid=123&agn=456&ppn=789&frab=fr33||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner2.php?lizzen=test||Accept: text/html" \
+"https://kassenkompass.net/bonusrechner_alt.php?lizzen=test||Accept: text/html"
+### https://kassenkompass.net/termin.php?lizzen=test&jid=123&agn=456&ppn=789&frab=fr33 extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=919838b691520ade762a0ccf20db0467; path=/; secure; HttpOnly; SameSite=Lax
+    set-cookie: customerid=123; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    set-cookie: agenturnummer=456; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    set-cookie: poolpartnernummer=789; expires=Sun, 05 Sep 2027 23:45:19 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:19 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner2.php?lizzen=test extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=86e101d113189c28582771adf4b9c600; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:20 GMT
+    content-length: 0
+    302
+  body=
+### https://kassenkompass.net/bonusrechner_alt.php?lizzen=test extra=Accept: text/html
+  status=302
+  RESPONSE_HEADERS:
+    HTTP/2 302
+    cache-control: no-store, no-cache, must-revalidate
+    pragma: no-cache
+    content-type: text/html; charset=UTF-8
+    expires: Thu, 19 Nov 1981 08:52:00 GMT
+    location: https://kassenkompass.de
+    server: Microsoft-IIS/10.0
+    x-powered-by: PHP/8.4.3
+    set-cookie: PHPSESSID=55f18594224bb75dfd5eb703020be685; path=/; secure; HttpOnly; SameSite=Lax
+    x-frame-options: SAMEORIGIN
+    x-content-type-options: nosniff
+    x-xss-protection: 1; mode=block
+    strict-transport-security: max-age=31536000; includeSubDomains
+    referrer-policy: strict-origin-when-cross-origin
+    date: Sat, 05 Sep 2026 23:45:22 GMT
+    content-length: 0
+    302
+  body=
+[0m
+v2 sweep now at 42 names — all router-404 except `insurance_info`. Let me re-fetch the v1 catalog root to diff the 15 endpoints against probes already done, ensuring no endpoint has been left un-probed.
+[0m$ [0mpython3 /tmp/probe.py "https://api.kassenkompass.de/"
+### https://api.kassenkompass.de/
+  status=200
+  body={\n    "api_info": "KK API - REST",\n    "version": "1.0",\n    "authentication": "X-API-Secret header required",\n    "endpoints": {\n        "GET \/health_insurance\/": "API Krankenkassen",\n        "GET \/state\/": "API Bundesländer",\n        "GET \/he
+[0m
+[0m$ [0mcurl -sS -m 15 "https://api.kassenkompass.de/" -o /tmp/catalog.json && python3 -c "
+import json
+d=json.load(open('/tmp/catalog.json'))
+eps=d.get('endpoints',{})
+print('version',d.get('version'),'| auth',d.get('authentication'))
+for k,v in eps.items():
+    print(k,'->',v)
+print('TOTAL',len(eps))
+"
+version 1.0 | auth X-API-Secret header required
+GET /health_insurance/ -> API Krankenkassen
+GET /state/ -> API Bundesländer
+GET /health/ -> API- und Datenbank-Status (Health Check)
+GET /sync/ -> API Datensynchronisation
+GET /question_tree/ -> API Fragebaum
+GET /detail_comparison/ -> API Detailvergleich
+GET /health_insurance_savings/ -> API Krankenkasseneinsparungen
+GET /health_insurance_comparison/ -> API Krankenkassenvergleich
+POST /post/ -> API Datenempfang (POST)
+DELETE /delete/{id} -> API Benutzerdaten löschen
+POST /cancel/{id} -> API FG-Wechsel-Storno (delegiert an kk_webapp)
+GET /user/{ext_id} -> Userdaten abrufen
+GET /cat_detail/ -> API Detaillierte Kategorien-Informationen
+GET /insurance_info/{kk_id} -> API Kategorien und Leistungswerte einer Krankenkasse
+GET /settlement_report/{year}/{month} -> API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)
+TOTAL 15
+[0m
+Catalog contains 15 endpoints; 7 have never been probed (incl. `/cancel/{id}` — only endpoint delegating to the kk_webapp). Probing all for middleware attribution (no auth → 401 baseline).
+[0m$ [0mpython3 /tmp/probe.py \
+"https://api.kassenkompass.de/health_insurance/" \
+"https://api.kassenkompass.de/state/" \
+"https://api.kassenkompass.de/question_tree/" \
+"https://api.kassenkompass.de/detail_comparison/" \
+"https://api.kassenkompass.de/health_insurance_savings/" \
+"https://api.kassenkompass.de/health_insurance_comparison/" \
+"https://api.kassenkompass.de/cancel/1"
+### https://api.kassenkompass.de/health_insurance/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance\/"\n}
+### https://api.kassenkompass.de/state/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/state\/"\n}
+### https://api.kassenkompass.de/question_tree/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/question_tree\/"\n}
+### https://api.kassenkompass.de/detail_comparison/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/detail_comparison\/"\n}
+### https://api.kassenkompass.de/health_insurance_savings/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance_savings\/"\n}
+### https://api.kassenkompass.de/health_insurance_comparison/
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",\n    "instance": "\/health_insurance_comparison\/"\n}
+### https://api.kassenkompass.de/cancel/1
+  status=401
+  body={\n    "type": "https:\/\/httpstatuses.com\/401",\n    "title": "Authentication Required",\n    "status": 401,\n    "instance": "\/cancel\/1",\n    "detail": "X-API-Secret Header fehlt"\n}
+[0m
+
+{"phase": "POC", "target": "api"}
+f986248 triage 2026-09-05-22-41
+[0m
+`/cancel/1` (GET, middleware check before method dispatch) returns middleware-B wording — second endpoint on that stack after `/user/{ext_id}`. Let me check the output artifact before finalizing.
+[0m→ [0mRead knowledge/index.md[90m [offset=1, limit=30][0m
+Scratch file only — canonical outputs are `reports/hypotheses-bigpickle.txt` and `probe-results.md`. Let me check the append formats.
+[0m→ [0mRead inventory/kassenkompass.md[90m [offset=120, limit=60][0m
+[0m
+[0m$ [0mcat >> probe-results.md <<'EOF'
+
+## 2026-09-05 23:44:xx UTC
+https://api.kassenkompass.de/v2/health/ -> HTTP 404 router-oracle (API-Endpunkt 'v2/health' nicht gefunden)
+https://api.kassenkompass.de/v2/admin/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/internal/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/swagger/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/schema/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/users/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/beta/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/docs/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/version/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/draft/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/tarife/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/anbieter/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/gkv/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/pkv/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/krankenkasse/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/kasse/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/category/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/v2/categories/ -> HTTP 404 router-oracle
+https://api.kassenkompass.de/insurance_info/1 -> HTTP 401 (no auth, middleware A, "erforderlich")
+https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x -> HTTP 401 "erforderlich" (query NOT parsed)
+https://api.kassenkompass.de/user/1?X-API-Secret=x -> HTTP 401 "X-API-Secret Header fehlt" (query NOT parsed, middleware B)
+https://api.kassenkompass.de/v2/insurance_info/1?X-API-Secret=x -> HTTP 401 "erforderlich" (query NOT parsed)
+https://api.kassenkompass.de/user/1 (Cookie: X-API-Secret=x) -> HTTP 401 "fehlt" (cookie NOT parsed, middleware B)
+https://api.kassenkompass.de/v2/insurance_info/1 (Cookie: X-API-Secret=x) -> HTTP 401 "erforderlich" (cookie NOT parsed)
+https://api.kassenkompass.de/health_insurance/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/state/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/question_tree/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/detail_comparison/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/health_insurance_savings/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/health_insurance_comparison/ -> HTTP 401 middleware A
+https://api.kassenkompass.de/cancel/1 (GET) -> HTTP 401 middleware B ("X-API-Secret Header fehlt", instance-first) — SECOND endpoint on stack B
+https://kassenkompass.net/bonusrechner.php?lizzen=KKXINJ%0d%0aX-KK-Probe:%20injected -> 302 Set-Cookie afilcode absent (raw CRLF value suppressed by setcookie())
+https://kassenkompass.net/bonusrechner.php?customerid=KKXCUST%0d%0aX-KK-Probe2:%20injected -> 302 Set-Cookie customerid=KKXCUST%0D%0AX-KK-Probe2%3A%20injected (URL-encoded, no injected header)
+https://kassenkompass.net/termin.php?lizzen=test&jid=123&agn=456&ppn=789&frab=fr33 -> 302 Set-Cookie customerid=123 + agenturnummer=456 + poolpartnernummer=789; NO afilcode for lizzen; NO frab cookie
+https://kassenkompass.net/bonusrechner2.php?lizzen=test -> 302 Set-Cookie PHPSESSID only (no mirror)
+https://kassenkompass.net/bonusrechner_alt.php?lizzen=test -> 302 Set-Cookie PHPSESSID only (no mirror)
+https://api.kassenkompass.de/ -> 200 catalog 15 endpoints (re-fetched; full list captured)
+EOF
+echo appended-probe-results
+appended-probe-results
+[0m
+All context verified. Appending probe results and the structured 8-step analysis to the canonical artifacts.
+[0m$ [0mcat >> reports/hypotheses-bigpickle.txt <<'EOF'
+## 2026-09-05 23:47:11 UTC [target] (model bigpickle)
+[NEW] v2 route enumeration extended to 42 names — 10 non-mirror infra names (health/admin/internal/swagger/schema/users/beta/docs/version/draft) + 8 German-domain names (tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all → structured router-404; insurance_info remains SOLE registered v2 route; enumeration primitive saturated.
+[NEW] Auth source-merge REJECTED — `?X-API-Secret=x` AND `Cookie: X-API-Secret=x` both return missing-header 401 ("erforderlich"/"fehlt") on middleware A (/insurance_info/1), B (/user/1), and v2 — X-API-Secret strictly a header; last untested channel closed.
+[NEW] CRLF injection REJECTED — .net Set-Cookie values percent-encoded on write (customerid=KKXCUST%0D%0AX-KK-Probe2...) and raw-CRLF values suppress the cookie entirely (lizzen→afilcode absent) — PHP setcookie() semantics; no header/response splitting.
+[NEW] Auth middleware map extended to 15/15 — /cancel/{id} (POST, FG-Wechsel-Storno, "delegiert an kk_webapp") confirmed on middleware B ("X-API-Secret Header fehlt" + instance-first) like /user/{ext_id}; six previously-unprobed data GETs (health_insurance/state/question_tree/detail_comparison/health_insurance_savings/health_insurance_comparison) all middleware A. B = kk_webapp-delegation stack {user, cancel}.
+[NEW] Alias map refined — frab sets NO cookie on termin.php (this cycle) NOR bonusrechner.php (prior cycle) → frab dropped from active alias set; lizzen→afilcode is bonusrechner-specific (termin.php emits no afilcode).
+[NEW] .net mirror scoped — bonusrechner.php full mirror, termin.php subset (customerid/agenturnummer/poolpartnernummer), bonusrechner2.php + bonusrechner_alt.php mirror nothing; .net 302→.de carries NO params and cookies host-only (.net≠.de) ⇒ .net-attributed cookies unreadable by .de — downstream story rests on .de mirror.
+[PRIO] kassenkompass.net, 7.1, attack_surface:canonical-IIS-funnel-cookie-core(entry-scoped) | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:1 | freshness:8
+[PRIO] kassenkompass.de, 7.0, attack_surface:funnel-php-cookie-mirror-consumer | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:2 | freshness:7
+[PRIO] api.kassenkompass.de, 5.7, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | business_value:10 | tech_exposure:6 | gate_ease:0 | cloud_surface:2 | freshness:6
+[HYP] Attribute-cookie stuffing persists raw pass-params into 1-yr identification cookies; downstream commission/settlement consumption unproven without partner session
+class: OTHER
+asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset; .net mirror non-consumable)
+confidence: 68
+reasoning: Live re-confirmed this cycle on .net — bonusrechner.php mirrors lizzen/jid/agn/ppn/customerid into afilcode/customerid/agenturnummer/poolpartnernummer 1-yr cookies (secure, HttpOnly → server-side consumption intent); termin.php mirrors subset; no HTML reflection (0 hits); HttpOnly attribute asymmetry (afilcode non-HttpOnly vs others HttpOnly) shows two trust classes; actual consumption read (partner portal/commission) never observed.
+evidence_needed: With partner-portal/broker session, a lead/commission record or internal identifier derived from a stuffed cookie value (same value echoed in portal UI, DB record, or /settlement_report/).
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps, capture Set-Cookie); then on partner portal under test account search/navigate with that session and check whether KKSEO/KKAGN appear in lead/settlement data. Requires HUMAN-scoped account.
+impact: Attacker poisons an unknowing partner's attribution (lead = high-value commission claim) or a partner claims another's converted leads; 1-yr cross-visit identity persistence; MEDIUM-HIGH, money flow.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on the kk_webapp-delegation auth stack
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack now proven to cover exactly {user/{ext_id}, cancel/{id}} — the identity-read and FG-Storno (mutating, delegates to kk_webapp) endpoints — separate middleware from the 13 A-stack data endpoints; prior sessions established {ext_id} is an opaque user identifier with no ownership binding visible upstream; catalog exposes pattern /{ext_id} and /{id}. Cross-tenant impact if secret scoping ≠ record scoping.
+evidence_needed: /user/1 vs /user/2 return different 200 bodies under one valid B-scoped secret (cross-tenant PII); or POST /cancel/{id} affects an id not owned by the caller (destructive — HUMAN-scoped account only).
+verify_steps: WITH AUTH (HUMAN-scoped B secret): GET /user/1, /user/2, incremental sweep; diff bodies. Never against live customer data — test records only.
+impact: One valid secret dumps arbitrary user PII (name/insurer/status) across tenants, or cancels another user's insurer-switch — HIGH.
+testability: AUTH_HELPED
+[HYP] v2 /insurance_info/{kk_id} draft BOLA via greedy-segment routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route (42-name sweep); greedy segment match confirmed — /{anything} reaches the protected handler (401) meaning kk_id parsed only post-auth; v2 returns draft categories + resolved references (widest per-request data surface); n+1 BOLA unresolved without a valid v2/A-scoped secret.
+evidence_needed: Two distinct kk_id values yield different 200 data sets under one valid secret; kk_id not bound to secret owner (draft stage ⇒ internal working data).
+verify_steps: WITH AUTH: GET /v2/insurance_info/{kk_id_1} vs {kk_id_2}; diff draft/reference fields; sequential non-sequential ids.
+impact: Draft insurance-comparison data (internal categories, insurer refs) readable across tenants; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[PARKED] v2 non-mirror route enumeration (55) — SATURATED this cycle: 18 added names (infra + de-domain) all router-404; 42 total, only insurance_info registered; oracle exhausted as a hypothesis driver.
+[PARKED] Auth source-merge query/cookie (40) — REJECTED: missing-header 401 on A/B/v2 for both channels; header-only proven.
+[PARKED] Funnel CRLF injection (45) — REJECTED: percent-encoded values / suppressed setcookie; no splitting primitive.
+[FINAL] 1. Middleware-B IDOR family {user/{ext_id}, cancel/{id}} (62) — NEW: cancel joins B this cycle; cross-tenant PII + destructive Storno heads of scope; AUTH_HELPED.
+[FINAL] 2. Whole-funnel attribution-cookie stuffing (70) — unchanged; .net mirror now proven non-consumable (host-only cookies + no param pass on 302) → downstream proof load on .de.
+[FINAL] 3. v2 insurance_info draft BOLA (58) — unchanged; AUTH_HELPED.
+[NEXT] HUMAN: Request scoped test X-API-Secret (A+B stacks) + partner-portal broker account via bugs.olivermaicher.eu — passive surface exhausted: v2 enumeration saturated (42 names), query/cookie auth channels closed, CRLF class closed, 15/15 middleware map complete with /cancel newly on stack B. Credentials unlock the three money proofs (B-IDOR user+cancel, funnel downstream consumption, v2 BOLA).
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} belongs to middleware B ("X-API-Secret Header fehlt", instance-first) with /user/{ext_id}; six data GETs re-confirmed middleware A — 15/15 map complete; B = kk_webapp-delegation stack {user, cancel}.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both missing-header 401 on middleware A, B, and v2 — header strictly sole channel; source-merge closed.
+[LEARN] REJECTED OTHER @ kassenkompass.net: CRLF header/cookie injection impossible — Set-Cookie values URL-encoded on write (%0D%0A literal) or suppressed for raw CRLF (setcookie() semantics); no header splitting.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: v2 enumeration saturated — 42 names incl. infra (health/admin/internal/docs/swagger/schema/beta/staging/version/draft) + German-domain (tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all router-404; insurance_info sole route.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific, termin.php ignores lizzen.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .de; downstream consumption story rests solely on the .de mirror.
+[RISK] kassenkompass: 52/100 — Two hypotheses rejected cleanly this cycle (CRLF, query/cookie source-merge); v2 enumeration saturated at a single endpoint; middleware map complete 15/15 with /cancel/{id} newly surfaced on stack B (expanded 2-endpoint IDOR, AUTH_HELPED). Live finding stands: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel (bonusrechner full, termin subset), .net mirror confirmed non-consumable. All top monetizable hypotheses unchanged at AUTH_HELPED and require scoped credentials from bugs.olivermaicher.eu; no data exposure during passive testing.
+EOF
+echo appended-hypotheses
+appended-hypotheses
+[0m
+[0m$ [0mcat >> inventory/kassenkompass.md <<'EOF'
+
+## 2026-09-05 23:47:11 UTC
+- NEW api.kassenkompass.de: /cancel/{id} (POST FG-Wechsel-Storno, "delegiert an kk_webapp") confirmed on middleware B ("X-API-Secret Header fehlt", instance-first) — B stack = {user/{ext_id}, cancel/{id}}; six data GETs (health_insurance/state/question_tree/detail_comparison/health_insurance_savings/health_insurance_comparison) re-confirmed middleware A; 15/15 middleware map complete
+- CHANGED api.kassenkompass.de: v2 enumeration saturated — 18 more names (health/admin/internal/swagger/schema/users/beta/docs/version/draft/tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all router-404; 42 total; insurance_info sole v2 route
+- CHANGED api.kassenkompass.de: X-API-Secret via query-string AND cookie both missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+- CHANGED kassenkompass.net: CRLF injection impossible — Set-Cookie values URL-encoded (%0D%0A literal) or suppressed for raw CRLF; no header splitting (PHP setcookie semantics)
+- CHANGED kassenkompass.de: alias map — frab sets NO cookie on termin.php OR bonusrechner.php; lizzen→afilcode is bonusrechner-specific; termin.php mirrors only customerid/agenturnummer/poolpartnernummer
+- NEW kassenkompass.net: bonusrechner2.php + bonusrechner_alt.php mirror nothing (302→.de, PHPSESSID only); .net 302 carries no params + host-only cookies ⇒ .net attribution cookies unreadable by .de
+- NEW kassenkompass.net: termin.php on .net 302→.de sets customerid/agenturnummer/poolpartnernummer 1-yr HttpOnly cookies (subset mirror); NO afilcode, NO frab
+EOF
+echo appended-inventory
+appended-inventory
+[0m
+[0m$ [0mcat >> knowledge/index.md <<'EOF'
+- 2026-09-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} shares middleware B with /user/{ext_id} ("X-API-Secret Header fehlt", instance-first OR) — B = kk_webapp-delegation stack {user, cancel}; 15/15 endpoint→middleware map complete.
+- 2026-09-05 REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on middleware A, B, and v2 — header strictly sole channel; source-merge closed.
+- 2026-09-05 REJECTED OTHER @ kassenkompass.net: CRLF header/cookie injection impossible — Set-Cookie values URL-encoded on write (%0D%0A literal) or suppressed for raw CRLF (PHP setcookie semantics); no header splitting.
+- 2026-09-05 REJECTED MISCONFIG @ api.kassenkompass.de: v2 enumeration saturated — 42 names (infra + German-domain) all router-404; insurance_info sole registered v2 route; oracle exhausted.
+- 2026-09-05 ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific, termin.php ignores lizzen.
+- 2026-09-05 ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params; cookies host-only (.net≠.de registrable) — .net attribution cookies unreadable by .de; downstream story rests on .de mirror.
+EOF
+echo appended-knowledge
+appended-knowledge
+[0m
+[0m# [0mTodos
+[✓] Probe v2 non-mirror route sweep
+[✓] Probe auth source-merge query/cookie
+[✓] Probe funnel CRLF discriminator on .net
+[✓] Complete auth middleware map 15/15
+[✓] Write outputs to hypotheses/inventory/knowledge/probe-results
+[0m
+STEP 1 — DELTA
+[NEW] api: v2 enumeration extended to 42 names (10 infra + 8 German-domain) — all structured router-404; `insurance_info` sole v2 route; primitive saturated.
+[NEW] api: `/cancel/{id}` confirmed on middleware B ("fehlt", instance-first) — B stack = {user/{ext_id}, cancel/{id}}; six unprobed data GETs all middleware A; 15/15 map complete.
+[NEW] api: Auth source-merge REJECTED — `?X-API-Secret=x` and `Cookie:` both missing-header 401 on A/B/v2; header strictly sole channel.
+[NEW] net: CRLF REJECTED — values percent-encoded on write (`customerid=KKXCUST%0D%0A...`) or cookie suppressed for raw CRLF (lizzen→afilcode absent); no splitting.
+[NEW] net: mirror scoped — bonusrechner2.php/_alt.php mirror nothing; termin.php subset only; 302→.de carries no params + host-only cookies ⇒ .net cookies unreadable by .de.
+[NEW] de: `frab` sets no cookie on either entry (2 sessions) — dropped from alias map; lizzen→afilcode is bonusrechner-specific.
+
+STEP 2 — PRIORITIZE
+[PRIO] kassenkompass.net, 7.1, attack_surface:canonical-IIS-funnel-cookie-core(entry-scoped) | b:10 | t:4 | g:9 | c:1 | f:8
+[PRIO] kassenkompass.de, 7.0, attack_surface:funnel-php-cookie-mirror-consumer | b:10 | t:4 | g:9 | c:2 | f:7
+[PRIO] api.kassenkompass.de, 5.7, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | b:10 | t:6 | g:0 | c:2 | f:6
+
+STEP 3 — HYPOTHESES
+[HYP] Funnel attribution-cookie stuffing → downstream commission/settlement consumption unproven without partner session
+class: OTHER | asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset) | confidence: 68
+reasoning: bonusrechner.php mirrors raw pass-params into 1-yr HttpOnly cookies re-confirmed live this cycle; termin.php subset; no HTML reflection (0 hits); attribute asymmetry shows two trust classes; consumption never observed.
+evidence_needed: stuffed cookie value (jid/agn/ppn) reappears in lead/settlement data under a partner session.
+verify_steps: GET /bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps); then search that value on partner portal with HUMAN test account.
+impact: Lead-poisoning / commission-claiming on money flow; 1-yr cross-visit identity; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on the kk_webapp-delegation stack
+class: IDOR | asset: api (/user/{ext_id}, /cancel/{id}) | confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map); {ext_id} opaque with no upstream ownership binding; cancel is destructive and delegates to kk_webapp.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; sweep ids.
+impact: One secret dumps cross-tenant user PII or cancels others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+[HYP] v2 /insurance_info/{kk_id} draft BOLA via greedy-segment routing
+class: IDOR | asset: api (/v2/insurance_info/{kk_id}) | confidence: 58
+reasoning: sole v2 route (42 names); greedy match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest data surface).
+evidence_needed: two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 ids, diff draft/reference fields.
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] v2 route enumeration (55) — SATURATED (42 names all router-404).
+[PARKED] Auth source-merge (40) — REJECTED (header-only on A/B/v2).
+[PARKED] Funnel CRLF (45) — REJECTED (encoded/suppressed setcookie).
+[FINAL] 1. Middleware-B IDOR {user, cancel} (62; cancel newly on B) 2. Funnel cookie stuffing (70, downstream AUTH_HELPED) 3. v2 insurance_info BOLA (58).
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Request scoped X-API-Secret (A+B) + partner-portal account via bugs.olivermaicher.eu — passive surface exhausted (v2 saturated, auth channels closed, CRLF closed, middleware map 15/15); creds unlock B-IDOR, funnel-consumption, v2 BOLA proofs.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ api: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete.
+[LEARN] REJECTED AUTH @ api: query-string AND cookie X-API-Secret both missing-header 401 on A/B/v2 — header sole channel.
+[LEARN] REJECTED OTHER @ net: CRLF injection impossible — URL-encoded or suppressed cookie values.
+[LEARN] REJECTED MISCONFIG @ api: v2 enumeration saturated at single endpoint (42 names).
+[LEARN] ACCEPTED OTHER @ de: frab unmapped on both entries (2 sessions); lizzen→afilcode bonusrechner-specific.
+[LEARN] ACCEPTED OTHER @ net: 302 no-param + host-only cookies ⇒ .net attribution not readable by .de.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 52/100 — Two rejections closed cheaply (CRLF, source-merge); v2 saturated; /cancel/{id} newly surfaced on stack B (expanded IDOR, AUTH_HELPED). Live confirmed finding: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel; .net mirror proven non-consumable. All money hypotheses gated behind scoped credentials; no data exposure passively.
+
+Artifacts updated: `probe-results.md`, `reports/hypotheses-bigpickle.txt`, `inventory/kassenkompass.md`, `knowledge/index.md`.

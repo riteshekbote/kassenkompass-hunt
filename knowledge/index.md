@@ -84,3 +84,15 @@
 - 2026-09-05 ACCEPTED OTHER @ api.kassenkompass.de: X-API-Secret via query-string/cookie never tested — prior "sole channel" proof covers header names + api_key query only; auth source-merge {query,cookie} open oracle.
 - 2026-09-05 ACCEPTED OTHER @ kassenkompass.net: Set-Cookie write primitive (setcookie vs header) undetermined; CRLF discriminator probe chosen on .net to avoid Cloudflare value-filtering on .de.
 - 2026-09-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 greedy-segment match — `/v2/insurance_info/{anything}` (incl. `/1/extra`, `//1`, `/1/`, `%31`) all reach the protected handler (401); kk_id not validated at routing
+- 2026-09-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} belongs to middleware B ("X-API-Secret Header fehlt", instance-first) with /user/{ext_id}; six data GETs re-confirmed middleware A — 15/15 map complete; B = kk_webapp-delegation stack {user, cancel}.
+- 2026-09-05 REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both missing-header 401 on middleware A, B, and v2 — header strictly sole channel; source-merge closed.
+- 2026-09-05 REJECTED OTHER @ kassenkompass.net: CRLF header/cookie injection impossible — Set-Cookie values URL-encoded on write (%0D%0A literal) or suppressed for raw CRLF (setcookie() semantics); no header splitting.
+- 2026-09-05 REJECTED MISCONFIG @ api.kassenkompass.de: v2 enumeration saturated — 42 names incl. infra (health/admin/internal/docs/swagger/schema/beta/staging/version/draft) + German-domain (tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all router-404; insurance_info sole route.
+- 2026-09-05 ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific, termin.php ignores lizzen.
+- 2026-09-05 ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .de; downstream consumption story rests solely on the .de mirror.
+- 2026-09-05 ACCEPTED MISCONFIG @ api: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete.
+- 2026-09-05 REJECTED AUTH @ api: query-string AND cookie X-API-Secret both missing-header 401 on A/B/v2 — header sole channel.
+- 2026-09-05 REJECTED OTHER @ net: CRLF injection impossible — URL-encoded or suppressed cookie values.
+- 2026-09-05 REJECTED MISCONFIG @ api: v2 enumeration saturated at single endpoint (42 names).
+- 2026-09-05 ACCEPTED OTHER @ de: frab unmapped on both entries (2 sessions); lizzen→afilcode bonusrechner-specific.
+- 2026-09-05 ACCEPTED OTHER @ net: 302 no-param + host-only cookies ⇒ .net attribution not readable by .de.

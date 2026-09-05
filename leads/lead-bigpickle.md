@@ -907,3 +907,96 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: X-API-Secret via query-string/cookie never tested — prior "sole channel" proof covers header names + api_key query only; auth source-merge {query,cookie} open oracle.
 [LEARN] ACCEPTED OTHER @ kassenkompass.net: Set-Cookie write primitive (setcookie vs header) undetermined; CRLF discriminator probe chosen on .net to avoid Cloudflare value-filtering on .de.
 [RISK] kassenkompass: 53/100 — Surface saturated for canonical probes; the only remaining PASSIVE primitives are the v2 non-mirror route sweep (single undiscovered-endpoint oracle), the funnel CRLF discriminator on .net, and the query/cookie auth-source one-shots. All money hypotheses (attribution-cookie downstream consumption, /user IDOR, v2 draft BOLA) unchanged at AUTH_HELPED; no data exposure during passive testing; top picks require scoped test credentials from bugs.olivermaicher.eu.
+## 2026-09-05 23:48:46 UTC [target] (model bigpickle)
+[NEW] v2 route enumeration extended to 42 names — 10 non-mirror infra names (health/admin/internal/swagger/schema/users/beta/docs/version/draft) + 8 German-domain names (tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all → structured router-404; insurance_info remains SOLE registered v2 route; enumeration primitive saturated.
+[NEW] Auth source-merge REJECTED — `?X-API-Secret=x` AND `Cookie: X-API-Secret=x` both return missing-header 401 ("erforderlich"/"fehlt") on middleware A (/insurance_info/1), B (/user/1), and v2 — X-API-Secret strictly a header; last untested channel closed.
+[NEW] CRLF injection REJECTED — .net Set-Cookie values percent-encoded on write (customerid=KKXCUST%0D%0AX-KK-Probe2...) and raw-CRLF values suppress the cookie entirely (lizzen→afilcode absent) — PHP setcookie() semantics; no header/response splitting.
+[NEW] Auth middleware map extended to 15/15 — /cancel/{id} (POST, FG-Wechsel-Storno, "delegiert an kk_webapp") confirmed on middleware B ("X-API-Secret Header fehlt" + instance-first) like /user/{ext_id}; six previously-unprobed data GETs (health_insurance/state/question_tree/detail_comparison/health_insurance_savings/health_insurance_comparison) all middleware A. B = kk_webapp-delegation stack {user, cancel}.
+[NEW] Alias map refined — frab sets NO cookie on termin.php (this cycle) NOR bonusrechner.php (prior cycle) → frab dropped from active alias set; lizzen→afilcode is bonusrechner-specific (termin.php emits no afilcode).
+[NEW] .net mirror scoped — bonusrechner.php full mirror, termin.php subset (customerid/agenturnummer/poolpartnernummer), bonusrechner2.php + bonusrechner_alt.php mirror nothing; .net 302→.de carries NO params and cookies host-only (.net≠.de) ⇒ .net-attributed cookies unreadable by .de — downstream story rests on .de mirror.
+[PRIO] kassenkompass.net, 7.1, attack_surface:canonical-IIS-funnel-cookie-core(entry-scoped) | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:1 | freshness:8
+[PRIO] kassenkompass.de, 7.0, attack_surface:funnel-php-cookie-mirror-consumer | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:2 | freshness:7
+[PRIO] api.kassenkompass.de, 5.7, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | business_value:10 | tech_exposure:6 | gate_ease:0 | cloud_surface:2 | freshness:6
+[HYP] Attribute-cookie stuffing persists raw pass-params into 1-yr identification cookies; downstream commission/settlement consumption unproven without partner session
+class: OTHER
+asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset; .net mirror non-consumable)
+confidence: 68
+reasoning: Live re-confirmed this cycle on .net — bonusrechner.php mirrors lizzen/jid/agn/ppn/customerid into afilcode/customerid/agenturnummer/poolpartnernummer 1-yr cookies (secure, HttpOnly → server-side consumption intent); termin.php mirrors subset; no HTML reflection (0 hits); HttpOnly attribute asymmetry (afilcode non-HttpOnly vs others HttpOnly) shows two trust classes; actual consumption read (partner portal/commission) never observed.
+evidence_needed: With partner-portal/broker session, a lead/commission record or internal identifier derived from a stuffed cookie value (same value echoed in portal UI, DB record, or /settlement_report/).
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps, capture Set-Cookie); then on partner portal under test account search/navigate with that session and check whether KKSEO/KKAGN appear in lead/settlement data. Requires HUMAN-scoped account.
+impact: Attacker poisons an unknowing partner's attribution (lead = high-value commission claim) or a partner claims another's converted leads; 1-yr cross-visit identity persistence; MEDIUM-HIGH, money flow.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on the kk_webapp-delegation auth stack
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack now proven to cover exactly {user/{ext_id}, cancel/{id}} — the identity-read and FG-Storno (mutating, delegates to kk_webapp) endpoints — separate middleware from the 13 A-stack data endpoints; prior sessions established {ext_id} is an opaque user identifier with no ownership binding visible upstream; catalog exposes pattern /{ext_id} and /{id}. Cross-tenant impact if secret scoping ≠ record scoping.
+evidence_needed: /user/1 vs /user/2 return different 200 bodies under one valid B-scoped secret (cross-tenant PII); or POST /cancel/{id} affects an id not owned by the caller (destructive — HUMAN-scoped account only).
+verify_steps: WITH AUTH (HUMAN-scoped B secret): GET /user/1, /user/2, incremental sweep; diff bodies. Never against live customer data — test records only.
+impact: One valid secret dumps arbitrary user PII (name/insurer/status) across tenants, or cancels another user's insurer-switch — HIGH.
+testability: AUTH_HELPED
+[HYP] v2 /insurance_info/{kk_id} draft BOLA via greedy-segment routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 sole registered route (42-name sweep); greedy segment match confirmed — /{anything} reaches the protected handler (401) meaning kk_id parsed only post-auth; v2 returns draft categories + resolved references (widest per-request data surface); n+1 BOLA unresolved without a valid v2/A-scoped secret.
+evidence_needed: Two distinct kk_id values yield different 200 data sets under one valid secret; kk_id not bound to secret owner (draft stage ⇒ internal working data).
+verify_steps: WITH AUTH: GET /v2/insurance_info/{kk_id_1} vs {kk_id_2}; diff draft/reference fields; sequential non-sequential ids.
+impact: Draft insurance-comparison data (internal categories, insurer refs) readable across tenants; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[PARKED] v2 non-mirror route enumeration (55) — SATURATED this cycle: 18 added names (infra + de-domain) all router-404; 42 total, only insurance_info registered; oracle exhausted as a hypothesis driver.
+[PARKED] Auth source-merge query/cookie (40) — REJECTED: missing-header 401 on A/B/v2 for both channels; header-only proven.
+[PARKED] Funnel CRLF injection (45) — REJECTED: percent-encoded values / suppressed setcookie; no splitting primitive.
+[FINAL] 1. Middleware-B IDOR family {user/{ext_id}, cancel/{id}} (62) — NEW: cancel joins B this cycle; cross-tenant PII + destructive Storno heads of scope; AUTH_HELPED.
+[FINAL] 2. Whole-funnel attribution-cookie stuffing (70) — unchanged; .net mirror now proven non-consumable (host-only cookies + no param pass on 302) → downstream proof load on .de.
+[FINAL] 3. v2 insurance_info draft BOLA (58) — unchanged; AUTH_HELPED.
+[NEXT] HUMAN: Request scoped test X-API-Secret (A+B stacks) + partner-portal broker account via bugs.olivermaicher.eu — passive surface exhausted: v2 enumeration saturated (42 names), query/cookie auth channels closed, CRLF class closed, 15/15 middleware map complete with /cancel newly on stack B. Credentials unlock the three money proofs (B-IDOR user+cancel, funnel downstream consumption, v2 BOLA).
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} belongs to middleware B ("X-API-Secret Header fehlt", instance-first) with /user/{ext_id}; six data GETs re-confirmed middleware A — 15/15 map complete; B = kk_webapp-delegation stack {user, cancel}.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both missing-header 401 on middleware A, B, and v2 — header strictly sole channel; source-merge closed.
+[LEARN] REJECTED OTHER @ kassenkompass.net: CRLF header/cookie injection impossible — Set-Cookie values URL-encoded on write (%0D%0A literal) or suppressed for raw CRLF (setcookie() semantics); no header splitting.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: v2 enumeration saturated — 42 names incl. infra (health/admin/internal/docs/swagger/schema/beta/staging/version/draft) + German-domain (tarife/anbieter/gkv/pkv/krankenkasse/kasse/category/categories) all router-404; insurance_info sole route.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific, termin.php ignores lizzen.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .de; downstream consumption story rests solely on the .de mirror.
+[RISK] kassenkompass: 52/100 — Two hypotheses rejected cleanly this cycle (CRLF, query/cookie source-merge); v2 enumeration saturated at a single endpoint; middleware map complete 15/15 with /cancel/{id} newly surfaced on stack B (expanded 2-endpoint IDOR, AUTH_HELPED). Live finding stands: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel (bonusrechner full, termin subset), .net mirror confirmed non-consumable. All top monetizable hypotheses unchanged at AUTH_HELPED and require scoped credentials from bugs.olivermaicher.eu; no data exposure during passive testing.
+[NEW] api: v2 enumeration extended to 42 names (10 infra + 8 German-domain) — all structured router-404; `insurance_info` sole v2 route; primitive saturated.
+[NEW] api: `/cancel/{id}` confirmed on middleware B ("fehlt", instance-first) — B stack = {user/{ext_id}, cancel/{id}}; six unprobed data GETs all middleware A; 15/15 map complete.
+[NEW] api: Auth source-merge REJECTED — `?X-API-Secret=x` and `Cookie:` both missing-header 401 on A/B/v2; header strictly sole channel.
+[NEW] net: CRLF REJECTED — values percent-encoded on write (`customerid=KKXCUST%0D%0A...`) or cookie suppressed for raw CRLF (lizzen→afilcode absent); no splitting.
+[NEW] net: mirror scoped — bonusrechner2.php/_alt.php mirror nothing; termin.php subset only; 302→.de carries no params + host-only cookies ⇒ .net cookies unreadable by .de.
+[NEW] de: `frab` sets no cookie on either entry (2 sessions) — dropped from alias map; lizzen→afilcode is bonusrechner-specific.
+[PRIO] kassenkompass.net, 7.1, attack_surface:canonical-IIS-funnel-cookie-core(entry-scoped) | b:10 | t:4 | g:9 | c:1 | f:8
+[PRIO] kassenkompass.de, 7.0, attack_surface:funnel-php-cookie-mirror-consumer | b:10 | t:4 | g:9 | c:2 | f:7
+[PRIO] api.kassenkompass.de, 5.7, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | b:10 | t:6 | g:0 | c:2 | f:6
+[HYP] Funnel attribution-cookie stuffing → downstream commission/settlement consumption unproven without partner session
+class: OTHER | asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset) | confidence: 68
+reasoning: bonusrechner.php mirrors raw pass-params into 1-yr HttpOnly cookies re-confirmed live this cycle; termin.php subset; no HTML reflection (0 hits); attribute asymmetry shows two trust classes; consumption never observed.
+evidence_needed: stuffed cookie value (jid/agn/ppn) reappears in lead/settlement data under a partner session.
+verify_steps: GET /bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps); then search that value on partner portal with HUMAN test account.
+impact: Lead-poisoning / commission-claiming on money flow; 1-yr cross-visit identity; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on the kk_webapp-delegation stack
+class: IDOR | asset: api (/user/{ext_id}, /cancel/{id}) | confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map); {ext_id} opaque with no upstream ownership binding; cancel is destructive and delegates to kk_webapp.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; sweep ids.
+impact: One secret dumps cross-tenant user PII or cancels others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+[HYP] v2 /insurance_info/{kk_id} draft BOLA via greedy-segment routing
+class: IDOR | asset: api (/v2/insurance_info/{kk_id}) | confidence: 58
+reasoning: sole v2 route (42 names); greedy match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest data surface).
+evidence_needed: two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 ids, diff draft/reference fields.
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[PARKED] v2 route enumeration (55) — SATURATED (42 names all router-404).
+[PARKED] Auth source-merge (40) — REJECTED (header-only on A/B/v2).
+[PARKED] Funnel CRLF (45) — REJECTED (encoded/suppressed setcookie).
+[FINAL] 1. Middleware-B IDOR {user, cancel} (62; cancel newly on B) 2. Funnel cookie stuffing (70, downstream AUTH_HELPED) 3. v2 insurance_info BOLA (58).
+[NEXT] HUMAN: Request scoped X-API-Secret (A+B) + partner-portal account via bugs.olivermaicher.eu — passive surface exhausted (v2 saturated, auth channels closed, CRLF closed, middleware map 15/15); creds unlock B-IDOR, funnel-consumption, v2 BOLA proofs.
+[LEARN] ACCEPTED MISCONFIG @ api: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete.
+[LEARN] REJECTED AUTH @ api: query-string AND cookie X-API-Secret both missing-header 401 on A/B/v2 — header sole channel.
+[LEARN] REJECTED OTHER @ net: CRLF injection impossible — URL-encoded or suppressed cookie values.
+[LEARN] REJECTED MISCONFIG @ api: v2 enumeration saturated at single endpoint (42 names).
+[LEARN] ACCEPTED OTHER @ de: frab unmapped on both entries (2 sessions); lizzen→afilcode bonusrechner-specific.
+[LEARN] ACCEPTED OTHER @ net: 302 no-param + host-only cookies ⇒ .net attribution not readable by .de.
+[RISK] kassenkompass: 52/100 — Two rejections closed cheaply (CRLF, source-merge); v2 saturated; /cancel/{id} newly surfaced on stack B (expanded IDOR, AUTH_HELPED). Live confirmed finding: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel; .net mirror proven non-consumable. All money hypotheses gated behind scoped credentials; no data exposure passively.

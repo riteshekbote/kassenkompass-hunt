@@ -176,3 +176,10 @@ https://kassenkompass.de/termin.php -> 200 len=?
 https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
 https://api.kassenkompass.de/v2/health/ -> HTTP 404
 https://api.kassenkompass.de/insurance_info/1?X-API-Secret=x -> HTTP 401
+
+## 2026-09-05 23:49:05 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ -> 200 len=?
