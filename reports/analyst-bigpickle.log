@@ -4865,3 +4865,149 @@ All three hypotheses require valid X-API-Secret or partner-portal access. No pas
 
 `[NEXT] HUMAN: Request a scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu — all three final hypotheses require valid credentials; no further passive egress available this cycle.`
 `[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 — capture Set-Cookie headers and response (passive, 1 rps, confirm cookie attributes across entry variants)`
+===== ANALYST bigpickle 2026-09-05 15:32:54 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mmkdir -p /tmp/opencode && curl -sS -m 25 -A "Mozilla/5.0" -D /tmp/opencode/bonus_headers.txt -o /tmp/opencode/bonus_body.html "https://kassenkompass.de/bonusrechner.php?lizenz=kkxpoc01&jid=kkxpoc01&agn=kkxpoc01&ppn=kkxpoc01&advisorid=kkxpoc01&frab=kkxpoc01"; echo "===HEADERS==="; grep -iE "HTTP/|set-cookie|server|x-powered" /tmp/opencode/bonus_headers.txt; echo "===BODY REFLECTION COUNT==="; grep -o kkxpoc01 /tmp/opencode/bonus_body.html | wc -l; echo "===BODY SIZE==="; wc -c /tmp/opencode/bonus_body.html
+===HEADERS===
+HTTP/2 200 
+set-cookie: AWSALB=FqNPStfj8K30u44l5/GSZeqvaAzWLygy06w95R1AVC/DQDbAg2LuHRKkTPE7Rs+t5BddCfLdKYE1Xe2RokEVulDVPSmGRAw4saIN+Sth9Na5j71Jrge8svizR08l; Expires=Sat, 12 Sep 2026 15:25:45 GMT; Path=/
+set-cookie: AWSALBCORS=FqNPStfj8K30u44l5/GSZeqvaAzWLygy06w95R1AVC/DQDbAg2LuHRKkTPE7Rs+t5BddCfLdKYE1Xe2RokEVulDVPSmGRAw4saIN+Sth9Na5j71Jrge8svizR08l; Expires=Sat, 12 Sep 2026 15:25:45 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=0f9233ffe0ceaec86d34bc4daf95e66a; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=kkxpoc01; expires=Sun, 05 Sep 2027 15:25:45 GMT; Max-Age=31536000
+set-cookie: customerid=kkxpoc01; expires=Sun, 05 Sep 2027 15:25:45 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=kkxpoc01; expires=Sun, 05 Sep 2027 15:25:45 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=kkxpoc01; expires=Sun, 05 Sep 2027 15:25:45 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: advisorid=kkxpoc01; expires=Sun, 05 Sep 2027 15:25:45 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+server: cloudflare
+===BODY REFLECTION COUNT===
+0
+===BODY SIZE===
+42858 /tmp/opencode/bonus_body.html
+[0m
+[0m$ [0mgrep -io "kkxpoc" /tmp/opencode/bonus_body.html | wc -l; echo "---afilcode in body---"; grep -o 'afilcode[^"]\{0,40\}' /tmp/opencode/bonus_body.html | head -5; echo "---script tags with query---"; grep -oE '<script[^>]*src="[^"]*"' /tmp/opencode/bonus_body.html | head -20
+0
+---afilcode in body---
+---script tags with query---
+<script src="/js/standard.js?v=1788621945"
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"
+<script src="js/whitelabel_live.js?v=v2.6.9"
+[0m
+[0m$ [0mcurl -sS -m 25 -A "Mozilla/5.0" -o /tmp/opencode/wl.js "https://kassenkompass.de/js/whitelabel_live.js?v=v2.6.9"; wc -c /tmp/opencode/wl.js; echo "---host refs---"; grep -oiE "(https?://[a-z0-9.-]+\.kassenkompass\.de|\.kassenkompass\.de)" /tmp/opencode/wl.js | sort -u | head -30
+11359 /tmp/opencode/wl.js
+---host refs---
+[0m
+[0m$ [0mgrep -oiE "(getCookie|setCookie|afilcode|agenturnummer|customerid|location\.|window\.open|\\.href[^;]{0,80})" /tmp/opencode/wl.js | sort -u | head -40; echo "===first 60 lines==="; sed -n '1,60p' /tmp/opencode/wl.js
+===first 60 lines===
+/**
+ * Whitelabel Live-Preview Receiver
+ *
+ * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+ * die vom Server gerenderten CSS-Variablen + Hooks in einem dedizierten
+ * <style id="wl-vars-live">-Block.
+ *
+ * WICHTIG: Die hier abgebildete CSS-Build-Logik ist ein 1:1-JS-Spiegel von
+ *   htmlincludes/whitelabel/whitelabel_styles.php
+ * Jede neue Style-Hook-Regel muss auch hier ergänzt werden, sonst greift
+ * sie zwar nach dem Speichern, aber nicht im Live-Editor.
+ *
+ * Erwartete Message:
+ *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+ *
+ * Sicherheit:
+ * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+ * - postMessage erlaubt zwar Cross-Origin, aber wir validieren strikt
+ *   den Message-Typ + Whitelisten die Brand-Keys + Sanitize jeden Wert
+ */
+(function () {
+	'use strict';
+
+	const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
+	const isHex = v => typeof v === 'string' && HEX.test(v);
+	const pickEnum = (v, allowed) => allowed.indexOf(v) !== -1 ? v : null;
+	const sanitizeFont = v => (typeof v === 'string') ? v.replace(/[^a-zA-Z0-9 _\-,']/g, '') : '';
+
+	const RADIUS_MAP = { leicht: '4px', mittel: '10px', stark: '20px' };
+
+	const BTN_SELECTORS =
+		'body.wl-active button, body.wl-active input[type="submit"], ' +
+		'body.wl-active .bn_searchbut, body.wl-active .bnv_button, ' +
+		'body.wl-active .ad_changebut';
+
+	const BTN_TEXT_SELECTORS =
+		'body.bn_bodystan.wl-active button, body.bn_bodystan.wl-active button *, ' +
+		'body.bn_bodystan.wl-active input[type="submit"], ' +
+		'body.bn_bodystan.wl-active .bn_searchbut, body.bn_bodystan.wl-active .bn_searchbut *, ' +
+		'body.bn_bodystan.wl-active .bnv_button, body.bn_bodystan.wl-active .bnv_button *, ' +
+		'body.bn_bodystan.wl-active .ad_changebut, body.bn_bodystan.wl-active .ad_changebut *';
+
+	const BTN_SVG_SELECTORS =
+		'body.bn_bodystan.wl-active button svg path, ' +
+		'body.bn_bodystan.wl-active input[type="submit"] svg path, ' +
+		'body.bn_bodystan.wl-active .bn_searchbut svg path, ' +
+		'body.bn_bodystan.wl-active .bnv_button svg path, ' +
+		'body.bn_bodystan.wl-active .ad_changebut svg path';
+
+	function buildCss(brand) {
+		const col_primary     = isHex(brand.color_primary)         ? brand.color_primary         : null;
+		const col_secondary   = isHex(brand.color_secondary)       ? brand.color_secondary       : null;
+		const col_background  = isHex(brand.color_background)      ? brand.color_background      : null;
+		const col_text        = isHex(brand.color_text)            ? brand.color_text            : null;
+		const col_button      = isHex(brand.color_button)          ? brand.color_button          : null;
+		const col_button_text = isHex(brand.color_button_text)     ? brand.color_button_text     : null;
+		const col_card_bg     = isHex(brand.color_card_background) ? brand.color_card_background : null;
+		const col_card_border = isHex(brand.color_card_border)     ? brand.color_card_border     : null;
+		const col_highlight   = isHex(brand.color_highlight)       ? brand.color_highlight       : null;
+[0m
+STEP 1 — DELTA
+- [NEW] kassenkompass.de: funnel page loads `js/whitelabel_live.js?v=v2.6.9` — same-origin whitelabel "Live-Preview Receiver" (postMessage-driven CSS override, comments: editor+funnel same domain, ref `htmlincludes/whitelabel/whitelabel_styles.php`); `standard.js?v=1788621945` (epoch == today) signals fresh deploy this session.
+- [CHANGED] kassenkompass.de: marker-probe `bonusrechner.php?lizzen|jid|agn|ppn|advisorid|frab=kkxpoc01` → all six mirror into 1-yr cookies (incl. advisorid, fresh confirm — afilcode still no Secure/HttpOnly, others Secure+HttpOnly); marker **0 hits** in 42.8KB body → no reflected XSS via passthrough params on bonusrechner.php (negative closed).
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de funnel,6.35,attack_surface6/value7/tech4/gate10/cloud2/fresh8
+- [PRIO] api.kassenkompass.de,6.0,attack_surface7/value8/tech5/gate2/cloud3/fresh9
+- [PRIO] awv.kassenkompass.de,4.4,attack_surface4/value3/tech4/gate9/cloud2/fresh5
+
+STEP 3 — HYPOTHESES
+[HYP] Whole-funnel attribution-cookie stuffing → partner commission/lead hijack
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*/termin.php)
+confidence: 65
+reasoning: Fresh probe re-confirms server mirrors raw pass-params (lizenz→afilcode, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer, advisorid, frab) into 1-year cookies verbatim, no allowlist/referrer/funnel-state check; nonexistent codes accepted; afilcode persists w/o Secure/HttpOnly on the funnel that precedes lead/booking submission; no HTML reflection (XSS vector absent, stuffing-vector intact).
+evidence_needed: partner-settlement/kk_webapp reads cookie (not clicked-link query) into lead/commission record; attacker code appears in partner "linkklick"/lead report.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel, fresh-session complete flow, diff lead attribution vs clicked-link partner (AUTH_HELPED).
+impact: Any visitor's lead/click attributable to attacker-chosen partner license → commission theft/lead hijack, 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only middleware-B endpoint (distinct 401/403 wording + path echo); single shared X-API-Secret key with no per-resource scope observed; ext_id externally enumerable; owner-side real caller path unresolved.
+evidence_needed: Valid secret; /user/1 vs /user/2 contents differ under same key.
+verify_steps: WITH AUTH: GET /user/1, GET /user/2, diff bodies; then sweep adjacent ids.
+impact: One valid key dumps any tenant's user PII; HIGH.
+testability: AUTH_HELPED
+[HYP] Cross-version BOLA draft-category via /v2/insurance_info/{kk_id}
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole registered v2 route sharing middleware A; router greedily accepts any kk_id incl. trailing segments; prior session noted draft categories + resolved references in body vs v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returns multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/{1}.
+impact: Pre-release draft insurance data across insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Whitelabel-editor stored injection: editor path unknown, CSS values server-sanitized (hex-regex + font allowlist confirmed in JS mirror), likely partner-auth — passive egress nil this cycle.
+- [FINAL] funnel cookie-stuffing (65) > /user IDOR (62) > v2 draft-BOLA (58). All three AUTH_HELPED; passive surface saturated (SSRF/JWT/CORS/CRED_REUSE closed, values not reflected, v2 name-space exhausted at 24 names).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: Request scoped test X-API-Secret + minimal partner-portal (whitelabel/partner settlement) account via bugs.olivermaicher.eu — only egress left for the three FINAL hypotheses; explicitly attach funnel-cookie+lead-attribution diff as the primary test plan.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: bonusrechner.php mirrors advisorid + all six passthrough params into 1-year cookies fresh-confirmed this session; afilcode w/o Secure/HttpOnly; marker NOT reflected in HTML body (0/42.8KB) — reflected-XSS via funnel passthrough params closed.
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: funnel serves whitelabel live-preview receiver js/whitelabel_live.js v2.6.9 (same-origin editor, server twin htmlincludes/whitelabel/whitelabel_styles.php) + standard.js?v=1788621945 (epoch=today) — whitelabel editor surface on same domain, path unknown.
+
+STEP 7 — RISK
+- [RISK] kassenkompass: 50/100 — No new egress; passive surface saturated (funnel params confirmed non-reflected, v2 name-space exhausted, wonderland unchanged). Live finding stands: unvalidated whole-funnel attribution-cookie stuffing (1-yr, commission-hijack dependent on partner-settlement trust) + API recon amplifiers; all top hypotheses gated on credentials. No data exposure, no bypass, no new IDOR during passive cycle.

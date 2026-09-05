@@ -744,3 +744,31 @@ evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key
 verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/1.
 impact: Pre-release draft insurance data across all insurers; MEDIUM-HIGH.
 testability: AUTH_HELPED
+## 2026-09-05 15:26:53 UTC [target] (model bigpickle)
+[HYP] Whole-funnel attribution-cookie stuffing → partner commission/lead hijack
+class: BUSLOGIC
+asset: kassenkompass.de (bonusrechner*/termin.php)
+confidence: 65
+reasoning: Fresh probe re-confirms server mirrors raw pass-params (lizenz→afilcode, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer, advisorid, frab) into 1-year cookies verbatim, no allowlist/referrer/funnel-state check; nonexistent codes accepted; afilcode persists w/o Secure/HttpOnly on the funnel that precedes lead/booking submission; no HTML reflection (XSS vector absent, stuffing-vector intact).
+evidence_needed: partner-settlement/kk_webapp reads cookie (not clicked-link query) into lead/commission record; attacker code appears in partner "linkklick"/lead report.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel, fresh-session complete flow, diff lead attribution vs clicked-link partner (AUTH_HELPED).
+impact: Any visitor's lead/click attributable to attacker-chosen partner license → commission theft/lead hijack, 1-year persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only middleware-B endpoint (distinct 401/403 wording + path echo); single shared X-API-Secret key with no per-resource scope observed; ext_id externally enumerable; owner-side real caller path unresolved.
+evidence_needed: Valid secret; /user/1 vs /user/2 contents differ under same key.
+verify_steps: WITH AUTH: GET /user/1, GET /user/2, diff bodies; then sweep adjacent ids.
+impact: One valid key dumps any tenant's user PII; HIGH.
+testability: AUTH_HELPED
+[HYP] Cross-version BOLA draft-category via /v2/insurance_info/{kk_id}
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole registered v2 route sharing middleware A; router greedily accepts any kk_id incl. trailing segments; prior session noted draft categories + resolved references in body vs v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returns multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/{1}.
+impact: Pre-release draft insurance data across insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
