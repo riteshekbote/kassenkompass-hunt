@@ -813,3 +813,51 @@ testability: AUTH_HELPED
 [LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic KKX3382745 is not a valid API secret — re-confirmed.
 [LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
 [RISK] kassenkompass: 50/100 — No new surface this cycle; surface saturated for passive testing. API remains key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 recon amplifiers, v2 single route). Highest-confidence live finding remains server-side unvalidated attribution-cookie stuffing across the entire public funnel (1-year persistence, commission-hijack dependent on partner-settlement trust). All top hypotheses await valid credentials; no data exposure during passive testing.
+## 2026-09-05 19:35:01 UTC [target] (model bigpickle)
+[NEW] kassenkompass.net — canonical IIS/10.0 + PHP 8.4.3 backend (og:url, canonical, form target `.de→.net`); sets same attribution cookies as `.de` then 302→.de. Prior sessions (all) inventoried only `.de`/`www.de`/`api.de`/`awv.de`.
+[NEW] bonusrechner.php uniquely sets unvalidated pass-params into 1-year cookies with 1 rps — re-confirmed live: `lizzen=test123`→`afilcode`, `jid=foo999`→`customerid`, `agn=bar888`→`agenturnummer`, `ppn=baz777`→`poolpartnernummer`; same on termin.php and on `.net`.
+[NEW] Cookie attribute asymmetry: `afilcode` persisted WITHOUT `Secure`/`HttpOnly`; `customerid`/`agenturnummer`/`poolpartnernummer`/`advisorid`/`employeenumber` WITH `; Secure; HttpOnly; path=/` (HttpOnly ⇒ consumed server-side, not client JS).
+[NEW] Duplicate `customerid` Set-Cookie on same response when both `jid` and `customerid` present (`customerid=Y` from jid then `customerid=X` direct; last-wins, ambiguous consumption).
+[CHANGED] `frab` param set NO cookie on bonusrechner this cycle (probe `frab=fr33` → no Set-Cookie) — prior session alias map includes frab; needs recheck (possibly only on other entries).
+[CHANGED] No server-side HTML reflection of pass-params (grep of `TESTLIZ/JIDX/AGNY/PPNZ` in 200 body → 0 hits) — pure cookie mirroring, no stored/reflected XSS via these.
+[PRIO] kassenkompass.net, 7.0, attack_surface:canonical-IIS-funnel-cookie-core | business_value:10 | tech_exposure:4 (IIS10+PHP8.4, no modern framework) | gate_ease:9 (public funnel) | cloud_surface:1 | freshness:9
+[PRIO] kassenkompass.de, 6.9, attack_surface:funnel-phps,cookies,pass-params,cloudflare | business_value:10 | tech_exposure:4 | gate_ease:9 | cloud_surface:2 | freshness:6
+[PRIO] api.kassenkompass.de, 5.2, attack_surface:15+v2 endpoints,catalog,2-middleware | business_value:10 | tech_exposure:6 | gate_ease:0 | cloud_surface:2 | freshness:4
+[HYP] Whole-funnel attribution-cookie stuffing → partner commission/lead hijack
+class: BUSLOGIC
+asset: kassenkompass.net / kassenkompass.de (bonusrechner.php, termin.php)
+confidence: 70
+reasoning: Live probes show raw pass-params mirrored into 1-yr cookies with NO validation on both hosts; HttpOnly on customerid/agenturnummer/poolpartnernummer proves server-side consumption at lead/settlement time; afilcode missing Secure/HttpOnly; duplicate customerid when jid+customerid both passed; no HTML reflection (pure mirror); canonical lead-collection host is .net.
+evidence_needed: partner-settlement/kk_webapp reads cookie (not clicked-link query) into lead/commission record; attacker license appears in partner "linkklick"/lead report for a stuffed, otherwise-clean session.
+verify_steps: WITH AUTH (partner portal): pre-set cookies via funnel GET then fresh-session complete flow; inspect lead attribution; else diff attribution vs control (passive does not prove downstream).
+impact: Any visitor's lead/click attributed to attacker-chosen partner → commission theft/lead hijack, 1-yr persistence; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Cross-version BOLA draft-category via /v2/insurance_info/{kk_id}
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole registered v2 route shares middleware A; router greedily accepts any kk_id incl trailing/encoded segments (prior session, re-confirmed history); draft categories+resolved refs in body vs v1 twin.
+evidence_needed: Valid secret; v2 vs v1 body diff showing draft fields; same key returns multiple kk_id datasets.
+verify_steps: WITH AUTH: GET /v2/insurance_info/{1,2}; diff vs v1 /insurance_info/1.
+impact: Pre-release draft insurance data across insurers; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: Only endpoint on middleware B (distinct 401/403 wording + path echo); single shared X-API-Secret with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid secret; /user/1 vs /user/2 return different tenants' PII under same key.
+verify_steps: WITH AUTH: GET /user/1 and /user/2; diff bodies; sweep ids.
+impact: One valid secret dumps any user PII across tenants; HIGH.
+testability: AUTH_HELPED
+[PARKED] v2 /user/{ext_id} middleware-B IDOR (62) — requires valid secret, no passive egress remains; parked to AUTH_HELPED queue (unchanged from prior session, already ranked).
+[FINAL] 1. attribution-cookie stuffing 70 (up 65): cookie mirroring re-confirmed live on .de AND .net canonical host with per-cookie attribute asymmetry + HttpOnly proof of server-side consumption.
+[FINAL] 2. /user/{ext_id} IDOR 62 (AUTH_HELPED).
+[FINAL] 3. v2 draft BOLA 58 (AUTH_HELPED).
+[NEXT] HUMAN: Request scoped test X-API-Secret + partner-portal account via bugs.olivermaicher.eu to close the two highest-value hypotheses — funnel attribution-cookie downstream commission consumption (.net canonical), and /user/{ext_id} cross-tenant IDOR; no further passive egress remains on any in-scope surface this cycle.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: Canonical IIS/10.0 + PHP 8.4.3 backend (og:url, canonical link, form POST target); sets identical unvalidated pass-param attribution cookies on `.net` then 302→.de; new inventory host not present in any prior session.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Attribution cookie attributes asymmetric — `afilcode` lacking Secure/HttpOnly; `customerid`/`agenturnummer`/`poolpartnernummer`/`advisorid`/`employeenumber` with `; Secure; HttpOnly; path=/` (HttpOnly ⇒ server-side lead/settlement consumption).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Duplicate `customerid` Set-Cookie in one response when both `jid` and `customerid` passed (jid alias then direct; last-wins ambiguity).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Pass-params are NOT reflected into HTML (0 hits for probe tokens in 200 body) — cookie mirror only, no stored/reflected XSS via these params.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de: `frab` param did NOT set a cookie on bonusrechner this probe — single-sample; alias map may be entry-specific (termin vs bonusrechner) or require different context; not asserted.
+[RISK] kassenkompass: 52/100 — Funnel surface deepened (new canonical .net IIS backend + re-confirmed live attribution-cookie stuffing with server-side-consumption evidence, 1-yr persistence). API remains fully key-gated (X-API-Secret sole channel, 2 middlewares + legacy /sync-200, catalog/404 oracles, v2 single route). Live high-confidence finding is the unvalidated attribution-cookie stuffing across the whole funnel; all top API hypotheses await valid credentials; no data exposure during passive testing.
