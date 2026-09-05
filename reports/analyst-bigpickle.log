@@ -2622,3 +2622,1285 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] kassenkompass: 45/100 — Unauthenticated v1 catalog disclosure (recon amplifier) + /sync/ HTTP-200 misconfig remain confirmed; NEW v2 wide-variant endpoint doubles the per-secret data surface (draft categories, resolved references) but stays gated behind the single shared X-API-Secret, so egress to AUTH_HELPED still requires a key; three auth error paths (A/B/sync-200) plus v2 router-404 confirm a heterogeneous stack — single secret = single point of full PII+financial+draft-data exposure if leaked. Frontend posture consistent across hosts. No passive bypass found; all high-value IDOR/BOLA remain key-gated.
+===== ANALYST bigpickle 2026-09-05 00:22:25 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null; ls -la inventory/ 2>/dev/null; cat scope.yml 2>/dev/null | head -50
+total 156
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:15 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 00:15 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:15 .github
+-rw-r--r--  1 runner runner  1767 Sep  5 00:15 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 00:15 analyst-out.txt
+-rw-r--r--  1 runner runner 33210 Sep  5 00:15 analyst-prompt.txt
+-rw-r--r--  1 runner runner 29392 Sep  5 00:15 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 leads
+-rw-r--r--  1 runner runner  3690 Sep  5 00:15 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  5 00:15 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 triage
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 6880 Sep  5 00:15 kassenkompass.md
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+[0m$ [0mls -la leads/ knowledge/ scripts/ reproscan-raw/ triage/ reports/ recon-notes/ 2>/dev/null; echo "---ANALYST OUT---"; cat analyst-out.txt; echo "---STATE---"; cat state_bigpickle.json
+knowledge/:
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 6950 Sep  5 00:15 index.md
+
+leads/:
+total 152
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 61591 Sep  5 00:15 lead-bigpickle.md
+-rw-r--r--  1 runner runner   510 Sep  5 00:15 lead-laguna.md
+-rw-r--r--  1 runner runner   500 Sep  5 00:15 lead-ling3.md
+-rw-r--r--  1 runner runner   520 Sep  5 00:15 lead-longcat.md
+-rw-r--r--  1 runner runner    18 Sep  5 00:15 lead-mimo.md
+-rw-r--r--  1 runner runner 60186 Sep  5 00:15 lead-nemotron3.md
+-rw-r--r--  1 runner runner  1955 Sep  5 00:15 reposcan-kassenkompass.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner  828 Sep  5 00:15 DEDICATED-DEEP.md
+
+reports/:
+total 496
+drwxr-xr-x  2 runner runner   4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner   4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 247579 Sep  5 00:15 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   2170 Sep  5 00:15 analyst-laguna.log
+-rw-r--r--  1 runner runner   2160 Sep  5 00:15 analyst-ling3.log
+-rw-r--r--  1 runner runner   2180 Sep  5 00:15 analyst-longcat.log
+-rw-r--r--  1 runner runner 226848 Sep  5 00:15 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   4681 Sep  5 00:15 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner     51 Sep  5 00:15 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner     50 Sep  5 00:15 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner     52 Sep  5 00:15 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   7136 Sep  5 00:15 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  22790 Sep  5 00:15 hypotheses.md
+-rw-r--r--  1 runner runner    205 Sep  5 00:15 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 16987 Sep  5 00:15 sync-issues.py
+
+triage/:
+total 88
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner     0 Sep  5 00:15 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep  5 00:15 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep  5 00:15 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep  5 00:15 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep  5 00:15 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep  5 00:15 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep  5 00:15 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep  5 00:15 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep  5 00:15 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep  5 00:15 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep  5 00:15 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep  5 00:15 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep  5 00:15 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep  5 00:15 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep  5 00:15 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep  5 00:15 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep  5 00:15 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Sep  5 00:15 run-2026-09-04-23-18.md
+---ANALYST OUT---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art/ 2>/dev/null; ls -la inventory/ 2>/dev/null; cat scope.yml 2>/dev/null | head -50
+total 156
+drwxr-xr-x 12 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:15 ..
+drwxr-xr-x  7 runner runner  4096 Sep  5 00:15 .git
+drwxr-xr-x  3 runner runner  4096 Sep  5 00:15 .github
+-rw-r--r--  1 runner runner  1767 Sep  5 00:15 README.md
+-rw-r--r--  1 runner runner    32 Sep  5 00:15 analyst-out.txt
+-rw-r--r--  1 runner runner 33210 Sep  5 00:15 analyst-prompt.txt
+-rw-r--r--  1 runner runner 29392 Sep  5 00:15 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 leads
+-rw-r--r--  1 runner runner  3690 Sep  5 00:15 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 reports
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  5 00:15 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 scripts
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  5 00:15 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  5 00:15 triage
+total 16
+drwxr-xr-x  2 runner runner 4096 Sep  5 00:15 .
+drwxr-xr-x 12 runner runner 4096 Sep  5 00:15 ..
+-rw-r--r--  1 runner runner 6880 Sep  5 00:15 kassenkompass.md
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+[0m
+---STATE---
+{"phase": "POC", "target": "api"}
+[0m
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+[0m
+[0m$ [0mls -la .github/workflows/ 2>/dev/null; head -40 .github/workflows/*.yml 2>/dev/null; echo "---RECENT TRIAGE---"; ls -lt triage/ | head -5
+total 44
+drwxr-xr-x 2 runner runner  4096 Sep  5 00:15 .
+drwxr-xr-x 3 runner runner  4096 Sep  5 00:15 ..
+-rw-r--r-- 1 runner runner 14325 Sep  5 00:15 hunt.yml
+-rw-r--r-- 1 runner runner  5398 Sep  5 00:15 reposcan.yml
+-rw-r--r-- 1 runner runner  1032 Sep  5 00:15 sync-issues.yml
+-rw-r--r-- 1 runner runner  6520 Sep  5 00:15 triage.yml
+==> .github/workflows/hunt.yml <==
+name: Deep Hunt (KassenKompass GmbH)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  PROBE_ALLOW: "kassenkompass.de"
+
+jobs:
+  analyst:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: hunt-kassenkompass-${{ matrix.model.name }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - { id: opencode/big-pickle, name: bigpickle }
+          - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+          - { id: opencode/longcat-2.0-free, name: longcat }
+          - { id: opencode/ling-3.0-flash-free, name: ling3 }
+          - { id: opencode/laguna-s-2.1-free, name: laguna }
+    env:
+      MODEL_ID: ${{ matrix.model.id }}
+      OPENCODE_REASONING: xhigh
+      MODEL_NAME: ${{ matrix.model.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OpenCode
+        run: |
+
+==> .github/workflows/reposcan.yml <==
+name: Reposcan (KassenKompass GmbH)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PROBE_ALLOW: "kassenkompass.de"
+  TARGET_ORG: ""   # set to a public GitHub org if one is known, else leave empty
+
+jobs:
+  reposcan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: reposcan-kassenkompass
+      cancel-in-progress: true
+    env:
+      MODEL_ID: opencode/mimo-v2.5-free
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OpenCode
+        run: |
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          if command -v opencode >/dev/null 2>&1; then opencode --version; exit 0; fi
+          npm install -g opencode-ai 2>/dev/null || npm install -g --prefix "$HOME/.npm-global" opencode-ai 2>/dev/null || true
+          if ! command -v opencode >/dev/null 2>&1; then
+            for i in 1 2 3; do
+              curl -fsSL https://opencode.ai/install | bash && break
+              echo "opencode.ai installer attempt $i failed, retrying in 15s..."; sleep 15
+            done
+          fi
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          opencode --version
+
+==> .github/workflows/sync-issues.yml <==
+name: Sync Issues (KassenKompass GmbH)
+
+on:
+  workflow_run:
+    workflows: ["Deep Hunt (KassenKompass GmbH)"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: sync-issues-kassenkompass
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install PyGithub
+        run: pip install PyGithub
+
+      - name: Sync leads to issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          LEAD_GLOB: "leads/lead-*.md"
+          TARGET_NAME: kassenkompass
+        run: python scripts/sync-issues.py
+
+
+==> .github/workflows/triage.yml <==
+name: Triager (KassenKompass GmbH)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  PROBE_ALLOW: "kassenkompass.de"
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: triage-kassenkompass
+      cancel-in-progress: true
+    env:
+      MODEL_ID: opencode/mimo-v2.5-free
+      OPENCODE_REASONING: xhigh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OpenCode
+        run: |
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          if command -v opencode >/dev/null 2>&1; then opencode --version; exit 0; fi
+          npm install -g opencode-ai 2>/dev/null || npm install -g --prefix "$HOME/.npm-global" opencode-ai 2>/dev/null || true
+          if ! command -v opencode >/dev/null 2>&1; then
+            for i in 1 2 3; do
+              curl -fsSL https://opencode.ai/install | bash && break
+              echo "opencode.ai installer attempt $i failed, retrying in 15s..."; sleep 15
+            done
+          fi
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          opencode --version
+---RECENT TRIAGE---
+total 80
+-rw-r--r-- 1 runner runner   212 Sep  5 00:15 run-2026-09-02-21-39.md
+-rw-r--r-- 1 runner runner   225 Sep  5 00:15 run-2026-09-02-23-33.md
+-rw-r--r-- 1 runner runner   568 Sep  5 00:15 run-2026-09-03-01-26.md
+-rw-r--r-- 1 runner runner   200 Sep  5 00:15 run-2026-09-03-06-29.md
+[0m
+[0m→ [0mRead .github/workflows/hunt.yml
+[0m
+[0m$ [0mtail -30 reports/analyst-bigpickle.log 2>/dev/null; echo "==="; which curl python3; echo "==="; ls /tmp/opencode 2>/dev/null
+STEP 3 — HYPOTHESES
+[HYP] Draft-Category BOLA via v2 insurance_info wide-variant — unreleased data across all insurers
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: /v2/ catalog documents one endpoint returning "Entwurfs-Kategorien" (draft categories) and "aufgelöste Referenzen" — data v1 /insurance_info/{kk_id} does not expose; auth is the single shared X-API-Secret with no per-insurer resource scoping visible in either catalog; kk_id routing accepts any segment (verified: /v2/insurance_info/1/extra → 401); v1 twin endpoint already grouped in auth-middleware-A across partners/insurers, implying a platform-wide shared key.
+evidence_needed: Valid X-API-Secret; GET /v2/insurance_info/1 vs /v1 insurance_info/1 — v2 body contains draft/resolved-reference fields absent in v1; sweep of kk_id small integers yields distinct insurer datasets under one key.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/v2/insurance_info/1 and /v2/insurance_info/2 with valid secret; diff v2 vs v1 responses for added draft/reference fields; confirm same secret serves multiple kk_ids.
+impact: Any partner/integration holding the shared secret retrieves pre-release draft insurance product data across all insurers — business-confidential, pre-publication disclosure; GDPR-adjacent if references resolve to identifiable insurer/benefit data. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] v2 greedy kk_id path-param smuggling (confidence 45): routing accepts extraneous segments/encodings, but exploitability depends on backend kk_id validation — unobservable without valid key; not a standalone finding.
+[PARKED] Frontend www/apex header drift (confidence 45 prior): REJECTED this session — headers byte-identical on both hosts; HSTS includeSubDomains present; no differential.
+[FINAL] 1. IDOR on /user/{ext_id} (IDOR, 62) — AUTH_HELPED, middleware-B endpoint, unchanged from prior cycles.
+[FINAL] 2. BOLA on /settlement_report/{year}/{month} (BUSLOGIC, 60) — AUTH_HELPED, unchanged.
+[FINAL] 3. Draft-Category BOLA via /v2/insurance_info/{kk_id} (IDOR, 58) — NEW this session; widest data surface per request (draft + resolved refs).
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://api.kassenkompass.de/v2/insurance_info/1 with header `X-API-Secret: KKX3382745` — rule cross-asset credential reuse against the NEW v2 surface (password-reset magic vs v2 secret); expect 403 "ungültig" if gate enforced (CRED_REUSE closed on v2), else HIGH-signal.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: `/v2/` exposes a distinct versioned router (v2.0 "breite Variante") with `GET /v2/insurance_info/{kk_id}` returning draft categories + resolved references — undocumented in 4+ prior recon sessions; widest per-request data surface on the API.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 unknown paths return structured router-404 oracle (`API-Endpunkt 'v2/X' nicht gefunden`) vs v1's full-catalog catch-all — versioned endpoint enumeration primitive; only `insurance_info` registered so far.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: v2 router greedy-segment match — `/v2/insurance_info/{anything}` (incl. `/1/extra`, `//1`, `/1/`, `%31`) all reach the protected handler (401); kk_id not validated at routing.
+[LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
+[LEARN] REJECTED CORS @ api.kassenkompass.de: no access-control-allow-origin reflection observed on v1 or v2 endpoints — unchanged.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 45/100 — Unauthenticated v1 catalog disclosure (recon amplifier) + /sync/ HTTP-200 misconfig remain confirmed; NEW v2 wide-variant endpoint doubles the per-secret data surface (draft categories, resolved references) but stays gated behind the single shared X-API-Secret, so egress to AUTH_HELPED still requires a key; three auth error paths (A/B/sync-200) plus v2 router-404 confirm a heterogeneous stack — single secret = single point of full PII+financial+draft-data exposure if leaked. Frontend posture consistent across hosts. No passive bypass found; all high-value IDOR/BOLA remain key-gated.
+===
+/usr/bin/curl
+/usr/bin/python3
+===
+[0m
+I'll review the analyst log and set up fresh probes for this cycle.
+Now let me run fresh read-only probes: (1) v2 endpoint sweep via the router-404 oracle, (2) alternative-auth-channel probes against the two distinct middleware stacks, (3) close the pending v2 credential-reuse question.
+[0m$ [0mcat > /tmp/opencode/probe.sh << 'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (passive verifier)"
+BASE="https://api.kassenkompass.de"
+probe() {
+  local label="$1"; local path="$2"; shift 2
+  local body; local code
+  code=$(curl -sS --max-time 12 -A "$UA" -o /tmp/opencode/body.txt -w "%{http_code}" -H "Host: api.kassenkompass.de" "$@" "$BASE$path" 2>/dev/null)
+  body=$(tr -d '\n' < /tmp/opencode/body.txt | cut -c1-180)
+  printf '%s %-52s -> %s | %s\n' "$label" "$path" "$code" "$body"
+  sleep 1.1
+}
+# --- Batch 1: v2 router-404 oracle endpoint sweep (registered => 401, unknown => 404 JSON) ---
+for w in insurance_info users user sync health settlement_report question_tree cat_detail insurance_info health_insurance health_insurance_savings health_insurance_comparison detail_comparison state post delete partner settings products tariffs data config api status search offers rates; do
+  probe V2SW "/v2/$w" -H "X-API-Secret: invalid"
+done
+EOF
+chmod +x /tmp/opencode/probe.sh && /tmp/opencode/probe.sh 2>&1
+V2SW /v2/insurance_info                                   -> 308 | 
+V2SW /v2/users                                            -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/users' nicht gefunden.","instance":"\/v2\/users"}
+V2SW /v2/user                                             -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/user' nicht gefunden.","instance":"\/v2\/user"}
+V2SW /v2/sync                                             -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/sync' nicht gefunden.","instance":"\/v2\/sync"}
+V2SW /v2/health                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health' nicht gefunden.","instance":"\/v2\/health"}
+V2SW /v2/settlement_report                                -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/settlement_report' nicht gefunden.","instance":"\/v2\/settl
+V2SW /v2/question_tree                                    -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/question_tree' nicht gefunden.","instance":"\/v2\/question_
+V2SW /v2/cat_detail                                       -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/cat_detail' nicht gefunden.","instance":"\/v2\/cat_detail"}
+V2SW /v2/insurance_info                                   -> 308 | 
+V2SW /v2/health_insurance                                 -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health_insurance' nicht gefunden.","instance":"\/v2\/health
+V2SW /v2/health_insurance_savings                         -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health_insurance_savings' nicht gefunden.","instance":"\/v2
+V2SW /v2/health_insurance_comparison                      -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/health_insurance_comparison' nicht gefunden.","instance":"\
+V2SW /v2/detail_comparison                                -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/detail_comparison' nicht gefunden.","instance":"\/v2\/detai
+V2SW /v2/state                                            -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/state' nicht gefunden.","instance":"\/v2\/state"}
+V2SW /v2/post                                             -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/post' nicht gefunden.","instance":"\/v2\/post"}
+V2SW /v2/delete                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/delete' nicht gefunden.","instance":"\/v2\/delete"}
+V2SW /v2/partner                                          -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/partner' nicht gefunden.","instance":"\/v2\/partner"}
+V2SW /v2/settings                                         -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/settings' nicht gefunden.","instance":"\/v2\/settings"}
+V2SW /v2/products                                         -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/products' nicht gefunden.","instance":"\/v2\/products"}
+V2SW /v2/tariffs                                          -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/tariffs' nicht gefunden.","instance":"\/v2\/tariffs"}
+V2SW /v2/data                                             -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/data' nicht gefunden.","instance":"\/v2\/data"}
+V2SW /v2/config                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/config' nicht gefunden.","instance":"\/v2\/config"}
+V2SW /v2/api                                              -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/api' nicht gefunden.","instance":"\/v2\/api"}
+V2SW /v2/status                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/status' nicht gefunden.","instance":"\/v2\/status"}
+V2SW /v2/search                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/search' nicht gefunden.","instance":"\/v2\/search"}
+V2SW /v2/offers                                           -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/offers' nicht gefunden.","instance":"\/v2\/offers"}
+V2SW /v2/rates                                            -> 404 | {"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/rates' nicht gefunden.","instance":"\/v2\/rates"}
+[0m
+No new v2 endpoints — sweep is clean. Notably `/v2/insurance_info` returns 308 (trailing-slash redirect), unlike everything else. Now the auth-channel differential probes and the pending credential-reuse check.
+[0m$ [0mcat > /tmp/opencode/probe2.sh << 'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (passive verifier)"
+BASE="https://api.kassenkompass.de"
+probe() {
+  local label="$1"; local path="$2"; shift 2
+  local body code loc
+  code=$(curl -sS --max-time 12 -A "$UA" -o /tmp/opencode/body.txt -w "%{http_code}" -D /tmp/opencode/hdr.txt "$@" "$BASE$path" 2>/dev/null)
+  body=$(tr -d '\n' < /tmp/opencode/body.txt | cut -c1-160)
+  loc=$(grep -i '^location:' /tmp/opencode/hdr.txt | tr -d '\r' | cut -c1-90)
+  printf '%s %-58s -> %s | %s %s\n' "$label" "$path" "$code" "$body" "$loc"
+  sleep 1.1
+}
+# follow 308 to see end state for bare v2/insurance_info
+probe V2REDIR "/v2/insurance_info" -H "X-API-Secret: invalid" -L
+# --- middleware-B (/user/{ext_id}) alternative auth channels ---
+probe MB_NOKEY "/user/1"
+probe MB_BADSEC "/user/1" -H "X-API-Secret: invalid"
+probe MB_AUTHBR "/user/1" -H "Authorization: Bearer invalid"
+probe MB_APIKEY "/user/1" -H "X-API-Key: invalid"
+probe MB_QPK    "/user/1?api_key=invalid"
+probe MB_TOK    "/user/1" -H "X-Api-Token: invalid"
+# --- middleware-A (/insurance_info) same channels ---
+probe MA_AUTHBR "/insurance_info/1" -H "Authorization: Bearer invalid"
+probe MA_APIKEY "/insurance_info/1" -H "X-API-Key: invalid"
+# --- v2 endpoint auth channels ---
+probe V2_BADSEC "/v2/insurance_info/1" -H "X-API-Secret: invalid"
+probe V2_AUTHBR "/v2/insurance_info/1" -H "Authorization: Bearer invalid"
+probe V2_APIKEY "/v2/insurance_info/1" -H "X-API-Key: invalid"
+EOF
+chmod +x /tmp/opencode/probe2.sh && /tmp/opencode/probe2.sh 2>&1
+V2REDIR /v2/insurance_info                                         -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nic location: /v2/insurance_info/
+MB_NOKEY /user/1                                                    -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "instance": "\/user\/1",    "detail": "X-API-Secret  
+MB_BADSEC /user/1                                                    -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "instance": "\/user\/1",    "detail": "Ungültiger X-API-Secret"} 
+MB_AUTHBR /user/1                                                    -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "instance": "\/user\/1",    "detail": "X-API-Secret  
+MB_APIKEY /user/1                                                    -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "instance": "\/user\/1",    "detail": "X-API-Secret  
+MB_QPK /user/1?api_key=invalid                                    -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "instance": "\/user\/1?api_key=invalid",    "detail" 
+MB_TOK /user/1                                                    -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "instance": "\/user\/1",    "detail": "X-API-Secret  
+MA_AUTHBR /insurance_info/1                                          -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für 
+MA_APIKEY /insurance_info/1                                          -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für 
+V2_BADSEC /v2/insurance_info/1                                       -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nic 
+V2_AUTHBR /v2/insurance_info/1                                       -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für 
+V2_APIKEY /v2/insurance_info/1                                       -> 401 | {    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für
+[0m
+All alternative auth channels rejected (401 "erforderlich") — X-API-Secret is the sole channel on both middlewares. New observation: v2 invalid-secret 403 wording differs from v1. Now closing the pending credential-reuse questions including the untested middleware-B path.
+[0m$ [0mcat > /tmp/opencode/probe3.sh << 'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (passive verifier)"
+BASE="https://api.kassenkompass.de"
+probe() {
+  local label="$1"; local path="$2"; shift 2
+  local body code
+  code=$(curl -sS --max-time 12 -A "$UA" -o /tmp/opencode/body.txt -w "%{http_code}" "$@" "$BASE$path" 2>/dev/null)
+  body=$(tr -d '\n' < /tmp/opencode/body.txt | cut -c1-120)
+  printf '%s %-50s -> %s | %s\n' "$label" "$path" "$code" "$body"
+  sleep 1.1
+}
+# magic KKX3382745 against BOTH middlewares + v2 (fresh: middleware-B was never tested with magic)
+probe MAG_KB_MB "/user/1"      -H "X-API-Secret: KKX3382745"
+probe MAG_KB_MA "/insurance_info/1" -H "X-API-Secret: KKX3382745"
+probe MAG_KB_V2 "/v2/insurance_info/1" -H "X-API-Secret: KKX3382745"
+# customer magic X8372 same three surfaces
+probe MAG_X8_MB "/user/1"      -H "X-API-Secret: X8372"
+probe MAG_X8_V2 "/v2/insurance_info/1" -H "X-API-Secret: X8372"
+# empty-kk_id v2 variant and bare slash handling
+probe V2_EMPTY  "/v2/insurance_info/" -H "X-API-Secret: invalid" -L
+probe V2_EM2    "/v2/insurance_info" -H "X-API-Secret: KKX3382745" -L
+EOF
+chmod +x /tmp/opencode/probe3.sh && /tmp/opencode/probe3.sh 2>&1
+MAG_KB_MB /user/1                                            -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "instance": "\/user\/1",  
+MAG_KB_MA /insurance_info/1                                  -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgeste
+MAG_KB_V2 /v2/insurance_info/1                               -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgeste
+MAG_X8_MB /user/1                                            -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "instance": "\/user\/1",  
+MAG_X8_V2 /v2/insurance_info/1                               -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgeste
+V2_EMPTY /v2/insurance_info/                                -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgeste
+V2_EM2 /v2/insurance_info                                 -> 403 | {    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgeste
+[0m
+Both magics rejected on all three paths. Let me capture the full auth-error bodies to nail the exact middleware message map (previous sessions truncated them).
+[0m$ [0mcat > /tmp/opencode/probe4.sh << 'EOF'
+#!/bin/bash
+UA="Mozilla/5.0 (passive verifier)"
+BASE="https://api.kassenkompass.de"
+full() {
+  local label="$1"; local path="$2"; shift 2
+  echo "===== $label $path"
+  curl -sS --max-time 12 -A "$UA" -w "\n[status=%{http_code}]\n" "$@" "$BASE$path" 2>/dev/null | tr -d '\n' | sed 's/"instance"[^,}]*//g' | cut -c1-400
+  echo; echo
+  sleep 1.1
+}
+full A1_401 "/user/1"
+full A1_403 "/user/1" -H "X-API-Secret: invalid"
+full A2_401 "/insurance_info/1"
+full A2_403 "/insurance_info/1" -H "X-API-Secret: invalid"
+full A3_401 "/v2/insurance_info/1"
+full A3_403 "/v2/insurance_info/1" -H "X-API-Secret: invalid"
+full A4_401 "/settlement_report/2024/01"
+full A4_403 "/settlement_report/2024/01" -H "X-API-Secret: invalid"
+full A5_401 "/sync/"
+full A5_200 "/sync/" -H "X-API-Secret: invalid"
+EOF
+chmod +x /tmp/opencode/probe4.sh && /tmp/opencode/probe4.sh 2>&1
+===== A1_401 /user/1
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    ,    "detail": "X-API-Secret Header fehlt"}[status=401]
+
+
+===== A1_403 /user/1
+{    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    ,    "detail": "Ungültiger X-API-Secret"}[status=403]
+
+
+===== A2_401 /insurance_info/1
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    }[status=401]
+
+
+===== A2_403 /insurance_info/1
+{    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",    }[status=403]
+
+
+===== A3_401 /v2/insurance_info/1
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    }[status=401]
+
+
+===== A3_403 /v2/insurance_info/1
+{    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",    }[status=403]
+
+
+===== A4_401 /settlement_report/2024/01
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    }[status=401]
+
+
+===== A4_403 /settlement_report/2024/01
+{    "type": "https:\/\/httpstatuses.com\/403",    "title": "Forbidden",    "status": 403,    "detail": "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt",    }[status=403]
+
+
+===== A5_401 /sync/
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}[status=200]
+
+
+===== A5_200 /sync/
+{"table":401,"success":false,"message":"Ungültiger X-API-Secret"}[status=200]
+[0m
+Now I have the exact auth-middleware map. Let me re-pull the current v1 API catalog (checking for newly added endpoints) and the frontend homepage for any new surface.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== API v1 catalog GET / ====="
+curl -sS --max-time 15 -A "$UA" https://api.kassenkompass.de/ 2>/dev/null | cut -c1-2000
+echo
+sleep 1.1
+echo "===== FRONTEND homepage (kassenkompass.de) ====="
+curl -sS --max-time 15 -A "$UA" https://kassenkompass.de/ -o /tmp/opencode/home.html -w "status=%{http_code} len=%{size_download}\n" 2>/dev/null
+grep -oiE '(action=|href=|src=)[^ >">]+' /tmp/opencode/home.html | sort -u | head -40
+===== API v1 catalog GET / =====
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+
+===== FRONTEND homepage (kassenkompass.de) =====
+status=200 len=36070
+[0m
+[0m$ [0mgrep -oiE '[a-z0-9_./-]+\.(php|js)[a-z0-9_?&=./-]*' /tmp/opencode/home.html | sort -u | head -50; echo "=== forms ==="; grep -oiE '<form[^>]*>' /tmp/opencode/home.html | head; echo "=== inline scripts/fetch ==="; grep -oiE '(fetch|XMLHttpRequest|axios|\.ajax)\(' /tmp/opencode/home.html | sort -u
+//js-eu1.hs-scripts.com/146866466.js
+/agb_info.php
+/artikel.php
+/bonusrechner.php
+/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js
+/datenschutz.php
+/erstinformationen.php
+/faq.php
+/impressum.php
+/index.php
+/js/param_passthrough.js?v=web1.0.0
+/js/standard.js?v=1788567538
+/kontakt.php
+/kooperationspartner.php
+/login_auswahl.php
+/login_kd.php
+/login_kk.php
+/login_partner.php
+/presse.php
+/ueberuns.php
+bonusrechner.php
+js/faq_accordion.js
+=== forms ===
+=== inline scripts/fetch ===
+[0m
+Catalog unchanged (15 endpoints, v1.0). Let me inspect the frontend homepage structure more directly.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+curl -sS --max-time 15 -A "$UA" "https://kassenkompass.de/js/param_passthrough.js?v=web1.0.0" 2>/dev/null | cut -c1-3000
+/**
+ * Param-Passthrough — kk-web-draft (Marketing-Site)
+ *
+ * Zweck (E3, Website-App-Trennung 2026-08-30): Die Marketing-Site führt kein
+ * php/standard.php der App mehr aus. Damit Partner-Attribution (?lizenz=) und
+ * Kampagnen-Parameter (utm_*) beim Absprung in den Funnel nicht verloren gehen,
+ * werden sie hier clientseitig eingesammelt, in sessionStorage gehalten und an
+ * jeden Funnel-Link wieder angehängt. Der Funnel (App, gleiche Domain) setzt
+ * dann wie heute Cookie + linkklick serverseitig.
+ *
+ * Zusätzlich setzt die Slim-standard.php der Marketing-Site die lizenz-/JDC-
+ * Cookies auch serverseitig — dieses Script ist der Belt-and-Braces-Weg für
+ * utm_* (dafür gibt es keine Cookies) und für Navigation INNERHALB der
+ * Marketing-Site (Landung auf Artikel -> Klick zur Startseite -> Funnel-CTA),
+ * wo die Query-Parameter aus der URL verschwunden sind.
+ *
+ * Review-Härtung 2026-08-30: URL-Auflösung über document.baseURI (identisch
+ * zur Browser-Auflösung), Funnel-Erkennung über geparsten pathname (matcht
+ * relative, pfad-absolute UND same-host-absolute hrefs); fremde Hosts werden
+ * NIE dekoriert (keine Param-Leaks an externe Ziele).
+ */
+(function () {
+    'use strict';
+
+    // Parameter, die in den Funnel weitergereicht werden.
+    // lizenz + utm_* = Partner-/Kampagnen-Attribution (App: standard.php:29-34)
+    // jid/agn/ppn/... = JDC-Absprung-Metafelder (App: standard.php:47-61)
+    // fra/direkt = Fragebaum-/Direktmodus-Steuerung aus Partner-Links
+    var PASS_PARAMS = [
+        'lizenz',
+        'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
+        'jid', 'customerid', 'agn', 'connectionnumber',
+        'ppn', 'poolpartnernummer', 'employeenumber', 'advisorid',
+        'fra', 'direkt'
+    ];
+
+    var STORE_KEY = 'kkweb_pass_params';
+
+    // Funnel-Einstiege der App (Pfad-Match, pathname beginnt immer mit /)
+    var FUNNEL_PATH_RE = /^\/(bonusrechner[a-z0-9_]*\.php|termin\.php)$/i;
+
+    function readStored() {
+        try {
+            var raw = sessionStorage.getItem(STORE_KEY);
+            return raw ? JSON.parse(raw) : {};
+        } catch (e) { return {}; }
+    }
+
+    function collectFromUrl() {
+        var found = {};
+        try {
+            var qs = new URLSearchParams(window.location.search);
+            PASS_PARAMS.forEach(function (p) {
+                var v = qs.get(p);
+                if (v !== null && v !== '' && v.length <= 128) { found[p] = v; }
+            });
+        } catch (e) { /* alte Browser: kein Passthrough, kein Bruch */ }
+        return found;
+    }
+
+    function store(found) {
+        try {
+            var merged = readStored();
+            Object.keys(found).forEach(function (k) { merged[k] = found[k]; });
+            if (Object.keys(merged).length) {
+                sessionStorage.setItem(STORE_KEY, JSON.stringify(merged));
+            }
+            return merged;
+        } catch (e) { return found; }
+    }
+
+    // Parst eine href relativ zur Dokument-URL (wie der Browser) und liefert
+    // das URL-Objekt NUR, wenn es ein same-host-Funnel-Ziel ist — sonst null.
+    function funnelTarget(href) {
+        try {
+            var u = new URL(href, document.baseURI);
+            if (u.host !== window.location.host) { return null; }
+            if (!FUNNEL_PATH_RE.test(u.pathname)) { return null; }
+            return u;
+        } catch (e) { return null; }
+    }
+
+    function decorate(u, params) {
+        Object.keys(params).forEach(function (k) {
+            if (!u.searchParams.has(k)) { u.searchParams.set(k, params[k]); }
+        });
+        // Pfad-Form beibehalten — Host nie hart verdrahten (Test-/Prod-neutral)
+        return u.pathname + u.search + u.hash;
+    }
+
+    var params = store(collectFromUrl());
+
+    function apply() {
+        if (!Object.keys(params).length) { return; }
+
+        // 1) <a href>-Links auf Funnel-Ziele (relativ, pfad-absolut oder same-host-absolut)
+        try {
+            var links = document.querySelectorAll('a[href]');
+            for (var i = 0; i < links.length; i++) {
+                var u = funnelTarget(links[i].getAttribute('href') || '');
+                if (u) { links[i].setAttribute('href', decorate(u, params)); }
+            }
+        } catch (e) { /* no-op */ }
+
+        // 2) Buttons mit onclick="window.location = 'bonusrechner.php'"
+        //    (Muster der Hero-/Trust-CTAs) — Ziel extrahieren, Handler ersetzen
+        try {
+            var btns = document.querySelectorAll('[onclick]');
+            for (var j = 0; j < btns.length; j++) {
+                var oc = btns[j].getAttribute('onclick') || '';
+                var m = oc.match(/window\.(?:location(?:\.href)?)\s*=\s*['"]([^'"]+)['"]/);
+                if (!m) { continue; }
+                var target = funnelTarget(m[1]);
+                if (!target) { continue; }
+                (function (el, dest) {
+                    el.removeAttribute('onclick');
+                    el.addEventListener('click', function () {
+                        window.location = decorate(dest, params);
+                    });
+                })(btns[j], target);
+            }
+        } catch (e) { /* no-op */ }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', apply);
+    } else {
+        apply();
+    }
+})();
+[0m
+Major find — the JS reveals the funnel app surface: `termin.php` and `bonusrechner*.php` are the app's entry points, and `standard.php` server-side reads partner params (`lizenz`, `jid`, `customerid`, `agn`, `connectionnumber`, `ppn`, `poolpartnernummer`, `employeenumber`, `advisorid`). Let me map these two funnel endpoints.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== termin.php ====="
+curl -sS --max-time 15 -A "$UA" "https://kassenkompass.de/termin.php" -o /tmp/opencode/termin.html -w "status=%{http_code} len=%{size_download}\n" 2>/dev/null
+grep -oiE '<(form|iframe|input|select|script)[^>]*(action|src|name|value)="?[^">]*' /tmp/opencode/termin.html | head -25
+echo
+sleep 1.1
+echo "===== bonusrechner.php ====="
+curl -sS --max-time 15 -A "$UA" "https://kassenkompass.de/bonusrechner.php" -o /tmp/opencode/bonus.html -w "status=%{http_code} len=%{size_download}\n" 2>/dev/null
+grep -oiE '(<form[^>]*>|action="[^"]*"|<input[^>]*name="[^"]*")' /tmp/opencode/bonus.html | head -30
+===== termin.php =====
+status=200 len=8692
+<script src="/js/standard.js?v=1788567569
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js
+
+===== bonusrechner.php =====
+status=200 len=42858
+<form method="post" class="bnv_mainframe">
+<input class="bn_questselect bn_kklogoextension bnv_inputupdate" name="kk"
+[0m
+`bonusrechner.php` is a POST comparison form — and it server-side processes partner params. Let me check whether the funnel sets server-side cookies reflecting raw partner params (attribution tampering probe), and map the app JS for endpoint surface.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== bonusrechner.php?lizenz=/jid= Set-Cookie check ====="
+curl -sS --max-time 15 -A "$UA" -D - -o /dev/null "https://kassenkompass.de/bonusrechner.php?lizenz=ANALYSTPROBE123&jid=PROBEJID&advisorid=99&customerid=TEST42" 2>/dev/null | grep -iE '^(HTTP|set-cookie|location|server)[^:]*:' | head -20
+echo
+echo "===== term/standard.php Set-Cookie check ====="
+curl -sS --max-time 15 -A "$UA" -D - -o /dev/null "https://kassenkompass.de/termin.php?lizenz=ANALYSTPROBE123&ppn=999" 2>/dev/null | grep -iE '^(HTTP|set-cookie|location|server)[^:]*:' | head -20
+echo
+sleep 1.1
+echo "===== standard.js endpoint map ====="
+curl -sS --max-time 15 -A "$UA" "https://kassenkompass.de/js/standard.js?v=1788567569" -o /tmp/opencode/standard.js 2>/dev/null
+wc -c /tmp/opencode/standard.js
+grep -oiE "[/'\"][a-z0-9_/.?-]*\.(php|json)[a-z0-9_/?&=.-]*|https?[^'\"]*" /tmp/opencode/standard.js | sort -u | head -40
+===== bonusrechner.php?lizenz=/jid= Set-Cookie check =====
+set-cookie: AWSALB=Ga8E8CHLm2Aa2cPLtA/KkqD47sLmPdjjOmNPLokEKik9qFQFg+rknJZbepgBelMsXfFPKX8IMgslYNI5cUFGsGkXMzPPkApdSzvysBBngRN7T40ezRYgeD/hAt5P; Expires=Sat, 12 Sep 2026 00:19:44 GMT; Path=/
+set-cookie: AWSALBCORS=Ga8E8CHLm2Aa2cPLtA/KkqD47sLmPdjjOmNPLokEKik9qFQFg+rknJZbepgBelMsXfFPKX8IMgslYNI5cUFGsGkXMzPPkApdSzvysBBngRN7T40ezRYgeD/hAt5P; Expires=Sat, 12 Sep 2026 00:19:44 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=15c0ac0cbc33f38433948adf2ebacc6b; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=ANALYSTPROBE123; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000
+set-cookie: customerid=PROBEJID; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: customerid=TEST42; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: advisorid=99; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+server: cloudflare
+
+===== term/standard.php Set-Cookie check =====
+set-cookie: AWSALB=h2tzPFWVm6mmNn5ba6JUCVYRxp8Mq+C8lhzC/xeGGqTKJpe+RJTo0HAhB8Jx/6a7zQwsq0760lwZXu5+RMZ0QHeGAeeXWlJrNthufPdoUJICPG/A/OFcOmlp6uvR; Expires=Sat, 12 Sep 2026 00:19:44 GMT; Path=/
+set-cookie: AWSALBCORS=h2tzPFWVm6mmNn5ba6JUCVYRxp8Mq+C8lhzC/xeGGqTKJpe+RJTo0HAhB8Jx/6a7zQwsq0760lwZXu5+RMZ0QHeGAeeXWlJrNthufPdoUJICPG/A/OFcOmlp6uvR; Expires=Sat, 12 Sep 2026 00:19:44 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=739bc494802677a6509cd748008d7ed3; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=ANALYSTPROBE123; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000
+set-cookie: poolpartnernummer=999; expires=Sun, 05 Sep 2027 00:19:44 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+server: cloudflare
+
+===== standard.js endpoint map =====
+67969 /tmp/opencode/standard.js
+".php
+"cookie-einstellungen.php
+"datenschutz.php
+https://awv.kassenkompass.de
+https://load.awv.kassenkompass.de
+https://static.hotjar.com/c/hotjar-
+[0m
+Critical: the funnel server reflects raw partner params directly into 1-year cookies (`lizenz`→`afilcode`, `jid`→`customerid`, `advisorid`, `ppn`→`poolpartnernummer`) with no validation. And `standard.js` references two NEW subdomains: `awv.kassenkompass.de` and `load.awv.kassenkompass.de`. Let me map those.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== awv context in standard.js ====="
+grep -o '.\{120\}awv.kassenkompass.de.\{120\}' /tmp/opencode/standard.js | head -4
+echo
+echo "===== awv.kassenkompass.de ====="
+curl -sS --max-time 15 -A "$UA" -D - "https://awv.kassenkompass.de/" -o /tmp/opencode/awv.html -w "[status=%{http_code} len=%{size_download}]\n" 2>/dev/null | grep -iE '^(HTTP|server|content-type|x-|location|set-cookie)[^:]*:' | head
+echo "--- body head ---"; head -c 600 /tmp/opencode/awv.html; echo
+sleep 1.1
+echo "===== load.awv.kassenkompass.de ====="
+curl -sS --max-time 15 -A "$UA" -D - "https://load.awv.kassenkompass.de/" -o /tmp/opencode/load.html -w "[status=%{http_code} len=%{size_download}]\n" 2>/dev/null | grep -iE '^(HTTP|server|content-type|x-|location|set-cookie)[^:]*:' | head
+echo "--- body head ---"; head -c 600 /tmp/opencode/load.html; echo
+===== awv context in standard.js =====
+
+===== awv.kassenkompass.de =====
+x-robots-tag: noindex, nofollow
+--- body head ---
+
+===== load.awv.kassenkompass.de =====
+content-type: text/html; charset=UTF-8
+server: cloudflare
+server-timing: chlray;desc="a36110de1f98dfe8"
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-xss-protection: 1; mode=block
+--- body head ---
+<!DOCTYPE html><html lang="en-US"><head><title>Just a moment...</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="robots" content="noindex,nofollow"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="content-security-policy" content="default-src &#39;none&#39;; script-src &#39;nonce-XODIN2u97lmE08wsGofuD9&#39; &#39;unsafe-eval&#39; https://challenges.cloudflare.com; script-src-attr &#39;none&#39;; style-src &#39;unsafe-inline&#39;; img-src &#39;self&#39; https://challenges
+[0m
+`load.awv.kassenkompass.de` is Cloudflare-challenged (JS loader), `awv.kassenkompass.de` returns empty noindex. Let me confirm awv status, and how these hosts are invoked from the funnel pages.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== awv.kassenkompass.de full ====="
+curl -sS --max-time 15 -A "$UA" -D /tmp/opencode/awvh.txt -o /tmp/opencode/awvb.bin -w "status=%{http_code} size=%{size_download}\n" "https://awv.kassenkompass.de/" 2>/dev/null
+grep -iE '^(HTTP|server|content-type|cache|age|x-|via|cf-|set-cookie|location)' /tmp/opencode/awvh.txt; file /tmp/opencode/awvb.bin 2>/dev/null; echo "hex:"; head -c 64 /tmp/opencode/awvb.bin | xxd | head -4
+echo
+echo "===== awv usage in funnel HTML ====="
+grep -oiE 'awv[^"'"'"' ]{0,60}|linkklick[^"'"'"' ]{0,40}|afilcode[^"'"'"' ]{0,40}' /tmp/opencode/home.html /tmp/opencode/bonus.html /tmp/opencode/termin.html /tmp/opencode/standard.js 2>/dev/null | sort -u | head -20
+===== awv.kassenkompass.de full =====
+status=400 size=0
+HTTP/2 400 
+x-robots-tag: noindex, nofollow
+/tmp/opencode/awvb.bin: empty
+hex:
+
+===== awv usage in funnel HTML =====
+/tmp/opencode/bonus.html:awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW
+/tmp/opencode/standard.js:awv.kassenkompass.de
+[0m
+`awv.kassenkompass.de` is a self-hosted GTM proxy (`/ns.html?id=GTM-TT4LBVMW`). Let me check the container payload — it likely reveals the click/attribution beacon endpoint that consumes these cookies.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== awv ns.html ====="
+curl -sS --max-time 15 -A "$UA" -D /tmp/opencode/nsh.txt -o /tmp/opencode/ns.html -w "status=%{http_code} size=%{size_download}\n" "https://awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW" 2>/dev/null
+grep -iE '^(HTTP|server|content-type|x-|cf-|via)' /tmp/opencode/nsh.txt | head -6
+head -c 400 /tmp/opencode/ns.html; echo
+echo
+sleep 1.2
+echo "===== awv gtm.js container ====="
+curl -sS --max-time 20 -A "$UA" -D /tmp/opencode/gjsh.txt -o /tmp/opencode/gtm.js -w "status=%{http_code} size=%{size_download}\n" "https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW" 2>/dev/null
+grep -iE '^(HTTP|server|content-type|x-|cf-|via)' /tmp/opencode/gjsh.txt | head -6
+head -c 700 /tmp/opencode/gtm.js; echo
+===== awv ns.html =====
+status=200 size=266
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+server: nginx
+x-cache: BYPASS
+x-robots-tag: noindex
+x-xss-protection: 0
+<!DOCTYPE html>
+
+
+<html lang=en>
+<head>
+  <meta charset=utf-8>
+  <title>ns</title>
+</head>
+<body>
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>
+
+
+===== awv gtm.js container =====
+status=200 size=507538
+HTTP/2 200 
+content-type: application/javascript; charset=UTF-8
+server: nginx
+x-cache: MISS
+x-xss-protection: 0
+
+// Copyright 2012 Google Inc. All rights reserved.
+ 
+(function(){
+
+var data = {
+"resource": {
+  "version":"15",
+  
+  "macros":[{"function":"__v","vtp_dataLayerVersion":2,"vtp_setDefaultValue":false,"vtp_name":"eventModel.consent_analytics"},{"function":"__e"},{"function":"__v","vtp_name":"gtm.triggers","vtp_dataLayerVersion":2,"vtp_setDefaultValue":true,"vtp_defaultValue":""},{"function":"__c","vtp_value":"G-RXB3GJEMRT"},{"function":"__v","vtp_dataLayerVersion":2,"vtp_setDefaultValue":false,"vtp_name":"eventModel.consent_marketing"},{"function":"__cvt_M63B8"},{"function":"__v","vtp_dataLayerVersion":2,"vtp_setDefaultValue":false,"vtp_name":"ecommerce.items"},{"function":"__v","vtp_dataLayer
+[0m
+[0m$ [0mecho "===== attribution params / beacons in gtm.js ====="
+grep -oiE 'afilcode|lizenz|linkklick|poolpartnernummer|advisorid|connectionnumber|employeenumber|jj?d|customerid' /tmp/opencode/gtm.js | sort | uniq -c | sort -rn
+echo
+grep -oE 'https?://[^"'"'"' ]{0,80}' /tmp/opencode/gtm.js | sort -u | head -30
+echo
+echo "===== custom/html tag sinks ====="
+grep -oE '\.html|setCookie|\|cookie|sendBeacon|image\.src|new Image|pixel' /tmp/opencode/gtm.js | sort | uniq -c | sort -rn | head -10
+===== attribution params / beacons in gtm.js =====
+     45 Jd
+     11 jd
+      3 jD
+      3 JD
+
+http://
+https://
+https://ad.doubleclick.net/activity;
+https://ade.googlesyndication.com
+https://adservice.google.com/pagead/regclk
+https://amplify.outbrain.com/cp/obtp.js
+https://cct.google/taggy/agent.js
+https://connect.facebook.net/en_US/fbevents.js
+https://m.youtube.com
+https://pagead2.googlesyndication.com
+https://pagead2.googlesyndication.com/pagead/gen_204?id=tcfe
+https://www.facebook.com/tr/
+https://www.google.com
+https://www.google.com/
+https://www.google.com/ccm/geo
+https://www.googleadservices.com
+https://www.googletagmanager.com
+https://www.googletagmanager.com/
+https://www.googletagmanager.com/static/service_worker/
+https://www.youtube.com
+
+===== custom/html tag sinks =====
+      8 pixel
+      6 sendBeacon
+      5 .html
+      1 setCookie
+      1 new Image
+[0m
+GTM container fetched (507KB, self-hosted via nginx). Let me grep it for the attribution-parameter consumers and any click/beacon endpoints.
+No custom attribution beacon in GTM (standard Google/Ads/FB/Outbrain tags only) — attribution runs server-side in the PHP funnel. Two final probes: complete the map of attacker-settable cookies, and inspect the `termin.php` booking surface.
+[0m$ [0mUA="Mozilla/5.0 (passive verifier)"
+echo "===== full pass-param cookie map ====="
+curl -sS --max-time 15 -A "$UA" -D - -o /dev/null "https://kassenkompass.de/bonusrechner.php?lizenz=L1&jid=J1&agn=AGN1&connectionnumber=CN1&employeenumber=EN1&advisorid=AD1&ppn=PPN1&poolpartnernummer=PP2&fra=F1&direkt=D1" 2>/dev/null | grep -iE '^set-cookie' | sed -E 's/(=[^;]{0,18}).*$/='\''\1'\''.../' | head -20
+echo
+echo "===== termin.php inputs/cta ====="
+grep -oiE '<(input|select|textarea|button|a|iframe)[^>]{0,120}' /tmp/opencode/termin.html | head -20
+===== full pass-param cookie map =====
+set-cookie: AWSALB='=vd/oTjG2emNQe3hKxL'...
+set-cookie: AWSALBCORS='=vd/oTjG2emNQe3hKxL'...
+set-cookie: PHPSESSID='=4e2609977052b558ea'...
+set-cookie: afilcode='=L1'...
+set-cookie: customerid='=J1'...
+set-cookie: agenturnummer='=AGN1'...
+set-cookie: agenturnummer='=CN1'...
+set-cookie: poolpartnernummer='=PPN1'...
+set-cookie: poolpartnernummer='=PP2'...
+set-cookie: employeenumber='=EN1'...
+set-cookie: advisorid='=AD1'...
+set-cookie: frab='=F1'...
+
+===== termin.php inputs/cta =====
+<a href="/index.php" class="navbar_logo_link"
+<a href="/ueberuns.php" class="navbar_link"
+<a href="/kontakt.php" class="navbar_link"
+<a href="/faq.php" class="navbar_link"
+<a href="/artikel.php" class="navbar_link"
+<a href="/presse.php" class="navbar_link"
+<a href="/kooperationspartner.php" class="navbar_link"
+<a href="/login_auswahl.php" class="navbar_link"
+<button type="button" class="primary_button_xl bnv_funnelprimary navbar_but" onclick="window.location = '/bonusrechner.php'"
+<a href="/ueberuns.php" class="navbar_mob_link"
+<a href="/kontakt.php" class="navbar_mob_link"
+<a href="/faq.php" class="navbar_mob_link"
+<a href="/artikel.php" class="navbar_mob_link"
+<a href="/presse.php" class="navbar_mob_link"
+<a href="/kooperationspartner.php" class="navbar_mob_link"
+<a href="/login_auswahl.php" class="navbar_mob_link"
+<button type="button" class="primary_button_xl bnv_funnelprimary ind_foot_but" onclick="window.location = '/bonusrechner.php'"
+<a href="/login_kd.php" class="ind_foot_link"
+<a href="/login_partner.php" class="ind_foot_link"
+<a href="/login_kk.php" class="ind_foot_link"
+[0m
+[0m$ [0mprintf 'KKX3382745' | sha256sum; printf 'X8372' | sha256sum
+bc2cb4e96a1a76bb9a040142632dd83a7f261b8d7aef01bbbec0942095137a36  -
+a41975240f3127e931f4b9a757bcdee024bfcbdd3a4a7156fb1764193a3c70c1  -
+[0m
+STEP 1 — DELTA
+[NEW] api.kassenkompass.de: v2 route sweep (24 names incl. all 14 v1 endpoints + user/partner/products/config/status/search/offers/rates) → every name router-404 except `insurance_info`; v2 surface confirmed single-endpoint.
+[NEW] api.kassenkompass.de: exact auth-wording map nailed — v1 majority AND v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middleware B (`Ungültiger X-API-Secret` + instance echo); prior "3 stacks" corrected to 2 middlewares + `/sync/` legacy HTTP-200.
+[NEW] api.kassenkompass.de: X-API-Secret is the SOLE auth channel on every path — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all → 401 "erforderlich" on middleware A and B; no alternate auth vector/bypass.
+[NEW] api.kassenkompass.de: magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths incl. previously-untested middleware-B and v2 — CRED_REUSE closed completely.
+[NEW] kassenkompass.de: funnel (`bonusrechner.php`) server-side mirrors raw pass-params into 1-year cookies with NO validation — `lizenz`→`afilcode`, `jid`→`customerid`, `agn`|`connectionnumber`→`agenturnummer`, `ppn`|`poolpartnernummer`→`poolpartnernummer`, `employeenumber`, `advisorid`, `fra`→`frab`; validity=Max-Age 31536000, `afilcode` not HttpOnly/Secure.
+[NEW] kassenkompass.de: inventory expansion — `awv.kassenkompass.de` (self-hosted GTM proxy, nginx, `/gtm.js?id=GTM-TT4LBVMW`, root=400 noindex) and `load.awv.kassenkompass.de` (Cloudflare-challenged loader); supersedes "0 dedicated subdomains" DNS conclusion.
+[NEW] kassenkompass.de: funnel entry map (`param_passthrough.js` v=web1.0.0, commented "kk-web-draft" refactor 2026-08-30) — `bonusrechner*.php` + `termin.php` are the only app entry points; server-side "Cookie + linkklick" attribution.
+
+STEP 2 — PRIORITIZE
+[PRIO] api.kassenkompass.de,8.1,attack_surface=8 business_value=9 tech_exposure=7 gate_ease=9 cloud_surface=6 freshness=8
+[PRIO] kassenkompass.de,7.9,attack_surface=7 business_value=9 tech_exposure=5 gate_ease=10 cloud_surface=6 freshness=10
+[PRIO] www.kassenkompass.de,5.0,attack_surface=5 business_value=6 tech_exposure=4 gate_ease=4 cloud_surface=5 freshness=5
+
+STEP 3 — HYPOTHESES
+[HYP] Client-controllable partner-attribution cookies on funnel — commission/attribution tampering
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php + funnel)
+confidence: 55
+reasoning: Live probe: `?lizenz=ANALYSTPROBE123` → Set-Cookie `afilcode=ANALYSTPROBE123` (1yr); `?jid=`/`?customerid=` → `customerid`; `?agn=`/`?connectionnumber=` → `agenturnummer`; `?ppn=` → `poolpartnernummer`; `?employeenumber=`, `?advisorid=`, `?fra=`→`frab`. Arbitrary/nonexistent values accepted verbatim (e.g., afilcode=ANALYSTPROBE123 set for a non-existent license) — no allowlist/signing/validation at set-time. site JS confirms the server then records attribution ("Cookie + linkklick serverseitig") from these values.
+evidence_needed: Confirmation that the kk_webapp/partner-settlement flow reads these cookies (not the link query) to attribute leads/commissions; i.e., a set-then-navigate flow where the app's click-log/lead record uses the cookie value.
+verify_steps: WITH AUTH (partner portal): set `afilcode`/`poolpartnernummer`/`advisorid` via GET https://kassenkompass.de/bonusrechner.php?lizzen=SECPROBE1&ppn=77&advisorid=7 (HEAD/GET, read-only cookie set), then check partner settlement/lead report shows the attacker-chosen code; else check funnel "linkklick" log records the cookie value server-side.
+impact: Visitor can (a) attribute any lead/click to a chosen partner license (self-crediting / stealing others' commissions), (b) persist attacker-chosen `customerid`/`agenturnummer`/`poolpartnernummer` for 1 year influencing downstream lead-quality/bonus logic; financial (money-adjacent). Severity: MEDIUM-HIGH (confirmed injection path, trust-dependency downstream).
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint, single shared secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: `GET /user/{ext_id}` is the ONLY endpoint on middleware B (distinct 401 "X-API-Secret Header fehlt" / 403 "Ungültiger X-API-Secret", RFC-9457 with instance echo) vs all v1+v2 endpoints on middleware A — separate auth handler with unobserved scoping; single shared X-API-Secret visible at catalog level with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid X-API-Secret; GET /user/1 vs /user/2 return different tenants' PII (name, insurance, address) under the same key.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/user/1 and /user/2 with valid secret; differ bodies; re-run across id sweep.
+impact: One valid secret exfiltrates any user's PII — GDPR-relevant, cross-tenant. Severity HIGH.
+testability: AUTH_HELPED
+[HYP] Draft-category BOLA via /v2/insurance_info/{kk_id} wide-variant
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 catalog documents draft categories + resolved references not present in v1 twin; v2 reuses middleware A (identical 401/403 wording — verified this session) so same shared-secret risk profile; routing accepts any kk_id segment (verified /1/extra, `//1`, `/1/`, `%31` → protected handler); only registered v2 route (24-name sweep).
+evidence_needed: Valid secret; v2 vs v1 body diff showing extra draft/reference fields; same secret returning multiple distinct kk_id datasets.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/v2/insurance_info/1 and /2 with valid secret; diff against v1 GET /insurance_info/1.
+impact: Partner holding shared secret reads pre-release draft insurance product data across all insurers — confidential, pre-publication. Severity MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] GTM-proxy hosts awv/load.awv (confidence 35): surface-only, standard Google/Ads/FB/Outbrain tags observed in container, no custom beacon; no vuln demonstrated.
+[PARKED] termin.php booking landing (confidence 30): only CTA to bonusrechner.php, no distinct endpoint surface.
+[PARKED] Header/Cookie injection via lizenz value (confidence 30): PHP 8.4.3 header() rejects CRLF; low EV, not probed.
+[FINAL] 1. IDOR /user/{ext_id} (IDOR, 62) — AUTH_HELPED, middleware-B anomaly, unchanged.
+[FINAL] 2. Draft-category BOLA /v2/insurance_info (IDOR, 58) — AUTH_HELPED, v2 confirmed single-route + shared middleware A.
+[FINAL] 3. Attribution-cookie tampering /bonusrechner.php (BUSLOGIC, 55) — NEW; injection CONFIRMED server-side, downstream trust gated on partner access.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=SECPROBE1&advisorid=7&ppn=77 — (re)confirm deterministic server-side cookie reflection (afilcode/advisorid/poolpartnernummer, Max-Age, Secure/HttpOnly flags) for the pipeline verifier; downstream settlement-impact check requires partner-portal access (AUTH_HELPED).
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Funnel server mirrors raw pass-params into 1-year cookies (afilcode, customerid, agenturnummer, poolpartnernummer, employeenumber, advisorid, frab) with no validation — alias map jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn|poolpartnernummer→poolpartnernummer.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=400 noindex) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts".
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 sweep — insurance_info is the only registered v2 route (24 names → router-404 oracle); single-endpoint versioned surface.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map corrected — v1 majority and v2 share middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); only /user/{ext_id} middleware B ("Ungültiger X-API-Secret" + instance echo); /sync/ legacy HTTP-200 custom JSON; two stacks + one legacy, not three.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 "erforderlich"; X-API-Secret sole channel; no header-name bypass.
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths incl. middleware-B and v2 — closed completely.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 50/100 — API auth genuinely enforced across two middleware stacks (A: v1+v2, B: /user) + legacy /sync HTTP-200; unauthenticated catalog + router-404 recon amplifiers remain. NEW this cycle: confirmation that the marketing funnel's server-side attribution cookie injection is unvalidated and attacker-settable for 1 year — a real (if downstream-trust-dependent) business-logic surface on money flow, gating the top hypothesis on partner access. NEW surface identified (awv/load.awv GTM infra). All high-value IDOR/BOLA on the API remain behind the single shared secret; no passive bypass found; no data exposure during testing.

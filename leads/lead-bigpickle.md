@@ -510,3 +510,76 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
 [LEARN] REJECTED CORS @ api.kassenkompass.de: no access-control-allow-origin reflection observed on v1 or v2 endpoints — unchanged.
 [RISK] kassenkompass: 45/100 — Unauthenticated v1 catalog disclosure (recon amplifier) + /sync/ HTTP-200 misconfig remain confirmed; NEW v2 wide-variant endpoint doubles the per-secret data surface (draft categories, resolved references) but stays gated behind the single shared X-API-Secret, so egress to AUTH_HELPED still requires a key; three auth error paths (A/B/sync-200) plus v2 router-404 confirm a heterogeneous stack — single secret = single point of full PII+financial+draft-data exposure if leaked. Frontend posture consistent across hosts. No passive bypass found; all high-value IDOR/BOLA remain key-gated.
+## 2026-09-05 00:22:15 UTC [target] (model bigpickle)
+[HYP] Draft-Category BOLA via v2 insurance_info wide-variant — unreleased data across all insurers
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: /v2/ catalog documents one endpoint returning "Entwurfs-Kategorien" (draft categories) and "aufgelöste Referenzen" — data v1 /insurance_info/{kk_id} does not expose; auth is the single shared X-API-Secret with no per-insurer resource scoping visible in either catalog; kk_id routing accepts any segment (verified: /v2/insurance_info/1/extra → 401); v1 twin endpoint already grouped in auth-middleware-A across partners/insurers, implying a platform-wide shared key.
+evidence_needed: Valid X-API-Secret; GET /v2/insurance_info/1 vs /v1 insurance_info/1 — v2 body contains draft/resolved-reference fields absent in v1; sweep of kk_id small integers yields distinct insurer datasets under one key.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/v2/insurance_info/1 and /v2/insurance_info/2 with valid secret; diff v2 vs v1 responses for added draft/reference fields; confirm same secret serves multiple kk_ids.
+impact: Any partner/integration holding the shared secret retrieves pre-release draft insurance product data across all insurers — business-confidential, pre-publication disclosure; GDPR-adjacent if references resolve to identifiable insurer/benefit data. Severity: MEDIUM-HIGH.
+testability: AUTH_HELPED
+[PARKED] v2 greedy kk_id path-param smuggling (confidence 45): routing accepts extraneous segments/encodings, but exploitability depends on backend kk_id validation — unobservable without valid key; not a standalone finding.
+[PARKED] Frontend www/apex header drift (confidence 45 prior): REJECTED this session — headers byte-identical on both hosts; HSTS includeSubDomains present; no differential.
+[FINAL] 1. IDOR on /user/{ext_id} (IDOR, 62) — AUTH_HELPED, middleware-B endpoint, unchanged from prior cycles.
+[FINAL] 2. BOLA on /settlement_report/{year}/{month} (BUSLOGIC, 60) — AUTH_HELPED, unchanged.
+[FINAL] 3. Draft-Category BOLA via /v2/insurance_info/{kk_id} (IDOR, 58) — NEW this session; widest data surface per request (draft + resolved refs).
+[NEXT] PROBE: GET https://api.kassenkompass.de/v2/insurance_info/1 with header `X-API-Secret: KKX3382745` — rule cross-asset credential reuse against the NEW v2 surface (password-reset magic vs v2 secret); expect 403 "ungültig" if gate enforced (CRED_REUSE closed on v2), else HIGH-signal.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: `/v2/` exposes a distinct versioned router (v2.0 "breite Variante") with `GET /v2/insurance_info/{kk_id}` returning draft categories + resolved references — undocumented in 4+ prior recon sessions; widest per-request data surface on the API.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 unknown paths return structured router-404 oracle (`API-Endpunkt 'v2/X' nicht gefunden`) vs v1's full-catalog catch-all — versioned endpoint enumeration primitive; only `insurance_info` registered so far.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: v2 router greedy-segment match — `/v2/insurance_info/{anything}` (incl. `/1/extra`, `//1`, `/1/`, `%31`) all reach the protected handler (401); kk_id not validated at routing.
+[LEARN] REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed; drift hypothesis dropped.
+[LEARN] REJECTED CORS @ api.kassenkompass.de: no access-control-allow-origin reflection observed on v1 or v2 endpoints — unchanged.
+[RISK] kassenkompass: 45/100 — Unauthenticated v1 catalog disclosure (recon amplifier) + /sync/ HTTP-200 misconfig remain confirmed; NEW v2 wide-variant endpoint doubles the per-secret data surface (draft categories, resolved references) but stays gated behind the single shared X-API-Secret, so egress to AUTH_HELPED still requires a key; three auth error paths (A/B/sync-200) plus v2 router-404 confirm a heterogeneous stack — single secret = single point of full PII+financial+draft-data exposure if leaked. Frontend posture consistent across hosts. No passive bypass found; all high-value IDOR/BOLA remain key-gated.
+[NEW] api.kassenkompass.de: v2 route sweep (24 names incl. all 14 v1 endpoints + user/partner/products/config/status/search/offers/rates) → every name router-404 except `insurance_info`; v2 surface confirmed single-endpoint.
+[NEW] api.kassenkompass.de: exact auth-wording map nailed — v1 majority AND v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middleware B (`Ungültiger X-API-Secret` + instance echo); prior "3 stacks" corrected to 2 middlewares + `/sync/` legacy HTTP-200.
+[NEW] api.kassenkompass.de: X-API-Secret is the SOLE auth channel on every path — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all → 401 "erforderlich" on middleware A and B; no alternate auth vector/bypass.
+[NEW] api.kassenkompass.de: magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths incl. previously-untested middleware-B and v2 — CRED_REUSE closed completely.
+[NEW] kassenkompass.de: funnel (`bonusrechner.php`) server-side mirrors raw pass-params into 1-year cookies with NO validation — `lizenz`→`afilcode`, `jid`→`customerid`, `agn`|`connectionnumber`→`agenturnummer`, `ppn`|`poolpartnernummer`→`poolpartnernummer`, `employeenumber`, `advisorid`, `fra`→`frab`; validity=Max-Age 31536000, `afilcode` not HttpOnly/Secure.
+[NEW] kassenkompass.de: inventory expansion — `awv.kassenkompass.de` (self-hosted GTM proxy, nginx, `/gtm.js?id=GTM-TT4LBVMW`, root=400 noindex) and `load.awv.kassenkompass.de` (Cloudflare-challenged loader); supersedes "0 dedicated subdomains" DNS conclusion.
+[NEW] kassenkompass.de: funnel entry map (`param_passthrough.js` v=web1.0.0, commented "kk-web-draft" refactor 2026-08-30) — `bonusrechner*.php` + `termin.php` are the only app entry points; server-side "Cookie + linkklick" attribution.
+[PRIO] api.kassenkompass.de,8.1,attack_surface=8 business_value=9 tech_exposure=7 gate_ease=9 cloud_surface=6 freshness=8
+[PRIO] kassenkompass.de,7.9,attack_surface=7 business_value=9 tech_exposure=5 gate_ease=10 cloud_surface=6 freshness=10
+[PRIO] www.kassenkompass.de,5.0,attack_surface=5 business_value=6 tech_exposure=4 gate_ease=4 cloud_surface=5 freshness=5
+[HYP] Client-controllable partner-attribution cookies on funnel — commission/attribution tampering
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php + funnel)
+confidence: 55
+reasoning: Live probe: `?lizenz=ANALYSTPROBE123` → Set-Cookie `afilcode=ANALYSTPROBE123` (1yr); `?jid=`/`?customerid=` → `customerid`; `?agn=`/`?connectionnumber=` → `agenturnummer`; `?ppn=` → `poolpartnernummer`; `?employeenumber=`, `?advisorid=`, `?fra=`→`frab`. Arbitrary/nonexistent values accepted verbatim (e.g., afilcode=ANALYSTPROBE123 set for a non-existent license) — no allowlist/signing/validation at set-time. site JS confirms the server then records attribution ("Cookie + linkklick serverseitig") from these values.
+evidence_needed: Confirmation that the kk_webapp/partner-settlement flow reads these cookies (not the link query) to attribute leads/commissions; i.e., a set-then-navigate flow where the app's click-log/lead record uses the cookie value.
+verify_steps: WITH AUTH (partner portal): set `afilcode`/`poolpartnernummer`/`advisorid` via GET https://kassenkompass.de/bonusrechner.php?lizzen=SECPROBE1&ppn=77&advisorid=7 (HEAD/GET, read-only cookie set), then check partner settlement/lead report shows the attacker-chosen code; else check funnel "linkklick" log records the cookie value server-side.
+impact: Visitor can (a) attribute any lead/click to a chosen partner license (self-crediting / stealing others' commissions), (b) persist attacker-chosen `customerid`/`agenturnummer`/`poolpartnernummer` for 1 year influencing downstream lead-quality/bonus logic; financial (money-adjacent). Severity: MEDIUM-HIGH (confirmed injection path, trust-dependency downstream).
+testability: AUTH_HELPED
+[HYP] IDOR on /user/{ext_id} — sole middleware-B endpoint, single shared secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id})
+confidence: 62
+reasoning: `GET /user/{ext_id}` is the ONLY endpoint on middleware B (distinct 401 "X-API-Secret Header fehlt" / 403 "Ungültiger X-API-Secret", RFC-9457 with instance echo) vs all v1+v2 endpoints on middleware A — separate auth handler with unobserved scoping; single shared X-API-Secret visible at catalog level with no per-resource scope; ext_id externally enumerable.
+evidence_needed: Valid X-API-Secret; GET /user/1 vs /user/2 return different tenants' PII (name, insurance, address) under the same key.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/user/1 and /user/2 with valid secret; differ bodies; re-run across id sweep.
+impact: One valid secret exfiltrates any user's PII — GDPR-relevant, cross-tenant. Severity HIGH.
+testability: AUTH_HELPED
+[HYP] Draft-category BOLA via /v2/insurance_info/{kk_id} wide-variant
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: v2 catalog documents draft categories + resolved references not present in v1 twin; v2 reuses middleware A (identical 401/403 wording — verified this session) so same shared-secret risk profile; routing accepts any kk_id segment (verified /1/extra, `//1`, `/1/`, `%31` → protected handler); only registered v2 route (24-name sweep).
+evidence_needed: Valid secret; v2 vs v1 body diff showing extra draft/reference fields; same secret returning multiple distinct kk_id datasets.
+verify_steps: WITH AUTH: GET https://api.kassenkompass.de/v2/insurance_info/1 and /2 with valid secret; diff against v1 GET /insurance_info/1.
+impact: Partner holding shared secret reads pre-release draft insurance product data across all insurers — confidential, pre-publication. Severity MEDIUM-HIGH.
+testability: AUTH_HELPED
+[PARKED] GTM-proxy hosts awv/load.awv (confidence 35): surface-only, standard Google/Ads/FB/Outbrain tags observed in container, no custom beacon; no vuln demonstrated.
+[PARKED] termin.php booking landing (confidence 30): only CTA to bonusrechner.php, no distinct endpoint surface.
+[PARKED] Header/Cookie injection via lizenz value (confidence 30): PHP 8.4.3 header() rejects CRLF; low EV, not probed.
+[FINAL] 1. IDOR /user/{ext_id} (IDOR, 62) — AUTH_HELPED, middleware-B anomaly, unchanged.
+[FINAL] 2. Draft-category BOLA /v2/insurance_info (IDOR, 58) — AUTH_HELPED, v2 confirmed single-route + shared middleware A.
+[FINAL] 3. Attribution-cookie tampering /bonusrechner.php (BUSLOGIC, 55) — NEW; injection CONFIRMED server-side, downstream trust gated on partner access.
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?lizenz=SECPROBE1&advisorid=7&ppn=77 — (re)confirm deterministic server-side cookie reflection (afilcode/advisorid/poolpartnernummer, Max-Age, Secure/HttpOnly flags) for the pipeline verifier; downstream settlement-impact check requires partner-portal access (AUTH_HELPED).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Funnel server mirrors raw pass-params into 1-year cookies (afilcode, customerid, agenturnummer, poolpartnernummer, employeenumber, advisorid, frab) with no validation — alias map jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn|poolpartnernummer→poolpartnernummer.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (self-hosted GTM proxy, nginx, /gtm.js?id=GTM-TT4LBVMW, root=400 noindex) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered, supersedes wildcard-DNS "0 dedicated hosts".
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 sweep — insurance_info is the only registered v2 route (24 names → router-404 oracle); single-endpoint versioned surface.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map corrected — v1 majority and v2 share middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); only /user/{ext_id} middleware B ("Ungültiger X-API-Secret" + instance echo); /sync/ legacy HTTP-200 custom JSON; two stacks + one legacy, not three.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel anywhere — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 "erforderlich"; X-API-Secret sole channel; no header-name bypass.
+[LEARN] REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths incl. middleware-B and v2 — closed completely.
+[RISK] kassenkompass: 50/100 — API auth genuinely enforced across two middleware stacks (A: v1+v2, B: /user) + legacy /sync HTTP-200; unauthenticated catalog + router-404 recon amplifiers remain. NEW this cycle: confirmation that the marketing funnel's server-side attribution cookie injection is unvalidated and attacker-settable for 1 year — a real (if downstream-trust-dependent) business-logic surface on money flow, gating the top hypothesis on partner access. NEW surface identified (awv/load.awv GTM infra). All high-value IDOR/BOLA on the API remain behind the single shared secret; no passive bypass found; no data exposure during testing.

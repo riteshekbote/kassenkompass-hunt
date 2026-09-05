@@ -96,3 +96,13 @@ https://www.kassenkompass.de/ -> 200 len=?
 https://kassenkompass.de/ -> 200 len=?
 https://www.kassenkompass.de/login_kd.php -> 200 len=?
 https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+
+## 2026-09-05 00:22:39 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/settlement_report/2024/01 -> HTTP 401
+https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
+https://kassenkompass.de/login_kd.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizzen=SECPROBE1&ppn=77&advisorid=7 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=SECPROBE1&advisorid=7&ppn=77 -> 200 len=?
