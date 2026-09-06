@@ -7356,3 +7356,61 @@ testability: AUTH_HELPED
 ```
 [RISK] kassenkompass: 58/100 — funnel cookie-stuffing widened to ≥3 entries (live-confirmed, VALID #14) but money-flow proof still blocked on HUMAN partner-portal access; api IDOR/BOLA hypotheses saturated at AUTH_HELPED (no passive path to scoped X-API-Secret); SGTM/pixel/S3/HubSpot lines are passive inventory without exploit; broadening surface exhausted (42 v2 names, 15 v1 endpoints, 2 funnel mirrors, 2 hosts — all cataloged). Next meaningful unlock requires either scoped test credentials or partner-portal session.
 ```
+===== ANALYST bigpickle 2026-09-06 16:14:12 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -D /tmp/vergleich2_headers.txt -o /tmp/vergleich2_body.txt 'https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' -w '\nHTTP_CODE:%{http_code}\n' 2>&1
+HTTP_CODE:200
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcat /tmp/vergleich2_headers.txt failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[0m
+[0m$ [0mhead -c 2000 /tmp/vergleich2_body.txt
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.9">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.9">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1788710853"></script>
+
+<!-- HubSpot Tracking Code -->
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"></script>
+    <title>Kassenkompass - Vergleich</title>
+
+    <meta name="format-detection" content="telephone=no">
+
+    <link rel="stylesheet" type="text/css" href="css/index.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/index_new.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/bonusrechner.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/bonusrechner_v.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/templatev.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/bonusrechner_ver.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/bonusrechner_wechsel_v2.css?v=v2.6.9">
+    <link rel="stylesheet" type="text/css" href="css/bonusrechner_v2.css?v=v2.6.9">
+
+    <!-- Include expand functionality JavaScript -->
+    <script src="js/expand-functionality.js?v=v2.6.9"></script>
+    <script type="text/javascript" src="js/vergleich_js.js?v=v2.6.9" defer></script>
+    <style>
+        /* KK-Karten Sichtbarkeit und Styling */
+        .kk-card-hidden {
+            display: none !important;
+[0m

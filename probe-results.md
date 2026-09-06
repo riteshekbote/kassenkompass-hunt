@@ -207,3 +207,10 @@ https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM&agn=ADV123&ppn=PART45
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_daten.php?lizzen=TEST -> 200 len=?
 https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 -> 200 len=?
+
+## 2026-09-06 16:14:19 UTC
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM&agn=ADV123&ppn=PART456 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?

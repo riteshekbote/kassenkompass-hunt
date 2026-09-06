@@ -216,3 +216,13 @@ www.kassenkompass.de
 - CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B with /user/{ext_id}; B = kk_webapp-delegation stack
 
 ## 2026-09-06 12:51:34 UTC
+
+## 2026-09-06 16:14:12 UTC
+- NEW bonusrechner_daten.php confirmed as second funnel entry with step-scoped alias map (jid/agn/ppn→1yr HttpOnly cookies, ignores lizzen/no afilcode)
+- NEW awv.kassenkompass.de client container fully read: SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com public object reads (bucket listing AccessDenied) + HubSpot portal 146866466 embedded
+- NEW kassenkompass.net all *.php → 302 bare-domain root (no path preservation); param-less GET sets only PHPSESSID
+- NEW v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no XSS primitive
+- NEW Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- CHANGED Funnel parameter-to-cookie injection confirmed live on both .de and .net bonusrechner.php (lizenz→afilcode, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer)
+- CHANGED api.v2/insurance_info confirmed middleware A shared with v1 majority; greedy segment match reaches auth handler; enumeration saturated at 42 names (insurance_info sole route)
