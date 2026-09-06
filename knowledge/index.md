@@ -165,3 +165,7 @@
 - 2026-09-06 ACCEPTED MISCONFIG @ de: bonusrechner_daten.php second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen — step-scoped alias map, stuffing surface >=2 entries
 - 2026-09-06 ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape)/GA4/FB/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
 - 2026-09-06 ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 confirmed; cookies host-only on .net
+- 2026-09-06 ACCEPTED OTHER @ kassenkompass.de: bonusrechner_vergleich2.php tercer mirror entry — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; lizzen ignored (afilcode only on bonusrechner.php); adds server device_id + expires catoint.
+- 2026-09-06 ACCEPTED OTHER @ kassenkompass.de: termin.php + bonusrechner_suche.php are 4th/5th mirror entries (jid/agn/connectionnumber/employeenumber); stuffing surface ≥5 entries.
+- 2026-09-06 ACCEPTED OTHER @ kassenkompass.de: connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins) — same ambiguity class as jid/customerid duplicate.
+- 2026-09-06 REJECTED XSS @ kassenkompass.de: 0 HTML reflections of KKJ99/KKA9/KKC99/KKP9/KKE99/KKL99 on vergleich2 + termin — pure cookie mirror, no stored/reflected XSS.
