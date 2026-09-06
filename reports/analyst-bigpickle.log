@@ -6710,3 +6710,415 @@ STEP 7 — RISK
 [RISK] kassenkompass: 52/100 — Two rejections closed cheaply (CRLF, source-merge); v2 saturated; /cancel/{id} newly surfaced on stack B (expanded IDOR, AUTH_HELPED). Live confirmed finding: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel; .net mirror proven non-consumable. All money hypotheses gated behind scoped credentials; no data exposure passively.
 
 Artifacts updated: `probe-results.md`, `reports/hypotheses-bigpickle.txt`, `inventory/kassenkompass.md`, `knowledge/index.md`.
+===== ANALYST bigpickle 2026-09-06 04:12:41 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && echo "---" && ls -la notes 2>/dev/null; ls -la *.md 2>/dev/null
+total 216
+drwxr-xr-x 12 runner runner  4096 Sep  6 04:07 .
+drwxr-xr-x  3 runner runner  4096 Sep  6 04:07 ..
+drwxr-xr-x  7 runner runner  4096 Sep  6 04:08 .git
+drwxr-xr-x  3 runner runner  4096 Sep  6 04:07 .github
+-rw-r--r--  1 runner runner  1767 Sep  6 04:07 README.md
+-rw-r--r--  1 runner runner    32 Sep  6 04:08 analyst-out.txt
+-rw-r--r--  1 runner runner 61289 Sep  6 04:07 analyst-prompt.txt
+-rw-r--r--  1 runner runner 57471 Sep  6 04:07 ctx.txt
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 inventory
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 knowledge
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 leads
+-rw-r--r--  1 runner runner  8456 Sep  6 04:07 probe-results.md
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 recon-notes
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 reports
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 reposcan-raw
+-rw-r--r--  1 runner runner  3231 Sep  6 04:07 scope.yml
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 scripts
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_bigpickle.json
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_laguna.json
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_ling3.json
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_longcat.json
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_mimo.json
+-rw-r--r--  1 runner runner    33 Sep  6 04:07 state_nemotron3.json
+drwxr-xr-x  2 runner runner  4096 Sep  6 04:07 triage
+---
+-rw-r--r-- 1 runner runner 1767 Sep  6 04:07 README.md
+-rw-r--r-- 1 runner runner 8456 Sep  6 04:07 probe-results.md
+[0m
+[0m$ [0mls inventory knowledge leads recon-notes reports triage scripts 2>/dev/null
+inventory:
+kassenkompass.md
+
+knowledge:
+index.md
+
+leads:
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-kassenkompass.md
+
+recon-notes:
+DEDICATED-DEEP.md
+
+reports:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+
+scripts:
+sync-issues.py
+
+triage:
+run-2026-09-02-21-39.md
+run-2026-09-02-23-33.md
+run-2026-09-03-01-26.md
+run-2026-09-03-06-29.md
+run-2026-09-03-11-42.md
+run-2026-09-03-15-55.md
+run-2026-09-03-19-08.md
+run-2026-09-03-21-45.md
+run-2026-09-03-23-49.md
+run-2026-09-04-03-15.md
+run-2026-09-04-08-04.md
+run-2026-09-04-12-46.md
+run-2026-09-04-16-46.md
+run-2026-09-04-18-00.md
+run-2026-09-04-19-20.md
+run-2026-09-04-21-35.md
+run-2026-09-04-23-18.md
+run-2026-09-05-01-06.md
+run-2026-09-05-05-51.md
+run-2026-09-05-10-04.md
+run-2026-09-05-13-28.md
+run-2026-09-05-16-14.md
+run-2026-09-05-18-24.md
+run-2026-09-05-20-44.md
+run-2026-09-05-22-41.md
+run-2026-09-06-00-38.md
+[0m
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead triage/run-2026-09-06-00-38.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m
+[0m$ [0mfor u in \
+  "OPTIONS|https://api.kassenkompass.de/v2/insurance_info/1" \
+  "OPTIONS|https://api.kassenkompass.de/sync/" \
+  "OPTIONS|https://api.kassenkompass.de/insurance_info/1" ; do
+  m="${u%%|*}"; url="${u##*|}"
+  echo "=== $m $url"
+  curl -s -o /dev/null -D - -X "$m" --max-time 20 "$url" | grep -iE "^(HTTP/|allow:|access-control-|content-type:|server:)" 
+  sleep 1
+done
+=== OPTIONS https://api.kassenkompass.de/v2/insurance_info/1
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+server: cloudflare
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+=== OPTIONS https://api.kassenkompass.de/sync/
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+server: cloudflare
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+=== OPTIONS https://api.kassenkompass.de/insurance_info/1
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+server: cloudflare
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[0m
+[0m$ [0mecho "=== T1 GET v1 insurance_info + X-API-Version:2"
+curl -s --max-time 20 -w "\n[status=%{http_code}]\n" -H "X-API-Version: 2" "https://api.kassenkompass.de/insurance_info/1" | head -c 500
+sleep 1
+echo; echo "=== T2 OPTIONS v2 unknown /v2/health/"
+curl -s -o /dev/null -D - --max-time 20 -X OPTIONS "https://api.kassenkompass.de/v2/health/" | grep -iE "^(HTTP/|allow:|access-control-|content-type:)"
+sleep 1
+echo; echo "=== T3 HEAD api root"
+curl -s -o /dev/null -D - --max-time 20 -I "https://api.kassenkompass.de/" | grep -iE "^(HTTP/|access-control-|content-type:|x-powered-by:)"
+sleep 1
+echo; echo "=== T4 DNS wildcard scan (de/net)"
+for h in random-x8f3.kassenkompass.de random-x8f3.kassenkompass.net; do
+  echo -n "$h -> "; dig +short A "$h" | tr '\n' ' '; echo
+done
+=== T1 GET v1 insurance_info + X-API-Version:2
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/1"
+}
+[status=401]
+
+=== T2 OPTIONS v2 unknown /v2/health/
+HTTP/2 404 
+content-type: application/problem+json; charset=utf-8
+
+=== T3 HEAD api root
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+x-powered-by: PHP/8.4.3
+
+=== T4 DNS wildcard scan (de/net)
+random-x8f3.kassenkompass.de -> 
+random-x8f3.kassenkompass.net -> kassenkompass.net. 217.160.19.203
+[0m
+Passive DNS found: `.de` has **no wildcard** (prior sessions assumed wildcard-DNS blocked enum), while `.net` wildcards. Let me run a passive DNS brute on `.de` subdomains.
+[0m$ [0mfor h in www api awv load m cdn static img images assets storage app portal partner kundenportal login auth sso oauth id account shop checkout mail mx autodiscover webmail staging test dev stage preprod qa beta demo old backup admin manage status monitor tracking stats analytics tagmanager gtm container data web2 www2 mobile news blog presse job karriere download files media order service kunden service-api internal admin-api partner-api customer-api portal-api cloud cdn2 edge api-gateway gateway webhook callback verify secure ssl help faq support docs doc api-docs swagger openapi health healthcheck ping version v2 v3 old-api legacy; do
+  r=$(dig +short A "$h.kassenkompass.de" | tr '\n' ' ')
+  [ -n "$r" ] && echo "HIT $h.kassenkompass.de -> $r"
+  [ -n "$r" ] && n=$((n+1))
+done 2>/dev/null
+echo "done, hits: $n"
+HIT www.kassenkompass.de -> 104.26.13.132 172.67.73.143 104.26.12.132 
+HIT api.kassenkompass.de -> 104.26.13.132 104.26.12.132 172.67.73.143 
+HIT awv.kassenkompass.de -> eui.stape.net. 51.15.238.237 
+done, hits: 3
+[0m
+`awv` resolves to `eui.stape.net` (Stape SSGTM, third-party) — contradicts the prior "self-hosted nginx" label. Verifying the CNAME chain and finishing the method-oracle picture.
+[0m$ [0mecho "=== CNAME chain"
+for h in awv.kassenkompass.de load.awv.kassenkompass.de; do
+  echo -n "$h -> "; dig +short CNAME "$h" | tr '\n' ' '; echo
+done
+echo; echo "=== OPTIONS v1 catch-all /nonexistent-zz"
+curl -s -o /dev/null -D - --max-time 20 -X OPTIONS "https://api.kassenkompass.de/nonexistent-zz" | grep -iE "^(HTTP/|allow:|access-control-|content-type:)"
+sleep 1
+echo; echo "=== OPTIONS /v2/ (bare router root)"
+curl -s -o /dev/null -D - --max-time 20 -X OPTIONS "https://api.kassenkompass.de/v2/" | grep -iE "^(HTTP/|allow:|access-control-|content-type:)"
+sleep 1
+echo; echo "=== GET /v2/ with X-API-Version header (reverse route test)"
+curl -s --max-time 20 -w "\n[status=%{http_code}]\n" -H "X-API-Version: 1" "https://api.kassenkompass.de/v2/insurance_info/1" | head -c 300
+=== CNAME chain
+awv.kassenkompass.de -> eui.stape.net. 
+load.awv.kassenkompass.de -> leui.stape.net. 
+
+=== OPTIONS v1 catch-all /nonexistent-zz
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+
+=== OPTIONS /v2/ (bare router root)
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+
+=== GET /v2/ with X-API-Version header (reverse route test)
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/v2\/insurance_info\/1"
+}
+[status=401]
+[0m
+Stape-CNAME chain confirmed. One last breadth check — sibling TLDs of the brand (cheap, purely DNS):
+[0m$ [0mfor t in com net de eu at org info online stores shop; do
+  u=$(dig +short A "kassenkompass.$t" | tr '\n' ' ')
+  c=$(dig +short CNAME "kassenkompass.$t" | tr '\n' ' ')
+  ns=$(dig +short NS "kassenkompass.$t" | tr '\n' ' ')
+  echo "kassenkompass.$t -> A:[$u] CNAME:[$c] NS:[$ns]"
+done
+kassenkompass.com -> A:[81.169.145.163 ] CNAME:[] NS:[docks09.rzone.de. shades13.rzone.de. ]
+kassenkompass.net -> A:[217.160.19.203 ] CNAME:[] NS:[ns3.stratoserver.net. ns4.stratoserver.net. ]
+kassenkompass.de -> A:[104.26.13.132 172.67.73.143 104.26.12.132 ] CNAME:[] NS:[brit.ns.cloudflare.com. eugene.ns.cloudflare.com. ]
+kassenkompass.eu -> A:[] CNAME:[] NS:[]
+kassenkompass.at -> A:[] CNAME:[] NS:[]
+kassenkompass.org -> A:[] CNAME:[] NS:[]
+kassenkompass.info -> A:[] CNAME:[] NS:[]
+kassenkompass.online -> A:[185.175.196.2 ] CNAME:[] NS:[ns3.stratoserver.net. ns4.stratoserver.net. ]
+kassenkompass.stores -> A:[] CNAME:[] NS:[]
+kassenkompass.shop -> A:[] CNAME:[] NS:[]
+[0m
+`kassenkompass.com` (Strato/rzone) and `kassenkompass.online` (Strato) resolve — new candidate hosts never inventoried. Checking ownership signals via HTTP (passive GET, 1 rps):
+[0m$ [0mfor u in "https://kassenkompass.com/" "https://kassenkompass.online/"; do
+  echo "=== GET $u"
+  curl -s --max-time 20 -o /tmp/kk_bod.html -D /tmp/kk_hdr.txt -w "status=%{http_code} size=%{size_download} redirect=%{redirect_url}\n" "$u"
+  grep -iE "^(server:|x-powered-by:|location:|set-cookie:|content-type:)" /tmp/kk_hdr.txt | head -5
+  grep -ioE "(kassenkompass[^\"'<>]{0,30}|compare|bonusrechner|insurance.c/versicherung)" /tmp/kk_bod.html | sort -u | head -6
+  sleep 1
+done
+=== GET https://kassenkompass.com/
+status=000 size=0 redirect=
+grep: /tmp/kk_bod.html: No such file or directory
+=== GET https://kassenkompass.online/
+status=200 size=134831 redirect=
+server: nginx
+content-type: text/html; charset=UTF-8
+set-cookie: PHPSESSID=d5klpuqlln8uerheq5g07m2896; path=/
+KassenKompass
+KassenKompass GmbH
+KassenKompass GmbH
+KassenKompass Intro
+KassenKompass: Gesetzliche Krankenkasse Ver
+Kassenkompass
+[0m
+`kassenkompass.online` is a live KassenKompass GmbH host (PHP/nginx, Intro page) — **never in inventory**. Checking its links and the `.com` fallback on port 80:
+[0m$ [0mecho "=== kassenkompass.online links/hrefs"
+grep -oE 'href="[^"]+"' /tmp/kk_bod.html | sort -u | head -25
+grep -oE 'src="[^"]+"' /tmp/kk_bod.html | sort -u | head -15
+echo; echo "=== .com on port 80"
+curl -s --max-time 15 -o /dev/null -D - -w "status=%{http_code} url=%{url_effective}\n" "http://kassenkompass.com/" | grep -iE "^(HTTP/|server:|location:|content-type:)"
+=== kassenkompass.online links/hrefs
+href="https://heydata.eu"
+href="https://kassenkompass.de/wp-content/buchung_tidycall.html"
+href="https://kassenkompass.online/"
+href="https://kassenkompass.online/bonusrechner/"
+href="https://kassenkompass.online/krankenkassenanalyse/"
+href="https://kassenkompass.online/wp-content/themes/kassen/assets/images/favicon.ico"
+href="https://kassenkompass.online/wp-content/uploads/2024/07/favicon-new.svg"
+href="https://kassenkompass.online/wp-content/uploads/2024/07/favicon-new1.png"
+href="https://kassenkompass.online/wp-json/"
+href="https://kassenkompass.online/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fkassenkompass.online%2F"
+href="https://kassenkompass.online/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fkassenkompass.online%2F&#038;format=xml"
+href="https://kassenkompass.online/wp-json/wp/v2/pages/8"
+href="https://kassenkompass.online/xmlrpc.php?rsd"
+href="https://www.instagram.com/kassenkompass/"
+href="https://www.linkedin.com/company/kassenkompass-gmbh/"
+href="javascript:void(0);"
+href="mailto:service@kassenkompass.de"
+href="tel:+494957308441"
+src=" https://kassenkompass.online/wp-content/themes/kassen/assets/images/arrow-right.svg"
+src="https://cdn.trackdesk.com/tracking.js"
+src="https://consent.cookiefirst.com/sites/kassenkompass.de-72a8bffe-f684-4416-92a7-711928208d93/consent.js"
+src="https://kassenkompass.de/wp-content/uploads/book_me.png?v=16"
+src="https://kassenkompass.de/wp-content/uploads/icon_google.png"
+src="https://kassenkompass.de/wp-content/uploads/phone.png"
+src="https://kassenkompass.de/wp-content/uploads/s_close.png"
+src="https://kassenkompass.de/wp-content/uploads/star_01.png"
+src="https://kassenkompass.de/wp-content/uploads/sw_icon.png"
+src="https://kassenkompass.online/wp-content/plugins/contact-form-7/includes/js/index.js"
+src="https://kassenkompass.online/wp-content/plugins/contact-form-7/includes/swv/js/index.js"
+src="https://kassenkompass.online/wp-content/plugins/mailin/js/mailin-front.js"
+src="https://kassenkompass.online/wp-content/plugins/op-dashboard/public/assets/js/tracking.js"
+src="https://kassenkompass.online/wp-content/themes/kassen/assets/images/mail-icon-white.svg"
+src="https://kassenkompass.online/wp-content/themes/kassen/assets/js/custom.js?v=0.0.1"
+
+=== .com on port 80
+HTTP/1.1 200 OK
+Server: Apache/2.4.68 (Unix)
+Content-Type: text/html
+[0m
+`.online` is a live WordPress (CF7 + mailin + op-dashboard + TrackDesk) with its own funnel pages — fresh surface. Probing cheaply:
+[0m$ [0mreq() { echo "=== $1"; curl -s --max-time 20 -o /tmp/kk_o.txt -D /tmp/kk_h.txt -w "status=%{http_code} size=%{size_download} url=%{url_effective}\n" "$2"; grep -icE "^set-cookie:" /tmp/kk_h.txt; grep -iE "^set-cookie:" /tmp/kk_h.txt | cut -c1-120; }
+req "GET /bonusrechner/" "https://kassenkompass.online/bonusrechner/"
+sleep 1
+req "GET /passthrough params" "https://kassenkompass.online/bonusrechner/?lizzen=KKOL&jid=KKOLJ&agn=KKOLAG&ppn=KKOLP"
+sleep 1
+req "GET /wp-json/" "https://kassenkompass.online/wp-json/"
+sleep 1
+req "GET com:80 root (text)" "http://kassenkompass.com/"
+grep -ioE "kassenkompass[^\"'< ]{0,20}" /tmp/kk_o.txt | sort -u | head -5
+=== GET /bonusrechner/
+status=200 size=115482 url=https://kassenkompass.online/bonusrechner/
+2
+set-cookie: funnel_form_value_cookie=Bonusrechner; expires=Sun, 06-Sep-2026 05:11:13 GMT; Max-Age=3600; path=/
+set-cookie: PHPSESSID=dafo1idijnu7eti9hr5ltspl6o; path=/
+=== GET /passthrough params
+status=200 size=115644 url=https://kassenkompass.online/bonusrechner/?lizzen=KKOL&jid=KKOLJ&agn=KKOLAG&ppn=KKOLP
+2
+set-cookie: funnel_form_value_cookie=Bonusrechner; expires=Sun, 06-Sep-2026 05:11:15 GMT; Max-Age=3600; path=/
+set-cookie: PHPSESSID=ip9bonnfvp53i94v5e70pa13o3; path=/
+=== GET /wp-json/
+status=200 size=339025 url=https://kassenkompass.online/wp-json/
+0
+=== GET com:80 root (text)
+status=200 size=4591 url=http://kassenkompass.com/
+0
+[0m
+[0m$ [0mecho "=== com title"; curl -s --max-time 15 "http://kassenkompass.com/" -o /tmp/kk_c.txt; grep -oE "<title>[^<]*</title>" /tmp/kk_c.txt; grep -ioE "n[\/\.]?1&1|strato|domain parken|domain parked|default[^<]{0,20}" /tmp/kk_c.txt | head -3
+echo "=== .online wp-json core namespaces present"
+grep -oE '"(wp/v2|wp/v1|oembed/1.0)[^"]*"' /tmp/kk_o.txt | sort -u | head
+=== com title
+<title>STRATO - Domain reserved</title>
+<title>STRATO</title>
+STRATO
+strato
+STRATO
+=== .online wp-json core namespaces present
+[0m
+`.online` bonusrechner form target check (one passive GET, completes the funnel-chain picture):
+[0m$ [0mcurl -s --max-time 20 "https://kassenkompass.online/bonusrechner/" -o /tmp/kk_br.html
+grep -oE 'action="[^"]+"' /tmp/kk_br.html | sort -u | head -5
+grep -oE 'src="[^"]*trackdesk[^"]*"' /tmp/kk_br.html | sort -u | head -3
+grep -oE '(data-[a-z0-9-]+="[^"]{0,40}")' /tmp/kk_br.html | sort -u | head -8
+grep -oE '(bonusrechner\.php|kassenkompass\.de/[a-z_]+\.php)' /tmp/kk_br.html | sort -u | head -8
+action="/bonusrechner/#wpcf7-f487-o1"
+action="link"
+src="https://cdn.trackdesk.com/tracking.js"
+data-name="your-email"
+data-name="your-name"
+data-op-action="link"
+data-op-courseaction=""
+data-op-effect-style-hover=""
+data-op-effect-style=""
+data-op-element-hidden="0"
+data-op-select-funnel-step=""
+kassenkompass.de/bonusrechner.php
+[0m
+Session complete. Blocks:
+
+**STEP 1 — DELTA**
+- [NEW] `kassenkompass.online` — live WordPress (PHP/nginx; CF7+mailin+op-dashboard+TrackDesk SDK) brand site of KassenKompass GmbH with own `/bonusrechner/` + `/krankenkassenanalyse/` funnel pages; never present in any inventory session; page body links into `kassenkompass.de/bonusrechner.php`.
+- [NEW] Funnel chain now bounded: `.net` mirror non-consumable (prior), `.online` sets only 1h `funnel_form_value_cookie=Bonusrechner` + PHPSESSID on pass-param probe — **no** afilcode/customerid/agenturnummer mirror; attribution-cookie set lives solely on `.de` php app.
+- [NEW] `.de` has **no wildcard A record** (80-name passive DNS brute → only www/api/awv/load.awv); `.net` wildcards to 217.160.19.203 (Ionos), `.com` parked Strato ("Domain reserved", no brand content — not company-operated), `.online` 185.175.196.2.
+- [NEW] `awv`→`eui.stape.net`, `load.awv`→`leui.stape.net` (Stape SSGTM EU) — corrects prior "self-hosted nginx GTM proxy"; both live, not dangling.
+- [NEW] OPTIONS method-oracle on api: v1 catch-all + v2 known route short-circuit to CORS preflight **before** auth (200, allow GET,OPTIONS); v2 unknown paths still router-404 problem+json; v1 data endpoints GET-only, `/sync/` POST-only.
+- [CHANGED] `X-API-Version` header inert on v1+v2 (identical 401 detail) — no header-based router switch.
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] api.kassenkompass.de, 8.4, attack_surface:middleware-A/B+15endpoints+v2-router | b:10 | t:8 | g:0 | c:4 | f:6
+- [PRIO] kassenkompass.de, 7.0, attack_surface:funnel-php-cookie-mirror-consumer | b:10 | t:4 | g:2 | c:2 | f:7
+- [PRIO] kassenkompass.online, 6.1, attack_surface:wordpress-funnel(CF7/op-dashboard/trackdesk) | b:6 | t:6 | g:8 | c:2 | f:10
+
+**STEP 3 — HYPOTHESES**
+- [HYP] Funnel attribution-cookie stuffing → downstream commission/settlement consumption
+class: OTHER | asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset) | confidence: 68
+reasoning: .de mirrors raw pass-params into 1-yr HttpOnly identification cookies (re-confirmed across sessions); .online/.net funnel hosts feed .de but set no tenant cookies of their own, so .de php app is sole consumer; consumption on money flow never observed.
+evidence_needed: stuffed value (jid/agn/ppn) reappears in lead/settlement data under partner session.
+verify_steps: GET /bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps); then human partner-portal search.
+impact: Lead-poisoning / commission-claiming on money flow; 1-yr cross-visit identity; MEDIUM-HIGH.
+testability: AUTH_HELPED
+- [HYP] Middleware-B IDOR — /user/{ext_id}, /cancel/{id} on kk_webapp-delegation stack
+class: IDOR | asset: api (/user/{ext_id}, /cancel/{id}) | confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map); {ext_id} opaque, no upstream ownership binding; cancel destructive, delegates to kk_webapp.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; sweep ids.
+impact: One secret dumps cross-tenant PII or cancels others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+- [HYP] v2 /insurance_info/{kk_id} draft BOLA via greedy-segment routing
+class: IDOR | asset: api (/v2/insurance_info/{kk_id}) | confidence: 58
+reasoning: sole v2 route (42 names + OPTIONS oracle agrees); greedy match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest per-request surface).
+evidence_needed: two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 ids, diff draft/reference fields.
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH.
+testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] .online WP funnel cross-host pass-through (45): needs JS-run click + cookie read to prove — no static evidence; below bar, park.
+- [PARKED] WP known-vuln / wp-json user enum on .online: program out-of-scope classes, dropped.
+- [FINAL] 1. Funnel cookie stuffing .de (68) 2. Middleware-B IDOR {user,cancel} (62) 3. v2 insurance_info BOLA (58) — all unchanged, all AUTH_HELPED.
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] HUMAN: Request scoped test X-API-Secret (middleware A + B) and a partner-portal broker account via bugs.olivermaicher.eu — passive surface now exhausted across 6 hosts (funnel chain fully bounded to .de, both routers method-mapped, version-header channel closed, DNS/cookie/oracle primitives saturated); creds are the sole unlock for the three money proofs.
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED OTHER @ kassenkompass.online: New WP funnel host (CF7/mailin/op-dashboard/TrackDesk); /bonusrechner/ sets only 1h funnel_form_value_cookie+PHPSESSID on pass-params (no tenant attribution cookies); body links into .de/bonusrechner.php — attribution-cookie set confined to .de.
+- [LEARN] ACCEPTED OTHER @ kassenkompass (DNS): .de no wildcard (80-name brute → www/api/awv/load.awv only); .net wildcards (Ionos); .com parked Strato (not company content); .online live 185.175.196.2.
+- [LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: CNAME→eui.stape.net, load.awv→leui.stape.net (Stape SSGTM EU); prior "self-hosted nginx" label corrected; hosts live, not dangling.
+- [LEARN] ACCEPTED MISCONFIG @ api: OPTIONS preflight short-circuits before auth on v1 catch-all and v2 known route (200, allow GET,OPTIONS); v2 unknown paths router-404 — full method map confirmed incl. /sync/ POST-only.
+- [LEARN] REJECTED AUTH @ api: X-API-Version header inert on v1+v2 (identical 401 "ist erforderlich") — header-based router switch closed; routing strictly path-based.
+
+**STEP 7 — RISK**
+- [RISK] kassenkompass: 50/100 — One new in-scope host (WP funnel) discovered but no new monetizable passive finding; cheap closings only (method-oracle, version-header, DNS/wildcard, .online cookie scope); live confirmed finding unchanged (unvalidated pass-param→1-yr HttpOnly attribution cookies on .de; .net non-consumable, .online non-mirroring); all three money hypotheses still gated behind credentials from bugs.olivermaicher.eu; no data exposure during passive testing.

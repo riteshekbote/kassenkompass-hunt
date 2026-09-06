@@ -183,3 +183,9 @@ https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
 https://kassenkompass.de/termin.php -> 200 len=?
 https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
 https://kassenkompass.de/bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ -> 200 len=?
+
+## 2026-09-06 04:12:48 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?

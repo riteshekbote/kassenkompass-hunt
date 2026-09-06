@@ -1000,3 +1000,22 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ de: frab unmapped on both entries (2 sessions); lizzen→afilcode bonusrechner-specific.
 [LEARN] ACCEPTED OTHER @ net: 302 no-param + host-only cookies ⇒ .net attribution not readable by .de.
 [RISK] kassenkompass: 52/100 — Two rejections closed cheaply (CRLF, source-merge); v2 saturated; /cancel/{id} newly surfaced on stack B (expanded IDOR, AUTH_HELPED). Live confirmed finding: unvalidated pass-param→1-yr HttpOnly attribution cookies on .de funnel; .net mirror proven non-consumable. All money hypotheses gated behind scoped credentials; no data exposure passively.
+## 2026-09-06 04:12:34 UTC [target] (model bigpickle)
+class: OTHER | asset: kassenkompass.de (/bonusrechner.php full, /termin.php subset) | confidence: 68
+reasoning: .de mirrors raw pass-params into 1-yr HttpOnly identification cookies (re-confirmed across sessions); .online/.net funnel hosts feed .de but set no tenant cookies of their own, so .de php app is sole consumer; consumption on money flow never observed.
+evidence_needed: stuffed value (jid/agn/ppn) reappears in lead/settlement data under partner session.
+verify_steps: GET /bonusrechner.php?jid=KKSEO&agn=KKAGN&ppn=KKPPN&lizzen=KKLIZ (1 rps); then human partner-portal search.
+impact: Lead-poisoning / commission-claiming on money flow; 1-yr cross-visit identity; MEDIUM-HIGH.
+testability: AUTH_HELPED
+class: IDOR | asset: api (/user/{ext_id}, /cancel/{id}) | confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map); {ext_id} opaque, no upstream ownership binding; cancel destructive, delegates to kk_webapp.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; sweep ids.
+impact: One secret dumps cross-tenant PII or cancels others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+class: IDOR | asset: api (/v2/insurance_info/{kk_id}) | confidence: 58
+reasoning: sole v2 route (42 names + OPTIONS oracle agrees); greedy match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest per-request surface).
+evidence_needed: two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 ids, diff draft/reference fields.
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH.
+testability: AUTH_HELPED
