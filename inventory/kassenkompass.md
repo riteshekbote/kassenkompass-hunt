@@ -214,3 +214,5 @@ www.kassenkompass.de
 - CHANGED v2 enumeration saturated at 42 names — only `insurance_info` registered; router-404 oracle confirmed
 - CHANGED Auth source-merge closed — X-API-Secret via query/cookie both return missing-header 401 on all three stacks (A, B, v2)
 - CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B with /user/{ext_id}; B = kk_webapp-delegation stack
+
+## 2026-09-06 12:51:34 UTC

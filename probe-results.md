@@ -198,3 +198,12 @@ https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
 https://awv.kassenkompass.de -> HTTP 404
 https://kassenkompass.de -> 200 len=?
 https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 -> 200 len=?
+
+## 2026-09-06 12:51:44 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=EVIL&jid=VICTIM123&agn=ADV456 -> 200 len=?
+https://kassenkompass.de/vergleich.php -> HTTP 404
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM&agn=ADV123&ppn=PART456 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?lizzen=TEST -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 -> 200 len=?
