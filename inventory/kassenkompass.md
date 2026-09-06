@@ -202,3 +202,15 @@ www.kassenkompass.de
 - NEW Auth middleware map extended to 15/15 endpoints — /cancel/{id} (POST, FG-Wechsel-Storno, "delegiert an kk_webapp") confirmed on middleware B ("X-API-Secret Header fehlt", instance-first) with /user/{e
 - NEW Alias map refined — frab sets NO cookie on termin.php (this cycle) NOR bonusrechner.php (prior cycle) → frab dropped from active alias set; lizzen→afilcode is bonusrechner-specific (termin.php emits n
 - NEW .net mirror scoped — bonusrechner.php full mirror, termin.php subset (customerid/agenturnummer/poolpartnernummer), bonusrechner2.php + bonusrechner_alt.php mirror nothing; .net 302→.de carries NO para
+
+## 2026-09-06 08:51:55 UTC
+- NEW de funnel: full step map enumerated — bonusrechner_daten/fragen(2.1MB inline tariff data)/suche/vergleich2/abschluss all 200, wechsel2 302-guarded, alt 404 on .de; `bonusrechner_daten.php` is a SECOND
+- NEW awv: client GTM container fully readable — GA4 G-RXB3GJEMRT with server_container_url=https://awv.kassenkompass.de (server-side GTM), FB pixel 360390300088445, purchase event (value 128 EUR / transact
+- NEW de/inventory: kk-s3-01.s3.eu-central-1.amazonaws.com (public object reads; bucket listing AccessDenied); HubSpot portal 146866466 embedded on all pages; /login_auswahl.php chooser (kd/partner/kk only)
+- CHANGED net: every *.php → 302 to https://kassenkompass.de root (no path preservation); param-less bonusrechner.php sets only PHPSESSID — .net name-oracle and cookie story closed.
+- NEW kassenkompass.de/bonusrechner.php: Confirmed funnel parameter-to-cookie injection live — `lizenz→afilcode` (no Secure/HttpOnly), `jid→customerid`, `agn→agenturnummer`, `ppn→poolpartnernummer` all set 
+- NEW kassenkompass.net/bonusrechner.php: Confirmed canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net (not readable by .de)
+- NEW api.kassenkompass.de/v2/insurance_info/{kk_id}: Confirmed middleware A shared with v1 majority (`"Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"`); greedy segment match reaches a
+- CHANGED v2 enumeration saturated at 42 names — only `insurance_info` registered; router-404 oracle confirmed
+- CHANGED Auth source-merge closed — X-API-Secret via query/cookie both return missing-header 401 on all three stacks (A, B, v2)
+- CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B with /user/{ext_id}; B = kk_webapp-delegation stack

@@ -1091,3 +1091,51 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific
 [LEARN] ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .de
 [RISK] kassenkompass: 74 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data; three privileged login portals; AWS ALB + Cloudflare provides WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; v2 router exposes unreleased draft data surface; funnel cookie injection with 1-year persistence and no validation; new GTM proxy subdomain expands attack surface; canonical .net backend adds cross-domain cookie stuffing vector; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-06 08:50:02 UTC [target] (model nemotron3)
+[NEW] kassenkompass.de/bonusrechner.php: Confirmed funnel parameter-to-cookie injection live — `lizenz→afilcode` (no Secure/HttpOnly), `jid→customerid`, `agn→agenturnummer`, `ppn→poolpartnernummer` all set as 1-year cookies with raw values; duplicate `customerid` when both `jid` and `customerid` passed (last-wins)
+[NEW] kassenkompass.net/bonusrechner.php: Confirmed canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net (not readable by .de)
+[NEW] api.kassenkompass.de/v2/insurance_info/{kk_id}: Confirmed middleware A shared with v1 majority (`"Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"`); greedy segment match reaches auth handler (401/403); kk_id not validated at routing
+[CHANGED] v2 enumeration saturated at 42 names — only `insurance_info` registered; router-404 oracle confirmed
+[CHANGED] Auth source-merge closed — X-API-Secret via query/cookie both return missing-header 401 on all three stacks (A, B, v2)
+[CHANGED] Auth map 15/15 complete — /cancel/{id} joins middleware B with /user/{ext_id}; B = kk_webapp-delegation stack
+[PRIO] kassenkompass.de/bonusrechner.php,8.5,attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=6,freshness=10
+[PRIO] kassenkompass.net/bonusrechner.php,7.8,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=10
+[PRIO] api.kassenkompass.de/v2/insurance_info/,7.2,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=2,cloud_surface=7,freshness=9
+[HYP] Funnel Parameter-to-Cookie Injection — Unvalidated Identity Fields Persisted for 1 Year
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner.php
+confidence: 85
+reasoning: Server mirrors raw pass-params (lizenz, jid, agn, connectionnumber, ppn, poolpartnernummer, employeenumber, advisorid) into 1-year cookies with zero validation; alias map allows multiple input names per cookie (jid|customerid→customerid, agn|connectionnumber→agenturnummer, ppn|poolpartnernummer→poolpartnernummer); afilcode lacks Secure/HttpOnly; duplicate customerid Set-Cookie on collision (last-wins); no CSRF on forms; cookies consumed server-side (HttpOnly on sensitive ones) for lead/settlement attribution
+evidence_needed: Downstream comparison/quote endpoints trust cookie values without re-validation; parameter collision resolution observable in business logic
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=EVIL&jid=VICTIM123&agn=ADV456 — capture Set-Cookie (passive); GET https://kassenkompass.de/vergleich.php with poisoned cookie jar — observe if identity carries into quote flow (passive, requires cookie jar); GET https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y — confirm last-wins (passive, done)
+impact: Session fixation / identity injection into insurance comparison funnel; partner/advisor/customer impersonation; downstream quote manipulation; commission/lead theft; MEDIUM-HIGH
+testability: PASSIVE
+[HYP] Cross-Domain Attribution Cookie Stuffing — .net Canonical Backend Mirrors .de Funnel Cookies Then Redirects
+class: BUSLOGIC
+asset: kassenkompass.net/bonusrechner.php
+confidence: 75
+reasoning: kassenkompass.net is canonical IIS/10.0 + PHP 8.4.3 backend (og:url, canonical link, form POST target .de→.net); sets identical unvalidated attribution cookies on .net then 302→.de; different server stack may have different validation; cookies host-only on .net (not readable by .de) but 302 preserves them in browser; attacker can use .net as cookie-stuffing entry point to inject identities that survive redirect to .de
+evidence_needed: .net accepts params .de rejects (e.g., frab); downstream .de consumption trusts .net-set cookies; .net cookie attributes match .de
+verify_steps: GET https://kassenkompass.net/bonusrechner.php?frab=fr33 — test frab cookie on .net (passive); GET https://kassenkompass.net/bonusrechner.php?jid=X&customerid=Y — observe collision resolution (passive); GET https://kassenkompass.net/bonusrechner.php?lizenz=test&jid=123 — confirm 302 Location and Set-Cookie headers (passive, done)
+impact: Cross-domain cookie stuffing via canonical backend; partner/customer identity injection surviving redirect; attribution hijacking for commission/lead theft; MEDIUM
+testability: PASSIVE
+[HYP] Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets
+class: AUTH
+asset: api.kassenkompass.de/v2/insurance_info/
+confidence: 65
+reasoning: v2 router shares middleware A with v1 majority (identical 403 wording: "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"); v2 returns draft categories + resolved references — widest per-request data surface, undocumented in 4+ prior recon sessions; v2 greedy segment match reaches auth handler for any kk_id; if v1-issued secret scoped for comparison endpoints is accepted by v2 middleware, cross-version BOLA exposes draft/unreleased insurance data across all insurers
+evidence_needed: Valid X-API-Secret tested against v2 endpoint; response contains draft categories not in v1 /insurance_info/{kk_id}; v2 middleware accepts v1-issued secrets
+verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1 -H "X-API-Secret: invalid" — confirm 403 middleware A shape (passive, done); GET https://api.kassenkompass.de/v2/insurance_info/1 -H "X-API-Secret: KKX3382745" — rule out cross-asset credential reuse (passive); WITH AUTH: GET /v2/insurance_info/1 vs /insurance_info/1 with valid secret — compare data breadth (AUTH_HELPED)
+impact: Cross-version BOLA exposing draft insurance categories + resolved references across all insurers; GDPR-relevant if draft includes PII; HIGH
+testability: PASSIVE (error-shape enumeration), AUTH_HELPED (data differential)
+[PARKED] Cross-Version Authorization Bypass: Confidence 65 but requires AUTH_HELPED for data differential proof; impact currently theoretical without valid secret; v2 single-endpoint surface limits blast radius
+[FINAL] 1. Funnel Parameter-to-Cookie Injection — Unvalidated Identity Fields Persisted for 1 Year (confidence 85, PASSIVE)
+[FINAL] 2. Cross-Domain Attribution Cookie Stuffing — .net Canonical Backend Mirrors .de Funnel Cookies Then Redirects (confidence 75, PASSIVE)
+[FINAL] 3. Cross-Version Authorization Bypass — v2 Middleware Accepts v1-Scoped Secrets (confidence 65, PASSIVE mapping + AUTH_HELPED for data diff)
+[NEXT] PROBE: GET https://kassenkompass.net/bonusrechner.php?frab=fr33 — test frab cookie setting on .net (passive, HEAD/GET, 1 rps); GET https://kassenkompass.net/bonusrechner.php?jid=X&customerid=Y — observe collision resolution on .net (passive)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: Funnel parameter-to-cookie injection confirmed live — raw params mirrored into 1-year cookies with no validation; alias map and attribute asymmetry verified
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 stack confirmed; cookies host-only on .net
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated at single endpoint
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+[RISK] KassenKompass GmbH: 78 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; v2 router exposes unreleased draft data surface; cross-domain cookie stuffing via canonical .net backend; new GTM proxy subdomain expands attack surface; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu

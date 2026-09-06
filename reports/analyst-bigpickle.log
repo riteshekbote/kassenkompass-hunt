@@ -7122,3 +7122,144 @@ testability: AUTH_HELPED
 
 **STEP 7 — RISK**
 - [RISK] kassenkompass: 50/100 — One new in-scope host (WP funnel) discovered but no new monetizable passive finding; cheap closings only (method-oracle, version-header, DNS/wildcard, .online cookie scope); live confirmed finding unchanged (unvalidated pass-param→1-yr HttpOnly attribution cookies on .de; .net non-consumable, .online non-mirroring); all three money hypotheses still gated behind credentials from bugs.olivermaicher.eu; no data exposure during passive testing.
+===== ANALYST bigpickle 2026-09-06 08:51:55 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/awv_gtm.js -w "code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://awv.kassenkompass.de/gtm.js?id=GTM-TT4LBVMW&l=dataLayer"
+code=200 size=507537 type=application/javascript; charset=UTF-8
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/de_home.html -w "home code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.de/"; sleep 1; curl -s -o /tmp/opencode/de_sitemap.xml -w "sitemap code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.de/sitemap.xml"
+home code=200 size=36070 type=text/html; charset=UTF-8
+sitemap code=200 size=3119 type=text/xml
+[0m
+[0m$ [0mcurl -s -D /tmp/opencode/api_v2_plain.hdr -o /tmp/opencode/api_v2_plain.body -w "plain code=%{http_code} size=%{size_download}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://api.kassenkompass.de/v2/APIPOC123"; sleep 1; curl -s -D /tmp/opencode/api_v2_xss.hdr -o /tmp/opencode/api_v2_xss.body -w "xss code=%{http_code} size=%{size_download}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://api.kassenkompass.de/v2/%3Cscript%3Ealert(1)%3C%2Fscript%3E"
+plain code=404 size=178
+xss code=404 size=203
+[0m
+[0m$ [0mcurl -s -D /tmp/opencode/net_bonus.hdr -o /tmp/opencode/net_bonus.body -w "bonus code=%{http_code} size=%{size_download} url=%{url_effective}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.net/bonusrechner.php"; sleep 1; for n in kontakt angebot anfrage antrag versicherungswechsel fg-wechsel rueckruf ruckruf berater beratung online terminbuchung kontaktformular; do r=$(curl -s -o /tmp/opencode/net_$n.body -w "%{http_code} %{size_download}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.net/$n.php"); echo "$n.php => $r"; sleep 1; done
+bonus code=302 size=0 url=https://kassenkompass.net/bonusrechner.php
+kontakt.php => 302 0
+angebot.php => 302 0
+anfrage.php => 302 0
+antrag.php => 302 0
+versicherungswechsel.php => 302 0
+fg-wechsel.php => 302 0
+rueckruf.php => 302 0
+ruckruf.php => 302 0
+berater.php => 302 0
+beratung.php => 302 0
+online.php => 302 0
+terminbuchung.php => 302 0
+kontaktformular.php => 302 0
+[0m
+[0m→ [0mRead /tmp/opencode/net_bonus.hdr
+[0m→ [0mRead /tmp/opencode/api_v2_xss.hdr
+[0m→ [0mRead /tmp/opencode/api_v2_plain.body
+[0m→ [0mRead /tmp/opencode/api_v2_xss.body
+[0m→ [0mRead /tmp/opencode/de_sitemap.xml
+[0m✱ [0mGrep "https?://[^"'\s<>]+|src=|href="[90m in /tmp/opencode/de_home.html · 100 matches[0m
+[0m
+[0m$ [0mrg -o "https?://[a-zA-Z0-9.\-]+(/[a-zA-Z0-9_\-/.?=&%]*)?|kassenkompass[^\"' ]{0,40}|awv[^\"' ]{0,30}|googletagmanager[^\"' ]{0,40}" /tmp/opencode/awv_gtm.js | sort -u | head -60; echo ---; wc -l /tmp/opencode/awv_gtm.js
+/bin/bash: line 1: rg: command not found
+---
+1033 /tmp/opencode/awv_gtm.js
+[0m
+[0m✱ [0mGrep "https?://[^"' ]+"[90m in /tmp/opencode/awv_gtm.js · 73 matches[0m
+[0m✱ [0mGrep "kassenkompass|awv\.|TT4LBVMW|googletagmanager|gtm_"[90m in /tmp/opencode/awv_gtm.js · 60 matches[0m
+[0m
+[0m$ [0mcurl -s -o /tmp/opencode/de_login_auswahl.html -w "auswahl code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.de/login_auswahl.php"; sleep 1; curl -s -o /tmp/opencode/de_standard.js -w "standard.js code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.de/js/standard.js?v=1788684422"
+auswahl code=200 size=3873 type=text/html; charset=UTF-8
+standard.js code=200 size=67969 type=application/javascript
+[0m
+[0m→ [0mRead /tmp/opencode/de_login_auswahl.html
+[0m✱ [0mGrep "api\.kassenkompass|/ajax|fetch\(|XMLHttpRequest|\.php|kassenkompass\.[a-z]+"[90m in /tmp/opencode/de_standard.js · 100 matches[0m
+[0m
+[0m$ [0mcurl -s -D /tmp/opencode/s3.hdr -o /tmp/opencode/s3.xml -w "s3 code=%{http_code} size=%{size_download} type=%{content_type}\n" -A "Mozilla/5.0" "https://kk-s3-01.s3.eu-central-1.amazonaws.com/?list-type=2&max-keys=5"; echo "---- awv swo ----"; curl -s -D /tmp/opencode/swo.hdr -o /tmp/opencode/swo.body -w "swo OPTIONS code=%{http_code} size=%{size_download}\n" -X OPTIONS -H "Origin: https://kassenkompass.de" "https://awv.kassenkompass.de/g/collect"; sleep 1; curl -s -D /tmp/opencode/swo2.hdr -o /tmp/opencode/swo2.body -w "swo bareGET code=%{http_code} size=%{size_download}\n" -A "Mozilla/5.0" "https://awv.kassenkompass.de/g/collect?x=1"
+s3 code=403 size=243 type=application/xml
+---- awv swo ----
+swo OPTIONS code=400 size=0
+swo bareGET code=400 size=0
+[0m
+[0m→ [0mRead /tmp/opencode/s3.xml
+[0m
+[0m$ [0mfor n in bonusrechner_daten bonusrechner_fragen bonusrechner_suche bonusrechner_vergleich2 bonusrechner_wechsel2 bonusrechner_abschluss bonusrechner_alt; do r=$(curl -s -D /tmp/opencode/fhdr_$n.txt -o /tmp/opencode/fbody_$n.txt -w "%{http_code} %{size_download} %{content_type}" -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" "https://kassenkompass.de/$n.php"); loc=$(grep -i "^location:" /tmp/opencode/fhdr_$n.txt | tr -d '\r'); ck=$(grep -i "^set-cookie:" /tmp/opencode/fhdr_$n.txt | head -c 160 | tr -d '\r'); echo "$n.php => $r | $loc | ${ck:-no-cookie}"; sleep 1; done
+bonusrechner_daten.php => 200 62481 text/html; charset=UTF-8 |  | set-cookie: AWSALB=8VvOv9p3MnmiQFl2uQj6Ke94E5b9jdS8hP9h9aiQOo7BMXlICLZF05aIOX/tdJir9MtHd2LQiluoOBZ1Y0FsAH2Xc2S9Q8Jb5ZbLnZhV9PSami52d0pwWiuo4Q7s; Expires=Sun, 13
+bonusrechner_fragen.php => 200 2156416 text/html; charset=UTF-8 |  | set-cookie: AWSALB=uknzAnriBotJyyJhiDz16lk1ka/O3YjqV+4sLVpO/eFVs7vQPCVZOV8piDP0Ef/A3EsMGR0MYcJChakLzPYclSl4AoGBRzsP1zI2kCty/qa48/MFQUgeCi/Aclpu; Expires=Sun, 13
+bonusrechner_suche.php => 200 8037 text/html; charset=UTF-8 |  | set-cookie: AWSALB=IkVxPL+qN2LKDEX+9evVi0fmSYax7lHDmoj1rD1G2+vSWgc7iLYwu/oanrlZwPmE9wH1L9CRxsK4BCBnmmtsdu3n/gx2wa8uDTKlDD//XxmB1nimLuvMToIVFUZa; Expires=Sun, 13
+bonusrechner_vergleich2.php => 200 344942 text/html; charset=UTF-8 |  | set-cookie: AWSALB=35SKjvtqRunpSGkSCJyFZ/Pj53R6hL3NlLI38XOIn7HrSFZLVYLZfA0luWg+dSdtXTS8hB0SAgXoW1mPFpDskaBmnHg6p24BtD9fbDBFPTIX51ZR1YQupFiDwz01; Expires=Sun, 13
+bonusrechner_wechsel2.php => 302 0 text/html; charset=UTF-8 | location: bonusrechner.php | set-cookie: AWSALB=z/1zPYhJQaTklVw5iWwYn11gEe6cqMnwkTGW5DdoDMuFR/nmju2QCMFBMfBiOBQ+42bnQ0toXcm1Cg5wxgOflOM+z1WOG+bIjqfVKD+3O+MFiEANkDkv/CE62M2B; Expires=Sun, 13
+bonusrechner_abschluss.php => 200 62028 text/html; charset=UTF-8 |  | set-cookie: AWSALB=pLE3NVqyofIJO3mXSZ9Ci5EyN/BVga3KGtjxBE5bb5n59cArY7aATeeeSOzm/8ae/7awT+soelC2yIsfXNawg7pMEHP3/9vwRIf+VhRxnfndezjzzd4bpuXTipZ4; Expires=Sun, 13
+bonusrechner_alt.php => 404 8372 text/html; charset=UTF-8 |  | set-cookie: AWSALB=+exr7Y5otkHIudIQG2V3lfJef4y8AEjm+nG2iNWT7ZScQM+v9/VZOuk37L3t1CgiGSLMhVar0lvQfwM2zkpc0eg3FDLA7UgBdEddVxfqFi/UpTFv3K+5pdjIPXgp; Expires=Sun, 13
+[0m
+[0m$ [0mcurl -s -D /tmp/opencode/fhdr_daten2.txt -o /tmp/opencode/fbody_daten2.txt -w "daten2 code=%{http_code} size=%{size_download}\n" -A "Mozilla/5.0" "https://kassenkompass.de/bonusrechner_daten.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9"; grep -i "^set-cookie:" /tmp/opencode/fhdr_daten2.txt | tr '\r' ' '
+daten2 code=200 size=62481
+set-cookie: AWSALB=nSbIv5L8RE2A44swU3vGtlxsnIdau6yJJqKIQtXLkHJ0v1Z1uaZEtuKwqZ1qs6s0jU/IOeKjP//xQXemU3jIABZT9YUg5gTB1ZtmADRlm3PoDclLAno3q4Dqg4AQ; Expires=Sun, 13 Sep 2026 08:50:55 GMT; Path=/ 
+set-cookie: AWSALBCORS=nSbIv5L8RE2A44swU3vGtlxsnIdau6yJJqKIQtXLkHJ0v1Z1uaZEtuKwqZ1qs6s0jU/IOeKjP//xQXemU3jIABZT9YUg5gTB1ZtmADRlm3PoDclLAno3q4Dqg4AQ; Expires=Sun, 13 Sep 2026 08:50:55 GMT; Path=/; SameSite=None; Secure 
+set-cookie: PHPSESSID=05a75d394e5ad200f25c11a71d5bae74; path=/; secure; HttpOnly; SameSite=Lax 
+set-cookie: customerid=KKJ99; expires=Mon, 06 Sep 2027 08:50:55 GMT; Max-Age=31536000; path=/; secure; HttpOnly 
+set-cookie: agenturnummer=KKA9; expires=Mon, 06 Sep 2027 08:50:55 GMT; Max-Age=31536000; path=/; secure; HttpOnly 
+set-cookie: poolpartnernummer=KKP9; expires=Mon, 06 Sep 2027 08:50:55 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+[0m
+[0m✱ [0mGrep "api\.kassenkompass|fetch\(|dataLayer|transaction_id|"purchase"|\.php"[90m in /tmp/opencode/fbody_bonusrechner_fragen.txt · 100 matches[0m
+[0m✱ [0mGrep "api\.kassenkompass|fetch\(|transaction_id|dataLayer"[90m in /tmp/opencode/fbody_bonusrechner_abschluss.txt · 50 matches[0m
+STEP 1 — DELTA
+[NEW] de funnel: full step map enumerated — bonusrechner_daten/fragen(2.1MB inline tariff data)/suche/vergleich2/abschluss all 200, wechsel2 302-guarded, alt 404 on .de; `bonusrechner_daten.php` is a SECOND cookie-mirror entry (raw jid/agn/ppn → 1-yr HttpOnly customerid/agenturnummer/poolpartnernummer; lizzen ignored, no afilcode).
+[NEW] awv: client GTM container fully readable — GA4 G-RXB3GJEMRT with server_container_url=https://awv.kassenkompass.de (server-side GTM), FB pixel 360390300088445, purchase event (value 128 EUR / transaction_id macro); standard.js embeds Stape SGTM loader (endpoint id `ahcfuvbcz`); `/g/collect` live (400 on invalid).
+[NEW] de/inventory: kk-s3-01.s3.eu-central-1.amazonaws.com (public object reads; bucket listing AccessDenied); HubSpot portal 146866466 embedded on all pages; /login_auswahl.php chooser (kd/partner/kk only); sitemap nav/legal map.
+[CHANGED] net: every *.php → 302 to https://kassenkompass.de root (no path preservation); param-less bonusrechner.php sets only PHPSESSID — .net name-oracle and cookie story closed.
+[REJECTED] api: v2 router-404 oracle reflects decoded segment into RFC 9457 detail/instance but content-type application/problem+json and JSON-escaped (`<\/script>`) — no HTML/JSON injection channel.
+
+STEP 2 — PRIORITIZE
+[PRIO] kassenkompass.de, 7.8, attack_surface:funnel-cookie-mirror(2+steps,1yr,HttpOnly)-to-money-flow | b:10 | t:4 | g:9 | c:2 | f:9
+[PRIO] api.kassenkompass.de, 7.0, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | b:10 | t:6 | g:2 | c:2 | f:6
+[PRIO] awv.kassenkompass.de, 6.0, attack_surface:Stape-SGTM-open-collector+client-container-leak | b:6 | t:6 | g:6 | c:3 | f:9
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com, 5.2, attack_surface:object-store-family-enumeration | b:5 | t:3 | g:8 | c:4 | f:9
+
+STEP 3 — HYPOTHESES
+[HYP] Funnel attribution-cookie stuffing at multiple steps → lead/settlement poison
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php, /bonusrechner_daten.php, +4 more steps)
+confidence: 70
+reasoning: Raw pass-params mirrored into 1-yr HttpOnly cookies on >=2 distinct entries (re-confirmed live); 7-step funnel ends in purchase event (128 EUR/transaction_id) through SGTM; attribution cookies consumed server-side (HttpOnly); consumption on money flow unobserved.
+evidence_needed: stuffed value (jid/agn/ppn) reappears in lead/settlement data under a partner session.
+verify_steps: GET /bonusrechner_daten.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9 (1 rps, done — cookies set); HUMAN: partner-portal search of KKJ99/KKA9/KKP9 in settlement data.
+impact: lead-poisoning / cross-tenant commission claiming on money flow; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on kk_webapp-delegation stack
+class: IDOR
+asset: api (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15); {ext_id} opaque, no upstream ownership binding; cancel destructive.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; id sweep.
+impact: cross-tenant PII dump or cancel of others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+[HYP] SGTM open collector — forged purchase/pixel events accepted off-origin
+class: MISCONFIG
+asset: awv.kassenkompass.de (/g/collect)
+confidence: 45
+reasoning: Stape SGTM (id ahcfuvbcz) + client GA4 G-RXB3GJEMRT point to awv; /g/collect responds on bare/invalid (400), collector exposed by design; purchase event present client-side.
+evidence_needed: forged hit with valid tid/event actually forwarded to ad endpoint (server tags unknown, hidden).
+verify_steps: SUPERVISED only — single synthetic purchase hit with test transaction_id under admin consent, then observe GA4/Ads receipt.
+impact: analytics/conversion forgery on money-adjacent signal; LOW-MEDIUM.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] SGTM open collector: forward-path (server tags) invisible passively; live injection = interference with telemetry; by-design exposure; needs admin-supervised proof.
+[PARKED] S3 family enumeration (kk-s3-02..NN): list-blocked; only public img reads observed; low yield.
+[PARKED] HubSpot 146866466: third-party SaaS, forms/API out of core scope; inventory only.
+[FINAL] 1. Funnel multi-step cookie stuffing (70) 2. Middleware-B IDOR {user, cancel} (62) 3. v2 insurance_info BOLA via greedy routing (58).
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 (1 rps, capture Set-Cookie) — extends step-specific cookie-mirror map and checks connectionnumber/employeenumber aliases on a third entry before cred-gated HUMAN phase.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ de: bonusrechner_daten.php is a second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen (no afilcode) — step-scoped alias map, stuffing surface >=2 entries.
+[LEARN] ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+[LEARN] REJECTED MISCONFIG @ net: all *.php → 302 bare-domain root, no per-name differential; param-less GET sets no attribution cookies.
+[LEARN] REJECTED XSS @ api: v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no injection primitive.
+[LEARN] ACCEPTED OTHER @ de: AWS S3 asset kk-s3-01 (public reads, list denied) + HubSpot 146866466 — new cloud/third-party surface, no exposure.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 54/100 — funnel cookie-mirror surface widened to multiple steps (live-confirmed behavior, still no money-flow proof); SGTM/pixel/S3/HubSpot lines are passive inventory without exploit; api cred-gated and saturated passively; every money hypothesis waits on scoped credentials + partner session.

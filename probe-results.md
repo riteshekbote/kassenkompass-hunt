@@ -189,3 +189,12 @@ https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
 https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
 https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
 https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-06 08:52:05 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=EVIL&jid=VICTIM123&agn=ADV456 -> 200 len=?
+https://kassenkompass.de/vergleich.php -> HTTP 404
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://awv.kassenkompass.de -> HTTP 404
+https://kassenkompass.de -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 -> 200 len=?

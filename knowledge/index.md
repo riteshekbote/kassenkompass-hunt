@@ -127,3 +127,13 @@
 - 2026-09-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete
 - 2026-09-06 ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonusrechner-specific
 - 2026-09-06 ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .de
+- 2026-09-06 ACCEPTED MISCONFIG @ de: bonusrechner_daten.php is a second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen (no afilcode) — step-scoped alias map, stuffing surface >=2 entries.
+- 2026-09-06 ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+- 2026-09-06 REJECTED MISCONFIG @ net: all *.php → 302 bare-domain root, no per-name differential; param-less GET sets no attribution cookies.
+- 2026-09-06 REJECTED XSS @ api: v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no injection primitive.
+- 2026-09-06 ACCEPTED OTHER @ de: AWS S3 asset kk-s3-01 (public reads, list denied) + HubSpot 146866466 — new cloud/third-party surface, no exposure.
+- 2026-09-06 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: Funnel parameter-to-cookie injection confirmed live — raw params mirrored into 1-year cookies with no validation; alias map and attribute asymmetry verified
+- 2026-09-06 ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 stack confirmed; cookies host-only on .net
+- 2026-09-06 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated at single endpoint
+- 2026-09-06 REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+- 2026-09-06 ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}

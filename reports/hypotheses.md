@@ -475,3 +475,19 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete
 - LEARN: ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from active alias map; lizzen→afilcode is bonu
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params and cookies are host-only (.net≠.de registrable) — .net-attributed cookies unreadable by .d
+
+## RANKED HYPOTHESES 2026-09-06 08:51:55 UTC
+- [85] kassenkompass.de/bonusrechner.php: Funnel Parameter-to-Cookie Injection — Unvalidated Identity Fields Persisted for 1 Year (from art/lead_nemotron3.txt)
+- [70] kassenkompass.de: Funnel attribution-cookie stuffing at multiple steps → lead/settlement poison (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 (1 rps, cap
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.net/bonusrechner.php?frab=fr33 — test frab cookie setting on .net (passive, HEAD/GET, 1 rps); GET https://kassenkompass.net/bon
+- LEARN: ACCEPTED MISCONFIG @ de: bonusrechner_daten.php is a second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen (no afilcode) — step-scoped alias 
+- LEARN: ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live;
+- LEARN: REJECTED MISCONFIG @ net: all *.php → 302 bare-domain root, no per-name differential; param-less GET sets no attribution cookies.
+- LEARN: REJECTED XSS @ api: v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no injection primitive.
+- LEARN: ACCEPTED OTHER @ de: AWS S3 asset kk-s3-01 (public reads, list denied) + HubSpot 146866466 — new cloud/third-party surface, no exposure.
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: Funnel parameter-to-cookie injection confirmed live — raw params mirrored into 1-year cookies with no val
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 stack confirmed;
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated at 
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}

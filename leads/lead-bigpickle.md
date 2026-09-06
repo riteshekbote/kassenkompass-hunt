@@ -1019,3 +1019,50 @@ evidence_needed: two kk_ids → different 200 draft sets under one secret.
 verify_steps: WITH AUTH: sequential v2 ids, diff draft/reference fields.
 impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH.
 testability: AUTH_HELPED
+## 2026-09-06 08:51:46 UTC [target] (model bigpickle)
+[NEW] de funnel: full step map enumerated — bonusrechner_daten/fragen(2.1MB inline tariff data)/suche/vergleich2/abschluss all 200, wechsel2 302-guarded, alt 404 on .de; `bonusrechner_daten.php` is a SECOND cookie-mirror entry (raw jid/agn/ppn → 1-yr HttpOnly customerid/agenturnummer/poolpartnernummer; lizzen ignored, no afilcode).
+[NEW] awv: client GTM container fully readable — GA4 G-RXB3GJEMRT with server_container_url=https://awv.kassenkompass.de (server-side GTM), FB pixel 360390300088445, purchase event (value 128 EUR / transaction_id macro); standard.js embeds Stape SGTM loader (endpoint id `ahcfuvbcz`); `/g/collect` live (400 on invalid).
+[NEW] de/inventory: kk-s3-01.s3.eu-central-1.amazonaws.com (public object reads; bucket listing AccessDenied); HubSpot portal 146866466 embedded on all pages; /login_auswahl.php chooser (kd/partner/kk only); sitemap nav/legal map.
+[CHANGED] net: every *.php → 302 to https://kassenkompass.de root (no path preservation); param-less bonusrechner.php sets only PHPSESSID — .net name-oracle and cookie story closed.
+[PRIO] kassenkompass.de, 7.8, attack_surface:funnel-cookie-mirror(2+steps,1yr,HttpOnly)-to-money-flow | b:10 | t:4 | g:9 | c:2 | f:9
+[PRIO] api.kassenkompass.de, 7.0, attack_surface:middleware-B-scope(user,cancel)+greedy-v2 | b:10 | t:6 | g:2 | c:2 | f:6
+[PRIO] awv.kassenkompass.de, 6.0, attack_surface:Stape-SGTM-open-collector+client-container-leak | b:6 | t:6 | g:6 | c:3 | f:9
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com, 5.2, attack_surface:object-store-family-enumeration | b:5 | t:3 | g:8 | c:4 | f:9
+[HYP] Funnel attribution-cookie stuffing at multiple steps → lead/settlement poison
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php, /bonusrechner_daten.php, +4 more steps)
+confidence: 70
+reasoning: Raw pass-params mirrored into 1-yr HttpOnly cookies on >=2 distinct entries (re-confirmed live); 7-step funnel ends in purchase event (128 EUR/transaction_id) through SGTM; attribution cookies consumed server-side (HttpOnly); consumption on money flow unobserved.
+evidence_needed: stuffed value (jid/agn/ppn) reappears in lead/settlement data under a partner session.
+verify_steps: GET /bonusrechner_daten.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9 (1 rps, done — cookies set); HUMAN: partner-portal search of KKJ99/KKA9/KKP9 in settlement data.
+impact: lead-poisoning / cross-tenant commission claiming on money flow; MEDIUM-HIGH.
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} on kk_webapp-delegation stack
+class: IDOR
+asset: api (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15); {ext_id} opaque, no upstream ownership binding; cancel destructive.
+evidence_needed: two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test records): GET /user/1 vs /user/2, diff bodies; id sweep.
+impact: cross-tenant PII dump or cancel of others' insurer-switch; HIGH.
+testability: AUTH_HELPED
+[HYP] SGTM open collector — forged purchase/pixel events accepted off-origin
+class: MISCONFIG
+asset: awv.kassenkompass.de (/g/collect)
+confidence: 45
+reasoning: Stape SGTM (id ahcfuvbcz) + client GA4 G-RXB3GJEMRT point to awv; /g/collect responds on bare/invalid (400), collector exposed by design; purchase event present client-side.
+evidence_needed: forged hit with valid tid/event actually forwarded to ad endpoint (server tags unknown, hidden).
+verify_steps: SUPERVISED only — single synthetic purchase hit with test transaction_id under admin consent, then observe GA4/Ads receipt.
+impact: analytics/conversion forgery on money-adjacent signal; LOW-MEDIUM.
+testability: AUTH_HELPED
+[PARKED] SGTM open collector: forward-path (server tags) invisible passively; live injection = interference with telemetry; by-design exposure; needs admin-supervised proof.
+[PARKED] S3 family enumeration (kk-s3-02..NN): list-blocked; only public img reads observed; low yield.
+[PARKED] HubSpot 146866466: third-party SaaS, forms/API out of core scope; inventory only.
+[FINAL] 1. Funnel multi-step cookie stuffing (70) 2. Middleware-B IDOR {user, cancel} (62) 3. v2 insurance_info BOLA via greedy routing (58).
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 (1 rps, capture Set-Cookie) — extends step-specific cookie-mirror map and checks connectionnumber/employeenumber aliases on a third entry before cred-gated HUMAN phase.
+[LEARN] ACCEPTED MISCONFIG @ de: bonusrechner_daten.php is a second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen (no afilcode) — step-scoped alias map, stuffing surface >=2 entries.
+[LEARN] ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+[LEARN] REJECTED MISCONFIG @ net: all *.php → 302 bare-domain root, no per-name differential; param-less GET sets no attribution cookies.
+[LEARN] REJECTED XSS @ api: v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no injection primitive.
+[LEARN] ACCEPTED OTHER @ de: AWS S3 asset kk-s3-01 (public reads, list denied) + HubSpot 146866466 — new cloud/third-party surface, no exposure.
+[RISK] kassenkompass: 54/100 — funnel cookie-mirror surface widened to multiple steps (live-confirmed behavior, still no money-flow proof); SGTM/pixel/S3/HubSpot lines are passive inventory without exploit; api cred-gated and saturated passively; every money hypothesis waits on scoped credentials + partner session.
