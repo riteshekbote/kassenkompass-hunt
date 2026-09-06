@@ -241,3 +241,15 @@ www.kassenkompass.de
 - NEW Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
 - CHANGED Funnel parameter-to-cookie injection confirmed live on both .de and .net bonusrechner.php
 - CHANGED api.v2/insurance_info confirmed middleware A shared with v1 majority; greedy segment match reaches auth handler; enumeration saturated at 42 names (insurance_info sole route)
+
+## 2026-09-06 22:53:40 UTC
+- NEW `kassenkompass.de/bonusrechner_daten.php` confirmed as 2nd funnel mirror entry — step-scoped alias map (jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode) — live confirmed
+- NEW `kassenkompass.de/bonusrechner_vergleich2.php` confirmed as 3rd mirror entry — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias produces duplicate Se
+- NEW `kassenkompass.de/termin.php` + `bonusrechner_suche.php` confirmed as 4th/5th mirror entries — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate
+- NEW `kassenkompass.net` canonical IIS/10.0 backend — identical cookie injection then 302→.de; cookies host-only on .net (unreadable by .de) — live confirmed
+- NEW `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed — `/v2/insurance_info/{anything}` all reach auth handler (401); kk_id not validated at routing
+- NEW `api.kassenkompass.de/v2` router-404 oracle saturated at 42 names — only `insurance_info` registered
+- NEW Parser differential TESTED — null byte (`%00`), parameter pollution (last-wins), trailing space all handled IDENTICALLY on .de (Apache/PHP) and .net (IIS/PHP) — no differential; hypothesis REJECTED
+- CHANGED Funnel stuffing surface expanded to ≥5 entry points (bonusrechner.php, bonusrechner_daten.php, bonusrechner_vergleich2.php, termin.php, bonusrechner_suche.php) with divergent alias maps per step
+- CHANGED `bonusrechner.php` param for afilcode is `lizenz` (not `lizzen` per prior KB) — live confirmed
+- CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority

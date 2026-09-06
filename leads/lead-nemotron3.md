@@ -1473,3 +1473,67 @@ testability: PASSIVE
 [LEARN] REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
 [RISK] KassenKompass GmbH: 78 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity; v2 router exposes unreleased draft data surface; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain expands attack surface; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-06 22:52:32 UTC [target] (model nemotron3)
+[NEW] `kassenkompass.de/bonusrechner_daten.php` confirmed as 2nd funnel mirror entry — step-scoped alias map (jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode) — live confirmed
+[NEW] `kassenkompass.de/bonusrechner_vergleich2.php` confirmed as 3rd mirror entry — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins); lizenz ignored
+[NEW] `kassenkompass.de/termin.php` + `bonusrechner_suche.php` confirmed as 4th/5th mirror entries — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate
+[NEW] `kassenkompass.net` canonical IIS/10.0 backend — identical cookie injection then 302→.de; cookies host-only on .net (unreadable by .de) — live confirmed
+[NEW] `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed — `/v2/insurance_info/{anything}` all reach auth handler (401); kk_id not validated at routing
+[NEW] `api.kassenkompass.de/v2` router-404 oracle saturated at 42 names — only `insurance_info` registered
+[NEW] Parser differential TESTED — null byte (`%00`), parameter pollution (last-wins), trailing space all handled IDENTICALLY on .de (Apache/PHP) and .net (IIS/PHP) — no differential; hypothesis REJECTED
+[CHANGED] Funnel stuffing surface expanded to ≥5 entry points (bonusrechner.php, bonusrechner_daten.php, bonusrechner_vergleich2.php, termin.php, bonusrechner_suche.php) with divergent alias maps per step
+[CHANGED] `bonusrechner.php` param for afilcode is `lizenz` (not `lizzen` per prior KB) — live confirmed
+[CHANGED] Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[PRIO] kassenkompass.de/bonusrechner.php,8.5,attack_surface=9,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=6,freshness=10
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php,8.0,attack_surface=9,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=6,freshness=9
+[PRIO] kassenkompass.net/bonusrechner.php,7.5,attack_surface=8,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=10
+[PRIO] api.kassenkompass.de/v2/insurance_info/,7.0,attack_surface=6,business_value=9,tech_exposure=8,gate_ease=3,cloud_surface=7,freshness=10
+[PRIO] api.kassenkompass.de (root),6.5,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] kassenkompass.de/termin.php,6.0,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=9
+[HYP] Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner.php → bonusrechner_daten.php → bonusrechner_vergleich2.php → termin.php
+confidence: 80
+reasoning: Five distinct funnel entry points with divergent alias maps: bonusrechner.php (lizenz→afilcode no Secure/HttpOnly; jid/agn/ppn→HttpOnly), bonusrechner_daten.php (jid/agn/ppn→HttpOnly only; no lizenz/afilcode), bonusrechner_vergleich2.php (jid/agn/connectionnumber/ppn/employeenumber→HttpOnly; connectionnumber→agenturnummer dual alias duplicate; no lizenz/afilcode), termin.php (jid/agn/connectionnumber/employeenumber→HttpOnly; connectionnumber→agenturnummer duplicate), bonusrechner_suche.php (same as termin). Attacker can inject params at step 1 (bonusrechner.php) setting afilcode (no HttpOnly → JS readable) + HttpOnly cookies, victim progresses to step 2 (bonusrechner_daten.php) which ignores lizenz but accepts jid/agn/ppn, step 3 (vergleich2) accepts connectionnumber→agenturnummer duplicate creating last-wins ambiguity. No validation on any param. Business logic assumes linear funnel but params persist across steps via 1-year cookies.
+evidence_needed: Victim session with attacker-injected jid/agn/ppn at step 1 progresses through steps 2-3 with attacker-controlled attribution cookies consumed by backend settlement/lead logic
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie; GET https://kassenkompass.de/bonusrechner_daten.php (no params) → observe HttpOnly cookies persist; GET https://kassenkompass.de/bonusrechner_vergleich2.php (no params) → observe connectionnumber duplicate; GET https://kassenkompass.de/termin.php (no params) → observe same
+impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber across multi-step funnel; commission theft, lead misattribution, financial harm; HIGH
+testability: PASSIVE
+[HYP] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks
+class: AUTH
+asset: api.kassenkompass.de/user/{ext_id}, api.kassenkompass.de/cancel/{id}
+confidence: 75
+reasoning: Two distinct auth middleware stacks confirmed across 15 endpoints: Middleware A (8 data GET endpoints + v2/insurance_info) returns "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"; Middleware B (/user/{ext_id} GET, /cancel/{id} POST) returns "Ungültiger X-API-Secret" + instance echo, described as "delegiert an kk_webapp". Middleware B delegates to webapp logic suggesting potentially different authorization scoping — may perform weaker tenant/isolation checks since it bridges to webapp session context. /cancel/{id} is FG-Wechsel-Storno (insurance switch cancellation) — high-value financial action.
+evidence_needed: Valid X-API-Secret for tenant A accesses /cancel/{id_of_tenant_B} → 200/204 (not 403); or /user/{ext_id_tenant_B} returns 200 with tenant B data
+verify_steps: GET https://api.kassenkompass.de/user/{ext_id_tenant_B} with valid X-API-Secret for tenant_A (passive, expect 403); POST https://api.kassenkompass.de/cancel/{id_tenant_B} with valid X-API-Secret for tenant_A (passive, expect 403) — requires auth; cannot verify passively without valid secret
+impact: Cross-tenant insurance switch cancellation (FG-Wechsel-Storno); financial harm to victims; commission theft; HIGH
+testability: AUTH_HELPED
+[HYP] v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id
+class: MISCONFIG
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 70
+reasoning: v2 router uses greedy segment match — `/v2/insurance_info/1/extra`, `//1`, `/1/`, `%31` all reach protected handler (401); kk_id not validated at routing layer. Returns draft categories + resolved references (widest per-request data surface). If auth bypassed (via valid secret), attacker could enumerate/access insurance_info for arbitrary kk_ids including draft/unpublished records. Router does not normalize or validate kk_id format before passing to handler.
+evidence_needed: Valid X-API-Secret accesses /v2/insurance_info/{kk_id} with path traversal sequences (../, //, encoded slashes) → returns data for unintended kk_id or leaks draft categories
+verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1/extra (passive, expect 401); GET https://api.kassenkompass.de/v2/insurance_info//1 (passive, expect 401); GET https://api.kassenkompass.de/v2/insurance_info/%2e%2e%2f1 (passive, expect 401) — all return 401 confirming greedy match; requires valid secret for data access
+impact: Draft/unpublished insurance category enumeration; potential IDOR on kk_id if auth obtained; MEDIUM
+testability: AUTH_HELPED
+[PARKED] IIS/PHP Parser Differential — Canonical Backend Accepts Malformed Params: Live testing shows .de (Apache/PHP) and .net (IIS/PHP) handle null byte, parameter pollution (last-wins), and trailing space IDENTICALLY — no differential exists; hypothesis REJECTED
+[PARKED] SSRF @ api.kassenkompass.de: REJECTED class per KB — no user-supplied URLs, webhook handlers, or fetch mechanisms in catalog
+[PARKED] JWT_ALG_CONFUSION @ api.kassenkompass.de: REJECTED class per KB — custom X-API-Secret header, not JWT
+[PARKED] CORS @ api.kassenkompass.de: REJECTED class per KB — no access-control-allow-origin reflection
+[PARKED] CRED_REUSE @ api.kassenkompass.de: REJECTED class per KB — magic values not valid API secrets
+[FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 80, PASSIVE)
+[FINAL] 2. Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks (confidence 75, AUTH_HELPED)
+[FINAL] 3. v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id (confidence 70, AUTH_HELPED)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — capture Set-Cookie headers and response size (known 2.1MB inline tariff data per KB; passive, 1 rps)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_daten.php: Second funnel mirror entry confirmed — jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode; step-scoped alias map
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_vergleich2.php: Third mirror entry confirmed — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate; lizenz ignored
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/termin.php: Fourth mirror entry confirmed — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_suche.php: Fifth mirror entry confirmed — same alias map as termin.php
+[LEARN] ACCEPTED OTHER @ kassenkompass.net/bonusrechner.php: Canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: Greedy segment match confirmed — /v2/insurance_info/{anything} all reach auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: Enumeration saturated at 42 names — insurance_info sole route
+[LEARN] REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+[RISK] KassenKompass GmbH: 82 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across ≥5 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
