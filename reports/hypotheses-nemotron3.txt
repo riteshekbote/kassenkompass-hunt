@@ -1,27 +1,38 @@
-## 2026-09-06 18:32:13 UTC [target] (model nemotron3)
-[PRIO] kassenkompass.de,8.45,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=9
-[PRIO] api.kassenkompass.de,7.50,attack_surface=8 business_value=9 tech_exposure=7 gate_ease=6 cloud_surface=5 freshness=8
-[PRIO] kassenkompass.net,7.35,attack_surface=7 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=8
-[PRIO] awv.kassenkompass.de,5.75,attack_surface=5 business_value=5 tech_exposure=6 gate_ease=8 cloud_surface=4 freshness=7
+## 2026-09-06 20:53:31 UTC [target] (model nemotron3)
+[NEW] bonusrechner_daten.php confirmed as second funnel entry with step-scoped alias map (jid/agn/ppn→1yr HttpOnly cookies, ignores lizzen/no afilcode)
+[NEW] bonusrechner_vergleich2.php as third mirror entry (jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; lizzen ignored)
+[NEW] termin.php + bonusrechner_suche.php as 4th/5th mirror entries (jid/agn/connectionnumber/employeenumber)
+[NEW] connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins ambiguity)
+[NEW] awv.kassenkompass.de client container fully read: SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+[NEW] kk-s3-01.s3.eu-central-1.amazonaws.com public object reads (bucket listing AccessDenied) + HubSpot portal 146866466 embedded
+[NEW] kassenkompass.net all *.php → 302 bare-domain root (no path preservation); param-less GET sets only PHPSESSID
+[NEW] v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no XSS primitive
+[NEW] Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+[CHANGED] Funnel parameter-to-cookie injection confirmed live on both .de and .net bonusrechner.php
+[CHANGED] api.v2/insurance_info confirmed middleware A shared with v1 majority; greedy segment match reaches auth handler; enumeration saturated at 42 names (insurance_info sole route)
+[PRIO] kassenkompass.de,8.3,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=6 freshness=9
+[PRIO] kassenkompass.net,7.45,attack_surface=7 business_value=7 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=7
+[PRIO] api.kassenkompass.de,6.9,attack_surface=8 business_value=9 tech_exposure=6 gate_ease=3 cloud_surface=5 freshness=8
+[PRIO] awv.kassenkompass.de,6.0,attack_surface=5 business_value=6 tech_exposure=5 gate_ease=10 cloud_surface=4 freshness=6
 [HYP] Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence
 class: BUSLOGIC
-asset: kassenkompass.de/bonusrechner.php → bonusrechner_daten.php → bonusrechner_abschluss.php
+asset: kassenkompass.de/bonusrechner_daten.php
 confidence: 75
-reasoning: Two funnel entry points with divergent alias maps — bonusrechner.php accepts lizzen→afilcode (no Secure/HttpOnly) + jid/agn/ppn→HttpOnly; bonusrechner_daten.php accepts ONLY jid/agn/ppn→HttpOnly (ignores lizzen). HttpOnly on sensitive fields proves server-side consumption by lead/settlement logic. Attacker can inject victim identity at step 1 (bonusrechner.php?jid=VICTIM&agn=ADV123), then override at step 2 (bonrechner_daten.php?jid=ATTACKER&agn=ATTACKER_ADV) creating attribution ambiguity. Downstream /settlement_report/ API consumes these identities for partner commission calculation.
-evidence_needed: Downstream settlement/lead API reads injected HttpOnly cookies; commission reports reflect poisoned attribution
-verify_steps: GET https://kassenkompass.de/bonusrechner.php?jid=VICTIM123&agn=ADV456&ppn=PART789 (capture Set-Cookie); GET https://kassenkompass.de/bonusrechner_daten.php?jid=ATTACKER999&agn=ADV999&ppn=PART999 (capture Set-Cookie override); GET https://kassenkompass.de/bonusrechner_abschluss.php with poisoned jar (observe completion flow)
-impact: Selective HttpOnly identity injection bypassing JS access; downstream settlement/lead attribution poisoning; partner commission manipulation; MEDIUM-HIGH
+reasoning: Five distinct funnel entry points (bonusrechner.php, bonusrechner_daten.php, bonusrechner_vergleich2.php, termin.php, bonusrechner_suche.php) each accept different param subsets and set different cookie combinations. bonusrechner.php accepts lizzen→afilcode but bonusrechner_daten.php ignores lizzen. bonusrechner_vergleich2.php accepts connectionnumber→agenturnummer (dual alias with agn) producing duplicate Set-Cookie. Step-scoped alias maps mean an attacker can inject params at step N that persist via HttpOnly cookies to step N+1 where they wouldn't be accepted directly, bypassing step-level validation.
+evidence_needed: Cookie set at bonusrechner_daten.php (jid/agn/ppn→HttpOnly) persists to bonusrechner_fragen.php → bonusrechner_vergleich2.php → bonusrechner_abschluss.php and influences server-side logic (tariff calculation, lead attribution, contract generation)
+verify_steps: GET https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 (capture Set-Cookie); GET https://kassenkompass.de/bonusrechner_fragen.php (check Cookie sent); GET https://kassenkompass.de/bonusrechner_vergleich2.php (check Cookie sent); GET https://kassenkompass.de/bonusrechner_abschluss.php (check final attribution)
+impact: Attribution hijacking (commission theft), tariff manipulation, lead stuffing across funnel steps; MEDIUM-HIGH
 testability: PASSIVE
-[HYP] Auth Middleware Scope Differential — Middleware B (kk_webapp Delegation) Weaker Authorization Checks
+[HYP] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks
 class: AUTH
-asset: api.kassenkompass.de/user/{ext_id}, /cancel/{id}
+asset: api.kassenkompass.de/user/{ext_id} and /cancel/{id}
 confidence: 70
-reasoning: Two distinct 403 error messages map to two middleware stacks — Middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt") on 8 data GETs + v2/insurance_info; Middleware B ("Ungültiger X-API-Secret" + instance echo) ONLY on /user/{ext_id} and /cancel/{id} (POST, "FG-Wechsel-Storno", delegiert an kk_webapp). Middleware B endpoints are webapp-delegation actions (user lookup, cancellation) vs Middleware A data reads. Different error wording + instance echo in B suggests separate authorization logic. If B lacks cross-tenant scope enforcement, valid X-API-Secret for tenant A could cancel tenant B's insurance switch via /cancel/{id}.
-evidence_needed: Valid X-API-Secret for tenant A accesses /cancel/{id_of_tenant_B} → 200/204 (not 403)
+reasoning: Two distinct auth middleware stacks: Middleware A (8 endpoints + v2) returns "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"; Middleware B (/user/{ext_id}, /cancel/{id}) returns "Ungültiger X-API-Secret" + instance echo. Middleware B is described as "delegiert an kk_webapp" (delegates to kk_webapp). Different middleware implementations suggest potentially different authorization scoping — Middleware B may perform weaker tenant/isolation checks since it delegates to webapp logic.
+evidence_needed: Valid X-API-Secret for tenant A accesses /cancel/{id_of_tenant_B} → 200/204 (not 403); or /user/{ext_id_tenant_B} returns 200 with tenant B data
 verify_steps: GET https://api.kassenkompass.de/user/{ext_id_tenant_B} with valid X-API-Secret for tenant_A (passive, expect 403); POST https://api.kassenkompass.de/cancel/{id_tenant_B} with valid X-API-Secret for tenant_A (passive, expect 403) — requires auth; cannot verify passively without valid secret
 impact: Cross-tenant insurance switch cancellation (FG-Wechsel-Storno); financial harm to victims; commission theft; HIGH
 testability: AUTH_HELPED
-[HYP] IIS/PHP Parser Differential — Canonical Backend Accepts Malformed Params Rejected By Frontend
+[HYP] IIS/PHP Parser Differential — Canonical Backend Accepts Malformed Params
 class: OTHER
 asset: kassenkompass.net/bonusrechner.php
 confidence: 55
@@ -30,7 +41,6 @@ evidence_needed: Param value accepted by .net (sets cookie) but rejected by .de 
 verify_steps: GET https://kassenkompass.net/bonusrechner.php?jid=%00VICTIM (null byte); GET https://kassenkompass.net/bonusrechner.php?jid=VICTIM&jid=ATTACKER (pollution); GET https://kassenkompass.net/bonusrechner.php?jid=VICTIM%20 (trailing space); compare Set-Cookie vs .de behavior
 impact: Parser differential bypasses frontend validation; cookie stuffing via canonical backend; attribution hijacking; MEDIUM
 testability: PASSIVE
-[PARKED] Cross-Domain Cookie Stuffing Via Canonical Backend: .net cookies are host-only (Set-Cookie Domain=.net) and .de is different registrable domain — browser will NOT send .net cookies to .de on redirect; 302 carries no params; .de must set its own cookies. Attack chain broken at cookie scope boundary.
 [FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 75, PASSIVE)
 [FINAL] 2. Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks (confidence 70, AUTH_HELPED)
 [FINAL] 3. IIS/PHP Parser Differential — Canonical Backend Accepts Malformed Params (confidence 55, PASSIVE)

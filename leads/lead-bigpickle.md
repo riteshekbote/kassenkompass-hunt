@@ -1131,3 +1131,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins) — same ambiguity class as jid/customerid duplicate.
 [LEARN] REJECTED XSS @ kassenkompass.de: 0 HTML reflections of KKJ99/KKA9/KKC99/KKP9/KKE99/KKL99 on vergleich2 + termin — pure cookie mirror, no stored/reflected XSS.
 [RISK] kassenkompass: 61/100 — funnel cookie-stuffing surface widened to ≥5 live entries with dual-alias/duplicate-cookie ambiguity (VALID finding breadth, still no money-flow proof); api IDOR/BOLA hypotheses saturated at AUTH_HELPED, cred-gated; SGTM/S3/HubSpot passive inventory only; every money hypothesis waits on scoped credentials + partner-portal session.
+## 2026-09-06 20:51:45 UTC [target] (model bigpickle)
+[HYP] Funnel attribution-cookie stuffing → server-side lead/settlement rewrite at POST/lead-write, GET-path unobservable
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php, /bonusrechner_daten.php, /bonusrechner_vergleich2.php, /termin.php, /bonusrechner_suche.php)
+confidence: 56
+reasoning: Unvalidated query-param→1-year-cookie mirror confirmed live on ≥5 entries (VALID #14, alias map jid|customerid→customerid, agn|connectionnumber→agenturnummer dual-alias duplicate Set-Cookie, ppn→poolpartnernummer, employeenumber; afilcode via lizzen bonusrechner-only; HttpOnly ⇒ intended server-side consumption). NEW: GET differentials on bonusrechner.php + bonusrechner_daten.php show byte-identical bodies for baseline vs stuffed vs value-control (only `standard.js?v=` cache-buster drifts) → server does NOT branch HTML/tariff output on these cookies at GET; consumption must occur on the mutating POST/lead-write path or partner-portal settlement ingest (unobservable passively).
+evidence_needed: Stuffed cookie values reappear in partner-portal lead/settlement records under a different session (same as prior); OR a POST/lead-write endpoint reflects attribution values into a server response (mutating — HUMAN gate).
+verify_steps: HUMAN: partner-portal settlement search for KKJ99/KKA9/KKC99/KKP9/KKE99. PASSIVE (done, closed): GET differentials on bonusrechner.php + bonusrechner_daten.php → no branch.
+impact: cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); {ext_id} opaque with no upstream ownership binding observable from catalog; cancel is destructive (FG-Wechsel-Storno, delegates to kk_webapp); single B-scoped secret gates both.
+evidence_needed: Two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test creds): GET /user/1 vs /user/2, diff bodies; sequential ext_id sweep.
+impact: cross-tenant PII dump / cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA via greedy routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (42-name saturation); greedy segment match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest per-request data surface on API); shares middleware A.
+evidence_needed: Two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 kk_ids, diff draft/reference fields.
+impact: cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED

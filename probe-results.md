@@ -223,3 +223,11 @@ https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
 https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
 https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
 https://kassenkompass.de/bonusrechner.php -> 200 len=?
+
+## 2026-09-06 20:53:51 UTC
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401

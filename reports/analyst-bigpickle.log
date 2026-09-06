@@ -7651,3 +7651,127 @@ testability: AUTH_HELPED
 
 **STEP 7 — RISK**
 [RISK] kassenkompass: 61/100 — funnel cookie-stuffing surface widened to ≥5 live entries with dual-alias/duplicate-cookie ambiguity (VALID finding breadth, still no money-flow proof); api IDOR/BOLA hypotheses saturated at AUTH_HELPED, cred-gated; SGTM/S3/HubSpot passive inventory only; every money hypothesis waits on scoped credentials + partner-portal session.
+===== ANALYST bigpickle 2026-09-06 20:53:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mUA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"; curl -sS -A "$UA" -D hA.txt -o bA.html -w "A %{http_code}\n" "https://kassenkompass.de/bonusrechner.php"; sleep 1.2; SESSION=$(grep -io 'PHPSESSID=[^;]*' hA.txt | head -1 | tr -d '\r'); echo "SESSION=$SESSION"; curl -sS -A "$UA" -D hB.txt -o bB.html -w "B %{http_code}\n" -H "Cookie: $SESSION; customerid=KKJ99; agenturnummer=KKC99; poolpartnernummer=KKP9; employeenumber=KKE99" "https://kassenkompass.de/bonusrechner.php"; sleep 1.2; curl -sS -A "$UA" -D hC.txt -o bC.html -w "C %{http_code}\n" -H "Cookie: $SESSION; customerid=QQ77; agenturnummer=QQ88; poolpartnernummer=QQ99; employeenumber=QQ00" "https://kassenkompass.de/bonusrechner.php"; sleep 1.2; wc -c bA.html bB.html bC.html; echo "--- diff A vs B (lines) ---"; diff bA.html bB.html | wc -l; echo "--- diff B vs C (lines) ---"; diff bB.html bC.html | wc -l; echo "--- diff A vs B head ---"; diff bA.html bB.html | head -40; echo "--- Set-Cookie A ---"; grep -i 'set-cookie' hA.txt; echo "--- Set-Cookie B ---"; grep -i 'set-cookie' hB.txt; echo "--- Set-Cookie C ---"; grep -i 'set-cookie' hC.txt; echo "--- token hits per body ---"; for f in bA.html bB.html bC.html; do echo "$f: KKJ= $(grep -c 'KKJ99' $f) KKA= $(grep -c 'KKA9' $f) KKC= $(grep -c 'KKC99' $f) KKP= $(grep -c 'KKP9' $f) KKE= $(grep -c 'KKE99' $f)"; done
+A 200
+SESSION=PHPSESSID=386e4537ba632282565a628347d1daf1
+B 200
+C 200
+ 42858 bA.html
+ 42858 bB.html
+ 42858 bC.html
+128574 total
+--- diff A vs B (lines) ---
+4
+--- diff B vs C (lines) ---
+4
+--- diff A vs B head ---
+21c21
+< <script src="/js/standard.js?v=1788727805"></script>
+---
+> <script src="/js/standard.js?v=1788727806"></script>
+--- Set-Cookie A ---
+set-cookie: AWSALB=T7XRNp0tGi43jQXg8AYqNjSJ7dEMbg4k2Nb+FkISeeMnCoxBxdb/uQ5pH+XnPR985yv+8uGOOvVU/HwEIznZ3GI2P8xz53TqMhMgemPLq1NqwdPCJl46lkFRU9A2; Expires=Sun, 13 Sep 2026 20:50:05 GMT; Path=/
+set-cookie: AWSALBCORS=T7XRNp0tGi43jQXg8AYqNjSJ7dEMbg4k2Nb+FkISeeMnCoxBxdb/uQ5pH+XnPR985yv+8uGOOvVU/HwEIznZ3GI2P8xz53TqMhMgemPLq1NqwdPCJl46lkFRU9A2; Expires=Sun, 13 Sep 2026 20:50:05 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=386e4537ba632282565a628347d1daf1; path=/; secure; HttpOnly; SameSite=Lax
+--- Set-Cookie B ---
+set-cookie: AWSALB=O7v1GfPLIg+sSglBdWEkQNolkjLOYPFEHSgvJvLmv0Dlo2UCOH92lzRuYP8fuBVv1YTnS0XVzdkvVPFXOvSZhrj8Kn568pQELLcUO4KIs12djpUqbSi9NIu42UZ6; Expires=Sun, 13 Sep 2026 20:50:06 GMT; Path=/
+set-cookie: AWSALBCORS=O7v1GfPLIg+sSglBdWEkQNolkjLOYPFEHSgvJvLmv0Dlo2UCOH92lzRuYP8fuBVv1YTnS0XVzdkvVPFXOvSZhrj8Kn568pQELLcUO4KIs12djpUqbSi9NIu42UZ6; Expires=Sun, 13 Sep 2026 20:50:06 GMT; Path=/; SameSite=None; Secure
+--- Set-Cookie C ---
+set-cookie: AWSALB=qwKRFKPlABaTu5ib/yKLFh0prlnWw+q0PjqDfaWz9yu8R5yGSV7K9CcLPwbYLTZts0ZUFOyssXj0iPCayXziyNj1ZKQe4Nskd7yxz24kF2AUN8Px5eIAqHTM1qEv; Expires=Sun, 13 Sep 2026 20:50:08 GMT; Path=/
+set-cookie: AWSALBCORS=qwKRFKPlABaTu5ib/yKLFh0prlnWw+q0PjqDfaWz9yu8R5yGSV7K9CcLPwbYLTZts0ZUFOyssXj0iPCayXziyNj1ZKQe4Nskd7yxz24kF2AUN8Px5eIAqHTM1qEv; Expires=Sun, 13 Sep 2026 20:50:08 GMT; Path=/; SameSite=None; Secure
+--- token hits per body ---
+bA.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+bB.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+bC.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+[0m
+Differential closed: no behavioral branch on bonusrechner.php GET (only `standard.js?v=` per-second cache-buster noise, 0 token reflections, no re-emission). Now testing the inline-data bridge `bonusrechner_daten.php` (tariff data, 2.1MB) — the most likely place for server-side consumption of attribution cookies.
+[0m$ [0mUA="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"; curl -sS -A "$UA" -D hD.txt -o bD.html -w "D %{http_code}\n" "https://kassenkompass.de/bonusrechner_daten.php"; sleep 1.2; SESSION=$(grep -io 'PHPSESSID=[^;]*' hD.txt | head -1 | tr -d '\r'); echo "SESSION=$SESSION"; curl -sS -A "$UA" -D hE.txt -o bE.html -w "E %{http_code}\n" -H "Cookie: $SESSION; customerid=KKJ99; agenturnummer=KKC99; poolpartnernummer=KKP9; employeenumber=KKE99" "https://kassenkompass.de/bonusrechner_daten.php"; sleep 1.2; curl -sS -A "$UA" -D hF.txt -o bF.html -w "F %{http_code}\n" -H "Cookie: $SESSION; customerid=QQ77; agenturnummer=QQ88; poolpartnernummer=QQ99; employeenumber=QQ00" "https://kassenkompass.de/bonusrechner_daten.php"; sleep 1.2; wc -c bD.html bE.html bF.html; echo "--- diff D vs E (lines) ---"; diff bD.html bE.html | wc -l; echo "--- diff E vs F (lines) ---"; diff bE.html bF.html | wc -l; echo "--- diff D vs E head ---"; diff bD.html bE.html | head -30; echo "--- token hits ---"; for f in bD.html bE.html bF.html; do echo "$f: KKJ= $(grep -c 'KKJ99' $f) KKA= $(grep -c 'KKA9' $f) KKC= $(grep -c 'KKC99' $f) KKP= $(grep -c 'KKP9' $f) KKE= $(grep -c 'KKE99' $f)"; done; echo "--- Set-Cookie E ---"; grep -i 'set-cookie' hE.txt; echo "--- Set-Cookie F ---"; grep -i 'set-cookie' hF.txt
+D 200
+SESSION=PHPSESSID=f91c42290904520f7d4624eec0099e73
+E 200
+F 200
+ 62481 bD.html
+ 62481 bE.html
+ 62481 bF.html
+187443 total
+--- diff D vs E (lines) ---
+4
+--- diff E vs F (lines) ---
+4
+--- diff D vs E head ---
+21c21
+< <script src="/js/standard.js?v=1788727826"></script>
+---
+> <script src="/js/standard.js?v=1788727828"></script>
+--- token hits ---
+bD.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+bE.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+bF.html: KKJ= 0 KKA= 0 KKC= 0 KKP= 0 KKE= 0
+--- Set-Cookie E ---
+set-cookie: AWSALB=F59jIGEwcm9bD0RY4U8r6hBj7T6P7C6YEAPpjXGftIF9ew1UIgQXs6v1HB7RXh97dBCqXXB/Wnllb6xqrGV2qCG0OxGSEQhlgBHYpL9HM3PxAl2zQ7V5C7KvltUg; Expires=Sun, 13 Sep 2026 20:50:28 GMT; Path=/
+set-cookie: AWSALBCORS=F59jIGEwcm9bD0RY4U8r6hBj7T6P7C6YEAPpjXGftIF9ew1UIgQXs6v1HB7RXh97dBCqXXB/Wnllb6xqrGV2qCG0OxGSEQhlgBHYpL9HM3PxAl2zQ7V5C7KvltUg; Expires=Sun, 13 Sep 2026 20:50:28 GMT; Path=/; SameSite=None; Secure
+--- Set-Cookie F ---
+set-cookie: AWSALB=h1Wpc+AMZjtvBcPLbyvpYscPGK+e1MIXh7VuP4/WBIyzDjkMLjPom7r/MeI1uZ06pdEDmTx+Go9Ilne2Z41fFS3mxVSAGJoeSr9nFPkYoA/iszUqhYb43XDnAdbg; Expires=Sun, 13 Sep 2026 20:50:29 GMT; Path=/
+set-cookie: AWSALBCORS=h1Wpc+AMZjtvBcPLbyvpYscPGK+e1MIXh7VuP4/WBIyzDjkMLjPom7r/MeI1uZ06pdEDmTx+Go9Ilne2Z41fFS3mxVSAGJoeSr9nFPkYoA/iszUqhYb43XDnAdbg; Expires=Sun, 13 Sep 2026 20:50:29 GMT; Path=/; SameSite=None; Secure
+[0m
+STEP 1 — DELTA
+- [NEW] kassenkompass.de/bonusrechner.php GET differential (2026-09-06): presenting stuffed attribution cookies (`customerid=KKJ99; agenturnummer=KKC99; poolpartnernummer=KKP9; employeenumber=KKE99`) vs baseline vs different-value control → byte-identical 42858B bodies across all three (same PHPSESSID); sole diff = per-second `standard.js?v=` cache-buster; 0 token reflections; attribution cookies NOT re-emitted when passed as cookies.
+- [NEW] kassenkompass.de/bonusrechner_daten.php GET differential: identical result → byte-identical 62481B inline-tariff payload across baseline/control/stuffed; diff = cache-buster only; 0 token reflections → tariff data does not branch on attribution cookies at GET.
+- [CHANGED] Funnel server-side-consumption observability: two largest funnel entries show NO behavioral branch on GET when attribution cookies are attacker-controlled — money-flow proof now rests solely on POST/lead-write path + partner-portal records.
+
+STEP 2 — PRIORITIZE
+- [PRIO] funnel cookie-stuffing (de, ≥5 entries), 5.4, gate_ease(8; unauthenticated cookie write on 5+ entries)+business_value(6; commission money-flow)
+- [PRIO] api /v2/insurance_info/{kk_id} BOLA, 4.75, freshness+tech_exposure(greedy-route versioned handler, widest data surface)
+- [PRIO] api middleware-B IDOR /user/{ext_id} + /cancel/{id}, 4.6, business_value(7; PII + destructive cancel)
+- [PRIO] kassenkompass.net IIS/PHP funnel mirror, 4.1, gate_ease(8) but host-only cookies decoupled from .de
+- [PRIO] awv SGTM container, 3.2, passive inventory, no exploit path
+
+STEP 3 — HYPOTHESES
+[HYP] Funnel attribution-cookie stuffing → server-side lead/settlement rewrite at POST/lead-write, GET-path unobservable
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php, /bonusrechner_daten.php, /bonusrechner_vergleich2.php, /termin.php, /bonusrechner_suche.php)
+confidence: 56
+reasoning: Unvalidated query-param→1-year-cookie mirror confirmed live on ≥5 entries (VALID #14, alias map jid|customerid→customerid, agn|connectionnumber→agenturnummer dual-alias duplicate Set-Cookie, ppn→poolpartnernummer, employeenumber; afilcode via lizzen bonusrechner-only; HttpOnly ⇒ intended server-side consumption). NEW: GET differentials on bonusrechner.php + bonusrechner_daten.php show byte-identical bodies for baseline vs stuffed vs value-control (only `standard.js?v=` cache-buster drifts) → server does NOT branch HTML/tariff output on these cookies at GET; consumption must occur on the mutating POST/lead-write path or partner-portal settlement ingest (unobservable passively).
+evidence_needed: Stuffed cookie values reappear in partner-portal lead/settlement records under a different session (same as prior); OR a POST/lead-write endpoint reflects attribution values into a server response (mutating — HUMAN gate).
+verify_steps: HUMAN: partner-portal settlement search for KKJ99/KKA9/KKC99/KKP9/KKE99. PASSIVE (done, closed): GET differentials on bonusrechner.php + bonusrechner_daten.php → no branch.
+impact: cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); {ext_id} opaque with no upstream ownership binding observable from catalog; cancel is destructive (FG-Wechsel-Storno, delegates to kk_webapp); single B-scoped secret gates both.
+evidence_needed: Two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (HUMAN test creds): GET /user/1 vs /user/2, diff bodies; sequential ext_id sweep.
+impact: cross-tenant PII dump / cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA via greedy routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (42-name saturation); greedy segment match reaches protected handler pre-kk_id-parse; returns draft categories + resolved refs (widest per-request data surface on API); shares middleware A.
+evidence_needed: Two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 kk_ids, diff draft/reference fields.
+impact: cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Funnel money-flow proof: passive GET side-channels closed this session (two largest entries byte-identical under stuffed vs control cookies) — remaining proof needs partner-portal session or mutating POST; blocked on HUMAN as before.
+- [PARKED] api IDOR/BOLA (both): no passive path to a scoped X-API-Secret (sole channel, source-merge closed, CRED_REUSE closed) — saturate at AUTH_HELPED.
+- [PARKED] awv/SGTM + S3 + HubSpot: passive inventory without exploit primitive.
+- [FINAL] funnel cookie-stuffing BUSLOGIC (VALID #14, breadth confirmed ≥5 entries, money-flow proof pending HUMAN); api middleware-B IDOR and v2 BOLA valid hypotheses awaiting credentials.
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: partner-portal session — search settlement/lead records for KKJ99/KKA9/KKC99/KKP9/KKE99 (stuffed-token reappearance under a foreign session = money-flow proof for VALID #14). Fallback if a scoped partner API secret is available: WITH AUTH GET /user/{n} sequential sweep + /v2/insurance_info/{kk_id} draft diff.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner.php: GET with stuffed attribution cookies vs baseline vs value-control → byte-identical 42858B (shared PHPSESSID), diff only per-second `standard.js?v=` cache-buster, 0 token reflections, no cookie re-emission → no server-side HTML branch on attribution values at GET.
+- [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_daten.php: identical differential → byte-identical 62481B inline-tariff payload across baseline/control/stuffed, diff only cache-buster, 0 token reflections → tariff data does not branch on attribution cookies at GET; consumption confined to POST/lead-write path.
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: both funnel GET responses embed per-second `standard.js?v=<epoch-seconds>` cache-buster (defeats client-side caching; drifts 1/s across requests) — runtime-generated, informational only.
+
+STEP 7 — RISK
+- [RISK] kassenkompass: 58/100 — VALID #14 (unvalidated param→1-year-cookie stuffing, ≥5 funnel entries) stands, but two passive side-channels for proving its money-flow chain closed this session (bonusrechner.php + bonusrechner_daten.php byte-identical under stuffed vs control cookies); all live hypotheses gate on either scoped X-API-Secret or partner-portal access (AUTH_HELPED/HUMAN); passive surface exhausted (15 v1 + 42 v2 api, 5 funnel entries, SGTM/S3/HubSpot inventory, both hosts) — next unlock requires credentials, not breadth.

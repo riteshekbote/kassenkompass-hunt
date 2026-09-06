@@ -634,3 +634,49 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated
 - LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
 - LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+
+## RANKED HYPOTHESES 2026-09-06 20:53:42 UTC
+- [75] kassenkompass.de/bonusrechner_daten.php: Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (from art/lead_nemotron3.txt)
+- [56] kassenkompass.de: Funnel attribution-cookie stuffing → server-side lead/settlement rewrite at POST/lead-write, GET-path unobservable (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 — capture Set-Cookie headers for HttpOnly customerid/agenturnumm
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Root endpoint discloses full API catalog (15 endpoints) without auth — violates principle of least privilege, enables
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error in body instead of 401 — behavioral misconfiguration could bypass automated s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints) vs "Ungültiger X-API-Secret" (only /
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /cat_detail/ catalog says GET but requires POST — catalog inaccuracy
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /settlement_report/ returns proper 401/403 RFC 9457 format — consistent, no misconfiguration
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: `/v2/` distinct versioned router (v2.0 "breite Variante") with `GET /v2/insurance_info/{kk_id}` returning draft categ
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 unknown paths return structured router-404 oracle (`API-Endpunkt 'v2/X' nicht gefunden`) vs v1's full-catalog catc
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: v2 router greedy-segment match — `/v2/insurance_info/{anything}` all reach protected handler (401); kk_id not validated a
+- LEARN: REJECTED SSRF @ api.kassenkompass.de: No user-supplied URLs/webhook/fetch in catalog; no metadata path
+- LEARN: REJECTED JWT_ALG_CONFUSION @ api.kassenkompass.de: Custom X-API-Secret header, not JWT
+- LEARN: REJECTED CORS @ api.kassenkompass.de: No access-control-allow-origin reflection for arbitrary origins
+- LEARN: REJECTED CRED_REUSE @ api.kassenkompass.de: Password-reset magic `KKX3382745` not a valid API secret
+- LEARN: REJECTED MISCONFIG @ www.kassenkompass.de: Mirror header drift — www and apex identical security headers; AWS ALB backend confirmed
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Funnel mirrors raw pass-params into 1-year cookies with no validation — alias map jid|customerid→customerid, agn|connectionnu
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: New dedicated hosts awv.kassenkompass.de (SGTM proxy) + load.awv.kassenkompass.de (Cloudflare-challenged) — JS-discovered
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 sweep — insurance_info only registered v2 route (42 names → router-404); single-endpoint surface
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map corrected — v1 majority and v2 share middleware A; only /user/{ext_id} middleware B; /sync/ legacy HTTP-200;
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: No alternate auth channel — Authorization Bearer, X-API-Key, X-Api-Token, api_key query all 401 "erforderlich"; X-API-Secr
+- LEARN: REJECTED CRED_REUSE @ api.kassenkompass.de: Magic KKX3382745 + X8372 rejected (403) on all three auth paths — closed completely
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: GTM proxy debug/preview endpoints return 404 — no standard GTM debug surface; root returns 404
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: Canonical IIS/10.0 + PHP 8.4.3 backend; sets identical unvalidated attribution cookies then 302→.de; new inventory host
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Attribution cookie attributes asymmetric — `afilcode` lacking Secure/HttpOnly; `customerid`/`agenturnummer`/`poolpartnernumme
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Duplicate `customerid` Set-Cookie when both `jid` and `customerid` passed (jid alias then direct; last-wins ambiguity)
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: Pass-params NOT reflected into HTML (0 hits for probe tokens) — cookie mirror only, no XSS via these params
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de: `frab` param did NOT set cookie on bonusrechner — dropped from active alias map; lizzen→afilcode is bonusrechner-specific
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: v2 enumeration saturated at 42 names — insurance_info sole route
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both missing-header 401 on A/B/v2 — header strictly sole channel
+- LEARN: REJECTED OTHER @ kassenkompass.net: CRLF header/cookie injection impossible — Set-Cookie values URL-encoded or suppressed
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; 15/15 map complete
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: frab sets NO cookie on termin.php OR bonusrechner.php (two sessions) — dropped from alias map
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: funnel 302→.de carries no params + host-only cookies ⇒ .net cookies unreadable by .de
+- LEARN: ACCEPTED MISCONFIG @ de: bonusrechner_daten.php second cookie-mirror entry (jid/agn/ppn→1yr HttpOnly) but ignores lizzen — step-scoped alias map, stuffing surfa
+- LEARN: ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape)/GA4/FB/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+- LEARN: REJECTED MISCONFIG @ net: all *.php → 302 bare-domain root, no per-name differential; param-less GET sets no attribution cookies
+- LEARN: REJECTED XSS @ api: v2 404 oracle decodes+mirrors path but JSON content-type + escaped — no injection primitive
+- LEARN: ACCEPTED OTHER @ de: AWS S3 asset kk-s3-01 (public reads, list denied) + HubSpot 146866466 — new cloud/third-party surface, no exposure
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: Funnel parameter-to-cookie injection confirmed live — raw params mirrored into 1-year cookies with no val
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 confirmed; cooki
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
