@@ -1368,3 +1368,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: open self-registration (email/password/confirm, create_account=1, no CAPTCHA, self-submit POST) provides a non-partner verification surface for cookie-stuffing.
 [LEARN] REJECTED OTHER @ kassenkompass.de: no X-API-Secret/Bearer/api_key strings in public bonusrechner frontend — JS-delivered-secret inference unsupported on this surface.
 [RISK] kassenkompass: 67/100 — API passive surface saturated (15/15 auth map, 42-name v2, one cred-gated PII-grade hypothesis); funnel stuffing confirmed 7/7 with open self-registration now offering an attacker-self-service verification path (real money-flow exposure, human-gated to prove); v2 BOLA value reduced by public data parity; remaining tests wait on scoped X-API-Secret or an authorized deletion-safe POST at the abschluss registration form.
+## 2026-09-07 23:45:54 UTC [target] (model bigpickle)
