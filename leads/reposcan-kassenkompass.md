@@ -83,3 +83,12 @@ verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → retur
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-07 19:23:55 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-07 22:17:11 UTC
+[HYP] No public source code available for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: KassenKompass-GmbH has 0 public repos on GitHub; no candidate org repos exist to clone and grep for secrets/credentials.
+impact: N/A — no source-code secret surface to report
+verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → []
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
