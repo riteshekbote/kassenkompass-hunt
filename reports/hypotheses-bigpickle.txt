@@ -1,1 +1,47 @@
-## 2026-09-07 12:15:21 UTC [target] (model bigpickle)
+## 2026-09-07 17:49:05 UTC [target] (model bigpickle)
+[PRIO] api.kassenkompass.de,9.0,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=10
+[PRIO] kassenkompass.de,7.7,attack_surface=7,business_value=9,tech_exposure=4,gate_ease=10,cloud_surface=5,freshness=9
+[PRIO] kassenkompass.net,5.2,attack_surface=5,business_value=3,tech_exposure=3,gate_ease=10,cloud_surface=2,freshness=6
+[HYP] Funnel cookie-stuffing → server-side lead/commission poisoning at partner portal ingest
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner*.php, /termin.php, 7 entries)
+confidence: 72
+reasoning: 7 funnel entries mirror raw pass-params into 1-year HttpOnly cookies unvalidated (alias map jid|customerid, agn|connectionnumber, ppn, employeenumber; lizenz→afilcode bonusrechner-only); HttpOnly ⇒ server-side consumption; GET branch closed 7/7 byte-identical — consumption strictly POST/portal-path; stuffing surface capped at 7 confirmed entries + fragen/abschluss; bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 (closed 2026-09-07)
+evidence_needed: Stuffed tokens KKJ99/KKA9/KKC99/KKP9/KKE99 reappear in partner-portal lead/settlement records under a different session
+verify_steps: HUMAN: In partner portal (KassenKompass partner login), search settlement/lead records for stuffed tokens set via kassenkompass.de/bonusrechner.php under a throwaway session — discriminates cross-tenant commission poisoning
+impact: Cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: HUMAN_ONLY
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant access
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); ext_id opaque with no ownership binding visible in catalog; cancel is destructive (FG-Wechsel-Storno → kk_webapp); single B-scoped secret gates both; greedy match confirmed on B (empty segment routes to 401); RFC 9457 instance = path only, no leak
+evidence_needed: Two distinct ext_ids → different 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH (test creds): GET /user/1 vs /user/2 diff; sequential id sweep; POST /cancel/{id} ONLY after GET IDOR proven
+impact: Cross-tenant PII dump + cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA via greedy routing — cross-tenant draft comparison read
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (42-name saturation); greedy segment match reaches handler pre-kk_id-parse; returns draft categories + resolved refs = widest data surface; shares middleware A; kk_ids enumerable from bonusrechner_fragen.php public references; enumeration saturated at single endpoint
+evidence_needed: Two kk_ids → different 200 draft sets under one secret
+verify_steps: WITH AUTH: sequential v2 kk_ids (derived from fragen blob), diff draft/reference fields
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — capture Set-Cookie headers, response size (2.1MB known), and body differential vs base; test whether fragen step mirrors different alias set than other entries (priority from ranked hypotheses, rank 85, nemotron3 lead); read-only, no auth, ≤1 rps
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Root (/ , 15 v1, ver 1.0) + /v2/ (sole insurance_info, ver 2.0) catalogs stable — no endpoint drift; re-confirmed live.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — implies JS-delivered secret, chain-limited.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no leak.
+[LEARN] REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_daten.php: Second funnel mirror entry confirmed — jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode; step-scoped alias map.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_vergleich2.php: Third mirror entry confirmed — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate; lizenz ignored.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/termin.php: Fourth mirror entry confirmed — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_suche.php: Fifth mirror entry confirmed — same alias map as termin.php.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net/bonusrechner.php: Canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: Greedy segment match confirmed — /v2/insurance_info/{anything} all reach auth handler (401); kk_id not validated at routing.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: Enumeration saturated at 42 names — insurance_info sole route.
+[LEARN] REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}.
+[RISK] kassenkompass: 65/100 — API passive surface fully saturated with stable catalogs and two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable); funnel stuffing breadth reconfirmed with GET branch and variant oracle both closed; highest-confidence money hypothesis remains HUMAN-gated at the partner portal; no new passive vuln class this session; every money-flow test now waits on either portal session (human) or scoped X-API-Secret (auth-helped).

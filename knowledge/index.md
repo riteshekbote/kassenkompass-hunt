@@ -236,3 +236,5 @@
 - 2026-09-07 REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
 - 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - 2026-09-07 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelligence leak
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php confirmed as 6th funnel step — 200 response, POST form for account creation, full superset alias map (lizenz/jid/agn/connectionnumber/ppn/employeenumber)
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins ambiguity) — same class as jid/customerid duplicate

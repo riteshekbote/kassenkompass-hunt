@@ -290,3 +290,10 @@ www.kassenkompass.de
 - NEW Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - CHANGED bonusrechner_fragen.php probe executed and confirmed — 2.1MB inline tariff data response, new funnel step with large data surface
 - CHANGED v2 greedy segment match hypothesis demoted to PARKED (confidence 55) — Cloudflare/WAF normalizes path traversal sequences (%2e%2e%2f → 404) before router; only raw greedy segments (//, /extra, %31) re
+
+## 2026-09-07 18:00:41 UTC
+- NEW bonusrechner_abschluss.php confirmed as 6th funnel mirror entry — accepts lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn/connectionnumber→agenturnummer (dual alias), ppn→poolpartnernummer, 
+- NEW bonusrechner_abschluss.php alias map is superset of prior steps — combines bonusrechner.php (lizenz/jid/agn/ppn) + vergleich2/termin/suche (connectionnumber/employeenumber); connectionnumber→agenturnu
+- CHANGED Funnel stuffing surface now **7 entry points** (bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, term
+- CHANGED v2 greedy segment match hypothesis remains PARKED (confidence 55) — Cloudflare/WAF normalizes path traversal (%2e%2e%2f→404) before router; only raw greedy segments (//, /extra, %31) reach handler
+- CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
