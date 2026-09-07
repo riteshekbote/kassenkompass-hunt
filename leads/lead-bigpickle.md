@@ -1200,3 +1200,41 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ kassenkompass.de: subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory.
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: /health/ unchanged single unprotected endpoint (200 {status:ok}, cloudflare fronting confirmed on api this env, PHP 8.4.3 x-powered-by) — no env/version leak growth.
 [RISK] kassenkompass: 60/100 — funnel BUSLOGIC breadth now 7/7 entries with GET-path fully closed (strengthened, proof still HUMAN-gated at partner portal); api IDOR/BOLA cred-gated with BOLA ids now pre-enumerable via public fragen blob; no new passive vuln class; every money hypothesis waits on scoped credentials + portal session.
+## 2026-09-07 00:53:11 UTC [target] (model bigpickle)
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); ext_id opaque with no ownership binding in catalog; cancel is destructive (FG-Wechsel-Storno → kk_webapp); single B-scoped secret gates both; greedy match confirmed on B (empty segment routes to 401); RFC 9457 instance = path only.
+evidence_needed: Two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (test creds): GET /user/1 vs /user/2 diff; sequential ext_id sweep; POST /cancel/{id} ONLY after GET IDOR proven.
+impact: cross-tenant PII dump / cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA via greedy routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (root re-confirms authoritative list, version 2.0); greedy segment match reaches handler pre-parse; draft categories + resolved refs = widest data surface; shares middleware A; kk_ids pre-enumerable from bonusrechner_fragen.php references.
+evidence_needed: Two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 kk_ids (ids derived from fragen blob), diff draft/reference fields.
+impact: cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED
+[HYP] Funnel cookie-stuffing → server-side consumption at settlement/lead ingest
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner*.php, /termin.php)
+confidence: 72
+reasoning: ≥7 entries mirror raw pass-params into 1-year HttpOnly cookies unvalidated (alias map jid|customerid, agn|connectionnumber, ppn, employeenumber; lizenz→afilcode bonusrechner-only); HttpOnly ⇒ server-side ingest; GET branch closed 7/7 byte-identical — consumption strictly POST/portal-path; .de variant oracle now closed (no new entries).
+evidence_needed: Stuffed tokens reappear in partner-portal lead/settlement records under a different session.
+verify_steps: HUMAN portal search for KKJ99/KKA9/KKC99/KKP9/KKE99 after stuffing under throwaway session.
+impact: cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: HUMAN_ONLY
+[PARKED] api CORS allow-headers observation → guess of JS-resident X-API-Secret: no origin reflection, no XSS primitive anywhere (v2 404 oracle XSS rejected) — non-chainable prerequisite, dropped.
+[PARKED] middleware-B instance echo as leak: RFC 9457 path only, descriptive-error class, dropped.
+[PARKED] /user/ empty-segment greedy: confirms B routing but yields nothing without auth.
+[FINAL] 1) Funnel cookie-stuffing→settlement ingest (BUSLOGIC, 72, HUMAN) 2) Middleware-B IDOR (62, AUTH_HELPED) 3) v2 BOLA (58, AUTH_HELPED)
+[NEXT] HUMAN: Obtain a scoped partner/kk_webapp scope X-API-Secret test credential — then run sequential GET /user/{n} diff sweep (middleware B IDOR, target api); passive api surface otherwise saturated (catalogs stable, greedy confirmed both stacks, CORS/no-drift rechecked this session).
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Root (/ , 15 v1, ver 1.0) + /v2/ (sole insurance_info, ver 2.0) catalogs stable — no endpoint drift; re-confirmed live.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — implies JS-delivered secret, chain-limited.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no leak.
+[LEARN] REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss.
+[RISK] kassenkompass: 62/100 — api passive surface fully saturated with stable catalogs and two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable); funnel stuffing breadth reconfirmed with GET branch and variant oracle both closed; highest-confidence money hypothesis remains HUMAN-gated at the partner portal; no new passive vuln class this session.

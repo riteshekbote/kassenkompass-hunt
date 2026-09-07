@@ -243,3 +243,15 @@ https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/%2e%2e%2f1 -> HTTP 404
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-07 00:54:02 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/%2e%2e%2f1 -> HTTP 404
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?

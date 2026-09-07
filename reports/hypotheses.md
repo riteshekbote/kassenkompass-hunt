@@ -701,3 +701,33 @@
 - LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net;
 - LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+
+## RANKED HYPOTHESES 2026-09-07 00:53:46 UTC
+- [80] kassenkompass.de/bonusrechner.php: Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (from art/lead_nemotron3.txt)
+- [62] api.kassenkompass.de: Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Obtain a scoped partner/kk_webapp scope X-API-Secret test credential — then run sequential GET /user/{n} diff sweep (middleware B IDOR, target api); pass
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — capture Set-Cookie headers, response size, and body differential vs base (known 2.1MB inline tarif
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Root (/ , 15 v1, ver 1.0) + /v2/ (sole insurance_info, ver 2.0) catalogs stable — no endpoint drift; re-confirmed live.
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — implies JS-delivered s
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no
+- LEARN: REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirror
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_daten.php: Second funnel mirror entry confirmed — jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_vergleich2.php: Third mirror entry confirmed — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; conne
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/termin.php: Fourth mirror entry confirmed — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturn
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_suche.php: Fifth mirror entry confirmed — same alias map as termin.php
+- LEARN: ACCEPTED OTHER @ kassenkompass.net/bonusrechner.php: Canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: Greedy segment match confirmed — /v2/insurance_info/{anything} all reach auth handler (401); kk_id
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: Enumeration saturated at 42 names — insurance_info sole route
+- LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net;
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: kk-s3-01 layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images (sequential qid); no other prefixes; i
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: settlement_report CSV/JSON format variants probed — /json /csv ?format=csv .json all middleware-A 401 RFC 9457 problem+js
+- LEARN: REJECTED OTHER @ kassenkompass.de: subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: /health/ unchanged single unprotected endpoint (200 {status:ok}, cloudflare fronting confirmed, PHP 8.4.3 x-powered-b
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 confirmed; cooki
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated at 
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar

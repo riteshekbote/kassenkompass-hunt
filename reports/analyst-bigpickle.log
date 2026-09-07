@@ -8132,3 +8132,222 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] kassenkompass: 60/100 — funnel BUSLOGIC breadth now 7/7 entries with GET-path fully closed (strengthened, proof still HUMAN-gated at partner portal); api IDOR/BOLA cred-gated with BOLA ids now pre-enumerable via public fragen blob; no new passive vuln class; every money hypothesis waits on scoped credentials + portal session.
+===== ANALYST bigpickle 2026-09-07 00:53:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -m 20 -D - -o /tmp/opencode/kk_root.html "https://api.kassenkompass.de/" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)" | head -40
+HTTP/2 200 
+date: Mon, 07 Sep 2026 00:50:17 GMT
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=OuHAPHtrBJJK5o0HNiUGOQXiMysIMEgWXDnYmGwUntb6AIkDtMDSIwMPlwAEWtIzzD2k6mY82DnFezcF%2BZDn2XozMDPljKSKCQH0E4akV7FYH70PiicxnBeKO7lE6PwMMAGSlDq3"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a371b7e6bf061855-ORD
+[0m
+[0m$ [0mcat /tmp/opencode/kk_root.html
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s -m 20 -D - -o /tmp/opencode/kk_v2.html "https://api.kassenkompass.de/v2/" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)" | head -30; echo "---BODY---"; cat /tmp/opencode/kk_v2.html
+HTTP/2 200 
+date: Mon, 07 Sep 2026 00:50:21 GMT
+content-type: application/json; charset=utf-8
+content-length: 331
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=qyZ4nCX%2FMGFH1JVaiiNGo%2BLaYoz1vvdvbBA7VqSk6FIJaV5n2KSaMQu64zoYhUG%2B2YBfzUeMZ2xT6Vy%2FTtxMbShRWkx8AfFptXd2D1n4Ra3DfwHgCVz3Ar8avwcL20E%2B7WTB1eBJ"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a371b7ff897e22db-ORD
+
+---BODY---
+{
+    "api_info": "KK API v2 - REST (breite Variante)",
+    "version": "2.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/v2\/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse (breite Variante: inkl. Entwurfs-Kategorien und aufgelöster Referenzen)"
+    }
+}
+[0m
+[0m$ [0mcurl -s -m 20 -D - -o /tmp/opencode/kk_user1.html "https://api.kassenkompass.de/user/1" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)" | head -25; echo "---BODY---"; cat /tmp/opencode/kk_user1.html
+HTTP/2 401 
+date: Mon, 07 Sep 2026 00:50:29 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 180
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=IMk48ZqefKaorbi%2BDnc5gBUwcA7qySZSVa6%2FmAHasgTrmqE46EbOJae8TPpswqBl2%2BDleZdo4EF1YkOZpsVUbqj9PgD1Hu3JFS4fagDoin%2Boevq%2FyPvaLo6Pq90ceqyrOcwY73ws"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a371b830db7622f1-ORD
+
+---BODY---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0mcurl -s -m 20 -D - -o /tmp/opencode/kk_ii1.html "https://api.kassenkompass.de/insurance_info/1" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)" | head -20; echo "---BODY---"; cat /tmp/opencode/kk_ii1.html
+HTTP/2 401 
+date: Mon, 07 Sep 2026 00:50:37 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 232
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=fQr5ChNueG7lqLA9BB4x5eKrG5wIJBFb1DzfF0c8Xu1zpGjxX2cLvISMRwsP6ho5k6dwOXFI6NR%2BqQMtxUhcjthSJpLKhXib4QEpseTHll5iY9WjRAAVVjl1MvMSx9GAinLvg106"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a371b8644d1086e6-ORD
+
+---BODY---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/1"
+}
+[0m
+[0m$ [0msleep 1; curl -s -m 20 -D - -o /tmp/opencode/kk_user_noid.html "https://api.kassenkompass.de/user/" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)" | head -12; echo "---BODY---"; cat /tmp/opencode/kk_user_noid.html
+HTTP/2 401 
+date: Mon, 07 Sep 2026 00:51:19 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 179
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+---BODY---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0mfor p in bonusrechner2.php bonusrechner_alt.php bonusrechner_detail.php bonusrechner_informiert.php bonusrechner_berechnung.php bonusrechner_ergebnis.php bonusrechner_upload.php bonusrechner_abschluss.php; do code=$(curl -s -m 15 -o /dev/null -w "%{http_code}" "https://kassenkompass.de/$p" -H "User-Agent: Mozilla/5.0 (program-scoped-recon)"); echo "$p -> $code"; sleep 1; done
+bonusrechner2.php -> 404
+bonusrechner_alt.php -> 404
+bonusrechner_detail.php -> 404
+bonusrechner_informiert.php -> 404
+bonusrechner_berechnung.php -> 404
+bonusrechner_ergebnis.php -> 404
+bonusrechner_upload.php -> 404
+bonusrechner_abschluss.php -> 200
+[0m
+STEP 1 — DELTA
+- [NEW] @ api.kassenkompass.de: Root + `/v2/` catalogs re-fetched live — still 15 v1 endpoints (version 1.0) + sole v2 route `insurance_info` (version 2.0); zero endpoint drift since 09-05 saturation.
+- [NEW] @ api.kassenkompass.de: All stacks emit `access-control-allow-headers: X-API-Secret, Content-Type` + `access-control-allow-methods: GET, OPTIONS` (A on /insurance_info/1, B on /user/1) — secret is deliberately consumed from browser JS (localStorage-class), not HttpOnly cookie; no `access-control-allow-origin` reflection.
+- [NEW] @ api.kassenkompass.de: Middleware-B "instance echo" pinned = RFC 9457 `instance` field (request path `/user/1`), NOT hostname/pod id — no leak; `/user/` empty segment also B-routed (401 "fehlt") ⇒ greedy match on B stack, not just v2.
+- [NEW] @ kassenkompass.de: File-name oracle for 8 `bonusrechner*` variants → only `bonusrechner_abschluss.php` 200; `2/alt/detail/informiert/berechnung/ergebnis/upload` 404 on .de ⇒ stuffing surface capped at known 5 mirror entries + fragen/abschluss (GET-closed).
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de funnel,6.65,attack_surface=6/biz=8/tech=5/gate=10(no-auth)/cloud=4/fresh=5
+- [PRIO] api.kassenkompass.de,5.70,attack_surface=7/biz=9/tech=7/gate=1/cloud=3/fresh=2
+- [PRIO] awv.kassenkompass.de(SGTM),4.45,attack_surface=3/biz=4/tech=6/gate=6/cloud=6/fresh=3
+
+STEP 3 — HYPOTHESES
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); ext_id opaque with no ownership binding in catalog; cancel is destructive (FG-Wechsel-Storno → kk_webapp); single B-scoped secret gates both; greedy match confirmed on B (empty segment routes to 401); RFC 9457 instance = path only.
+evidence_needed: Two distinct ids → different 200 bodies under one B-scoped secret.
+verify_steps: WITH AUTH (test creds): GET /user/1 vs /user/2 diff; sequential ext_id sweep; POST /cancel/{id} ONLY after GET IDOR proven.
+impact: cross-tenant PII dump / cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+
+[HYP] v2 insurance_info BOLA via greedy routing
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (root re-confirms authoritative list, version 2.0); greedy segment match reaches handler pre-parse; draft categories + resolved refs = widest data surface; shares middleware A; kk_ids pre-enumerable from bonusrechner_fragen.php references.
+evidence_needed: Two kk_ids → different 200 draft sets under one secret.
+verify_steps: WITH AUTH: sequential v2 kk_ids (ids derived from fragen blob), diff draft/reference fields.
+impact: cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED
+
+[HYP] Funnel cookie-stuffing → server-side consumption at settlement/lead ingest
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner*.php, /termin.php)
+confidence: 72
+reasoning: ≥7 entries mirror raw pass-params into 1-year HttpOnly cookies unvalidated (alias map jid|customerid, agn|connectionnumber, ppn, employeenumber; lizenz→afilcode bonusrechner-only); HttpOnly ⇒ server-side ingest; GET branch closed 7/7 byte-identical — consumption strictly POST/portal-path; .de variant oracle now closed (no new entries).
+evidence_needed: Stuffed tokens reappear in partner-portal lead/settlement records under a different session.
+verify_steps: HUMAN portal search for KKJ99/KKA9/KKC99/KKP9/KKE99 after stuffing under throwaway session.
+impact: cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: HUMAN_ONLY
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] api CORS allow-headers observation → guess of JS-resident X-API-Secret: no origin reflection, no XSS primitive anywhere (v2 404 oracle XSS rejected) — non-chainable prerequisite, dropped.
+[PARKED] middleware-B instance echo as leak: RFC 9457 path only, descriptive-error class, dropped.
+[PARKED] /user/ empty-segment greedy: confirms B routing but yields nothing without auth.
+[FINAL] 1) Funnel cookie-stuffing→settlement ingest (BUSLOGIC, 72, HUMAN) 2) Middleware-B IDOR (62, AUTH_HELPED) 3) v2 BOLA (58, AUTH_HELPED)
+
+STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Obtain a scoped partner/kk_webapp scope X-API-Secret test credential — then run sequential GET /user/{n} diff sweep (middleware B IDOR, target api); passive api surface otherwise saturated (catalogs stable, greedy confirmed both stacks, CORS/no-drift rechecked this session).
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Root (/ , 15 v1, ver 1.0) + /v2/ (sole insurance_info, ver 2.0) catalogs stable — no endpoint drift; re-confirmed live.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — implies JS-delivered secret, chain-limited.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no leak.
+[LEARN] REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss.
+
+STEP 7 — RISK
+[RISK] kassenkompass: 62/100 — api passive surface fully saturated with stable catalogs and two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable); funnel stuffing breadth reconfirmed with GET branch and variant oracle both closed; highest-confidence money hypothesis remains HUMAN-gated at the partner portal; no new passive vuln class this session.

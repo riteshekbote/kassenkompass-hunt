@@ -184,3 +184,27 @@
 - 2026-09-06 REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
 - 2026-09-06 ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly
 - 2026-09-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: Root (/ , 15 v1, ver 1.0) + /v2/ (sole insurance_info, ver 2.0) catalogs stable — no endpoint drift; re-confirmed live.
+- 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — implies JS-delivered secret, chain-limited.
+- 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no leak.
+- 2026-09-07 REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss.
+- 2026-09-07 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_daten.php: Second funnel mirror entry confirmed — jid/agn/ppn→1yr HttpOnly cookies; ignores lizenz/no afilcode; step-scoped alias map
+- 2026-09-07 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_vergleich2.php: Third mirror entry confirmed — jid/agn/connectionnumber/ppn/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate; lizenz ignored
+- 2026-09-07 ACCEPTED BUSLOGIC @ kassenkompass.de/termin.php: Fourth mirror entry confirmed — jid/agn/connectionnumber/employeenumber→1yr HttpOnly; connectionnumber→agenturnummer dual alias duplicate
+- 2026-09-07 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_suche.php: Fifth mirror entry confirmed — same alias map as termin.php
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.net/bonusrechner.php: Canonical IIS/10.0 backend mirrors identical cookie injection then 302→.de; cookies host-only on .net
+- 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: Greedy segment match confirmed — /v2/insurance_info/{anything} all reach auth handler (401); kk_id not validated at routing
+- 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: Enumeration saturated at 42 names — insurance_info sole route
+- 2026-09-07 REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte, parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: afilcode param is `lizenz` (not `lizzen`); sets without Secure/HttpOnly; other cookies HttpOnly
+- 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- 2026-09-07 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: kk-s3-01 layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images (sequential qid); no other prefixes; images-only, no sensitive object evidence
+- 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: settlement_report CSV/JSON format variants probed — /json /csv ?format=csv .json all middleware-A 401 RFC 9457 problem+json → consistent, no format-side differential
+- 2026-09-07 REJECTED OTHER @ kassenkompass.de: subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+- 2026-09-07 REJECTED MISCONFIG @ api.kassenkompass.de: /health/ unchanged single unprotected endpoint (200 {status:ok}, cloudflare fronting confirmed, PHP 8.4.3 x-powered-by) — no env/version leak growth
+- 2026-09-07 ACCEPTED BUSLOGIC @ kassenkompass.net/bonusrechner.php: Canonical backend mirrors identical cookie injection then 302→.de; IIS/10.0 + PHP 8.4.3 confirmed; cookies host-only on .net
+- 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: v2 shares middleware A with v1 majority; greedy segment match confirmed; enumeration saturated at single endpoint
+- 2026-09-07 REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel
+- 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only, both cfemails decode to service@kassenkompass.de); cookie consumption strictly POST/portal-path

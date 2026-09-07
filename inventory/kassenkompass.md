@@ -253,3 +253,18 @@ www.kassenkompass.de
 - CHANGED Funnel stuffing surface expanded to ≥5 entry points (bonusrechner.php, bonusrechner_daten.php, bonusrechner_vergleich2.php, termin.php, bonusrechner_suche.php) with divergent alias maps per step
 - CHANGED `bonusrechner.php` param for afilcode is `lizenz` (not `lizzen` per prior KB) — live confirmed
 - CHANGED Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+
+## 2026-09-07 00:53:46 UTC
+- NEW `kassenkompass.de/bonusrechner_fragen.php` — 2.1MB inline tariff data response confirmed (probe 2026-09-06 12:51, 16:14); new funnel step with large data surface
+- NEW `kassenkompass.de/bonusrechner_abschluss.php` — confirmed 200 response (probe 2026-09-06 16:14, 18:32); new funnel step, potential settlement submission endpoint
+- NEW `awv.kassenkompass.de` client container fully read — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, `/g/collect` 400-on-invalid; SGTM supersedes "GTM proxy" labe
+- NEW `kk-s3-01.s3.eu-central-1.amazonaws.com` — public object reads confirmed, bucket listing AccessDenied; 174 refs all `uploads/fraq/{qid}/{n}.png` question images (sequential qid); images-only, no sensi
+- NEW `kassenkompass.net` parser differential TESTED — null byte (`%00`), parameter pollution (last-wins), trailing space all handled IDENTICALLY on .de (Apache/PHP) and .net (IIS/PHP); no differential; hyp
+- NEW Funnel stuffing surface expanded to **≥5 entry points** with divergent alias maps: `bonusrechner.php` (lizenz→afilcode no Secure/HttpOnly; jid/agn/ppn→HttpOnly), `bonusrechner_daten.php` (jid/agn/ppn→
+- NEW `bonusrechner.php` param for afilcode is `lizenz` (not `lizzen` per prior KB) — live confirmed
+- NEW Auth map 15/15 complete — `/cancel/{id}` joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- NEW `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed — `/v2/insurance_info/{anything}` all reach auth handler (401); kk_id not validated at routing
+- NEW `api.kassenkompass.de/v2` router-404 oracle saturated at 42 names — only `insurance_info` registered
+- CHANGED `api.kassenkompass.de/health/` — unchanged single unprotected endpoint (200 `{status:ok}`, Cloudflare fronting confirmed, PHP 8.4.3 x-powered-by); no env/version leak growth
+- CHANGED Subdomain sweep ~80 names → only api/www/awv + load.awv exist; `kk_webapp` delegation is internal app-name, not hostname; no new inventory
+- CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strict
