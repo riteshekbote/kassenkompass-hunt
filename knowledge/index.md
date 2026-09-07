@@ -231,3 +231,8 @@
 - 2026-09-07 REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel.
 - 2026-09-07 ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}.
 - 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only, both cfemails decode to service@kassenkompass.de); cookie consumption strictly POST/portal-path.
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php confirmed as 6th funnel step — 200 response, potential settlement submission endpoint
+- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+- 2026-09-07 REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
+- 2026-09-07 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- 2026-09-07 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelligence leak

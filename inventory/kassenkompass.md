@@ -279,3 +279,14 @@ www.kassenkompass.de
 - NEW Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname
 - NEW Parser differential tested on .de vs .net — null byte (%00), parameter pollution (last-wins), trailing space all handled identically; no differential
 - NEW Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+
+## 2026-09-07 12:16:46 UTC
+- NEW bonusrechner_abschluss.php confirmed as 6th funnel step — 200 response, potential settlement submission endpoint
+- NEW awv.kassenkompass.de fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png (sequential qid), images-only, no sensitive objects
+- NEW GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strict
+- NEW Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname
+- NEW Parser differential tested on .de vs .net — null byte (%00), parameter pollution (last-wins), trailing space all handled identically; no differential
+- NEW Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- CHANGED bonusrechner_fragen.php probe executed and confirmed — 2.1MB inline tariff data response, new funnel step with large data surface
+- CHANGED v2 greedy segment match hypothesis demoted to PARKED (confidence 55) — Cloudflare/WAF normalizes path traversal sequences (%2e%2e%2f → 404) before router; only raw greedy segments (//, /extra, %31) re

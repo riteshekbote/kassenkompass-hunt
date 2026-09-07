@@ -764,3 +764,15 @@
 - LEARN: REJECTED AUTH @ api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel.
 - LEARN: ACCEPTED OTHER @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}.
 - LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar
+
+## RANKED HYPOTHESES 2026-09-07 12:16:46 UTC
+- [85] kassenkompass.de/bonusrechner.php: Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response size, body differential vs base, and any settlement/submis
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php confirmed as 6th funnel step — 200 response, potential settlement submission endpoint
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: kk-s3-01 layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images (sequential qid); no other prefixes; i
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar
+- LEARN: REJECTED OTHER @ kassenkompass.de: subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation
+- LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelli

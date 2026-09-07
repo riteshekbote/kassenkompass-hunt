@@ -8431,3 +8431,130 @@ testability: AUTH_HELPED
 ### STEP 7 — RISK
 
 [RISK] kassenkompass: 65/100 — API passive surface fully saturated with stable catalogs, two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable), and complete 15/15 auth map; funnel stuffing breadth confirmed 5+ entries with GET branch and variant oracle both closed; highest-confidence money hypothesis (BUSLOGIC, rank 80) remains HUMAN-gated at the partner portal; no new passive vulnerability class discoverable without scoped credentials; every money-flow test now waits on either portal session (human) or scoped X-API-Secret (auth-helped).
+===== ANALYST bigpickle 2026-09-07 12:16:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] STEP 1-2: Delta + Prioritize — assess current state vs last session
+[ ] STEP 3-4: Hypotheses + Self-critique — emit top-3 ranked
+[ ] STEP 5-7: Next action + Learning + Risk
+[ ] PROBE: bonusrechner_fragen.php Set-Cookie + alias map
+[ ] PROBE: bonusrechner_abschluss.php Set-Cookie + settlement fields
+[0m
+[0m→ [0mRead .
+[0m→ [0mRead scope.yml
+[0m→ [0mRead probe-results.md[90m [limit=200][0m
+[0m→ [0mRead inventory
+[0m→ [0mRead leads
+[0m→ [0mRead probe-results.md[90m [offset=200][0m
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead state_bigpickle.json
+[0m
+[0m$ [0mcurl -sS -o /tmp/abschluss.html -D - "https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=KKABS_LZ&jid=KKABS_JID&agn=KKABS_AGN&ppn=KKABS_PPN&connectionnumber=KKABS_CNN&employeenumber=KKABS_EMP" 2>&1 | grep -iE "HTTP/|set-cookie|content-length|location" ; echo "---body-size---"; wc -c /tmp/abschluss.html
+HTTP/2 200 
+set-cookie: AWSALB=jU2hjW7jkOrCo1YSnVzwh4wOuF+QP9rm8goFT9sV8y7U5I5WtDcGg9WNxq6vqswBCo/u4kkA+BeoRpzonWzQVqiZQ4Bhyp5I3WS46PRusHwiwznPOK/p2K0sG9xS; Expires=Mon, 14 Sep 2026 12:12:56 GMT; Path=/
+set-cookie: AWSALBCORS=jU2hjW7jkOrCo1YSnVzwh4wOuF+QP9rm8goFT9sV8y7U5I5WtDcGg9WNxq6vqswBCo/u4kkA+BeoRpzonWzQVqiZQ4Bhyp5I3WS46PRusHwiwznPOK/p2K0sG9xS; Expires=Mon, 14 Sep 2026 12:12:56 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=748f02938a0aa63294f90a405d027b5c; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=KKABS_LZ; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000
+set-cookie: customerid=KKABS_JID; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=KKABS_AGN; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=KKABS_CNN; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=KKABS_PPN; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: employeenumber=KKABS_EMP; expires=Tue, 07 Sep 2027 12:12:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+---body-size---
+62038 /tmp/abschluss.html
+[0m
+[0m$ [0msleep 1; curl -sS -o /tmp/fragen.html -D - "https://kassenkompass.de/bonusrechner_fragen.php?lizenz=KKFRG_LZ&jid=KKFRG_JID&agn=KKFRG_AGN&ppn=KKFRG_PPN&connectionnumber=KKFRG_CNN&employeenumber=KKFRG_EMP" 2>&1 | grep -iE "HTTP/|set-cookie|content-length|location" ; echo "---body-size---"; wc -c /tmp/fragen.html
+HTTP/2 200 
+set-cookie: AWSALB=wXKPXLJIXLWeDP9KbzeXq2A9eremUPuSWLTffjkwbtBeOC5svY39MD4z5ORqO9Du8iJZiF3asFDnUK2LydKScJOLqdecCC18R/MkLW5w93Wrbjq+jOKDbIGURg5t; Expires=Mon, 14 Sep 2026 12:13:07 GMT; Path=/
+set-cookie: AWSALBCORS=wXKPXLJIXLWeDP9KbzeXq2A9eremUPuSWLTffjkwbtBeOC5svY39MD4z5ORqO9Du8iJZiF3asFDnUK2LydKScJOLqdecCC18R/MkLW5w93Wrbjq+jOKDbIGURg5t; Expires=Mon, 14 Sep 2026 12:13:07 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=a64a98012d1413e3f382a8c918b0e2a0; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=KKFRG_LZ; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000
+set-cookie: customerid=KKFRG_JID; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=KKFRG_AGN; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=KKFRG_CNN; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=KKFRG_PPN; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: employeenumber=KKFRG_EMP; expires=Tue, 07 Sep 2027 12:13:07 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+---body-size---
+2156428 /tmp/fragen.html
+[0m
+[0m$ [0msleep 1; curl -sS -o /dev/null -D - "https://kassenkompass.de/bonusrechner_abschluss.php?advisorid=KKABS_ADV&agenturnummer=KKABS_AGNT" 2>&1 | grep -iE "HTTP/|set-cookie" | grep -viE "AWSALB|PHPSESSID"
+HTTP/2 200 
+set-cookie: advisorid=KKABS_ADV; expires=Tue, 07 Sep 2027 12:13:24 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+[0m
+[0m# [0mTodos
+[✓] STEP 1-2: Delta + Prioritize
+[✓] STEP 3-4: Hypotheses + Self-critique
+[•] STEP 5-7: Next action + Learning + Risk
+[✓] PROBE: bonusrechner_fragen.php Set-Cookie + alias map
+[✓] PROBE: bonusrechner_abschluss.php Set-Cookie + settlement fields
+[0m
+Probes complete (GET, ≤1 rps, throwaway tokens). Both queued funnel steps return **new** cookie-mirror data.
+
+**STEP 1 — DELTA**
+- NEW @ kassenkompass.de/bonusrechner_fragen.php: confirmed as 6th cookie-mirror entry — stamps `lizenz→afilcode`, `jid→customerid`, `agn/connectionnumber→agenturnummer` (dual, two Set-Cookies), `ppn→poolpartnernummer`, `employeenumber→employeenumber`; 2,156,428-byte tariff body; afilcode **not** Secure/HttpOnly, others HttpOnly — previously believed afilcode was `bonusrechner.php`-only.
+- NEW @ kassenkompass.de/bonusrechner_abschluss.php: 7th mirror entry — stamps full alias list PLUS `advisorid→advisorid` (direct param mirror); terminal settlement step re-stamps `afilcode` at submission point.
+- NEW @ kassenkompass.de: direct `agenturnummer=` param does NOT mirror a cookie on abschluss (only aliases `agn|connectionnumber`), while `advisorid=` direct does — mirror keyed on alias names, not canonical names.
+- CHANGED: afilcode mirror surface expanded 1→3 entries (bonusrechner, fragen, abschluss) incl. the final step before lead ingest — GET-branch body differential was closed 7/7 last session, but Set-Cookie differential on fragen/abschluss was untested; now closed (both mirror).
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] api.kassenkompass.de,9.05,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=10 — **9.05** (saturated, cred-gated)
+- [PRIO] kassenkompass.de,8,attack_surface=8,business_value=9,tech_exposure=4,gate_ease=10,cloud_surface=5,freshness=10 — **7.85**
+- [PRIO] kassenkompass.net,4,attack_surface=5,business_value=3,tech_exposure=3,gate_ease=10,cloud_surface=2,freshness=6 — **5.15**
+
+**STEP 3 — HYPOTHESES**
+- [HYP] Funnel afilcode stuffing re-stamped at terminal settlement step → commission/lead attribution poisoning
+- class: BUSLOGIC
+- asset: kassenkompass.de (/bonusrechner_fragen.php, /bonusrechner_abschluss.php)
+- confidence: 80
+- reasoning: 7 confirmed mirror entries; afilcode (commission attribution, JS-readable, no Secure/HttpOnly) is now stamped by 3 entries including fragen (data stage) and abschluss (terminal pre-ingest step); mid-steps (daten/vergleich2/termin/suche) ignore lizenz, so a stuffed afilcode set at entry survives untouched until re-stamped at abschluss; GET bodies byte-identical (7/7) → consumption strictly POST/portal-path; alias map divergence between steps now characterized live.
+- evidence_needed: Stuffed afilcode token survives fragen→daten→vergleich2→abschluss sequence with cookie jar; then reappears in partner-portal settlement/lead record under a different session.
+- verify_steps: PROBE already done (fragen/abschluss Set-Cookie). Stateful: GET fragen?lizenz=KKFNS then daten/vergleich2 (which ignore lizenz) → compare afilcode cookie value between hops (persistence). HUMAN: search portal records for KKABS_LZ/KKFRG_LZ/KKFNS tokens.
+- impact: Cross-tenant lead/commission attribution poisoning on money flow; MEDIUM-HIGH
+- testability: HUMAN_ONLY
+- [HYP] Middleware-B IDOR — /user/{ext_id} cross-tenant PII read under one B-scoped secret
+- class: IDOR
+- asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+- confidence: 62
+- reasoning: B stack = {user, cancel} (15/15 map); ext_id opaque, no ownership binding visible in catalog; greedy empty-segment match proven; cancel is destructive (Storno→kk_webapp). No passive egress; needs scoped X-API-Secret.
+- evidence_needed: Two distinct ext_ids → differing 200 bodies under one B-scoped secret.
+- verify_steps: WITH AUTH: GET /user/1 vs /user/2 diff; sequential ext_id sweep; POST /cancel/{id} only after GET IDOR proven.
+- impact: Cross-tenant PII dump + abort others' insurer-switch; HIGH
+- testability: AUTH_HELPED
+- [HYP] .net funnel cookie-mirror parity — which entry points still set attribution cookies pre-302
+- class: BUSLOGIC
+- asset: kassenkompass.net
+- confidence: 45
+- reasoning: Prior sessions: `.net all *.php → 302 bare-domain root` but bonusrechner.php mirrored cookies first; after afilcode surface grew on .de, .net parity for fragen/abschluss unverified; canonical IIS/PHP8.4.3 confirmed. Cookies host-only on .net (unreadable by .de) → impact capped unless .net mirrors differ from .de.
+- evidence_needed: .net fragen/abschluss Set-Cookie vs .de; any differential in alias set.
+- verify_steps: GET https://kassenkompass.net/bonusrechner_abschluss.php?lizenz=KKNET1&jid=KKNET2 → capture Set-Cookie before 302; repeat fragen.
+- impact: On parity: none beyond known host-only stuffing. Differential would be new primitive; LOW
+- testability: PASSIVE
+- [HYP] v2 v2/insurance_info BOLA via kk_id sweep (unchanged)
+- class: IDOR
+- asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+- confidence: 58
+- reasoning: Sole v2 route (42-name saturation); greedy reach to handler proven; shares middleware A. Needs auth + kk_id pre-enum from fragen blob.
+- evidence_needed: Two kk_ids → different 200 draft bodies under one secret.
+- verify_steps: WITH AUTH: sequential kk_ids from fragen tariff blob, diff drafts/refs.
+- impact: Cross-tenant draft comparison read; MEDIUM
+- testability: AUTH_HELPED
+
+**STEP 4 — SELF-CRITIQUE**
+- [PARKED] v2 greedy path-traversal (demoted previous session: WAF normalizes %2e%2e%2f → 404) — non-actionable without auth.
+- [PARKED] .net parity at 45 — just under conviction bar, but cheap PASSIVE probe; keeping as low-rank, not dropped.
+- [FINAL] 1) Funnel afilcode stuffing re-stamped at settlement step (BUSLOGIC, 80, HUMAN_ONLY) 2) Middleware-B IDOR (62, AUTH_HELPED) 3) v2 BOLA (58, AUTH_HELPED)
+
+**STEP 5 — NEXT ACTION**
+- [NEXT] PROBE: stateful multi-step pass — cookie jar `-c/-b /tmp/kk.jar`; GET https://kassenkompass.de/bonusrechner_fragen.php?lizenz=KKFNS&jid=KKJNS then GET https://kassenkompass.de/bonusrechner_daten.php?jid=KKSEC (no lizenz) then GET https://kassenkompass.de/bonusrechner_abschluss.php — record afilcode Set-Cookie at each hop to prove stuffed afilcode persistence (survives mid-steps that ignore lizenz) up to re-stamp at abschluss (read-only, ≤1 rps, throwaway session tokens)
+
+**STEP 6 — LEARNING**
+- [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de: bonusrechner_fragen.php + bonusrechner_abschluss.php confirmed as 6th/7th cookie mirrors; both stamp lizenz→afilcode — afilcode surface expanded beyond bonusrechner.php to include terminal settlement step; advisorid mirrors via direct param on abschluss.
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: direct agenturnummer= param does NOT mirror on abschluss (only agn|connectionnumber aliases), while advisorid= direct does — mirror keyed on alias names, not canonical cookie names; inconsistent naming discipline across entries.
+- [LEARN] REJECTED OTHER @ kassenkompass.net: no new probe run this session; parity question parked at 45.
+
+**STEP 7 — RISK**
+- [RISK] kassenkompass: 67/100 — API passive surface saturated and cred-gated (two IDOR/BOLA hypotheses waiting on scoped X-API-Secret); funnel stuffing surface grew to 7 mirrors with afilcode re-stamped at the exact terminal settlement step, strengthening the money-poisoning chain, but the decisive record-level confirmation remains human-gated at the partner portal; no new passive vuln class this session; every money-flow test waits on portal session (human) or scoped secret (auth-helped).
