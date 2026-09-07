@@ -1238,3 +1238,43 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: Middleware-B greedy match confirmed — /user/ empty segment routes to B (401 "fehlt"); "instance echo" = RFC 9457 path, no leak.
 [LEARN] REJECTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 on .de — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss.
 [RISK] kassenkompass: 62/100 — api passive surface fully saturated with stable catalogs and two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable); funnel stuffing breadth reconfirmed with GET branch and variant oracle both closed; highest-confidence money hypothesis remains HUMAN-gated at the partner portal; no new passive vuln class this session.
+## 2026-09-07 05:54:49 UTC [target] (model bigpickle)
+[PRIO] api.kassenkompass.de,9,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=10 — **9.05**
+[PRIO] kassenkompass.de,8,attack_surface=7,business_value=9,tech_exposure=4,gate_ease=10,cloud_surface=5,freshness=9 — **7.65**
+[PRIO] kassenkompass.net,4,attack_surface=5,business_value=3,tech_exposure=3,gate_ease=10,cloud_surface=2,freshness=6 — **5.15**
+[HYP] Funnel cookie-stuffing → server-side lead/commission poisoning at partner portal ingest
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner*.php, /termin.php, 5+ entries)
+confidence: 72
+reasoning: 5+ funnel entries mirror raw pass-params into 1-year HttpOnly cookies unvalidated (alias map jid|customerid, agn|connectionnumber, ppn, employeenumber; lizenz→afilcode bonusrechner-only); HttpOnly ⇒ server-side consumption; GET branch closed 7/7 byte-identical — consumption strictly POST/portal-path; stuffing surface capped at 5 confirmed mirrors + fragen/abschluss; bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 (closed 2026-09-07)
+evidence_needed: Stuffed tokens KKJ99/KKA9/KKC99/KKP9/KKE99 reappear in partner-portal lead/settlement records under a different session
+verify_steps: HUMAN: In partner portal (KassenKompass partner login), search settlement/lead records for stuffed tokens set via kassenkompass.de/bonusrechner.php under a throwaway session — discriminates cross-tenant commission poisoning
+impact: Cross-tenant lead/commission poisoning on money flow; MEDIUM-HIGH
+testability: HUMAN_ONLY
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant access
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); ext_id opaque with no ownership binding visible in catalog; cancel is destructive (FG-Wechsel-Storno → kk_webapp); single B-scoped secret gates both; greedy match confirmed on B (empty segment routes to 401); RFC 9457 instance = path only, no leak
+evidence_needed: Two distinct ext_ids → different 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH (test creds): GET /user/1 vs /user/2 diff; sequential ext_id sweep; POST /cancel/{id} ONLY after GET IDOR proven
+impact: Cross-tenant PII dump + cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA via greedy routing — cross-tenant draft comparison read
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 58
+reasoning: Sole v2 route (42-name saturation); greedy segment match reaches handler pre-kk_id-parse; returns draft categories + resolved refs = widest data surface; shares middleware A; kk_ids enumerable from bonusrechner_fragen.php public references; enumeration saturated at single endpoint
+evidence_needed: Two kk_ids → different 200 draft sets under one secret
+verify_steps: WITH AUTH: sequential v2 kk_ids (derived from fragen blob), diff draft/reference fields
+impact: Cross-tenant draft insurance-comparison read; MEDIUM-HIGH
+testability: AUTH_HELPED
+[PARKED] /user/ empty-segment greedy on B: confirms B routing but yields nothing without auth — no novel finding.
+[PARKED] v2 instance echo leak: RFC 9457 path only, descriptive-error class — no leak.
+[PARKED] CORS allow-headers observation: no origin reflection, no XSS primitive anywhere (v2 404 oracle XSS rejected 2026-09-06); non-chainable — dropped.
+[FINAL] 1) Funnel cookie-stuffing→settlement ingest (BUSLOGIC, 72, HUMAN_ONLY) 2) Middleware-B IDOR (62, AUTH_HELPED) 3) v2 BOLA (58, AUTH_HELPED)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — capture Set-Cookie headers, response size, and body differential vs base (2.1MB inline tariff blob known); test whether fragen step mirrors different alias set than other entries (priority from ranked hypotheses, rank 80, némotron3 lead); read-only, no auth, ≤1 rps
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: bonusrechner2/alt/detail/informiert/berechnung/ergebnis/upload all 404 — stuffing surface capped at 5 confirmed mirrors + fragen/abschluss; variant oracle closed.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: access-control-allow-headers/allow-methods identical on middleware A and B; no origin reflection — JS-delivered secret, chain-limited.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path.
+[RISK] kassenkompass: 65/100 — API passive surface fully saturated with stable catalogs, two cred-gated IDOR/BOLA hypotheses (ids pre-enumerable), and complete 15/15 auth map; funnel stuffing breadth confirmed 5+ entries with GET branch and variant oracle both closed; highest-confidence money hypothesis (BUSLOGIC, rank 80) remains HUMAN-gated at the partner portal; no new passive vulnerability class discoverable without scoped credentials; every money-flow test now waits on either portal session (human) or scoped X-API-Secret (auth-helped).
