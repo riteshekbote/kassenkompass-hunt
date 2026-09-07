@@ -81,3 +81,5 @@ reasoning: GitHub API confirms the org "KassenKompass-GmbH" (id 316947552) exist
 impact: None
 verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → returns empty array []
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-07 19:23:55 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
