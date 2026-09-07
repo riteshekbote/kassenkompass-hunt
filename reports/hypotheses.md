@@ -805,3 +805,23 @@
 - LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelli
+
+## RANKED HYPOTHESES 2026-09-07 21:29:13 UTC
+- [85] kassenkompass.de/bonusrechner.php: Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (from art/lead_nemotron3.txt)
+- [72] kassenkompass.de: Funnel cookie-stuffing → server-side lead/commission poisoning at partner-portal ingest, now self-verifiable via open registration (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: With human go-ahead, run the self-registration stuffing test — set stuffed mirror cookies (customerid=KKJ99, agenturnummer=KKG77+KKC99, poolpartnernummer
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://kassenkompass.de/bonusrechner_abschluss.php with minimal form data (email=test%40example.com, password=Test123%21, password_confirm=Test123%
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_fragen.php: 7/7 funnel mirror confirmed — lizenz→afilcode (non-Secure/HttpOnly), jid→customerid, agn+connectio
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: blob internals — sessionData (akt_kk_id/available_kk_uids empty anon), ucatKkData (1.79MB per-KK reso
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: protected insurance_info payload domain is publicly replicated by fragen.php ucatKkData — BOLA cross-tenant read v
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: open self-registration (email/password/confirm, create_account=1, no CAPTCHA, self-submit POST) pr
+- LEARN: REJECTED OTHER @ kassenkompass.de: no X-API-Secret/Bearer/api_key strings in public bonusrechner frontend — JS-delivered-secret inference unsupported on this su
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php confirmed as 7th funnel step — 200 response, POST form for account creation, full superset alias m
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: bonusrechner_abschluss.php connectionnumber→agenturnummer dual alias produces duplicate Set-Cookie (last-wins ambiguity) — sa
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: kk-s3-01 layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images (sequential qid); no other prefixes; i
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar
+- LEARN: REJECTED OTHER @ kassenkompass.de: subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation
+- LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelli
