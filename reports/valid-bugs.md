@@ -17,3 +17,13 @@
   - **Verdict: HOLD** — Requires valid X-API-Secret. Revisit with scoped credentials.
   - **Verdict: VALID**
   - | 14 | **Funnel cookie-stuffing** | **VALID** ✅ |
+
+- 8 lead(s) marked VALID at 2026-09-07 23:19:50 UTC
+  - **VERDICT: VALID**
+  - | Q2 Reachable | NO | Requires valid X-API-Secret; unauth returns 401 |
+  - | Q4 Provable | NO | Cannot verify without valid API secret |
+  - | Q2 Reachable | NO | Requires valid X-API-Secret |
+  - | Q4 Provable | NO | Requires valid key + destructive testing |
+  - | Q2 Reachable | NO | Requires valid X-API-Secret |
+  - | Q4 Provable | NO | Cannot verify without valid scoped secret |
+  - | 1 | Unauthenticated API Catalog Disclosure | **VALID** | 5.3 | Submit to bugs.olivermaicher.eu |
