@@ -373,3 +373,5 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de/v2: Enumeration saturated at 42 names — insurance_info sole route; router-404 oracle confirmed
 - CHANGED api.kassenkompass.de: X-API-Secret via query-string AND cookie both return missing-header 401 on all stacks — header strictly sole channel (source-merge closed)
 - CHANGED awv.kassenkompass.de: "GTM proxy" label superseded by SGTM (server-side GTM via Stape)
+
+## 2026-09-08 22:50:10 UTC

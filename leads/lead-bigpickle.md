@@ -1546,3 +1546,98 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: Cookie-stuffing persistence chain has been machine-verifiable since 2026-09-08 13:49 via abschluss.php self-registration but remains unexecuted — two ranked sessions (nemotron3 85, bigpickle 70) both rest on the same unverified probe; funnel stuffing surfaces 7 mirrors with divergent alias maps confirmed.
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
 [RISK] kassenkompass: 68/100 — top executable action (funnel cookie-stuffing → self-register settlement attribution poisoning) remains uncashed across sessions; 7/7 live cookie injection into money-flow attribution with step-scoped divergence confirmed; api surface credential-gated with one HIGH-class IDOR hypothesis queued; only speculative drag is the two un-merged alias-map hypotheses inflating claimed confidence above executed evidence.
+## 2026-09-08 22:47:10 UTC [target] (model bigpickle)
+[HYP] Middleware-B IDOR — /user/{ext_id} and /cancel/{id} cross-tenant access under shared B-scoped secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 map complete); ext_id opaque, no ownership binding in catalog; cancel is destructive FG-Wechsel-Storno delegated to kk_webapp; single B-scoped secret gates both; ext_id format unknown (0 hits for format hint in public pages); requires AUTH_HELPED
+evidence_needed: Two distinct ext_ids → different 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH: GET /user/1 vs /user/2 diff; sequential sweep; POST /cancel/{id} only after GET IDOR proven
+impact: Cross-tenant PII dump + cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] Unauthenticated 2.1MB tariff data scrape — competitive intelligence / DoS amplification
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 55
+reasoning: 2.1MB unauthenticated response containing full GKV/PKV tariff structures; no rate limit observed across 8+ sessions at 1 rps; repeated scraping = competitive intel theft or resource exhaustion; already ACCEPTED in KB; already well-characterized; no new passive finding possible without rate-limit burst test
+evidence_needed: Automated rate-limit absence confirmation (10x burst at 1 rps)
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php 10x at 1 rps → no 429
+impact: Full tariff database extraction by competitors; MEDIUM
+testability: PASSIVE
+[FINAL] 1. Cookie-stuffing persistence through self-registration (BUSLOGIC, 70, PASSIVE) — machine-testable, highest confidence, real money-flow exposure, unexecuted probe
+[FINAL] 2. Middleware-B IDOR (IDOR, 62, AUTH_HELPED) — blocked on scoped X-API-Secret, cannot progress without AUTH_HELPED
+[PARKED] Unauthenticated 2.1MB tariff data: already ACCEPTED in KB; well-characterized; no new passive finding possible; rate-limit burst is trivial confirm but adds no new finding value.
+[NEXT] PROBE: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture all Set-Cookie headers; (2) POST https://kassenkompass.de/bonusrechner_abschluss.php with Content-Type: application/x-www-form-urlencoded, body: email=probe_t$(date +%s)@test.example&password=Test1234!&password_confirm=Test1234!&confirm=on&create_account=1 — carry full cookie jar from step 1; (3) capture response status, body, any Set-Cookie updates, and check for stuffed token values (KKJ99/KKA9/KKG77/KKP9/KKE99) in response body or redirect Location. 1 rps, read-only registration of throwaway account, no live customer data.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: open self-registration (email/password/confirm, create_account=1, no CAPTCHA, self-submit POST) provides a non-partner verification surface for cookie-stuffing.
+[LEARN] REJECTED OTHER @ kassenkompass.de: no X-API-Secret/Bearer/api_key strings in public bonusrechner frontend — JS-delivered-secret inference unsupported on this surface.
+[RISK] kassenkompass: 67/100 — API passive surface saturated (15/15 auth map, 42-name v2, one cred-gated PII-grade hypothesis); funnel stuffing confirmed 7/7 with machine-verifiable self-registration path (real money-flow exposure); v2 BOLA value reduced by public data parity; remaining API tests wait on scoped X-API-Secret; overall risk elevated by confirmed cookie injection across 7 funnel entries serving money-flow attribution.
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,68,attack_surface=7 business_value=8 tech_exposure=4 gate_ease=9 cloud_surface=3 freshness=8
+[PRIO] kassenkompass.de/bonusrechner.php,66,attack_surface=8 business_value=8 tech_exposure=4 gate_ease=9 cloud_surface=3 freshness=7
+[PRIO] api.kassenkompass.de,50,attack_surface=5 business_value=8 tech_exposure=7 gate_ease=0 cloud_surface=5 freshness=4
+[HYP] Step-scoped alias divergence enables cross-step attribution forging — stuffed cookies persist through self-registration settlement
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_abschluss.php (+ step prefix bonusrechner.php)
+confidence: 78
+reasoning: 7/7 funnel mirrors set unvalidated 1yr attribution cookies, alias maps differ per step (lizenz only on bonusrechner.php/fragen.php? — confirmed; connectionnumber only on vergleich2/termin/suche/abschluss); abschluss.php carries superset map + open no-CAPTCHA self-registration (create_account=1, 200); GET branch closed 7/7 byte-identical ⇒ cookie consumption is POST/portal-path only; settle/commission attribution is server-side from these cookies (HttpOnly set ⇒ server consumed).
+evidence_needed: stuffed token set in Set-Cookie from step1 GET visible in step2 POST registration jar; response/redirect indicates account created with stuffed attribution bound.
+verify_steps: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture all Set-Cookie; (2) POST https://kassenkompass.de/bonusrechner_abschluss.php Content-Type: application/x-www-form-urlencoded, body email=probe_t$(date +%s)@test.example&password=Test1234!&password_confirm=Test1234!&confirm=on&create_account=1, carry full jar; (3) grep response/Location for KKA9/KKJ99/KKG77/KKP9/KKE99 + record any new Set-Cookie + status; 1 rps, throwaway @test.example, no live customer data.
+impact: Attacker poisons settlement/commission attribution for own or shared-link victim accounts (money-flow); with step divergence, can inject attrs unavailable at given step. MEDIUM-HIGH
+testability: PASSIVE (registration uses throwaway creds, defined verification surface)
+[HYP] Middleware-B IDOR — /user/{ext_id} + /cancel/{id} cross-tenant under one B-scoped secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B = kk_webapp-delegation stack {user, cancel} (15/15 map complete); ext_id opaque, no ownership binding in catalog; cancel is destructive FG-Wechsel-Storno; single B-secret gates both; query/cookie/alt-header source-merge closed ⇒ header only.
+evidence_needed: two distinct ext_ids → distinct 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH: GET /user/1 vs /user/2 differential; sequential sweep a→b→c; only then POST /cancel/{id}.
+impact: Cross-tenant PII dump + remote cancel of insurer-switch postings. HIGH
+testability: AUTH_HELPED
+[HYP] Settlement_report historical-fiscal aggregation is fuzzable for tenant-boundary leaks via {kk_id}/{month} arithmetic
+class: IDOR
+asset: api.kassenkompass.de/bonusrechner_abschluss.php → /settlement_report/{kk_id}/{month}
+confidence: 45
+reasoning: catalog signature /settlement_report/{kk_id}/{month}; 401 RFC 9457 uniform on middleware A; no enumeration differential observable pre-auth; same-credential boundary test blocked on A-scoped secret (not yet supplied); kk_id numeric predictability is corollary of fragen.php ucatKkData pseudoKkIds — indexes 99/100/101 hint at whole-number kk_id space.
+evidence_needed: two kk_ids under one A-secret return different settlement payloads
+verify_steps: WITH AUTH: GET /settlement_report/1/1 vs /settlement_report/2/1 differential
+impact: cross-tenant settlement/PII disclosure. HIGH
+testability: AUTH_HELPED
+[NEXT] PROBE: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture token-value Set-Cookie set; (2) POST https://kassenkompass.de/bonusrechner_abschluss.php (x-www-form-urlencoded; email=probe_t$(date +%s)@test.example, password=Test1234!, password_confirm=Test1234!, confirm=on, create_account=1) — transmit full jar from (1); (3) record final status + body + any new Set-Cookie; grep response for KKA9/KKJ99/KKG77/KKP9/KKE99 and email; 1 rps, no live PII, throwaway tenant only.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: Cookie-stuffing persistence chain has been machine-verifiable since 2026-09-08 13:49 via abschluss.php self-registration but remains unexecuted — two ranked sessions (nemotron3 85, bigpickle 70) both rest on the same unverified probe; funnel stuffing surfaces 7 mirrors with divergent alias maps confirmed.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
+[RISK] kassenkompass: 68/100 — top executable action (funnel cookie-stuffing → self-register settlement attribution poisoning) remains uncashed across sessions; 7/7 live cookie injection into money-flow attribution with step-scoped divergence confirmed; api surface credential-gated with one HIGH-class IDOR hypothesis queued; only speculative drag is the two un-merged alias-map hypotheses inflating claimed confidence above executed evidence.
+[HYP] Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner.php → bonusrechner_daten.php → bonusrechner_fragen.php → bonusrechner_suche.php → bonusrechner_vergleich2.php → bonusrechner_abschluss.php → termin.php
+confidence: 85
+reasoning: Seven distinct funnel entry points with divergent alias maps: bonusrechner.php (lizenz→afilcode no Secure/HttpOnly; jid/agn/ppn→HttpOnly), bonusrechner_daten.php (jid/agn/ppn→HttpOnly only; no lizenz/afilcode), bonusrechner_fragen.php (2.1MB tariff data, no params), bonusrechner_suche.php (jid/agn/connectionnumber/employeenumber→HttpOnly), bonusrechner_vergleich2.php (jid/agn/connectionnumber/ppn/employeenumber→HttpOnly; connectionnumber→agenturnummer dual alias duplicate), bonusrechner_abschluss.php (superset map: lizenz/jid/agn/connectionnumber/ppn/employeenumber; dual alias duplicate), termin.php (same as suche). Attacker injects params at step 1 setting afilcode (no HttpOnly → JS readable) + HttpOnly cookies; victim progresses through steps 2-7 with attacker-controlled attribution cookies consumed by backend settlement/lead logic. No validation on any param. Business logic assumes linear funnel but params persist across steps via 1-year cookies.
+evidence_needed: Victim session with attacker-injected lizenz/jid/agn/ppn at step 1 progresses through steps 2-7 with attacker-controlled attribution cookies consumed by backend settlement/lead logic
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie; GET https://kassenkompass.de/bonusrechner_daten.php (no params) → observe HttpOnly cookies persist; GET https://kassenkompass.de/bonusrechner_fragen.php → confirm 2.1MB tariff data; GET https://kassenkompass.de/bonusrechner_suche.php (no params) → observe cookies; GET https://kassenkompass.de/bonusrechner_vergleich2.php (no params) → observe connectionnumber duplicate; GET https://kassenkompass.de/bonusrechner_abschluss.php (no params) → observe cookie consumption; GET https://kassenkompass.de/termin.php (no params) → observe same
+impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
+testability: PASSIVE
+[HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 80
+reasoning: bonusrechner_fragen.php returns 2.1MB inline tariff dataset (full GKV/PKV comparison data) via unauthenticated GET. No rate limiting observed across multiple probe sessions (2026-09-06/07/08 at 1 rps returned consistent 2.1MB bodies). Response contains complete tariff structures (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03), provider details (globalbudgetsData), pricing tiers (kombiboniData), pseudoKkIds=[99,100,101] — high-value competitive intelligence. Repeated requests could cause resource exhaustion (DoS) or systematic tariff scraping. Confirmed live. v2 insurance_info protected payload domain publicly replicated here — BOLA cross-tenant read value downgraded to unpublished-draft-only.
+evidence_needed: Automated scraping of full tariff dataset via repeated GET requests; competitor confirmation of data sensitivity; rate limit absence verification
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (passive, measure response time/size); repeat 10x at 1 rps → confirm no 429/rate limit; curl -I → check Cache-Control/ETag headers
+impact: Competitive intelligence leak (full tariff database); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
+testability: PASSIVE
+[PARKED] v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id: Cloudflare/WAF normalizes `%2e%2e%2f` to 404 before router; only raw greedy segments (`//`, `/extra`, `%31`) reach handler. Without valid X-API-Secret, cannot confirm handler-level path traversal or IDOR on kk_id. Confidence 55, testability AUTH_HELPED only.
+[PARKED] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks: Requires valid X-API-Secret for cross-tenant testing on `/user/{ext_id}` and `/cancel/{id}`; no passive verification possible. Confidence 75 but testability AUTH_HELPED only.
+[FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 85, PASSIVE)
+[FINAL] 2. Cookie-Stuffing Persistence Through Self-Registration Flow — Stuffed Attribution Cookies Consumed at Account Creation (confidence 80, PASSIVE)
+[FINAL] 3. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 80, PASSIVE)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response body, form action/method/fields, and any settlement/submission indicators (passive-first, 1 rps, no live customer data)
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Confirmed 7th funnel step with open self-registration (email/password/confirm, create_account=1, no CAPTCHA, POST form) — provides automated verification surface for cookie-stuffing→account-creation chain
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Accepts full superset alias map (lizenz→afilcode non-HttpOnly; jid→customerid; agn+connectionnumber→agenturnummer dual-alias duplicate; ppn→poolpartnernummer; employeenumber) — combines all prior step alias maps
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) — unauthenticated, no rate limit, competitive intelligence leak
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/v2: Protected insurance_info payload domain (draft categories + resolved references) publicly replicated by bonusrechner_fragen.php ucatKkData — BOLA cross-tenant read value downgraded to unpublished-draft-only
+[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: Layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images (sequential qid), images-only, no sensitive objects
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+[LEARN] REJECTED OTHER @ kassenkompass.de: Subdomain sweep ~80 names (incl. kk-webapp/kk_webapp/partner/bonus) → only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+[LEARN] REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
