@@ -94,3 +94,5 @@ verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → []
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-08 00:28:18 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 05:11:09 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
