@@ -856,3 +856,9 @@
 ## RANKED HYPOTHESES 2026-09-08 09:16:02 UTC
 - [70] kassenkompass.de: Cookie-stuffing persistence through self-registration flow — stuffed attribution cookies consumed at account creation (from art/lead_bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): PROBE: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture all Set-Cookie headers; (2) POS
+
+## RANKED HYPOTHESES 2026-09-08 13:49:29 UTC
+- [70] kassenkompass.de: Cookie-stuffing persistence through self-registration flow — stuffed attribution cookies consumed at account creation (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture all Set-Cookie headers; (2) POS
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: open self-registration (email/password/confirm, create_account=1, no CAPTCHA, self-submit POST) pr
+- LEARN: REJECTED OTHER @ kassenkompass.de: no X-API-Secret/Bearer/api_key strings in public bonusrechner frontend — JS-delivered-secret inference unsupported on this su
