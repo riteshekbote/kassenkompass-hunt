@@ -1,4 +1,4 @@
-## 2026-09-07 23:47:28 UTC [target] (model nemotron3)
+## 2026-09-08 04:12:25 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/funnel-chain (bonusrechner.php→daten→fragen→suche→vergleich2→abschluss→termin),8.1,attack_surface=9,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=9
 [PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.4,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=9
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,7.2,attack_surface=8,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
@@ -22,7 +22,7 @@ reasoning: Newly confirmed 7th funnel step (2026-09-06/07 probes) returning 200 
 evidence_needed: POST to bonusrechner_abschluss.php with form data showing attacker-controlled cookie values consumed for settlement; partner portal confirmation of misattributed commission
 verify_steps: GET https://kassenkompass.de/bonusrechner_abschluss.php (capture Set-Cookie, response size, body differential vs base, and any settlement/submission form indicators); inspect HTML for form action/method/fields; POST minimal form data (email=test%40example.com, password=Test123%21, password_confirm=Test123%21, confirm=on) to observed action → observe response; correlate with backend settlement logic (requires partner portal access)
 impact: Commission theft, lead misattribution at settlement finalization; financial harm to partners/insurers; HIGH
-testability: PASSIVE (GET probe only; POST requires human validation)
+testability: PASSIVE
 [HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -32,8 +32,6 @@ evidence_needed: Automated scraping of full tariff dataset via repeated GET requ
 verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (passive, measure response time/size); repeat 10x at 1 rps → confirm no 429/rate limit; curl -I → check Cache-Control/ETag headers
 impact: Competitive intelligence leak (full tariff database); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
 testability: PASSIVE
-[PARKED] v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id: Cloudflare/WAF normalizes `%2e%2e%2f` to 404 before router; only raw greedy segments (`//`, `/extra`, `%31`) reach handler. Without valid X-API-Secret, cannot confirm handler-level path traversal or IDOR on kk_id. Confidence 55, testability AUTH_HELPED only.
-[PARKED] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks: Requires valid X-API-Secret for cross-tenant testing on `/user/{ext_id}` and `/cancel/{id}`; no passive verification possible. Confidence 75 but testability AUTH_HELPED only.
 [FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 85, PASSIVE)
 [FINAL] 2. Settlement Submission Endpoint with Unvalidated Cookie Consumption (confidence 75, PASSIVE)
 [FINAL] 3. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 75, PASSIVE)

@@ -306,3 +306,5 @@ www.kassenkompass.de
 - CHANGED Auth map 15/15 complete — `/cancel/{id}` joins middleware B; B = `kk_webapp`-delegation stack `{user, cancel}`; v2 shares middleware A with v1 majority
 
 ## 2026-09-07 23:48:01 UTC
+
+## 2026-09-08 04:14:37 UTC

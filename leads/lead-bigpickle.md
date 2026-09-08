@@ -1369,3 +1369,31 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ kassenkompass.de: no X-API-Secret/Bearer/api_key strings in public bonusrechner frontend — JS-delivered-secret inference unsupported on this surface.
 [RISK] kassenkompass: 67/100 — API passive surface saturated (15/15 auth map, 42-name v2, one cred-gated PII-grade hypothesis); funnel stuffing confirmed 7/7 with open self-registration now offering an attacker-self-service verification path (real money-flow exposure, human-gated to prove); v2 BOLA value reduced by public data parity; remaining tests wait on scoped X-API-Secret or an authorized deletion-safe POST at the abschluss registration form.
 ## 2026-09-07 23:45:54 UTC [target] (model bigpickle)
+## 2026-09-08 04:14:29 UTC [target] (model bigpickle)
+[HYP] Funnel cookie-stuffing → server-side lead/commission poisoning (step-scoped alias divergence included)
+class: BUSLOGIC
+asset: kassenkompass.de (/bonusrechner.php|_daten|_fragen|_suche|_vergleich2|_abschluss.php, /termin.php)
+confidence: 72
+reasoning: 7/7 funnel steps mirror raw pass-params into 1-yr cookies unvalidated (superset incl. lizenz→afilcode non-HttpOnly; agn|connectionnumber dual-alias duplicate last-wins); HttpOnly ⇒ server consumption; GET branch closed 7/7 byte-identical ⇒ ingest is POST/portal-path; abschluss.php offers open self-registration (create_account=1) so a throwaway account can carry stuffed cookies through creation; alias sets are step-scoped (lizenz only on bonusrechner+abschluss; daten ignores lizenz) — divergence exploitable for selective identity injection
+evidence_needed: Stuffed tokens KKJ99/KKA9/KKG77/KKC99/KKP9/KKE99 reappear in own account's post-registration attribution/offer view or any follow-up portal response
+verify_steps: HUMAN (go-ahead): set stuffed mirror cookies in fresh session; POST https://kassenkompass.de/bonusrechner_abschluss.php (email=throwaway, password, password_confirm, confirm=on, create_account=1); then GET resulting account pages and grep stuffed tokens
+impact: Cross-tenant lead/commission poisoning on money flow, attacker-self-serviceable; MEDIUM-HIGH
+testability: HUMAN_ONLY
+[HYP] Middleware-B IDOR — /user/{ext_id} cross-tenant PII read, /cancel/{id} cross-tenant Storno
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B stack = exactly {user, cancel} (15/15 complete); ext_id opaque, catalog shows no ownership binding; cancel = FG-Wechsel-Storno delegated to kk_webapp; single B-scoped secret gates both; greedy empty-segment match confirmed on B
+evidence_needed: Two distinct ext_ids → different 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH: GET /user/1 vs /user/2 diff; sequential sweep; POST /cancel/{id} only after GET IDOR proven
+impact: Cross-tenant PII dump + cancel others' insurer-switch; HIGH
+testability: AUTH_HELPED
+[HYP] v2 insurance_info BOLA — unpublished-draft cross-tenant read
+class: IDOR
+asset: api.kassenkompass.de (/v2/insurance_info/{kk_id})
+confidence: 45
+reasoning: Sole v2 route (42-name saturation); greedy segment reaches handler pre-parse; pseudoKkIds=[99,100,101] provide pre-enumerable test ids; BUT per-KK resolved-reference dataset publicly replicated by fragen.php ucatKkData (1.79MB) — residual value = draft fields only (akt:"1", wert changes post lastchange 2026-05-03)
+evidence_needed: Two kk_ids → different 200 draft sets under one secret, fields absent from public ucatKkData
+verify_steps: WITH AUTH: GET /v2/insurance_info/99|100|101 then sequential ids; diff draft/reference fields against public blob
+impact: Marginal cross-tenant draft read; data parity with public surface; LOW-MEDIUM
+testability: AUTH_HELPED

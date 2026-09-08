@@ -301,3 +301,12 @@ https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
 https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-08 04:14:47 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
