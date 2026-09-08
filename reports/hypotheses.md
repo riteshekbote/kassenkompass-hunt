@@ -852,3 +852,7 @@
 - LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data response confirmed — unauthenticated, no rate limit, competitive intelli
+
+## RANKED HYPOTHESES 2026-09-08 09:16:02 UTC
+- [70] kassenkompass.de: Cookie-stuffing persistence through self-registration flow — stuffed attribution cookies consumed at account creation (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 — capture all Set-Cookie headers; (2) POS

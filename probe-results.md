@@ -310,3 +310,8 @@ https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
 https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-08 09:16:07 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?

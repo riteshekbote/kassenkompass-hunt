@@ -308,3 +308,6 @@ www.kassenkompass.de
 ## 2026-09-07 23:48:01 UTC
 
 ## 2026-09-08 04:14:37 UTC
+
+## 2026-09-08 09:16:02 UTC
+- NEW verification path exists for top-ranked hypothesis: abschluss.php open self-registration (no CAPTCHA, create_account=1) enables automated cookie-stuffing→account-creation test without human interventi

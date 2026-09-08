@@ -8035,3 +8035,59 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-08 09:16:02 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/
+total 320
+drwxr-xr-x 12 runner runner   4096 Sep  8 08:55 .
+drwxr-xr-x  3 runner runner   4096 Sep  8 08:55 ..
+drwxr-xr-x  7 runner runner   4096 Sep  8 08:55 .git
+drwxr-xr-x  3 runner runner   4096 Sep  8 08:55 .github
+-rw-r--r--  1 runner runner   1767 Sep  8 08:55 README.md
+-rw-r--r--  1 runner runner     43 Sep  8 08:55 analyst-out.txt
+-rw-r--r--  1 runner runner 111863 Sep  8 08:55 analyst-prompt.txt
+-rw-r--r--  1 runner runner 108045 Sep  8 08:55 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 inventory
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 leads
+-rw-r--r--  1 runner runner  15866 Sep  8 08:55 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 reports
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep  8 08:55 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 scripts
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep  8 08:55 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 triage
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead probe-results.md
+[0m✱ [0mGlob "leads/*.txt"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/ 2>/dev/null || echo "No leads dir"
+total 548
+drwxr-xr-x  2 runner runner   4096 Sep  8 08:55 .
+drwxr-xr-x 12 runner runner   4096 Sep  8 08:55 ..
+-rw-r--r--  1 runner runner 182548 Sep  8 08:55 lead-bigpickle.md
+-rw-r--r--  1 runner runner   1683 Sep  8 08:55 lead-laguna.md
+-rw-r--r--  1 runner runner   1650 Sep  8 08:55 lead-ling3.md
+-rw-r--r--  1 runner runner   1716 Sep  8 08:55 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep  8 08:55 lead-mimo.md
+-rw-r--r--  1 runner runner 340921 Sep  8 08:55 lead-nemotron3.md
+-rw-r--r--  1 runner runner   5396 Sep  8 08:55 reposcan-kassenkompass.md
+[0m
+[0m→ [0mRead state_nemotron3.json
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=500][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=500, offset=400][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [offset=675, limit=500][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=500, offset=940][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=500, offset=1210][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=500, offset=1528][0m
+[0m→ [0mRead leads/lead-nemotron3.md[90m [limit=300, offset=1793][0m
