@@ -92,3 +92,5 @@ reasoning: KassenKompass-GmbH has 0 public repos on GitHub; no candidate org rep
 impact: N/A — no source-code secret surface to report
 verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → []
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 00:28:18 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
