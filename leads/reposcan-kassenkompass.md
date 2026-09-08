@@ -107,3 +107,5 @@ reasoning: KassenKompass-GmbH (GitHub org id 316947552) exists but has 0 public 
 impact: None — source-code secret surface is empty; no hardcoded credentials, API keys, cloud creds, or insecure code patterns can be discovered in repos that do not exist.
 verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone; no active scan needed.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-08 17:57:22 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
