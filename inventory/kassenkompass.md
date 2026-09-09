@@ -403,3 +403,12 @@ www.kassenkompass.de
 - CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
 - CHANGED Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
 - CHANGED Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps
+
+## 2026-09-09 18:47:54 UTC
+- NEW `kassenkompass.de/bonusrechner_vergleich2.php` sets new cookie `device_id` (1yr Secure HttpOnly) + `expires catoint` — not observed in prior sessions (probe-results 2026-09-09 06:12/15:36)
+- NEW `kassenkompass.de/bonusrechner_abschluss.php` form confirmed: POST method, fields `email/password/password_confirm/create_account=1`, no CAPTCHA, "Account erstellen" header — self-registration flow li
+- CHANGED `api.kassenkompass.de` root catalog stable (15 v1 endpoints, ver 1.0) + `/v2/` catalog stable (sole `insurance_info`, ver 2.0) — zero drift since 2026-09-07
+- CHANGED Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps — no new entries since 2026-09-07
+- CHANGED `v2` router-404 oracle saturated at 42 names — `insurance_info` sole route confirmed again
+- CHANGED Auth map 15/15 complete — `/cancel/{id}` middleware B, v2 shares middleware A with v1 majority — stable
+- CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (cache-buster/nonce drift only); cookie consumption strictly POST/portal-path
