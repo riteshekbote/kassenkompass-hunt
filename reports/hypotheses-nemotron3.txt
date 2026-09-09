@@ -1,15 +1,20 @@
-## 2026-09-09 01:13:53 UTC [target] (model nemotron3)
-[CHANGED] Current date 2026-09-09 01:09 UTC vs last KB entry 2026-09-08 22:50 UTC — no new passive recon since last session; surface stable
+## 2026-09-09 06:12:43 UTC [target] (model nemotron3)
+[NEW] awv.kassenkompass.de root returns 404 (not 400) with no body — SGTM container confirmed via Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+[NEW] kassenkompass.de/bonusrechner_abschluss.php form confirmed: POST method, fields email/password/password_confirm/create_account=1, no CAPTCHA, "Account erstellen" header — self-registration flow live
+[NEW] kassenkompass.de/bonusrechner_vergleich2.php sets device_id (1yr Secure HttpOnly) + expires catoint — new cookie observed vs prior sessions
+[CHANGED] api.kassenkompass.de root catalog stable (15 v1 endpoints, ver 1.0) + /v2/ catalog stable (sole insurance_info, ver 2.0) — no endpoint drift since 2026-09-07
+[CHANGED] v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
+[CHANGED] Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
+[CHANGED] 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
 [CHANGED] Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
-[NEW] 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
-[PRIO] kassenkompass.de/bonusrechner_abschluss.php,8.3,attack_surface=9,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=3,freshness=10
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.8,attack_surface=8,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=10
-[PRIO] kassenkompass.de/bonusrechner.php,7.5,attack_surface=8,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.8,attack_surface=6,business_value=6,tech_exposure=7,gate_ease=1,cloud_surface=5,freshness=8
-[PRIO] awv.kassenkompass.de,6.2,attack_surface=5,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=7,freshness=9
-[PRIO] kassenkompass.de/bonusrechner_vergleich2.php,6.0,attack_surface=7,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
-[PRIO] kassenkompass.de/bonusrechner_daten.php,5.8,attack_surface=7,business_value=5,tech_exposure=4,gate_ease=10,cloud_surface=3,freshness=9
-[PRIO] api.kassenkompass.de (v1 root/catalog),5.2,attack_surface=6,business_value=5,tech_exposure=4,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,8.5,attack_surface=9,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=3,freshness=10
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.0,attack_surface=8,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=10
+[PRIO] kassenkompass.de/bonusrechner.php,7.8,attack_surface=8,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.0,attack_surface=6,business_value=6,tech_exposure=7,gate_ease=1,cloud_surface=5,freshness=8
+[PRIO] awv.kassenkompass.de,6.5,attack_surface=5,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=7,freshness=9
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php,6.2,attack_surface=7,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
+[PRIO] kassenkompass.de/bonusrechner_daten.php,6.0,attack_surface=7,business_value=5,tech_exposure=4,gate_ease=10,cloud_surface=3,freshness=9
+[PRIO] api.kassenkompass.de (v1 root/catalog),5.5,attack_surface=6,business_value=5,tech_exposure=4,gate_ease=10,cloud_surface=4,freshness=7
 [HYP] Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence
 class: BUSLOGIC
 asset: kassenkompass.de/bonusrechner.php → bonusrechner_daten.php → bonusrechner_fragen.php → bonusrechner_suche.php → bonusrechner_vergleich2.php → bonusrechner_abschluss.php → termin.php
@@ -18,15 +23,6 @@ reasoning: Seven distinct funnel entry points with divergent alias maps: bonusre
 evidence_needed: Victim session with attacker-injected lizenz/jid/agn/ppn at step 1 progresses through steps 2-7 with attacker-controlled attribution cookies consumed by backend settlement/lead logic
 verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie; GET https://kassenkompass.de/bonusrechner_daten.php (no params) → observe HttpOnly cookies persist; GET https://kassenkompass.de/bonusrechner_fragen.php → confirm 2.1MB tariff data; GET https://kassenkompass.de/bonusrechner_suche.php (no params) → observe cookies; GET https://kassenkompass.de/bonusrechner_vergleich2.php (no params) → observe connectionnumber duplicate; GET https://kassenkompass.de/bonusrechner_abschluss.php (no params) → observe cookie consumption; GET https://kassenkompass.de/termin.php (no params) → observe same
 impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
-testability: PASSIVE
-[HYP] Cookie-Stuffing Persistence Through Self-Registration Flow — Stuffed Attribution Cookies Consumed at Account Creation
-class: BUSLOGIC
-asset: kassenkompass.de/bonusrechner_abschluss.php
-confidence: 80
-reasoning: Confirmed 7th funnel step (2026-09-06/07/08 probes) returning 200 OK with POST form for account creation (email, password, password_confirm, TOS checkbox, create_account=1, no CAPTCHA). Prior 6 funnel steps all demonstrate server-side cookie injection from raw params with no validation. Abschluss.php accepts full superset alias map (lizenz/jid/agn/connectionnumber/ppn/employeenumber) and likely consumes accumulated attribution cookies (afilcode, customerid, agenturnummer, poolpartnernummer, employeenumber, advisorid) for partner commission settlement or lead finalization. GET branch closed 7/7 shows byte-identical HTML regardless of cookie state — consumption is strictly POST/portal-path. Open self-registration enables automated verification of cookie-stuffing→account-creation chain without human intervention.
-evidence_needed: POST to bonusrechner_abschluss.php with form data showing attacker-controlled cookie values consumed for settlement/account creation; partner portal confirmation of misattributed commission
-verify_steps: GET https://kassenkompass.de/bonusrechner_abschluss.php (capture Set-Cookie, response body, form action/method/fields); POST minimal form data (email=test%40example.com, password=Test123%21, password_confirm=Test123%21, confirm=on, create_account=1) to observed action → observe response; correlate with backend settlement logic (requires partner portal access)
-impact: Commission theft, lead misattribution at settlement finalization; financial harm to partners/insurers; HIGH
 testability: PASSIVE
 [HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
@@ -37,15 +33,23 @@ evidence_needed: Automated scraping of full tariff dataset via repeated GET requ
 verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (passive, measure response time/size); repeat 10x at 1 rps → confirm no 429/rate limit; curl -I → check Cache-Control/ETag headers
 impact: Competitive intelligence leak (full tariff database); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
 testability: PASSIVE
-[PARKED] v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id: Cloudflare/WAF normalizes `%2e%2e%2f` to 404 before router; only raw greedy segments (`//`, `/extra`, `%31`) reach handler. Without valid X-API-Secret, cannot confirm handler-level path traversal or IDOR on kk_id. Confidence 55, testability AUTH_HELPED only.
-[PARKED] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks: Requires valid X-API-Secret for cross-tenant testing on `/user/{ext_id}` and `/cancel/{id}`; no passive verification possible. Confidence 75 but testability AUTH_HELPED only.
+[HYP] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks
+class: AUTH
+asset: api.kassenkompass.de/user/{ext_id} and api.kassenkompass.de/cancel/{id}
+confidence: 75
+reasoning: Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (middleware A, 8 endpoints) vs "Ungültiger X-API-Secret" + instance echo (middleware B, only /user/{ext_id} and /cancel/{id}). Middleware B described as "delegiert an kk_webapp" (delegated to webapp). Different error wording and instance-first format suggest separate auth middleware stacks with potentially different authorization scopes (e.g., middleware B may lack cross-tenant checks present in middleware A). v2 shares middleware A with v1 majority.
+evidence_needed: Valid X-API-Secret for middleware B enabling cross-tenant access test on /user/{ext_id} and /cancel/{id}; comparison of authorization logic between middleware A and B
+verify_steps: Requires valid X-API-Secret — AUTH_HELPED only. Passive: GET https://api.kassenkompass.de/user/1 (401 middleware B), GET https://api.kassenkompass.de/cancel/1 (401 middleware B) → confirm distinct error format vs middleware A endpoints
+impact: If middleware B lacks cross-tenant checks → IDOR on /user/{ext_id} (PII) and unauthorized cancellation via /cancel/{id}; HIGH
+testability: AUTH_HELPED
+[PARKED] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks: Requires valid X-API-Secret for cross-tenant testing on /user/{ext_id} and /cancel/{id}; no passive verification possible. Confidence 75 but testability AUTH_HELPED only.
 [PARKED] IDOR on /user/{ext_id} — Cross-User PII Access: Requires valid X-API-Secret; AUTH_HELPED only. Confidence 62.
 [PARKED] BOLA on /settlement_report/{year}/{month} — Cross-Tenant Financial Data: Requires valid scoped X-API-Secret; AUTH_HELPED only. Confidence 60.
 [PARKED] BOLA on /delete/{id} — Authenticated Arbitrary Resource Deletion: Destructive endpoint; AUTH_HELPED only. Confidence 70.
+[PARKED] v2 Insurance Info Greedy Segment Match — Path Traversal to Unvalidated kk_id: Cloudflare/WAF normalizes %2e%2e%2f to 404 before router; only raw greedy segments (//, /extra, %31) reach handler. Without valid X-API-Secret, cannot confirm handler-level path traversal or IDOR on kk_id. Confidence 55, testability AUTH_HELPED only.
 [PARKED] OAuth redirect_uri Validation Bypass Across Multi-Tenant Login Portals: No OAuth authorize endpoint discovered in passive enumeration; all three portals use traditional form-post auth; hypothesis not verifiable passively. Confidence 55.
 [FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 85, PASSIVE)
-[FINAL] 2. Cookie-Stuffing Persistence Through Self-Registration Flow — Stuffed Attribution Cookies Consumed at Account Creation (confidence 80, PASSIVE)
-[FINAL] 3. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 80, PASSIVE)
+[FINAL] 2. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 80, PASSIVE)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response body, form action/method/fields, and any settlement/submission indicators (passive-first, 1 rps, no live customer data)
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Confirmed 7th funnel step with open self-registration (email/password/confirm, create_account=1, no CAPTCHA, POST form) — provides automated verification surface for cookie-stuffing→account-creation chain
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Accepts full superset alias map (lizenz→afilcode non-HttpOnly; jid→customerid; agn+connectionnumber→agenturnummer dual-alias duplicate; ppn→poolpartnernummer; employeenumber) — combines all prior step alias maps

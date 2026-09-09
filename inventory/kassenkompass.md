@@ -380,3 +380,13 @@ www.kassenkompass.de
 - CHANGED Current date 2026-09-09 01:09 UTC vs last KB entry 2026-09-08 22:50 UTC — no new passive recon since last session; surface stable
 - CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
 - NEW 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
+
+## 2026-09-09 06:12:53 UTC
+- NEW awv.kassenkompass.de root returns 404 (not 400) with no body — SGTM container confirmed via Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid; 
+- NEW kassenkompass.de/bonusrechner_abschluss.php form confirmed: POST method, fields email/password/password_confirm/create_account=1, no CAPTCHA, "Account erstellen" header — self-registration flow live
+- NEW kassenkompass.de/bonusrechner_vergleich2.php sets device_id (1yr Secure HttpOnly) + expires catoint — new cookie observed vs prior sessions
+- CHANGED api.kassenkompass.de root catalog stable (15 v1 endpoints, ver 1.0) + /v2/ catalog stable (sole insurance_info, ver 2.0) — no endpoint drift since 2026-09-07
+- CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
+- CHANGED Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
+- CHANGED 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
+- CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
