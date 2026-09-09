@@ -418,3 +418,7 @@ https://kassenkompass.de/termin.php -> 200 len=?
 https://api.kassenkompass.de/user/1 -> HTTP 401
 https://api.kassenkompass.de/cancel/1 -> HTTP 401
 https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-09 23:35:42 UTC
+https://kassenkompass.de/login_partner.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?

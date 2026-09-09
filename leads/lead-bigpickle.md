@@ -1829,3 +1829,33 @@ impact: full tariff/bonus-structure competitive intelligence leak. MEDIUM-HIGH
 testability: PASSIVE
 [NEXT] PROBE: GET https://kassenkompass.de/login_partner.php (200) → extract form action + <script src> list; then GET the partner-portal JS entry and grep for `X-API-Secret` / `api.kassenkompass` / `secret` literals (JS-delivered-secret channel — the only untested path that could yield a B-scoped secret). ≤1 rps, GET only.
 [RISK] KassenKompass GmbH: 66 — B-stack correction expands shared-delegation gate to destructive /delete/{id} (user-data deletion) alongside user-read and Storno, raising IDOR ceiling but still AUTH_HELPED; cookie-stuffing attribution theft 80 (execution unverified), tariff leverage 80 PASSIVE; API surface otherwise credential-gated and fully mapped; read-only probing only, no live PII.
+## 2026-09-09 23:35:28 UTC [target] (model bigpickle)
+[HYP] Partner-Portal Client Delivers B-Scoped X-API-Secret (unlocks B-stack IDOR)
+class: AUTH
+asset: kassenkompass.de/login_partner.php → api.kassenkompass.de
+confidence: 45
+reasoning: Middleware B gates {/user/{ext_id}, /cancel/{id}, /delete/{id}} = kk_webapp-delegation stack; identity is the sole routing gate, ids method- and id-agnostic (401 pre-auth, 5 variants). 2026-09-07: access-control-allow-headers/allow-methods identical on A and B with no origin reflection — consistent with client-side-JS-delivered secret, browser-chain limited. 2026-09-07 JS-grep covered only the public bonusrechner frontend (0 hits); the partner portal is the only distinct surface never mined for `X-API-Secret`/`api.kassenkompass` literals. Header sole channel (query/cookie source-merge closed), so any secret must ship via page/JS.
+evidence_needed: secret literal or `api.kassenkompass` reference in partner-portal JS; or script that exchanges login POST for a per-session token later used as X-API-Secret.
+verify_steps: PASSIVE: GET https://kassenkompass.de/login_partner.php → parse `<form action>` + `<script src>` list → GET each JS asset → grep `X-API-Secret|api\.kassenkompass|secret|Bearer`. ≤1 rps.
+impact: unlocks read IDOR /user/{ext_id} (cross-tenant PII) + destructive /cancel (Storno) + /delete/{id}; HIGH, but channel evidence currently zero.
+testability: AUTH_HELPED
+[HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 80
+reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only).
+evidence_needed: rate-limit absence re-verification (repeat fetch); competitor confirmation of data sensitivity; Cache-Control/ETag header check.
+verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → Cache-Control/ETag; GET body 10x @1rps → confirm size stable, no 429.
+impact: full tariff/bonus-structure/volume-budget database leak (competitive intelligence), potential resource exhaustion. MEDIUM-HIGH
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Affilcode Persistence
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate Set-Cookie), ppn→poolpartnernummer, employeenumber; 1-yr Max-Age; zero validation; GET branch closed 7/7 (cookies consumed strictly POST/portal-path); sessionData null on GET (server-side-only consumption).
+evidence_needed: settlement-report line-item attributed to stuffed afilcode.
+verify_steps: WITH PARTNER ACCESS: GET bonusrechner.php?lizenz=ATTACKER_LIZ under victim flow → complete questionnaire → read settlement/commission line-items for ATTACKER_LIZ attribution.
+impact: commission/attribution theft on insurance-switch settlements. HIGH
+testability: AUTH_HELPED
+[NEXT] PROBE: GET https://kassenkompass.de/login_partner.php (200) and persist full body; extract `<form action>/method/fields` and `<script src>` list; then GET the partner-portal JS entry and grep for `X-API-Secret|api\.kassenkompass|secret|Bearer` literals (≤1 rps, GET only, no POST to login).
+[RISK] KassenKompass GmbH: 66 — Two independently standing findings (cookie-stuffing attribution theft 80, tariff-data exposure 80 PASSIVE) plus 2 already-accepted (catalog disclosure, /sync/ 200); execution value remains AUTH_HELPED (partner secret/settlement access needed); the only shr(ing) remaining passive vector is the partner-portal JS secret channel (45), cheap to close; API surface fully mapped and stable; read-only probing only, no live PII exposed. Risk reflects a mature, largely-saturated surface with slow-to-confirm monetary-attribution findings, not absence of real flaws.

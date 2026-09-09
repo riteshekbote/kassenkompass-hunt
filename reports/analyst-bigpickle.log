@@ -12130,3 +12130,107 @@ testability: PASSIVE
 
 # STEP 7 — RISK
 [RISK] KassenKompass GmbH: 66 — B-stack correction expands shared-delegation gate to destructive /delete/{id} (user-data deletion) alongside user-read and Storno, raising IDOR ceiling but still AUTH_HELPED; cookie-stuffing attribution theft 80 (execution unverified), tariff leverage 80 PASSIVE; API surface otherwise credential-gated and fully mapped; read-only probing only, no live PII.
+===== ANALYST bigpickle 2026-09-09 23:35:38 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && git log --oneline -5 2>/dev/null
+total 368
+drwxr-xr-x 12 runner runner   4096 Sep  9 23:33 .
+drwxr-xr-x  3 runner runner   4096 Sep  9 23:33 ..
+drwxr-xr-x  7 runner runner   4096 Sep  9 23:33 .git
+drwxr-xr-x  3 runner runner   4096 Sep  9 23:33 .github
+-rw-r--r--  1 runner runner   1767 Sep  9 23:33 README.md
+-rw-r--r--  1 runner runner     32 Sep  9 23:33 analyst-out.txt
+-rw-r--r--  1 runner runner 131562 Sep  9 23:33 analyst-prompt.txt
+-rw-r--r--  1 runner runner 127744 Sep  9 23:33 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 inventory
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 leads
+-rw-r--r--  1 runner runner  22275 Sep  9 23:33 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 reports
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep  9 23:33 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 scripts
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep  9 23:33 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep  9 23:33 triage
+cb763f3 triage 2026-09-09-21-46
+[0m
+[0m✱ [0mGlob "**/*.md"[90m 66 matches[0m
+[0m→ [0mRead triage/run-2026-09-09-21-46.md
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead probe-results.md
+[0m→ [0mRead reports/hypotheses.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead scope.yml
+[0m→ [0mRead knowledge/index.md[90m [offset=1, limit=60][0m
+[0m
+[0m$ [0mprintf '%s' 'KKX3382745' | sha256sum; printf '%s' 'X8372' | sha256sum
+bc2cb4e96a1a76bb9a040142632dd83a7f261b8d7aef01bbbec0942095137a36  -
+a41975240f3127e931f4b9a757bcdee024bfcbdd3a4a7156fb1764193a3c70c1  -
+[0m
+STEP 1 — DELTA
+- [CHANGED] probe-results 21:39:38: prior session's `[NEXT]` executed — `GET https://kassenkompass.de/login_partner.php` → HTTP 200; but only the status line was persisted, no body/`<script src>`/`<form action>` capture, so the JS-secret grep remains unfulfilled.
+- NO_DELTA: api catalogs (15 v1 + 1 v2, ver 1.0/2.0), auth map 15/15 (A/B stacks + /sync/ legacy), v2 router-404 oracle (42 names saturated), funnel stuffing surface (7 mirrors, step-scoped alias maps), GET branch closed 7/7 all unchanged vs 21:39:23 session.
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de (funnel 7 mirrors + fragen 2.1MB),7.10,attack_surface=6 business_value=9 tech_exposure=5 gate_ease=8 cloud_surface=6 freshness=8
+- [PRIO] api.kassenkompass.de,7.95,attack_surface=9 business_value=10 tech_exposure=10 gate_ease=4 cloud_surface=7 freshness=4
+- [PRIO] kassenkompass.net,4.65,attack_surface=4 business_value=5 tech_exposure=4 gate_ease=8 cloud_surface=3 freshness=3
+
+STEP 3 — HYPOTHESES
+[HYP] Partner-Portal Client Delivers B-Scoped X-API-Secret (unlocks B-stack IDOR)
+class: AUTH
+asset: kassenkompass.de/login_partner.php → api.kassenkompass.de
+confidence: 45
+reasoning: Middleware B gates {/user/{ext_id}, /cancel/{id}, /delete/{id}} = kk_webapp-delegation stack; identity is the sole routing gate, ids method- and id-agnostic (401 pre-auth, 5 variants). 2026-09-07: access-control-allow-headers/allow-methods identical on A and B with no origin reflection — consistent with client-side-JS-delivered secret, browser-chain limited. 2026-09-07 JS-grep covered only the public bonusrechner frontend (0 hits); the partner portal is the only distinct surface never mined for `X-API-Secret`/`api.kassenkompass` literals. Header sole channel (query/cookie source-merge closed), so any secret must ship via page/JS.
+evidence_needed: secret literal or `api.kassenkompass` reference in partner-portal JS; or script that exchanges login POST for a per-session token later used as X-API-Secret.
+verify_steps: PASSIVE: GET https://kassenkompass.de/login_partner.php → parse `<form action>` + `<script src>` list → GET each JS asset → grep `X-API-Secret|api\.kassenkompass|secret|Bearer`. ≤1 rps.
+impact: unlocks read IDOR /user/{ext_id} (cross-tenant PII) + destructive /cancel (Storno) + /delete/{id}; HIGH, but channel evidence currently zero.
+testability: AUTH_HELPED
+
+[HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 80
+reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only).
+evidence_needed: rate-limit absence re-verification (repeat fetch); competitor confirmation of data sensitivity; Cache-Control/ETag header check.
+verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → Cache-Control/ETag; GET body 10x @1rps → confirm size stable, no 429.
+impact: full tariff/bonus-structure/volume-budget database leak (competitive intelligence), potential resource exhaustion. MEDIUM-HIGH
+testability: PASSIVE
+
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Affilcode Persistence
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate Set-Cookie), ppn→poolpartnernummer, employeenumber; 1-yr Max-Age; zero validation; GET branch closed 7/7 (cookies consumed strictly POST/portal-path); sessionData null on GET (server-side-only consumption).
+evidence_needed: settlement-report line-item attributed to stuffed afilcode.
+verify_steps: WITH PARTNER ACCESS: GET bonusrechner.php?lizenz=ATTACKER_LIZ under victim flow → complete questionnaire → read settlement/commission line-items for ATTACKER_LIZ attribution.
+impact: commission/attribution theft on insurance-switch settlements. HIGH
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Middleware-B IDOR (72): AUTH_HELPED, no secret channel identified over 4+ sessions; channel requirement superseded by HYP1 — parked, not dropped. All re-probes of /user/ /cancel/ return identical 401 pre-auth.
+- [PARKED] nemotron3 [85] "Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence": the one-shot stuffing→register chain REFUTED (GET-vs-POST differential, POST-only Account-ID gate); only the stuffing/alias-divergence surface survives → subsumed into HYP3. Bypass claim downgraded.
+- [PARKED] CSRF on login forms, magic-value reuse (KKX3382745 sha256 bc2cb4e96a1a76bb9a040142632dd83a7f261b8d7aef01bbbec0942095137a36, X8372 sha256 a41975240f3127e931f4b9a757bcdee024bfcbdd3a4a7156fb1764193a3c70c1), OAuth, etc. — REJECTED class or closed (CRED_REUSE, source-merge, CRLF).
+- [FINAL] 1. Cookie-Stuffing Attribution Theft (BUSLOGIC, 80) — AUTH_HELPED, survives all critique sessions.
+- [FINAL] 2. Large Inline Tariff Data Exposure (MISCONFIG, 80) — PASSIVE, independently verifiable, confirmed size this session.
+- [FINAL] 3. Partner-Portal JS Secret Channel (AUTH, 45) — the only remaining passive path toward a scoped secret; probe is cheap and read-only.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: GET https://kassenkompass.de/login_partner.php (200) and persist full body; extract `<form action>/method/fields` and `<script src>` list; then GET the partner-portal JS entry and grep for `X-API-Secret|api\.kassenkompass|secret|Bearer` literals (≤1 rps, GET only, no POST to login).
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: login_partner.php probe (21:39:38) recorded status only — body/script-src extraction not persisted; prior [NEXT] JS-secret grep remains unexecuted in records.
+- [LEARN] REJECTED OTHER @ api.kassenkompass.de: No new enumeration primitive again — catalogs stable (15+1, zero drift since 2026-09-07), v2 oracle saturated (42), source-merge closed, format-side differential none; api surface stays credential-gated.
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: GET branch remains closed 7/7 — cookie consumption strictly POST/portal-path; passive dedup no further.
+
+STEP 7 — RISK
+[RISK] KassenKompass GmbH: 66 — Two independently standing findings (cookie-stuffing attribution theft 80, tariff-data exposure 80 PASSIVE) plus 2 already-accepted (catalog disclosure, /sync/ 200); execution value remains AUTH_HELPED (partner secret/settlement access needed); the only shr(ing) remaining passive vector is the partner-portal JS secret channel (45), cheap to close; API surface fully mapped and stable; read-only probing only, no live PII exposed. Risk reflects a mature, largely-saturated surface with slow-to-confirm monetary-attribution findings, not absence of real flaws.

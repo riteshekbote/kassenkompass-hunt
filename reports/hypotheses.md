@@ -1041,3 +1041,7 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar
+
+## RANKED HYPOTHESES 2026-09-09 23:35:38 UTC
+- [45] kassenkompass.de/login_partner.php: Partner-Portal Client Delivers B-Scoped X-API-Secret (unlocks B-stack IDOR) (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/login_partner.php (200) and persist full body; extract `<form action>/method/fields` and `<script src>` list; then GET the p
