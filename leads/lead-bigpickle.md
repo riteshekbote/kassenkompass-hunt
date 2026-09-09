@@ -1641,3 +1641,36 @@ testability: PASSIVE
 [LEARN] REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-09 01:13:58 UTC [target] (model bigpickle)
+[HYP] Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (refined by Account-ID gate)
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner.php → …_daten.php → …_fragen.php → …_suche.php → …_vergleich2.php → …_abschluss.php → termin.php
+confidence: 85
+reasoning: 7 live-confirmed mirrors, divergent alias maps (lizenz→afilcode non-HttpOnly; jid/agn/ppn/employeenumber HttpOnly; connectionnumber dual-alias), zero param validation, 1-yr cookies. NEW: abschluss.php registration is server-side lead-gated ("Account-ID nicht gefunden" on valid POST) — consumption is bound to a lead created during the questionnaire, so stuffed attribution enters the money-path only when the victim/attacker completes the funnel under stuffed cookies.
+evidence_needed: dummy questionnaire completed under a stuffed jar creates a lead/account whose settlement/commission reference the stuffed attrs (not the victim's real ones)
+verify_steps: GET bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 (jar); GET …_daten.php; GET …_fragen.php (initializes sessionData/lead); POST …_abschluss.php (throwaway email); confirm "Account-ID nicht gefunden" resolves and stuffed tokens appear in lead/account state; ≤1 rps, no live PII
+impact: attribution/commission theft on settlement money-flow. HIGH
+testability: PASSIVE (controlled dummy-lead flow, throwaway creds)
+[HYP] Middleware-B IDOR — /user/{ext_id} + /cancel/{id} cross-tenant under one B-scoped secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id})
+confidence: 62
+reasoning: B = kk_webapp-delegation stack {user, cancel} (15/15 map); ext_id opaque, no ownership binding; cancel is destructive FG-Wechsel-Storno; header sole channel.
+evidence_needed: two distinct ext_ids → distinct 200 bodies under one B-scoped X-API-Secret
+verify_steps: WITH AUTH: GET /user/1 vs /user/2 differential; only then POST /cancel/{id}
+impact: cross-tenant PII dump + remote cancel of insurer-switch postings. HIGH
+testability: AUTH_HELPED
+[HYP] Funnel step-scoped alias differential enables attribute injection unavailable at given step
+class: BUSLOGIC
+asset: kassenkompass.de (daten/suche/vergleich2/termin vs bonusrechner.php)
+confidence: 70
+reasoning: alias maps diverge per step (daten: jid/agn/ppn only; suche/termin: jid/agn/connectionnumber/employeenumber; vergleich2 adds ppn; abschluss superset) — attacker can inject step-impossible attrs, e.g. ppn at a step that normally ignores it, if backend merges
+evidence_needed: POSTs at each step with non-native attrs produce merge/tracking divergence vs native
+verify_steps: POST each funnel step with full token set, compare which Set-Cookie fire per step (already 7/7 GET-proven); extend to the questionnaire POST path
+impact: exceeds step-scoped attribution model. MEDIUM-HIGH
+testability: PASSIVE
+[NEXT] PROBE: chain the lead-init sequence under the stuffed jar — (1) GET https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 → (2) GET https://kassenkompass.de/bonusrechner_daten.php → (3) GET https://kassenkompass.de/bonusrechner_fragen.php → (4) POST https://kassenkompass.de/bonusrechner_abschluss.php (x-www-form-urlencoded; email=probe_t$(date +%s)@test.example, password=Test1234!, password_confirm=Test1234!, confirm=on, create_account=1) with full jar — record whether "Account-ID nicht gefunden" resolves, any new Set-Cookie, and grep body for KKA9/KKJ99/KKG77/KKP9/KKE99; ≤1 rps, throwaway lead, no live PII.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner.php: 7/7 funnel mirror re-confirmed live — lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn→agenturnummer, ppn→poolpartnernummer, employeenumber kke99; all 1-yr Max-Age unvalidated.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Registration server-side lead-gated — valid POST → 200 + unique "Account-ID nicht gefunden" div; body otherwise byte-identical to GET (post cache-buster/nonce normalization); Account-ID is prior-funnel lead state, not a one-shot surface.
+[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: "Self-registration = automated verification surface for cookie-stuffing→account-creation" REFUTED — one-shot stuffing→register does not bind without prior funnel lead; prior [80]/[85] consensus overstated executability.
+[RISK] kassenkompass: 67 — 7/7 unvalidated attribution-cookie injection into money-flow settlement confirmed live; the claimed automated persistence chain via abschluss.php self-registration is REFUTED (lead-gated "Account-ID nicht gefunden"), so top executable action remains uncashed and now requires a full dummy-questionnaire flow; funnel consumption link stands, api surface credential-gated with one HIGH IDOR queued (AUTH_HELPED); no live PII exposed this session; the two-session inflated confidence is corrected down to executed-evidence levels.

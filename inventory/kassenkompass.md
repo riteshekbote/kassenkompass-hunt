@@ -375,3 +375,8 @@ www.kassenkompass.de
 - CHANGED awv.kassenkompass.de: "GTM proxy" label superseded by SGTM (server-side GTM via Stape)
 
 ## 2026-09-08 22:50:10 UTC
+
+## 2026-09-09 01:14:07 UTC
+- CHANGED Current date 2026-09-09 01:09 UTC vs last KB entry 2026-09-08 22:50 UTC — no new passive recon since last session; surface stable
+- CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
+- NEW 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
