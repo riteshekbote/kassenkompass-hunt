@@ -390,3 +390,5 @@ www.kassenkompass.de
 - CHANGED Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
 - CHANGED 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
 - CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
+
+## 2026-09-09 11:43:00 UTC
