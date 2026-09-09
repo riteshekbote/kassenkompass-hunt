@@ -1028,3 +1028,16 @@
 - LEARN: REJECTED OTHER @ kassenkompass.net: Parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+
+## RANKED HYPOTHESES 2026-09-09 21:39:23 UTC
+- [85] kassenkompass.de/bonusrechner.php: Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (from art/lead_nemotron3.txt)
+- [72] api.kassenkompass.de: Middleware-B IDOR — cross-tenant user read + destructive cancel/delete under one B-scoped secret (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/login_partner.php (200) → extract form action + <script src> list; then GET the partner-portal JS entry and grep for `X-API-
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response body, form action/method/fields, and any settlement/submis
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Registration server-side lead-gated — valid POST → 200 + unique "Account-ID nicht gefunden" div; b
+- LEARN: REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: "Self-registration = automated verification surface for cookie-stuffing→account-creation" REFUTED 
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_fragen.php: 7/7 funnel mirror confirmed — lizenz→afilcode (non-Secure/HttpOnly), jid→customerid, agn+connectio
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: sessionData all null under stuffed jar — server does NOT read stuffed cookies for data population; ta
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standar

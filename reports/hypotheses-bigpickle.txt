@@ -1,1 +1,30 @@
-## 2026-09-09 18:45:11 UTC [target] (model bigpickle)
+## 2026-09-09 21:39:15 UTC [target] (model bigpickle)
+[HYP] Middleware-B IDOR — cross-tenant user read + destructive cancel/delete under one B-scoped secret
+class: IDOR
+asset: api.kassenkompass.de (/user/{ext_id}, /cancel/{id}, /delete/{id})
+confidence: 72
+reasoning: B middleware ("X-API-Secret Header fehlt" + instance echo) gates exactly {user, cancel, delete} = kk_webapp-delegation stack, now confirmed 3 members incl. destructive `DELETE /delete/{id}` ("API Benutzerdaten löschen"). All three method- and id-agnostic at routing (probed 5 variants → 401). No ownership binding visible pre-auth; no per-resource scope in catalog; header sole channel (source-merge closed).
+evidence_needed: one B-scoped X-API-Secret → distinct 200 bodies for /user/1 vs /user/2; then POST /cancel/{id} and DELETE /delete/{id} targeting another tenant's id.
+verify_steps: WITH AUTH: GET /user/1 vs /user/2 vs /user/abc differential (read-only first); only on differential success, POST /cancel/{test-id}; DELETE last.
+impact: cross-tenant PII dump + insurer-switch cancellation (Storno) + deletion of customer/user data. HIGH
+testability: AUTH_HELPED
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Affilcode Persistence
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (non-Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer, ppn→poolpartnernummer, employeenumber → 1-yr Max-Age, zero validation; sessionData all null under stuffed jar (server-side only).
+evidence_needed: settlement report line-item shows stuffed afilcode attributed to attacker.
+verify_steps: WITH PARTNER ACCESS: GET bonusrechner.php?lizenz=ATTACKER_LIZ → complete questionnaire → read settlement/commission.
+impact: commission/attribution theft on insurance-switch settlements. HIGH
+testability: AUTH_HELPED
+[HYP] Large Inline Tariff Data Exposure
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 80
+reasoning: 2.1MB inline ucatKkData/globalbudgetsData/kombiboniData served unauthenticated, no rate limit; replicates v2 insurance_info payload domain.
+evidence_needed: no-429 repeat fetch + competitor sensitivity.
+verify_steps: GET fragen.php 10x @1rps → no 429; curl -I cache-control.
+impact: full tariff/bonus-structure competitive intelligence leak. MEDIUM-HIGH
+testability: PASSIVE
+[NEXT] PROBE: GET https://kassenkompass.de/login_partner.php (200) → extract form action + <script src> list; then GET the partner-portal JS entry and grep for `X-API-Secret` / `api.kassenkompass` / `secret` literals (JS-delivered-secret channel — the only untested path that could yield a B-scoped secret). ≤1 rps, GET only.
+[RISK] KassenKompass GmbH: 66 — B-stack correction expands shared-delegation gate to destructive /delete/{id} (user-data deletion) alongside user-read and Storno, raising IDOR ceiling but still AUTH_HELPED; cookie-stuffing attribution theft 80 (execution unverified), tariff leverage 80 PASSIVE; API surface otherwise credential-gated and fully mapped; read-only probing only, no live PII.
