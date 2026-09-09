@@ -392,3 +392,14 @@ www.kassenkompass.de
 - CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
 
 ## 2026-09-09 11:43:00 UTC
+
+## 2026-09-09 15:36:36 UTC
+- NEW awv.kassenkompass.de root confirmed 404 (not 400) with SGTM container fully characterized (Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid)
+- NEW bonusrechner_vergleich2.php sets new cookie `device_id` (1yr Secure HttpOnly) + `expires catoint` not seen in prior sessions
+- NEW api.kassenkompass.de root catalog stable (15 v1 endpoints, ver 1.0) + /v2/ catalog stable (sole insurance_info, ver 2.0) — no endpoint drift since 2026-09-07
+- NEW kassenkompass.de/bonusrechner_abschluss.php form confirmed: POST method, fields email/password/password_confirm/create_account=1, no CAPTCHA, "Account erstellen" header — self-registration flow live
+- CHANGED 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
+- CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
+- CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
+- CHANGED Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
+- CHANGED Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps

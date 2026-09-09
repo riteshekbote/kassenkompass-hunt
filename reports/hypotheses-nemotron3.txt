@@ -1,4 +1,13 @@
-## 2026-09-09 11:42:48 UTC [target] (model nemotron3)
+## 2026-09-09 15:36:22 UTC [target] (model nemotron3)
+[NEW] awv.kassenkompass.de root confirmed 404 (not 400) with SGTM container fully characterized (Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid)
+[NEW] bonusrechner_vergleich2.php sets new cookie `device_id` (1yr Secure HttpOnly) + `expires catoint` not seen in prior sessions
+[NEW] api.kassenkompass.de root catalog stable (15 v1 endpoints, ver 1.0) + /v2/ catalog stable (sole insurance_info, ver 2.0) — no endpoint drift since 2026-09-07
+[NEW] kassenkompass.de/bonusrechner_abschluss.php form confirmed: POST method, fields email/password/password_confirm/create_account=1, no CAPTCHA, "Account erstellen" header — self-registration flow live
+[CHANGED] 2.5-hour gap since last automated probes — potential for ephemeral changes (deployments, WAF rule updates) not captured
+[CHANGED] Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
+[CHANGED] v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
+[CHANGED] Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
+[CHANGED] Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps
 [PRIO] kassenkompass.de/bonusrechner_abschluss.php,8.5,attack_surface=9,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=3,freshness=10
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.0,attack_surface=8,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=10
 [PRIO] kassenkompass.de/bonusrechner.php,7.8,attack_surface=8,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=9
@@ -43,6 +52,9 @@ testability: AUTH_HELPED
 [FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 85, PASSIVE)
 [FINAL] 2. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 80, PASSIVE)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response body, form action/method/fields, and any settlement/submission indicators (passive-first, 1 rps, no live customer data)
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Registration server-side lead-gated — valid POST → 200 + unique "Account-ID nicht gefunden" div; body otherwise byte-identical to GET (post cache-buster/nonce normalization); Account-ID is prior-funnel lead state, not a one-shot surface.
+[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: "Self-registration = automated verification surface for cookie-stuffing→account-creation" REFUTED — one-shot stuffing→register does not bind without prior funnel lead; prior [80]/[85] consensus overstated executability.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_fragen.php: 7/7 funnel mirror confirmed — lizenz→afilcode (non-Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate), ppn→poolpartnernummer, employeenumber; stuffing surface complete.
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Confirmed 7th funnel step with open self-registration (email/password/confirm, create_account=1, no CAPTCHA, POST form) — provides automated verification surface for cookie-stuffing→account-creation chain
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Accepts full superset alias map (lizenz→afilcode non-HttpOnly; jid→customerid; agn+connectionnumber→agenturnummer dual-alias duplicate; ppn→poolpartnernummer; employeenumber) — combines all prior step alias maps
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) — unauthenticated, no rate limit, competitive intelligence leak
