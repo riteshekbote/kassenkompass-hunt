@@ -1,4 +1,4 @@
-## 2026-09-10 01:32:12 UTC [target] (model nemotron3)
+## 2026-09-10 06:44:10 UTC [target] (model nemotron3)
 [CHANGED] Current date 2026-09-10 01:31 UTC vs last KB entry 2026-09-09 23:35 UTC — ~2h gap since last automated probes; potential ephemeral changes (deployments, WAF rules) not captured
 [CHANGED] Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
 [NEW] No new passive recon entries in KB since 2026-09-09 23:35 — surface stable per last aggregation
@@ -28,19 +28,24 @@ evidence_needed: Automated scraping of full tariff dataset via repeated GET requ
 verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (passive, measure response time/size); repeat 10x at 1 rps → confirm no 429/rate limit; curl -I → check Cache-Control/ETag headers
 impact: Competitive intelligence leak (full tariff database); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
 testability: PASSIVE
-[HYP] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks
+[HYP] Partner-Portal Client Delivers B-Scoped X-API-Secret
 class: AUTH
-asset: api.kassenkompass.de/user/{ext_id} and api.kassenkompass.de/cancel/{id}
-confidence: 75
-reasoning: Two distinct 403 error messages across endpoints — "ungültig oder nicht berechtigt" (middleware A, 8 endpoints) vs "Ungültiger X-API-Secret" + instance echo (middleware B, only /user/{ext_id} and /cancel/{id}). Middleware B described as "delegiert an kk_webapp" (delegated to webapp). Different error wording and instance-first format suggest separate auth middleware stacks with potentially different authorization scopes (e.g., middleware B may lack cross-tenant checks present in middleware A). v2 shares middleware A with v1 majority.
-evidence_needed: Valid X-API-Secret for middleware B enabling cross-tenant access test on /user/{ext_id} and /cancel/{id}; comparison of authorization logic between middleware A and B
-verify_steps: Requires valid X-API-Secret — AUTH_HELPED only. Passive: GET https://api.kassenkompass.de/user/1 (401 middleware B), GET https://api.kassenkompass.de/cancel/1 (401 middleware B) → confirm distinct error format vs middleware A endpoints
-impact: If middleware B lacks cross-tenant checks → IDOR on /user/{ext_id} (PII) and unauthorized cancellation via /cancel/{id}; HIGH
-testability: AUTH_HELPED
+asset: kassenkompass.de/login_partner.php
+confidence: 45
+reasoning: Middleware B (kk_webapp-delegation stack for /user/{ext_id} and /cancel/{id}) is described as "delegiert an kk_webapp". Partner portal at /login_partner.php likely serves the kk_webapp JavaScript client which must hold/derive a B-scoped X-API-Secret for API calls. If client-side secret delivery exists (localStorage, JS variable, cookie), it unlocks cross-tenant testing on middleware B endpoints without valid partner credentials.
+evidence_needed: X-API-Secret or derivation logic present in partner portal JS bundle or HTML; valid B-scoped secret enabling cross-tenant access on /user/{ext_id} and /cancel/{id}
+verify_steps: GET https://kassenkompass.de/login_partner.php (200) → extract full HTML body (form action/method/fields + all <script src> URLs); then GET each JS asset → grep for X-API-Secret, apiKey, token, auth, Bearer, headers, fetch, axios patterns
+impact: If B-scoped secret extractable → IDOR on /user/{ext_id} (PII) and unauthorized cancellation via /cancel/{id}; HIGH
+testability: PASSIVE
 [PARKED] Auth Middleware Scope Differential — Middleware B Weaker Authorization Checks: Requires valid X-API-Secret for cross-tenant testing on /user/{ext_id} and /cancel/{id}; no passive verification possible. Confidence 75 but testability AUTH_HELPED only.
 [FINAL] 1. Multi-Step Funnel Authorization Bypass Via Step-Scoped Alias Map Divergence (confidence 85, PASSIVE)
 [FINAL] 2. Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak (confidence 80, PASSIVE)
-[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_abschluss.php — capture Set-Cookie headers, response body, form action/method/fields, and any settlement/submission indicators (passive-first, 1 rps, no live customer data)
+[FINAL] 3. Partner-Portal Client Delivers B-Scoped X-API-Secret (confidence 45, PASSIVE)
+[NEXT] PROBE: GET https://kassenkompass.de/login_partner.php — extract full HTML body (form action/method/fields + all <script src> URLs); then GET each JS asset → grep for X-API-Secret, apiKey, token, auth, Bearer, headers, fetch, axios patterns
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data served unauthenticated, no rate limit, sessionData null under stuffed jar — confirmed stable since 2026-09-07.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; prior 85-confidence "automated verification surface" corrected to 65 (stuffing persistence real at 80, automated chain closed).
+[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: One-shot stuffing→register auto-creates account REFUTED — full 4-step chain (entry→daten→fragen→abschluss POST) still returns "Account-ID nicht gefunden"; prior consensus overstated executability.
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: Registration server-side lead-gated — valid POST → 200 + unique "Account-ID nicht gefunden" div; body otherwise byte-identical to GET (post cache-buster/nonce normalization); Account-ID is prior-funnel lead state, not a one-shot surface.
 [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: "Self-registration = automated verification surface for cookie-stuffing→account-creation" REFUTED — one-shot stuffing→register does not bind without prior funnel lead; prior [80]/[85] consensus overstated executability.
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_fragen.php: 7/7 funnel mirror confirmed — lizenz→afilcode (non-Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate), ppn→poolpartnernummer, employeenumber; stuffing surface complete.

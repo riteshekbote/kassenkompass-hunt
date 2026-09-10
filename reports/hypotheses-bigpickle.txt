@@ -1,40 +1,25 @@
-## 2026-09-10 01:31:27 UTC [target] (model bigpickle)
-[PRIO] api.kassenkompass.de,6.85,attack=8 business=8 tech=6 gate=3 cloud=7 fresh=8
-[PRIO] kassenkompass.de,6.65,attack=7 business=9 tech=3 gate=6 cloud=5 fresh=8
-[PRIO] awv.kassenkompass.de,3.7,attack=2 business=3 tech=5 gate=2 cloud=6 fresh=8
-[HYP] Partner-Portal Client Delivers B-Scoped X-API-Secret (unlocks B-stack IDOR)
+## 2026-09-10 06:42:31 UTC [target] (model bigpickle)
 class: AUTH
 asset: kassenkompass.de/login_partner.php → api.kassenkompass.de
-confidence: 45
-reasoning: Middleware B gates {/user/{ext_id}, /cancel/{id}, /delete/{id}} = kk_webapp-delegation stack; identity is the sole routing gate, ids method- and id-agnostic (401 pre-auth, 5 variants). 2026-09-07: access-control-allow-headers/allow-methods identical on A and B with no origin reflection — consistent with client-side-JS-delivered secret, browser-chain limited. 2026-09-07 JS-grep covered only the public bonusrechner frontend (0 hits); the partner portal is the only distinct surface never mined for `X-API-Secret`/`api.kassenkompass` literals. Header sole channel (query/cookie source-merge closed), so any secret must ship via page/JS.
-evidence_needed: secret literal or `api.kassenkompass` reference in partner-portal JS; or script that exchanges login POST for a per-session token later used as X-API-Secret.
-verify_steps: PASSIVE: GET https://kassenkompass.de/login_partner.php → parse `<form action>` + `<script src>` list → GET each JS asset → grep `X-API-Secret|api\.kassenkompass|secret|Bearer`. ≤1 rps.
-impact: unlocks read IDOR /user/{ext_id} (cross-tenant PII) + destructive /cancel (Storno) + /delete/{id}; HIGH, but channel evidence currently zero.
+confidence: 20
+reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (total ~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is a simple PHP form with no client-side API interaction. Post-login partner dashboard (only remaining surface) is inaccessible without partner credentials.
+evidence_needed: secret literal or api.kassenkompass reference in authenticated partner dashboard JS; or server-side proxy pattern to api.kassenkompass.de in post-login PHP.
+verify_steps: AUTH_HELPED: Login as partner → inspect all loaded JS + network tab for X-API-Secret/api.kassenkompass references.
+impact: unlocks read IDOR /user/{ext_id} (cross-tenant PII) + destructive /cancel/{id}; HIGH, but login surface yielded zero evidence and dashboard is credential-gated.
 testability: AUTH_HELPED
-[HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
 confidence: 80
-reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only).
+reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only). Confirmed stable since 2026-09-07.
 evidence_needed: rate-limit absence re-verification (repeat fetch); competitor confirmation of data sensitivity; Cache-Control/ETag header check.
 verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → Cache-Control/ETag; GET body 10x @1rps → confirm size stable, no 429.
 impact: full tariff/bonus-structure/volume-budget database leak (competitive intelligence), potential resource exhaustion. MEDIUM-HIGH
 testability: PASSIVE
-[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Affilcode Persistence
 class: BUSLOGIC
 asset: kassenkompass.de (7 funnel mirrors)
 confidence: 80
-reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate Set-Cookie), ppn→poolpartnernummer, employeenumber; 1-yr Max-Age; zero validation; GET branch closed 7/7 (cookies consumed strictly POST/portal-path); sessionData null on GET (server-side-only consumption).
+reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate Set-Cookie), ppn→poolpartnernummer, employeenumber; 1-yr Max-Age; zero validation; GET branch closed 7/7 (cookies consumed strictly POST/portal-path); sessionData null on GET (server-side-only consumption). param_passthrough.js confirms intentional param forwarding with "Belt-and-Braces" comment (server-side + client-side duplication).
 evidence_needed: settlement-report line-item attributed to stuffed afilcode.
 verify_steps: WITH PARTNER ACCESS: GET bonusrechner.php?lizenz=ATTACKER_LIZ under victim flow → complete questionnaire → read settlement/commission line-items for ATTACKER_LIZ attribution.
 impact: commission/attribution theft on insurance-switch settlements. HIGH
 testability: AUTH_HELPED
-[FINAL] Partner-Portal Client Delivers B-Scoped X-API-Secret (confidence 45): **Survives but marginal.** Reasoning is sound (partner portal = only unmined client surface; header sole channel proven; B-stack gates destructive /delete/{id}), but evidence = zero. Confidence 45 reflects pre-probe state; next action closes this gap cheaply (passive GET). No REJECTED-class, verify_steps concrete. Ranked #1 by position, not confidence.
-[FINAL] Large Inline Tariff Data Exposure (confidence 80): **Survives.** Strong evidence (2.1MB payload, no auth, no rate limit across sessions); PASSIVE testability; MEDIUM-HIGH impact (competitive intelligence leak). Stable since 2026-09-07.
-[FINAL] Cookie-Stuffing Attribution Theft (confidence 80): **Survives.** 7/7 mirrors confirmed live; stub stuffing→account-creation chain refuted (prior consensus overstated), but cookie persistence (1yr) + server-side consumption (POST/portal-path) + HttpOnly attribute (server reads) = real attribution theft surface. AUTH_HELPED (partner settlement access needed). HIGH impact if verified.
-[NEXT] PROBE: GET https://kassenkompass.de/login_partner.php → extract full HTML body (form action/method/fields + all `<script src>` URLs); then GET each JS asset → grep for `X-API-Secret|api\.kassenkompass|secret|Bearer|token` literals. ≤1 rps, GET only, no POST to login.
-[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed.
-[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data served unauthenticated, no rate limit, sessionData null under stuffed jar — confirmed stable since 2026-09-07.
-[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; prior 85-confidence "automated verification surface" corrected to 65 (stuffing persistence real at 80, automated chain closed).
-[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: One-shot stuffing→register auto-creates account REFUTED — full 4-step chain (entry→daten→fragen→abschluss POST) still returns "Account-ID nicht gefunden"; prior consensus overstated executability.
-[RISK] KassenKompass GmbH: 65 — Two independently standing findings (cookie-stuffing attribution theft 80, tariff-data exposure 80 PASSIVE) plus 2 already-accepted (catalog disclosure, /sync/ 200); execution barrier remains AUTH_HELPED (partner secret/settlement access needed); partner-portal JS secret channel (45) is the only cheap-to-close passive vector; API surface fully mapped and stable (15 v1 + 1 v2, auth map 15/15 complete, v2 oracle saturated at 42 names); B-stack correction expands shared-delegation gate to destructive /delete/{id} alongside user-read and Storno, raising IDOR ceiling but still AUTH_HELPED; cookie-stuffing attribution theft confirmed real persistence but execution unverified; tariff leverage PASSIVE and confirmed; risk reflects a mature, largely-saturated surface with slow-to-confirm monetary-attribution findings, not absence of real flaws. Read-only probing only, no live PII exposed.

@@ -1899,3 +1899,28 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; prior 85-confidence "automated verification surface" corrected to 65 (stuffing persistence real at 80, automated chain closed).
 [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_abschluss.php: One-shot stuffing→register auto-creates account REFUTED — full 4-step chain (entry→daten→fragen→abschluss POST) still returns "Account-ID nicht gefunden"; prior consensus overstated executability.
 [RISK] KassenKompass GmbH: 65 — Two independently standing findings (cookie-stuffing attribution theft 80, tariff-data exposure 80 PASSIVE) plus 2 already-accepted (catalog disclosure, /sync/ 200); execution barrier remains AUTH_HELPED (partner secret/settlement access needed); partner-portal JS secret channel (45) is the only cheap-to-close passive vector; API surface fully mapped and stable (15 v1 + 1 v2, auth map 15/15 complete, v2 oracle saturated at 42 names); B-stack correction expands shared-delegation gate to destructive /delete/{id} alongside user-read and Storno, raising IDOR ceiling but still AUTH_HELPED; cookie-stuffing attribution theft confirmed real persistence but execution unverified; tariff leverage PASSIVE and confirmed; risk reflects a mature, largely-saturated surface with slow-to-confirm monetary-attribution findings, not absence of real flaws. Read-only probing only, no live PII exposed.
+## 2026-09-10 06:42:31 UTC [target] (model bigpickle)
+class: AUTH
+asset: kassenkompass.de/login_partner.php → api.kassenkompass.de
+confidence: 20
+reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (total ~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is a simple PHP form with no client-side API interaction. Post-login partner dashboard (only remaining surface) is inaccessible without partner credentials.
+evidence_needed: secret literal or api.kassenkompass reference in authenticated partner dashboard JS; or server-side proxy pattern to api.kassenkompass.de in post-login PHP.
+verify_steps: AUTH_HELPED: Login as partner → inspect all loaded JS + network tab for X-API-Secret/api.kassenkompass references.
+impact: unlocks read IDOR /user/{ext_id} (cross-tenant PII) + destructive /cancel/{id}; HIGH, but login surface yielded zero evidence and dashboard is credential-gated.
+testability: AUTH_HELPED
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 80
+reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only). Confirmed stable since 2026-09-07.
+evidence_needed: rate-limit absence re-verification (repeat fetch); competitor confirmation of data sensitivity; Cache-Control/ETag header check.
+verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → Cache-Control/ETag; GET body 10x @1rps → confirm size stable, no 429.
+impact: full tariff/bonus-structure/volume-budget database leak (competitive intelligence), potential resource exhaustion. MEDIUM-HIGH
+testability: PASSIVE
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors live-confirmed; lizenz→afilcode (no Secure/HttpOnly), jid→customerid, agn+connectionnumber→agenturnummer (dual-alias duplicate Set-Cookie), ppn→poolpartnernummer, employeenumber; 1-yr Max-Age; zero validation; GET branch closed 7/7 (cookies consumed strictly POST/portal-path); sessionData null on GET (server-side-only consumption). param_passthrough.js confirms intentional param forwarding with "Belt-and-Braces" comment (server-side + client-side duplication).
+evidence_needed: settlement-report line-item attributed to stuffed afilcode.
+verify_steps: WITH PARTNER ACCESS: GET bonusrechner.php?lizenz=ATTACKER_LIZ under victim flow → complete questionnaire → read settlement/commission line-items for ATTACKER_LIZ attribution.
+impact: commission/attribution theft on insurance-switch settlements. HIGH
+testability: AUTH_HELPED

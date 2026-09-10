@@ -429,3 +429,8 @@ www.kassenkompass.de
 - CHANGED Current date 2026-09-10 01:31 UTC vs last KB entry 2026-09-09 23:35 UTC — ~2h gap since last automated probes; potential ephemeral changes (deployments, WAF rules) not captured
 - CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
 - NEW No new passive recon entries in KB since 2026-09-09 23:35 — surface stable per last aggregation
+
+## 2026-09-10 06:44:21 UTC
+- CHANGED Current date 2026-09-10 01:31 UTC vs last KB entry 2026-09-09 23:35 UTC — ~2h gap since last automated probes; potential ephemeral changes (deployments, WAF rules) not captured
+- CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
+- NEW No new passive recon entries in KB since 2026-09-09 23:35 — surface stable per last aggregation
