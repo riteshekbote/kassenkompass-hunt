@@ -1,14 +1,14 @@
-## 2026-09-10 11:53:32 UTC [target] (model bigpickle)
+## 2026-09-10 16:13:43 UTC [target] (model bigpickle)
 [PRIO] api.kassenkompass.de,6.6,attack_surface=8 business_value=9 tech_exposure=7 gate_ease=2 cloud_surface=6 freshness=3
-[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=4
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 gate_ease=8 cloud_surface=2 freshness=4
 [PRIO] bonusrechner_fragen.php,4.2,attack_surface=3 business_value=7 tech_exposure=2 gate_ease=10 cloud_surface=2 freshness=4
 [HYP] Large Inline Tariff Data Exposure — Unauthenticated 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
 confidence: 80
-reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData all null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only). Confirmed stable since 2026-09-07.
+reasoning: 2.1MB inline payload (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated; sessionData null under stuffed jar — no cookie dependency; no 429 across sessions; replicates v2 insurance_info payload domain (BOLA read value downgraded to unpublished-draft-only). Confirmed stable since 2026-09-07.
 evidence_needed: Cache-Control/ETag header check; rate-limit absence re-verification (repeat fetch).
-verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → Cache-Control/ETag; GET body 10x @1rps → confirm size stable, no 429.
+verify_steps: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → extract Cache-Control, ETag, Last-Modified, Content-Length headers; then GET body once → confirm 2.1MB size stable, no 429. ≤1 rps, GET only.
 impact: full tariff/bonus-structure/volume-budget database leak (competitive intelligence), potential resource exhaustion. MEDIUM-HIGH
 testability: PASSIVE
 [HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Affilcode Persistence
@@ -33,7 +33,7 @@ testability: AUTH_HELPED
 [FINAL] 1. Tariff Data Exposure (MISCONFIG, 80) — PASSIVE, stable since 2026-09-07, high confidence, MEDIUM-HIGH impact
 [FINAL] 2. Cookie-Stuffing Attribution Theft (BUSLOGIC, 80) — AUTH_HELPED, 7/7 mirrors confirmed, HIGH impact if verified
 [FINAL] 3. Partner-Portal Secret (AUTH, 20) — AUTH_HELPED, zero evidence, credential-gated dashboard
-[NEXT] PROBE: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → extract Cache-Control, ETag, Last-Modified, Content-Length headers; then GET body once → confirm2.1MB size stable, no 429. ≤1 rps, GET only, passive verification of tariff data exposure hypothesis.
+[NEXT] PROBE: curl -sI https://kassenkompass.de/bonusrechner_fragen.php → extract Cache-Control, ETag, Last-Modified, Content-Length headers; then GET body once → confirm 2.1MB size stable, no 429. ≤1 rps, GET only, passive verification of tariff data exposure hypothesis.
 [LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed.
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data served unauthenticated, no rate limit, sessionData null under stuffed jar — confirmed stable since 2026-09-07.
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; prior 85-confidence "automated verification surface" corrected to 65 (stuffing persistence real at 80, automated chain closed).
