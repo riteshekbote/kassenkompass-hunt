@@ -447,3 +447,9 @@ www.kassenkompass.de
 - NEW bonusrechner_vergleich2.php sets new cookie `device_id` (1yr Secure HttpOnly) + `expires catoint` — not observed in prior sessions (2026-09-09 probes)
 
 ## 2026-09-10 19:18:27 UTC
+
+## 2026-09-10 21:45:49 UTC
+- NEW kassenkompass.de/login_partner.php: Standard HTML login form (POST to self), no client-side JS bundle delivering X-API-Secret; only standard.js (UI utilities) loaded — Partner Portal JS-delivered-secr
+- NEW api.kassenkompass.de/ root: Returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php: Sets new `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — not observed prior to 2026-09-09; sole funnel step emitting device_id
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php: Lead-gated POST confirmed — "Account-ID nicht gefunden" div appears ONLY on POST, absent on GET; server validates Account-ID on form submission, not page r
