@@ -1,4 +1,4 @@
-## 2026-09-10 21:45:38 UTC [target] (model nemotron3)
+## 2026-09-10 23:56:28 UTC [target] (model nemotron3)
 [NEW] kassenkompass.de/login_partner.php: Standard HTML login form (POST to self), no client-side JS bundle delivering X-API-Secret; only standard.js (UI utilities) loaded — Partner Portal JS-delivered-secret hypothesis unsupported on this surface
 [NEW] api.kassenkompass.de/ root: Returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
 [CHANGED] kassenkompass.de/bonusrechner_vergleich2.php: Sets new `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — not observed prior to 2026-09-09; sole funnel step emitting device_id
@@ -14,7 +14,7 @@ asset: kassenkompass.de/bonusrechner_fragen.php
 confidence: 85
 reasoning: Returns 2.1MB inline tariff dataset (ucatKkData 1.79MB per-KK resolved refs, lastchange 2026-05-03, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) via unauthenticated GET; no-store+CF-DYNAMIC → full body regenerated per request; no ETag/Last-Modified; no rate limit observed across 5+ probe sessions at 1 rps; sessionData null under stuffed jar — server ignores cookies for GET rendering; v2 insurance_info protected payload domain publicly replicated here
 evidence_needed: Automated scraping of full tariff dataset via repeated GET requests confirming no 429/rate limit; competitor confirmation of data sensitivity
-verify_steps: HEAD https://kassenkompass.de/bonusrechner_fragen.php → confirm no-store, no ETag, no Last-Modified, Content-Length ~2.1MB; GET x10 at 1 rps → confirm consistent 200 2.1MB bodies, no 429; extract ucatKkData/globalbudgetsData/kombiboniData from response
+verify_steps: HEAD https://kassenkompass.de/bonusrechner_fragen.php → confirm no-store, no ETag, no Last-Modified, Content-Length ~2.1MB; GET x10 at 1 rps → confirm consistent 200 2.1MB bodies, no 429; extract ucatKkData/globalbudgetsData/kombiboniData from response body
 impact: Competitive intelligence leak (full GKV/PKV tariff database with resolved references); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
 testability: PASSIVE
 [HYP] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass
