@@ -48,3 +48,11 @@
   - | 4 | BOLA /delete/{id} | **HOLD** | Needs valid X-API-Secret |
   - | 5 | BOLA /settlement_report | **HOLD** | Needs valid X-API-Secret |
   - | 12 | Funnel Cookie-Staffing | **VALID** | CVSS 6.5, submit to bugs.olivermaicher.eu |
+
+- 6 lead(s) marked VALID at 2026-09-10 08:24:55 UTC
+  - **Verdict: HOLD** — Valid misconfiguration but borderline bounty-worthy. Report as low-severity hardening issue. Proof: single `GET /sync/` shows 200 + auth error body. Impact: WAF/monitoring bypass p
+  - **Verdict: VALID** — Hardcoded client-side secret enabling partner account takeover.
+  - **Verdict: VALID** — Unvalidated user input persisted into session cookies across 7 endpoints.
+  - **Verdict: HOLD** — Requires confirmation whether tariff data is intentionally public or protected business data. If the latter, VALID as access-control bypass. Report as potential information disclos
+  - | 2 | Partner reset hardcoded magic `KKX3382745` | **VALID** | 7.5 | Yes |
+  - | 3 | Funnel param→cookie injection (7 entries) | **VALID** | 5.3 | Yes |
