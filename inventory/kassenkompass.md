@@ -445,3 +445,5 @@ www.kassenkompass.de
 - CHANGED Phase remains POC, target api — cookie-stuffing chain (7 funnel entries) and v2 insurance_info remain top unverified attack surfaces
 - NEW No new passive recon entries in KB since 2026-09-09 23:35 — surface stable per last aggregation
 - NEW bonusrechner_vergleich2.php sets new cookie `device_id` (1yr Secure HttpOnly) + `expires catoint` — not observed in prior sessions (2026-09-09 probes)
+
+## 2026-09-10 19:18:27 UTC
