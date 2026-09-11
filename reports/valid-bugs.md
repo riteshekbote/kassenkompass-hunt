@@ -56,3 +56,19 @@
   - **Verdict: HOLD** — Requires confirmation whether tariff data is intentionally public or protected business data. If the latter, VALID as access-control bypass. Report as potential information disclos
   - | 2 | Partner reset hardcoded magic `KKX3382745` | **VALID** | 7.5 | Yes |
   - | 3 | Funnel param→cookie injection (7 entries) | **VALID** | 5.3 | Yes |
+
+- 14 lead(s) marked VALID at 2026-09-11 04:50:28 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | Q2 | **Partially** — endpoint returns 401 without auth; attacker needs valid X-API-Secret |
+  - | Q4 | **No** — requires valid API secret (AUTH_HELPED); passive-only proof not possible |
+  - | Q5 | **Uncertain** — cannot verify without valid key |
+  - | Q7 | **No** — cannot demonstrate exploit without valid credential; triager would ask for proof |
+  - | Q2 | **Partially** — requires valid X-API-Secret |
+  - | Q4 | **No** — requires valid scoped secret (AUTH_HELPED) |
+  - | Q7 | **No** — cannot demonstrate without valid credential |
+  - | Q2 | **Partially** — requires valid X-API-Secret |
+  - | Q7 | **No** — requires active testing on destructive endpoint with valid auth; program rules restrict destructive actions |
+  - | Q4 | **Partially** — error message mapping is passive; but exploitation proof requires valid key |
+  - | 1 | Unauthenticated API Catalog Disclosure | **VALID** | 5.3 |
+  - | 2 | Inconsistent Auth Error Handling (/sync/ 200) | **VALID** | 3.7 |
