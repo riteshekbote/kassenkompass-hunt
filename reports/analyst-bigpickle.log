@@ -15320,3 +15320,123 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass: 65 — Standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, apex+www), cookie-stuffing attribution real (80) but lead-gated, B-Stack IDOR (62) credential-gated. v3 closure confirmed no new surface; root catalog disclosure persists (already-reported dupe class). API surface saturated. Read-only, ≤1 rps, 6 requests this session, no PII touched.
+===== ANALYST bigpickle 2026-09-11 22:29:04 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /dev/null -D - -I --max-time 40 https://kassenkompass.de/bonusrechner_fragen.php
+HTTP/2 200 
+date: Fri, 11 Sep 2026 22:24:19 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=cv4OX3qZiqdeoxBPnjiims8aHqZv2AiITv5If0c4JfAqXVQ5vAYoeh0BekvG/vgODbgueRfz18px5vSxXGcilpmbGyWmTaBDcoFJIH8cSv9dySyTyt0CYAFT2aFz; Expires=Fri, 18 Sep 2026 22:24:19 GMT; Path=/
+set-cookie: AWSALBCORS=cv4OX3qZiqdeoxBPnjiims8aHqZv2AiITv5If0c4JfAqXVQ5vAYoeh0BekvG/vgODbgueRfz18px5vSxXGcilpmbGyWmTaBDcoFJIH8cSv9dySyTyt0CYAFT2aFz; Expires=Fri, 18 Sep 2026 22:24:19 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=13ee52a32672fe492cced5328e1b22f8; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=wj5z7hHEqzLX6cLih8RKb2dpbhjv3YuSYZ3axWUEAHnNEsd4ErE%2FFlYqi6AmlWWLOnFsvC%2F6sOPv6IUl%2FvPM6H0SoqYzEX94UKKmXIKFhnhFMgPGENdw14vxpzQgeks2MBA%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a39a14f4ac6048f0-LAX
+[0m
+[0m$ [0msleep 1; curl -s -o /dev/null -D - -I --max-time 40 https://kassenkompass.de/elmah.axd
+HTTP/2 404 
+date: Fri, 11 Sep 2026 22:24:23 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=4Y1dJwUQ2DaMYgv5dmVDlQFTX3s/yX9L/PIiuN5hY/S2bfDND+eq+eWSVRVUtUpEn5cqhHRwaRYw7mqLvonLb+F/Je20scjB++wWgqEH1azMZWwvzn96LhBWyEHI; Expires=Fri, 18 Sep 2026 22:24:23 GMT; Path=/
+set-cookie: AWSALBCORS=4Y1dJwUQ2DaMYgv5dmVDlQFTX3s/yX9L/PIiuN5hY/S2bfDND+eq+eWSVRVUtUpEn5cqhHRwaRYw7mqLvonLb+F/Je20scjB++wWgqEH1azMZWwvzn96LhBWyEHI; Expires=Fri, 18 Sep 2026 22:24:23 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=1014de886dff22f4c10ee11530aa168d; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Fu8Tqk%2FUem19Ot6M9z8P7dZAuSKlBOi9xfyQc0QUu8z5BaWp7%2BYaGh93ETaWnZNQbzyqt8J3NEaiIAjvernfSj5Xm9BCE4fiQjgRzaupESgQ1NRCASiFlSYaaxN6wd0tm5M%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a39a150ebdff7e62-LAX
+[0m
+[0m$ [0msleep 1; curl -s -o /dev/null -D - -I --max-time 40 https://kassenkompass.de/Default.aspx
+HTTP/2 404 
+date: Fri, 11 Sep 2026 22:24:35 GMT
+content-type: text/html; charset=utf-8
+set-cookie: AWSALB=wZlLfan7vGt8wuHvH9WQTOq/+aoJ2uu34ySS903tXuQhpJwAooSc5uc9nViZ3T1wbTYSaZsuDOYJxqGy1i0CSbDzTVvmLr4XdQ6fXJYlHwuYps12PSoft1UbcsmV; Expires=Fri, 18 Sep 2026 22:24:35 GMT; Path=/
+set-cookie: AWSALBCORS=wZlLfan7vGt8wuHvH9WQTOq/+aoJ2uu34ySS903tXuQhpJwAooSc5uc9nViZ3T1wbTYSaZsuDOYJxqGy1i0CSbDzTVvmLr4XdQ6fXJYlHwuYps12PSoft1UbcsmV; Expires=Fri, 18 Sep 2026 22:24:35 GMT; Path=/; SameSite=None; Secure
+cache-control: private
+server: cloudflare
+x-aspnet-version: 4.0.30319
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=C8KIWY3fRZYGe8Egk2%2BOUZxn0pNOJ5Brpc4M3DibvTGMAj1e1KFD81NoNHgO9AifIXJhc2rgwk0rxgxEGW3wwh%2Bx66qix1%2F4aqXnsYTdIVxRobhjH63Q9NyMBMQNThhMByo%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a39a155c7ecb48f0-LAX
+[0m
+STEP 1 — DELTA:
+- [CHANGED] kassenkompass.de/bonusrechner_fragen.php: post-WAF-block recovery confirmed — HEAD 200, AWSALB + CF-DYNAMIC + no-store/no-cache/must-revalidate, no ETag/Last-Modified; transient 403 lifted, tariff endpoint unaffected.
+- [NEW] kassenkompass.de: root `.aspx` paths route to a live ASP.NET 4.0.30319 app pool (`Default.aspx` → 404 but `x-aspnet-version: 4.0.30319`, charset utf-8, `cache-control: private` — signature distinct from PHP catch-all's `PHPSESSID`+no-store) — vestigial .NET app coexists with PHP.
+- [NEW] kassenkompass.de/elmah.axd → 404 into PHP catch-all (PHPSESSID issued, no x-aspnet-version) — ELMAH not exposed on the .NET shell.
+
+STEP 2 — PRIORITIZE:
+- [PRIO] kassenkompass.de funnel (7 mirror entries, still live) — 6.6 — surface8 bval8 tech4 gate10 cloud3 fresh2
+- [PRIO] api.kassenkompass.de/user/{ext_id} B-stack IDOR — 4.9 — surface6 bval9 tech4 gate1 cloud2 fresh2
+- [PRIO] kassenkompass.de ASP.NET 4.0 shell — 4.6 — surface2 bval3 tech5 gate10 cloud1 fresh10
+
+STEP 3 — HYPOTHESES:
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors confirmed across sessions; live re-probe this session (fragen HEAD 200) confirms funnel origin healthy post-WAF-block via AWSALB behind CF. Alias map verified 2026-09-10 on abschluss.php (lizenz→afilcode non-Secure/HttpOnly; jid/agn/ppn→HttpOnly; 1yr; zero validation). GET branch closed 7/7; consumption strictly POST/settlement. device_id vergleich2-sole, catoint force-deleted.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution; passive pre-step: HEAD 7 mirrors to map CF-vs-ALB-direct fronting.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed 8+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
+testability: AUTH_HELPED
+[HYP] Vestigial ASP.NET 4.0 App Pool Holds Undiscovered Legacy Web Forms Pages
+class: MISCONFIG
+asset: kassenkompass.de (root .aspx routes)
+confidence: 48
+reasoning: Default.aspx → 404 with x-aspnet-version 4.0.30319, charset utf-8, cache-control private (pure ASP.NET handler signature); root trace.axd exists (denied); elmah.axd falls to PHP catch-all. Proves an IIS .NET app pool exists at root but zero .aspx pages mapped — the app is undescribed; only .php funnel was enumerated (PHP + ASP.NET coexistence undocumented until 2026-09-11).
+evidence_needed: any root `.aspx` path returning 200/distinct app content.
+verify_steps: LOW-PACE sweep (≤5 HEAD at 2s spacing) of generic legacy names: index.aspx, login.aspx, admin.aspx, api.aspx, Help.aspx; then depth on any 200.
+impact: exposure of a legacy .NET app surface (auth/logic) currently invisible to inventory; low-MED, only if a page exists.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE:
+- [PARKED] elmah.axd: 404 into PHP handler at root — ELMAH not present; closed.
+- [PARKED] trace.axd exploit: remote trace denied, x-aspnet-version header-only — REJECTED-class (headers/version), no content obtainable.
+- [PARKED] ASP.NET .aspx enumeration execution: deferred this session — 3 probes already issued, last session's 403 block triggered at ~14 requests; sweep deferred to next session with strict pacing.
+- [FINAL] 1) cookie-stuffing (80, AUTH_HELPED). 2) B-stack IDOR (62, AUTH_HELPED). 3) ASP.NET shell (48, PASSIVE).
+
+STEP 5 — NEXT ACTION:
+- [NEXT] PROBE: after ≥60s cooldown, low-pace (2s spacing, ≤5 names) HEAD sweep on kassenkompass.de: index.aspx, login.aspx, admin.aspx, api.aspx, Help.aspx — locate the ASP.NET 4.0 app's real pages; abort sweep on any 403.
+
+STEP 6 — LEARNING:
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: post-WAF recovery confirmed — HEAD 200, AWSALB + CF-DYNAMIC + no-store/no-cache/must-revalidate, no ETag/Last-Modified; transient 149B 403 block lifted, tariff endpoint healthy.
+- [LEARN] ACCEPTED OTHER @ kassenkompass.de: root .aspx routes hit a live ASP.NET 4.0.30319 app pool (Default.aspx 404 with x-aspnet-version, charset utf-8, cache-control private) — signature distinct from PHP catch-all (PHPSESSID+no-store); vestigial .NET app coexists with PHP on IIS.
+- [LEARN] REJECTED OTHER @ kassenkompass.de: elmah.axd → 404 into PHP catch-all (PHPSESSID issued) — no ELMAH exposure on the .NET shell.
+
+STEP 7 — RISK:
+- [RISK] KassenKompass: 65 — Standing findings unchanged: tariff-DB leak verified PASSIVE (85, 2.1MB/req zero-cache, apex+www, origin healthy post-block); cookie-stuffing attribution real (80) but lead-gated. New attribution this session: a vestigial ASP.NET 4.0 app pool at the .de origin (previously invisible — all recon was .php-scoped) — surface unknown, merits one low-pace sweep, no content exposed yet. API remains saturated + credential-gated. 3 read-only HEADs, ≤1 rps, no PII touched.

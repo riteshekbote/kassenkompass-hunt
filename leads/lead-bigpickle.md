@@ -2450,3 +2450,31 @@ evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
 verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
 impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
 testability: AUTH_HELPED
+## 2026-09-11 22:25:24 UTC [target] (model bigpickle)
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors confirmed across sessions; live re-probe this session (fragen HEAD 200) confirms funnel origin healthy post-WAF-block via AWSALB behind CF. Alias map verified 2026-09-10 on abschluss.php (lizenz→afilcode non-Secure/HttpOnly; jid/agn/ppn→HttpOnly; 1yr; zero validation). GET branch closed 7/7; consumption strictly POST/settlement. device_id vergleich2-sole, catoint force-deleted.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution; passive pre-step: HEAD 7 mirrors to map CF-vs-ALB-direct fronting.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed 8+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
+testability: AUTH_HELPED
+[HYP] Vestigial ASP.NET 4.0 App Pool Holds Undiscovered Legacy Web Forms Pages
+class: MISCONFIG
+asset: kassenkompass.de (root .aspx routes)
+confidence: 48
+reasoning: Default.aspx → 404 with x-aspnet-version 4.0.30319, charset utf-8, cache-control private (pure ASP.NET handler signature); root trace.axd exists (denied); elmah.axd falls to PHP catch-all. Proves an IIS .NET app pool exists at root but zero .aspx pages mapped — the app is undescribed; only .php funnel was enumerated (PHP + ASP.NET coexistence undocumented until 2026-09-11).
+evidence_needed: any root `.aspx` path returning 200/distinct app content.
+verify_steps: LOW-PACE sweep (≤5 HEAD at 2s spacing) of generic legacy names: index.aspx, login.aspx, admin.aspx, api.aspx, Help.aspx; then depth on any 200.
+impact: exposure of a legacy .NET app surface (auth/logic) currently invisible to inventory; low-MED, only if a page exists.
+testability: PASSIVE
