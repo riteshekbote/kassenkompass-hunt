@@ -14697,3 +14697,626 @@ testability: AUTH_HELPED
 - Cookie-stuffing requires completed questionnaire flow (lead-gated)
 
 **Risk score: 65/100** — Strong passive finding (fragen.php), real but gated business logic (stuffing), API surface saturated but credential-locked.
+===== ANALYST bigpickle 2026-09-11 19:54:26 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la *.md 2>/dev/null
+total 396
+drwxr-xr-x 12 runner runner   4096 Sep 11 19:51 .
+drwxr-xr-x  3 runner runner   4096 Sep 11 19:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 11 19:51 .git
+drwxr-xr-x  3 runner runner   4096 Sep 11 19:51 .github
+-rw-r--r--  1 runner runner   1767 Sep 11 19:51 README.md
+-rw-r--r--  1 runner runner     32 Sep 11 19:51 analyst-out.txt
+-rw-r--r--  1 runner runner 146836 Sep 11 19:51 analyst-prompt.txt
+-rw-r--r--  1 runner runner 143018 Sep 11 19:51 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 leads
+-rw-r--r--  1 runner runner  26860 Sep 11 19:51 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 reports
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 11 19:51 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 scripts
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 triage
+-rw-r--r-- 1 runner runner  1767 Sep 11 19:51 README.md
+-rw-r--r-- 1 runner runner 26860 Sep 11 19:51 probe-results.md
+[0m
+[0m$ [0mcat scope.yml; echo "---STATE---"; cat state_bigpickle.json state_laguna.json state_longcat.json; echo "---ANALYST-OUT---"; cat analyst-out.txt
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+---STATE---
+{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}{"phase": "POC", "target": "api"}---ANALYST-OUT---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la && ls -la art 2>/dev/null; ls -la *.md 2>/dev/null
+total 396
+drwxr-xr-x 12 runner runner   4096 Sep 11 19:51 .
+drwxr-xr-x  3 runner runner   4096 Sep 11 19:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 11 19:51 .git
+drwxr-xr-x  3 runner runner   4096 Sep 11 19:51 .github
+-rw-r--r--  1 runner runner   1767 Sep 11 19:51 README.md
+-rw-r--r--  1 runner runner     32 Sep 11 19:51 analyst-out.txt
+-rw-r--r--  1 runner runner 146836 Sep 11 19:51 analyst-prompt.txt
+-rw-r--r--  1 runner runner 143018 Sep 11 19:51 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 leads
+-rw-r--r--  1 runner runner  26860 Sep 11 19:51 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 reports
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 11 19:51 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 scripts
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 11 19:51 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 11 19:51 triage
+-rw-r--r-- 1 runner runner  1767 Sep 11 19:51 README.md
+-rw-r--r-- 1 runner runner 26860 Sep 11 19:51 probe-results.md
+[0m
+[0m
+[0m$ [0mtail -100 probe-results.md
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/cancel/1 -> HTTP 401
+
+## 2026-09-09 21:39:38 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/cancel/1 -> HTTP 401
+https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-09 23:35:42 UTC
+https://kassenkompass.de/login_partner.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-10 01:32:37 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/cancel/1 -> HTTP 401
+https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-10 06:44:31 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-10 11:58:25 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-10 16:15:59 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/login_partner.php -> 200 len=?
+
+## 2026-09-10 19:18:37 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/login_partner.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN -> 200 len=?
+
+## 2026-09-10 21:45:56 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/999999999 -> HTTP 401
+https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN -> 200 len=?
+
+## 2026-09-10 23:57:02 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/999999999 -> HTTP 401
+https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN -> 200 len=?
+
+## 2026-09-11 04:25:31 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/999999999 -> HTTP 401
+
+## 2026-09-11 09:20:25 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/999999999 -> HTTP 401
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-11 13:40:25 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-11 17:16:59 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+[0m
+[0m$ [0mdate -u; echo "---"; ls leads/; echo "---TRIAGE---"; ls triage/ | tail -20; echo "---REPORTS---"; ls reports/ | tail -20
+Fri Sep 11 19:51:26 UTC 2026
+---
+lead-bigpickle.md
+lead-laguna.md
+lead-ling3.md
+lead-longcat.md
+lead-mimo.md
+lead-nemotron3.md
+reposcan-kassenkompass.md
+---TRIAGE---
+run-2026-09-08-21-38.md
+run-2026-09-08-23-39.md
+run-2026-09-09-01-32.md
+run-2026-09-09-06-39.md
+run-2026-09-09-11-52.md
+run-2026-09-09-16-02.md
+run-2026-09-09-19-19.md
+run-2026-09-09-21-46.md
+run-2026-09-09-23-51.md
+run-2026-09-10-03-25.md
+run-2026-09-10-08-24.md
+run-2026-09-10-13-06.md
+run-2026-09-10-17-02.md
+run-2026-09-10-19-47.md
+run-2026-09-10-22-18.md
+run-2026-09-11-00-15.md
+run-2026-09-11-04-50.md
+run-2026-09-11-09-23.md
+run-2026-09-11-13-48.md
+run-2026-09-11-17-35.md
+---REPORTS---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mls recon-notes/ knowledge/ inventory/ .github/workflows 2>/dev/null; echo "---SCRIPTS---"; ls scripts/
+.github/workflows:
+hunt.yml
+reposcan.yml
+sync-issues.yml
+triage.yml
+
+inventory/:
+kassenkompass.md
+
+knowledge/:
+index.md
+
+recon-notes/:
+DEDICATED-DEEP.md
+---SCRIPTS---
+sync-issues.py
+[0m
+[0m$ [0mcat triage/run-2026-09-11-17-35.md 2>/dev/null | head -120
+===== TRIAGE 2026-09-11 17:35:23 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please paste the probe results/leads you want me to evaluate.
+[0m
+[0m$ [0mcat reports/hypotheses-bigpickle.txt 2>/dev/null | head -80; echo "===VALID==="; cat reports/valid-bugs.md 2>/dev/null | head -60
+## 2026-09-11 17:15:31 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,score=7.35,axis=unauthed-2.1MB-tariff-MISCONFIG,hive=7.0,bv=9.0,t=5.0,g=10.0,c=2.0,f=8.0
+[PRIO] kassenkompass.de (7 funnel mirrors),score=7.15,axis=unvalidated-cookie-BUSLOGIC-money-attr,hive=7.0,bv=8.0,t=5.0,g=9.0,c=3.0,f=8.0
+[PRIO] api.kassenkompass.de (15+1 endpoints, auth 15/15),score=5.2,axis=credential-gated-IDOR,hive=5.0,bv=6.0,t=6.0,g=1.0,c=5.0,f=9.0
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de + www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live this session HEAD confirms 200/0.65s origin regen; KB entries stable since 2026-09-07: no-store+CF-DYNAMIC, no ETag/Last-Modified, ucatKkData 1.79MB/5209 rows, globalbudgetsData 34KB, kombiboniData 105KB, pseudoKkIds=[99,100,101], sessionData null. kk_id query param not consumed (akt_kk_id=null). apex+www serve identical payload. Evidence satisfied.
+evidence_needed: Satisfied (repeat fetch + headers + param non-consumption).
+verify_steps: DONE — HEAD + GET on apex/www, markers present, sizes identical.
+impact: Full tariff/bonus-budget/volume DB leak (competitive intelligence) + per-request 2.1MB zero-cache regeneration. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors confirmed across sessions; last live probe 2026-09-10 21:45 UTC on abschluss.php re-verified 4-param alias map (lizenz→afilcode non-Secure/HttpOnly; jid/agn/ppn→HttpOnly; 1yr Max-Age; zero validation). GET branch closed 7/7; consumption strictly POST/settlement. device_id is vergleich2-sole.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution; passive pre-step: HEAD 7 mirrors to map Cloudflare vs ALB-direct fronting.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed 8+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel); HIGH but credential-gated.
+testability: AUTH_HELPED
+[PARKED] /api/ IIS dir enumeration: `/api/*` 404 for all 20 names incl. swagger/web.config/Help; likely empty leftover or ALB route artifact — 403 is dir-listing-deny only, no contents evidence; low value, drop to park.
+[PARKED] trace.axd ASP.NET leak: remote trace denied (correct default); only version header leak (out-of-scope "headers only") — no request-trace content obtainable; drop to park.
+[FINAL] 1) fragen.php tariff leak (85, PASSIVE, evidence satisfied). 2) cookie-stuffing (80, AUTH_HELPED, lead-gated). 3) B-stack IDOR (62, AUTH_HELPED).
+[NEXT] PROBE: after WAF cooldown (≥60s), single HEAD https://kassenkompass.de/bonusrechner_fragen.php — confirm 200/2,158,150B persists post-block and no cache headers appeared; do NOT burst further.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: payload internals parsed — ucatKkData 5,209 rows {uid_cat,uid_ucat_q,uid_kk_q,wert,wertart} 1.79MB + globalbudgetsData 34KB + kombiboniData 105KB; sessionData all-null under anonymous GET; tariff-leak specificity upgraded.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /api/ => IIS dir-listing-denied 403 (1233B) vs /uploads/,/fraq/,/images/ => 404 — physical /api/ dir exists at origin web root (distinct from api.kassenkompass.de); 20 subnames all 404.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /trace.axd => ASP.NET "Trace Error" + x-aspnet-version 4.0.30319 — IIS/ASP.NET 4.0 confirmed on .de origin (PHP coexists); remote trace denied (secure default).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: www mirror serves identical 2.1MB fragen payload + identical lizenz/jid/agn/ppn 4-cookie injection on abschluss.php — stuffing/data surface doubled apex+www.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: ~14-request burst triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt", 149B 403 on benign+blocked paths alike) — pace ≤1 rps strictly next session.
+[RISK] KassenKompass: 65 — Two standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, 2.1MB m/request, zero-cache, apex+www), cookie-stuffing attribution real (80) but lead-gated execution. New IIS/ASP.NET 4.0 + physical /api/ dir discovered but no exploitable contents (all 404; trace remote-denied). API surface still saturated + credential-gated. Self-induced WAF block created probe noise; read-only, no PII touched.
+===VALID===
+# Validated findings (running count 0)
+
+- 1 lead(s) marked VALID at 2026-09-04 19:20:31 UTC
+  - | **VALID** | 2 | API Catalog Disclosure (MISCONFIG, CVSS 5.3), /sync/ 200 Misconfig (MISCONFIG, CVSS 5.3) |
+
+- 13 lead(s) marked VALID at 2026-09-06 05:06:57 UTC
+  - | Q5 Novel? | **DUPLICATE** — already accepted 2026-09-04 19:20 UTC in valid-bugs.md |
+  - | Q3 Impact? | **YES** — attacker with valid API secret reads any user's PII (name, insurance, email, address); GDPR-relevant |
+  - | Q4 Provable? | **NO** — requires valid X-API-Secret (AUTH_HELPED); no passive verification possible |
+  - **Verdict: HOLD** — Requires valid X-API-Secret to verify. Cannot prove non-invasively. Revisit when scoped test credentials obtained.
+  - | Q4 Provable? | **NO** — error shape mapping is passive, but confirming actual scope confusion requires valid key (AUTH_HELPED) |
+  - **Verdict: HOLD** — Architectural signal only. Cannot confirm exploitability without valid X-API-Secret. Revisit when credentials obtained.
+  - | Q3 Impact? | **YES** — attacker with valid secret deletes any user's data |
+  - | Q4 Provable? | **NO** — requires valid X-API-Secret; destructive endpoint (no safe passive verification) |
+  - **Verdict: HOLD** — Requires valid X-API-Secret + destructive testing. Cannot prove non-invasively.
+  - | Q4 Provable? | **NO** — requires valid scoped X-API-Secret |
+  - **Verdict: HOLD** — Requires valid X-API-Secret. Revisit with scoped credentials.
+  - **Verdict: VALID**
+  - | 14 | **Funnel cookie-stuffing** | **VALID** ✅ |
+
+- 8 lead(s) marked VALID at 2026-09-07 23:19:50 UTC
+  - **VERDICT: VALID**
+  - | Q2 Reachable | NO | Requires valid X-API-Secret; unauth returns 401 |
+  - | Q4 Provable | NO | Cannot verify without valid API secret |
+  - | Q2 Reachable | NO | Requires valid X-API-Secret |
+  - | Q4 Provable | NO | Requires valid key + destructive testing |
+  - | Q2 Reachable | NO | Requires valid X-API-Secret |
+  - | Q4 Provable | NO | Cannot verify without valid scoped secret |
+  - | 1 | Unauthenticated API Catalog Disclosure | **VALID** | 5.3 | Submit to bugs.olivermaicher.eu |
+
+- 19 lead(s) marked VALID at 2026-09-08 21:38:18 UTC
+  - | Q5 Novel/unreported? | **DUPLICATE** — already accepted 2026-09-04 19:20 UTC in valid-bugs.md |
+  - | Q2 Reachable? | **NO** — requires valid X-API-Secret (auth-gated, returns 401 without it) |
+  - | Q4 Provable non-invasively? | **NO** — requires valid API key to demonstrate cross-user access |
+  - **Verdict: HOLD** — Requires valid X-API-Secret to verify. Revisit when scoped test credentials obtained.
+  - | Q2 Reachable? | **NO** — requires valid X-API-Secret |
+  - | Q4 Provable non-invasively? | **NO** — requires valid key + destructive endpoint (no safe passive verification) |
+  - **Verdict: HOLD** — Requires valid X-API-Secret + destructive testing. Cannot prove non-invasively.
+  - | Q2 Reachable? | **NO** — requires valid X-API-Secret |
+  - | Q4 Provable non-invasively? | **NO** — requires valid scoped secret |
+  - **Verdict: HOLD** — Requires valid X-API-Secret. Revisit with scoped credentials.
+  - | Q2 Reachable? | **PARTIAL** — error shape observable unauthenticated; scoping differential requires valid key |
+  - | Q4 Provable non-invasively? | **NO** — passive mapping confirms architecture but cannot confirm exploitability without valid key |
+  - **Verdict: HOLD** — Cannot confirm exploitability without valid X-API-Secret. Revisit when credentials obtained.
+  - | Q2 Reachable? | **PARTIAL** — catalog mismatch observable unauth; POST behavior requires valid key |
+  - **Verdict: VALID**
+  - | 3 | IDOR /user/{ext_id} | **HOLD** | Needs valid X-API-Secret |
+  - | 4 | BOLA /delete/{id} | **HOLD** | Needs valid X-API-Secret |
+  - | 5 | BOLA /settlement_report | **HOLD** | Needs valid X-API-Secret |
+  - | 12 | Funnel Cookie-Staffing | **VALID** | CVSS 6.5, submit to bugs.olivermaicher.eu |
+
+- 6 lead(s) marked VALID at 2026-09-10 08:24:55 UTC
+  - **Verdict: HOLD** — Valid misconfiguration but borderline bounty-worthy. Report as low-severity hardening issue. Proof: single `GET /sync/` shows 200 + auth error body. Impact: WAF/monitoring bypass p
+  - **Verdict: VALID** — Hardcoded client-side secret enabling partner account takeover.
+  - **Verdict: VALID** — Unvalidated user input persisted into session cookies across 7 endpoints.
+  - **Verdict: HOLD** — Requires confirmation whether tariff data is intentionally public or protected business data. If the latter, VALID as access-control bypass. Report as potential information disclos
+  - | 2 | Partner reset hardcoded magic `KKX3382745` | **VALID** | 7.5 | Yes |
+  - | 3 | Funnel param→cookie injection (7 entries) | **VALID** | 5.3 | Yes |
+
+- 14 lead(s) marked VALID at 2026-09-11 04:50:28 UTC
+[0m
+[0m$ [0msed -n '60,200p' reports/valid-bugs.md
+- 14 lead(s) marked VALID at 2026-09-11 04:50:28 UTC
+  - **VERDICT: VALID**
+  - **VERDICT: VALID**
+  - | Q2 | **Partially** — endpoint returns 401 without auth; attacker needs valid X-API-Secret |
+  - | Q4 | **No** — requires valid API secret (AUTH_HELPED); passive-only proof not possible |
+  - | Q5 | **Uncertain** — cannot verify without valid key |
+  - | Q7 | **No** — cannot demonstrate exploit without valid credential; triager would ask for proof |
+  - | Q2 | **Partially** — requires valid X-API-Secret |
+  - | Q4 | **No** — requires valid scoped secret (AUTH_HELPED) |
+  - | Q7 | **No** — cannot demonstrate without valid credential |
+  - | Q2 | **Partially** — requires valid X-API-Secret |
+  - | Q7 | **No** — requires active testing on destructive endpoint with valid auth; program rules restrict destructive actions |
+  - | Q4 | **Partially** — error message mapping is passive; but exploitation proof requires valid key |
+  - | 1 | Unauthenticated API Catalog Disclosure | **VALID** | 5.3 |
+  - | 2 | Inconsistent Auth Error Handling (/sync/ 200) | **VALID** | 3.7 |
+[0m
+[0m$ [0mfor f in triage/run-2026-09-11-13-48.md triage/run-2026-09-11-09-23.md; do echo "=== $f ==="; head -40 "$f"; done
+=== triage/run-2026-09-11-13-48.md ===
+
+===== TRIAGE 2026-09-11 13:48:46 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. The LEADS section is empty — please supply the hunt bot results to evaluate.
+=== triage/run-2026-09-11-09-23.md ===
+
+===== TRIAGE 2026-09-11 09:23:18 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. The LEADS section is empty. Please provide the probe results you want me to validate.
+[0m
+[0m$ [0mcurl -sS -o /dev/null -D - --max-time 60 -A "Mozilla/5.0 (X11; Linux x86_64)" "https://kassenkompass.de/bonusrechner_fragen.php" | head -40
+HTTP/2 200 
+date: Fri, 11 Sep 2026 19:51:52 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=Uxup4xYu7H0n5dylggY8balKmcOj6Bkba4oHjv3dz2kiyKm1aO0rcIrfq7y1/rR+Bihr/vbaw1yuGoYvDRq6reQmzyHtVuA5LvFKJPQ4VB2RNfhF2Fn8R4pRprIl; Expires=Fri, 18 Sep 2026 19:51:52 GMT; Path=/
+set-cookie: AWSALBCORS=Uxup4xYu7H0n5dylggY8balKmcOj6Bkba4oHjv3dz2kiyKm1aO0rcIrfq7y1/rR+Bihr/vbaw1yuGoYvDRq6reQmzyHtVuA5LvFKJPQ4VB2RNfhF2Fn8R4pRprIl; Expires=Fri, 18 Sep 2026 19:51:52 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=8731a2bb83d3a6b142e135eed2cb6201; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=cuZPfQKI6vtZ%2FtY7gscGMIxwKf2MMNSQ%2FwwxgWiz3PNaqTP8jDEtn6EoRMUOZ7RtGhW3KOm9%2Bwvh5dae15WmvRACX130BYntOWH8OCFQGhFkD62ZW3XfxDd1C5txZ%2Fy28dg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a39935a6ea85c77f-ORD
+[0m
+HEAD-level probe confirms fragen.php stable post-WAF-block (200, CF-DYNAMIC, no-store, no ETag/Last-Modified, AWS ALB cookies present). Now checking the api root structural change noted last session (200 len=0 vs prior full-body catalog).
+[0m$ [0msleep 3; curl -sS -D - --max-time 30 -A "Mozilla/5.0" "https://api.kassenkompass.de/" | head -60
+HTTP/2 200 
+date: Fri, 11 Sep 2026 19:52:03 GMT
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=lmC1K%2BTHeJisQ%2FU0KP3EIJ%2FdjtkYr4SccvnRIh7rrVfpU11rdOowwY7VlH%2Bhfq7sPfhqRuGBkZSDSYdnr2C6FRntjUX3puq3k4%2Fx6kFtjFTZBdJOPUhaEmgiuqQFwCp%2FEuIDqYum"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a39935e9fa6d90c6-ORD
+
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+api root catalog fully disclosed live (200, content-length 1167, 15 endpoints, ver 1.0) — the prior session's `len=0` observation was transient; disclosure persists. Checking the v2 gate once more.
+[0m$ [0msleep 3; curl -sS -D - --max-time 30 -A "Mozilla/5.0" "https://api.kassenkompass.de/v2/insurance_info/999999999" -o /dev/null | head -25
+HTTP/2 401 
+date: Fri, 11 Sep 2026 19:52:10 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 244
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=bQ1O4Ky6rRdnuAsQoPOyuspSyOZhE6Z7x8Dw%2BnUmEZTH8KT8NjgvWAhbgaN%2FLD7i5dZtS5TN6W8F%2FG2xtTPDdjeFLz5ha%2B2bG8nAp3ZZhxoxrdhXAcymipi%2B949PrSJAgaANTVZb"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3993616aea3706b-ORD
+[0m
+v2 gate stable (401 problem+json, ACAM/ACAH X-API-Secret, no origin reflection). One novel read-only check: probing for a v3 router (never tested across 8+ sessions — v2 sweep saturated but `/v3/` wasn't in the 42-name list).
+[0m$ [0msleep 3; curl -sS -D - --max-time 30 -A "Mozilla/5.0" "https://api.kassenkompass.de/v3/" | head -30
+HTTP/2 200 
+date: Fri, 11 Sep 2026 19:53:09 GMT
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=vjTApYr6H43nso90CJmMNS04nXDLfP%2F%2Bk%2Fw7aywKpP3ZHbra2USW7CmLlfoopzuzkyLkVXLK02EXvIrNAgI62XDKSGbYV3mjeVDobJYxkHWitqxsyXKgqXXmcYwCX%2BxMNwHO0CAY"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a399378ae8c03ef3-ORD
+
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+[0m
+v3 doesn't exist — `/v3/` falls into the v1 catch-all (same 1167B catalog). Checking whether `/v3/{unknown}` also mirrors root (confirming only /v2/ has a distinct router).
+[0m$ [0msleep 3; echo "== /v3/zzz =="; curl -sS --max-time 30 -A "Mozilla/5.0" "https://api.kassenkompass.de/v3/zzz" -o /tmp/v3.txt -w "%{http_code} %{size_download}B\n"; head -c 150 /tmp/v3.txt; echo; echo; sleep 3; echo "== /v2/zzz =="; curl -sS --max-time 30 -A "Mozilla/5.0" "https://api.kassenkompass.de/v2/zzz" -o /tmp/v2.txt -w "%{http_code} %{size_download}B\n"; head -c 150 /tmp/v2.txt; echo
+== /v3/zzz ==
+200 1167B
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/healt
+
+== /v2/zzz ==
+404 166B
+{"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/zzz' nicht gefunden.","instan
+[0m
+All 6 probes done (spaced ≥3s). `/v3/*` falls into the path-agnostic v1 catch-all; `/v2/*` remains the sole router-404 oracle. Surface stable.
+
+---
+
+STEP 1 — DELTA
+- [CHANGED] api root: prior session logged "200 len=0 empty body"; live re-probe → 200, content-length 1167, full 15-endpoint catalog ver 1.0 disclosed — the len=0 recording was transient; disclosure persists.
+- [NEW] `/v3/` AND `/v3/zzz` → 200 v1 catalog (1167B, byte-identical to root) vs `/v2/zzz` → 166B router-404 oracle ("API-Endpunkt 'v2/zzz' nicht gefunden") — v2 is the sole versioned router; v1 catch-all is path-agnostic (swallows arbitrary prefixes incl. v3); v3 never tested across 8 prior sessions.
+- [CHANGED] bonusrechner_fragen.php post-WAF-cooldown — 200, cf-cache-status DYNAMIC, cache-control no-store/no-cache/must-revalidate, no ETag/Last-Modified; AWSALB+AWSALBCORS present (ALB-in-front-of-CF confirmed on .de); no cache mitigation appeared.
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php,score=7.35,axis=unauthed-2.1MB-tariff-MISCONFIG,hive=7.0,bv=9.0,t=5.0,g=10.0,c=2.0,f=8.0
+- [PRIO] kassenkompass.de (7 funnel mirrors),score=7.15,axis=unvalidated-cookie-BUSLOGIC-money-attr,hive=7.0,bv=8.0,t=5.0,g=9.0,c=3.0,f=8.0
+- [PRIO] api.kassenkompass.de (15+1 endpoints, auth 15/15),score=5.2,axis=credential-gated-IDOR,hive=5.0,bv=6.0,t=6.0,g=1.0,c=5.0,f=9.0
+
+STEP 3 — HYPOTHESES
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de + www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live this session: GET 200, CF-DYNAMIC, no-store/no-cache/must-revalidate, no ETag/Last-Modified, AWSALB present. Stable since 2026-09-07 per KB: ucatKkData 1.79MB/5209 rows, globalbudgetsData 34KB, kombiboniData 105KB, pseudoKkIds=[99,100,101], sessionData null; kk_id param not consumed. Apex+www identical. Evidence satisfied.
+evidence_needed: Satisfied (repeat headers + param non-consumption verified).
+verify_steps: DONE — GET on apex isolated (this session) + prior HEAD/GET apex+www with markers.
+impact: Full tariff/bonus-budget/volume DB leak (competitive intelligence) + 2.1MB zero-cache per-request regen. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors confirmed; last live probe 2026-09-10 21:45 UTC on abschluss.php re-verified 4-param alias map (lizenz→afilcode non-Secure/HttpOnly; jid/agn/ppn→HttpOnly, 1yr, zero validation). GET branch closed 7/7 (byte-identical); consumption strictly POST/settlement. ALB fronting behind CF now confirmed (AWSALB on fragen), mirrors serve through same path.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution.
+impact: commission/attribution theft on insurance-switch settlements. HIGH if verified.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed 8+ sessions); resource-level authz untested behind gate. v3 sweep negative (no third router) — no new attack surface.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] /api/ IIS dir enumeration — 403 dir-listing-deny only, 20 subnames all 404, no contents evidence; low value.
+- [PARKED] trace.axd — remote trace denied (secure default), version header only (out-of-scope "headers"); no request-trace content obtainable.
+- [PARKED] `/v3/` existence — negative result (v1 catch-all): confirms no third router, closes version-surface family; contributes evidence only, no standalone finding.
+- [FINAL] 1) fragen.php tariff leak (85, PASSIVE, evidence satisfied). 2) cookie-stuffing (80, AUTH_HELPED, lead-gated). 3) B-stack IDOR (62, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+- [NEXT] HUMAN: request scoped test credential (valid X-API-Secret or partner-account) from program via bugs.olivermaicher.eu to unblock the two live unverified findings — B-Stack IDOR (/user/{ext_id}; needs GET /user/1 vs /user/2) and cookie-stuffing attribution (needs completed-questionnaire settlement line-item). Passive surface is now saturated (v3 negative, root catalog re-confirmed, fragen.php stable post-WAF); only auth-gated verification remains.
+
+STEP 6 — LEARNING
+- [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: `/v3/` and `/v3/zzz` → 200 v1 catch-all catalog (1167B, identical to root) vs `/v2/zzz` → 166B router-404 oracle — v2 is the SOLE versioned router; v1 catch-all path-agnostic across arbitrary prefixes; v3 nonexistent.
+- [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root catalog disclosure re-confirmed live (200, content-length 1167, 15 endpoints, ver 1.0) — prior "200 len=0" recording was transient; disclosure persists.
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: post-WAF-cooldown re-check → 200, CF-DYNAMIC, no-store/no-cache/must-revalidate, no ETag/Last-Modified, AWSALB+AWSALBCORS present (ALB behind CF on .de origin) — no cache mitigation appeared.
+- [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: v2 insurance_info gate unchanged — 401 RFC9457 problem+json, ACAM "GET, OPTIONS", ACAH "X-API-Secret, Content-Type", no origin reflection.
+
+STEP 7 — RISK
+- [RISK] KassenKompass: 65 — Standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, apex+www), cookie-stuffing attribution real (80) but lead-gated, B-Stack IDOR (62) credential-gated. v3 closure confirmed no new surface; root catalog disclosure persists (already-reported dupe class). API surface saturated. Read-only, ≤1 rps, 6 requests this session, no PII touched.
