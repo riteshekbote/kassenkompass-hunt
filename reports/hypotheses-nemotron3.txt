@@ -1,6 +1,6 @@
-## 2026-09-10 23:56:28 UTC [target] (model nemotron3)
+## 2026-09-11 04:21:57 UTC [target] (model nemotron3)
+[NEW] api.kassenkompass.de/ root returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
 [NEW] kassenkompass.de/login_partner.php: Standard HTML login form (POST to self), no client-side JS bundle delivering X-API-Secret; only standard.js (UI utilities) loaded — Partner Portal JS-delivered-secret hypothesis unsupported on this surface
-[NEW] api.kassenkompass.de/ root: Returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
 [CHANGED] kassenkompass.de/bonusrechner_vergleich2.php: Sets new `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — not observed prior to 2026-09-09; sole funnel step emitting device_id
 [CHANGED] kassenkompass.de/bonusrechner_abschluss.php: Lead-gated POST confirmed — "Account-ID nicht gefunden" div appears ONLY on POST, absent on GET; server validates Account-ID on form submission, not page render
 [PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.5, attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=8
@@ -36,7 +36,6 @@ verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/999999999 (401 
 impact: If middleware A secret compromised → cross-tenant access to draft insurance categories + resolved references (unpublished data surface); enumeration primitive for v2 router via structured 404 oracle; LOW-MEDIUM (credential-gated)
 testability: AUTH_HELPED
 [PARKED] v2 Greedy Segment Match + Auth Middleware A Sharing Enables Draft Data Enumeration: confidence 65 but credential-gated (AUTH_HELPED), no auth bypass vector identified — X-API-Secret custom header, not JWT; query/cookie source-merge closed; partner portal JS delivers no secret; requires valid middleware A secret which is out of passive scope
-[PARKED] Partner Portal JavaScript Delivers B-Scoped X-API-Secret: confidence 45 below actionable threshold; login_partner.php serves only standard login form + standard.js (UI utils); no X-API-Secret/apiKey/token/Bearer/fetch/axios patterns in any loaded JS; speculative
 [FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 85, PASSIVE)
 [FINAL] 2. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 70, PASSIVE)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — measure response time, confirm Content-Length ~2.1MB, extract Cache-Control/ETag/Last-Modified headers; repeat 10x at 1 rps → verify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body
@@ -47,6 +46,7 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id random per fresh session, sticky after issuance (1yr Secure HttpOnly SameSite=Lax), sole mirror emitting it; catoint force-deleted on every response
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: no-store+CF-DYNAMIC → full 2.1MB tariff body regenerated per anonymous request; no ETag/Last-Modified; no cache mitigation
 [LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: kk_id query param not consumed (akt_kk_id=null, identical payload three ways) — no per-KK amplification; GET render always serves full set
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_daten.php: mapa correction — daten.php mirrors lizenz→afilcode (non-HttpOnly) + jid/agn/ppn; prior "ignores lizzen" was probe-spelling artifact; map more uniform than recorded
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: attribution cookies not echoed at GET render (same-jar param-less request re-issues none) — mirror-once, cookie-jar-carries model
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated

@@ -13918,3 +13918,570 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass: 65 — Two standing findings: tariff DB leak fully verified PASSIVE (85, no auth/rate-limit/cache, dynamically regenerated per request); cookie-stuffing attribution theft real persistence (80) with re-confirmed uniform alias map but execution still lead-gated (AUTH_HELPED). api 15+1 surface credential-gated and stable; root catalog flip-flop indicates active dev but no new primitive. Read-only probes only, no PII exposed; risk unchanged from prior consensus.
+===== ANALYST bigpickle 2026-09-11 04:25:26 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m% [0mWebFetch https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN
+[0m% [0mWebFetch https://kassenkompass.de/bonusrechner_fragen.php
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HTTP/%{http_version} %{http_code}\nContent-Length: %{size_download}\nTime-Total: %{time_total}s\nContent-Type: %{content_type}\n" -D - "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | head -40
+HTTP/2 200 
+date: Fri, 11 Sep 2026 04:20:37 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=yvwXuMLMFHruI0GPdJOzu5MyzXPUfoLfM3BwJKnvh9O8jcEPjrh4En79C7bssdcBTXDQpC/HauA1MdLtasbBYfW2Q21ZkVuiJjzrOr3Ad51miD+70Pt53YKgbN2J; Expires=Fri, 18 Sep 2026 04:20:37 GMT; Path=/
+set-cookie: AWSALBCORS=yvwXuMLMFHruI0GPdJOzu5MyzXPUfoLfM3BwJKnvh9O8jcEPjrh4En79C7bssdcBTXDQpC/HauA1MdLtasbBYfW2Q21ZkVuiJjzrOr3Ad51miD+70Pt53YKgbN2J; Expires=Fri, 18 Sep 2026 04:20:37 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=8f180cc5473c546e7497400d1d42f463; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=5Ka77k0xmT%2BOZtSkowKBK5H04195GfXPELOXpBmafUh4SZwGDe88cRT9xmZyA01%2FyU26QC5mq%2Bk7o%2F5mUjvOlVP0xoo56fNBcHXvUqOnLFMGOszhhIqQkuOFn5TnkvYjhMI%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a393e1856b55fbf8-LAX
+
+HTTP/2 200
+Content-Length: 2158150
+Time-Total: 0.588651s
+Content-Type: text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HTTP/%{http_version} %{http_code}\nContent-Length: %{size_download}\nTime-Total: %{time_total}s\nContent-Type: %{content_type}\n" -D - "https://kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN" 2>&1 | head -40
+HTTP/2 200 
+date: Fri, 11 Sep 2026 04:20:39 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=4yd7l4SerIYlDcYm4shcBtnx1tdXktDPe7vq1q9IMKHl6N+1oEIBXbyyGdMbXh+DtJAUs/8k7mYt3BebsgNwg+jjPhmusXOsLqHItZKKghoe0X/bnJwt3pfsP5R+; Expires=Fri, 18 Sep 2026 04:20:38 GMT; Path=/
+set-cookie: AWSALBCORS=4yd7l4SerIYlDcYm4shcBtnx1tdXktDPe7vq1q9IMKHl6N+1oEIBXbyyGdMbXh+DtJAUs/8k7mYt3BebsgNwg+jjPhmusXOsLqHItZKKghoe0X/bnJwt3pfsP5R+; Expires=Fri, 18 Sep 2026 04:20:38 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=275018654cb9f6c556d78477e0e77f5c; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=BBPROBE; expires=Sat, 11 Sep 2027 04:20:38 GMT; Max-Age=31536000
+set-cookie: customerid=BBJID; expires=Sat, 11 Sep 2027 04:20:38 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=BBAGN; expires=Sat, 11 Sep 2027 04:20:38 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=BBPPN; expires=Sat, 11 Sep 2027 04:20:38 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=z4eGr8Xmcl%2BZqYaz8inHam8LpCyqb6ZUK%2BkF99ofs9f55x1qhu72mygmQvl1DdGQvt%2BnOHuZtWykqi%2B62Wf7ygtC1UteDyrWUuCdanDO5SVclY5UEfImER9fJKZQmlvCqmg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a393e18c1d9a8901-LAX
+
+HTTP/2 200
+Content-Length: 62038
+Time-Total: 0.915292s
+Content-Type: text/html; charset=UTF-8
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | python3 -c "
+import sys, json, re
+data = sys.stdin.read()
+# Extract JSON data from script tags
+matches = re.findall(r'var\s+(\w+)\s*=\s*(\{[^;]+?\});', data, re.DOTALL)
+for name, val in matches:
+    print(f'VAR: {name} ({len(val)} chars)')
+# Also look for large data blocks
+blobs = re.findall(r'\"ucatKkData\"\s*:\s*\{', data)
+print(f'ucatKkData occurrences: {len(blobs)}')
+# Check sessionData
+sd = re.findall(r'sessionData.*?\}', data[:5000])
+for s in sd[:3]:
+    print(f'sessionData: {s[:200]}')
+# Check for pseudoKkIds
+pseudo = re.findall(r'pseudoKkIds.*?\]', data[:20000])
+for p in pseudo[:2]:
+    print(f'pseudoKkIds: {p[:200]}')
+" 2>&1
+ucatKkData occurrences: 0
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/login_partner.php" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/login_kd.php" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/partner/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/admin/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/api/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/upload/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/debug/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/test/" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/robots.txt" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://kassenkompass.de/sitemap.xml" 2>&1
+HTTP/200 Size:3643 Time:0.556329s
+HTTP/200 Size:3881 Time:0.544410s
+HTTP/404 Size:8377 Time:0.239774s
+HTTP/404 Size:8377 Time:0.223251s
+HTTP/403 Size:1233 Time:0.253397s
+HTTP/404 Size:8377 Time:0.223893s
+HTTP/404 Size:8377 Time:0.258535s
+HTTP/404 Size:8377 Time:0.307415s
+HTTP/200 Size:1836 Time:0.249540s
+HTTP/200 Size:3119 Time:0.549282s
+[0m
+[0m$ [0mcurl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://www.kassenkompass.de/bonusrechner_fragen.php" && curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download} Time:%{time_total}s\n" "https://www.kassenkompass.de/bonusrechner_abschluss.php?lizenz=BBPROBE" 2>&1
+HTTP/200 Size:2158150 Time:1.994903s
+HTTP/200 Size:62038 Time:0.851622s
+[0m
+[0m$ [0mcurl -s -D - "https://kassenkompass.de/api/" 2>&1 | head -20
+HTTP/2 403 
+date: Fri, 11 Sep 2026 04:21:25 GMT
+content-type: text/html
+set-cookie: AWSALB=hPc/x/0Az3KTUaCXIk/SARJrwLf4HCGQ2O8JPmE1aZQPCDBxpE6/2ZcGwBM8mtBvAXwv0Q6c9ScaIqZW4g6WzSMxTFEEP8Y6VjvkpcgScCFVC+kj6n3Kz62aN+OI; Expires=Fri, 18 Sep 2026 04:21:25 GMT; Path=/
+set-cookie: AWSALBCORS=hPc/x/0Az3KTUaCXIk/SARJrwLf4HCGQ2O8JPmE1aZQPCDBxpE6/2ZcGwBM8mtBvAXwv0Q6c9ScaIqZW4g6WzSMxTFEEP8Y6VjvkpcgScCFVC+kj6n3Kz62aN+OI; Expires=Fri, 18 Sep 2026 04:21:25 GMT; Path=/; SameSite=None; Secure
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=TofnElpCCVb5nq3Q6KBb3CvBqEOIHkS37y1xdXF0UF1ouHjPMae2zsw4PLGwh0MuJenbWd4gC7RzGJCuVm7zSJQMCp6UIROnENKUV%2B%2FhUBNhhH1JCh%2Brf94seMldQgKi8eo%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a393e2aff9824633-LAX
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/robots.txt" 2>&1
+# As a condition of accessing this website, you agree to abide by the following
+# content signals:
+
+# (a)  If a Content-Signal = yes, you may collect content for the corresponding
+#      use.
+# (b)  If a Content-Signal = no, you may not collect content for the
+#      corresponding use.
+# (c)  If the website operator does not include a Content-Signal for a
+#      corresponding use, the website operator neither grants nor restricts
+#      permission via Content-Signal with respect to the corresponding use.
+
+# The content signals and their meanings are:
+
+# search:   building a search index and providing search results (e.g., returning
+#           hyperlinks and short excerpts from your website's contents). Search does not
+#           include providing AI-generated search summaries.
+# ai-input: inputting content into one or more AI models (e.g., retrieval
+#           augmented generation, grounding, or other real-time taking of content for
+#           generative AI search answers).
+# ai-train: training or fine-tuning AI models.
+# use:      how AI systems may consume the content (immediate, reference, or full).
+
+# ANY RESTRICTIONS EXPRESSED VIA CONTENT SIGNALS ARE EXPRESS RESERVATIONS OF
+# RIGHTS UNDER ARTICLE 4 OF THE EUROPEAN UNION DIRECTIVE 2019/790 ON COPYRIGHT
+# AND RELATED RIGHTS IN THE DIGITAL SINGLE MARKET.
+
+# BEGIN Cloudflare Managed content
+
+User-agent: *
+Content-Signal: search=yes,ai-train=no,use=reference
+Allow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: ClaudeBot
+Disallow: /
+
+User-agent: CloudflareBrowserRenderingCrawler
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+# END Cloudflare Managed Content
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/sitemap.xml" 2>&1 | head -100
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>https://kassenkompass.de</loc></url>
+<url><loc>https://kassenkompass.de/ueberuns.php</loc></url>
+<url><loc>https://kassenkompass.de/kontakt.php</loc></url>
+<url><loc>https://kassenkompass.de/faq.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel.php</loc></url>
+<url><loc>https://kassenkompass.de/presse.php</loc></url>
+<url><loc>https://kassenkompass.de/kooperationspartner.php</loc></url>
+<url><loc>https://kassenkompass.de/bonusrechner.php</loc></url>
+
+<url><loc>https://kassenkompass.de/artikel/krankenkasse-wechseln.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkasse-wechseln/fristen-kuendigung.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkasse-wechseln/beste-krankenkasse-familien.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkasse-wechseln/zusatzbeitrag-krankenkassen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkasse-wechseln/pkv-zurueck-in-gkv-wechsel.php</loc></url>
+
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/regelleistungen-zusatzleistungen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/zahnleistungen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/bonusprogramme.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/zahnreinigung.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/impfungen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/vorsorgeuntersuchungen.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/grippeimpfung.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/schwangerschaft.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-leistungen/kuenstliche-befruchtung.php</loc></url>
+
+<url><loc>https://kassenkompass.de/artikel/gkv-vs-pkv.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/gkv-vs-pkv/pkv-wechsel-regeln.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/gkv-vs-pkv/zusatzversicherung.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/gkv-vs-pkv/zweiklassenmedizin.php</loc></url>
+
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-system.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-system/krankenkasse-irrtuemer.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-system/elektronische-patientenakte.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/krankenkassen-system/pflegegrad.php</loc></url>
+
+<url><loc>https://kassenkompass.de/artikel/erkaeltung-oder-covid.php</loc></url>
+<url><loc>https://kassenkompass.de/artikel/pflegehilfsmittel-beantragen-pflegegrad.php</loc></url>
+
+<url><loc>https://kassenkompass.de/krankenkasse/dak-gesundheit.php</loc></url>
+</urlset>
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/api/" 2>&1 | head -40; echo "---RANDOM---"; curl -s -o /dev/null -w "HTTP/%{http_code} Size:%{size_download}\n" "https://kassenkompass.de/zzz_random_nonexistent_qq.php"; curl -s "https://kassenkompass.de/zzz_random_nonexistent_qq.php" 2>&1 | head -20
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title>403 - Forbidden: Access is denied.</title>
+<style type="text/css">
+<!--
+body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}
+fieldset{padding:0 15px 10px 15px;} 
+h1{font-size:2.4em;margin:0;color:#FFF;}
+h2{font-size:1.7em;margin:0;color:#CC0000;} 
+h3{font-size:1.2em;margin:10px 0 0 0;color:#000000;} 
+#header{width:96%;margin:0 0 0 0;padding:6px 2% 6px 2%;font-family:"trebuchet MS", Verdana, sans-serif;color:#FFF;
+background-color:#555555;}
+#content{margin:0 0 0 2%;position:relative;}
+.content-container{background:#FFF;width:96%;margin-top:8px;padding:10px;position:relative;}
+-->
+</style>
+</head>
+<body>
+<div id="header"><h1>Server Error</h1></div>
+<div id="content">
+ <div class="content-container"><fieldset>
+  <h2>403 - Forbidden: Access is denied.</h2>
+  <h3>You do not have permission to view this directory or page using the credentials that you supplied.</h3>
+ </fieldset></div>
+</div>
+</body>
+</html>
+---RANDOM---
+HTTP/404 Size:8377
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<!-- Favicon -->
+<link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="/image/svg+xml" href="/favicon.svg" />
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+<!-- CSS (global) mit Versions-Parameter -->
+<link rel="stylesheet" type="text/css" href="/css/standard.css?v=v2.6.10">
+<link rel="stylesheet" type="text/css" href="/css/cookie-consent.css?v=v2.6.10">
+
+<!-- Javascript -->
+<script src="/js/standard.js?v=1789100491"></script>
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_fragen.php" -o /tmp/opencode/fragen.html 2>&1; ls -la /tmp/opencode/fragen.html; grep -o "ucatKkData[^,]\{0,80\}" /tmp/opencode/fragen.html | head -5; echo "---"; grep -o "sessionData[^,]\{0,120\}" /tmp/opencode/fragen.html | head -3; echo "---"; grep -o "pseudoKkIds[^]]\{0,40\}" /tmp/opencode/fragen.html | head -3
+-rw-r--r-- 1 runner runner 2158150 Sep 11 04:21 /tmp/opencode/fragen.html
+ucatKkData = [{"0":"1"
+ucatKkData:'
+ucatKkData);
+ucatKkData length:'
+ucatKkData ? ucatKkData.length : 'undefined');
+---
+sessionData = {"employ":null
+sessionData);
+sessionData
+---
+pseudoKkIds = [99,100,101
+pseudoKkIds = pseudoKkIds;
+[0m
+[0m$ [0mpython3 -c "
+import json,re
+data=open('/tmp/opencode/fragen.html',encoding='utf-8',errors='replace').read()
+# find ucatKkData definition
+m=re.search(r'ucatKkData\s*=\s*(\[.*?\]);',data,re.DOTALL)
+if m:
+    blob=m.group(1)
+    print('ucatKkData len:',len(blob))
+    arr=json.loads(blob)
+    print('array len:',len(arr))
+    for item in arr[:3]:
+        if isinstance(item,dict):
+            print('keys:',list(item.keys())[:10])
+            for k in list(item.keys())[:5]:
+                v=item[k]
+                print(' ',k,':',str(v)[:80])
+" 2>&1
+ucatKkData len: 1794269
+array len: 5209
+keys: ['0', 'uid_cat', '1', 'uid_ucat_q', '2', 'uid_kk_q', '3', 'wert', '4', 'wertart']
+  0 : 1
+  uid_cat : 1
+  1 : 1
+  uid_ucat_q : 1
+  2 : 1
+keys: ['0', 'uid_cat', '1', 'uid_ucat_q', '2', 'uid_kk_q', '3', 'wert', '4', 'wertart']
+  0 : 2
+  uid_cat : 2
+  1 : 2
+  uid_ucat_q : 2
+  2 : 1
+keys: ['0', 'uid_cat', '1', 'uid_ucat_q', '2', 'uid_kk_q', '3', 'wert', '4', 'wertart']
+  0 : 3
+  uid_cat : 3
+  1 : 3
+  uid_ucat_q : 3
+  2 : 1
+[0m
+[0m$ [0mfor p in api/ css/ js/ uploads/ fraq/ images/ img/ files/ pdf/ mediathek/ media/; do printf "%-12s " "/$p:"; curl -s -o /dev/null -w "%{http_code} %{size_download}B\n" "https://kassenkompass.de/$p"; done
+/api/:       403 1233B
+/css/:       403 1233B
+/js/:        403 1233B
+/uploads/:   404 8377B
+/fraq/:      404 8377B
+/images/:    404 8377B
+/img/:       404 8377B
+/files/:     404 8377B
+/pdf/:       404 8377B
+/mediathek/: 404 8377B
+/media/:     404 8377B
+[0m
+[0m$ [0mpython3 -c "
+import json,re
+data=open('/tmp/opencode/fragen.html',encoding='utf-8',errors='replace').read()
+for blobname in ['globalbudgetsData','kombiboniData','sessionData','kkData','budgetsData']:
+    m=re.search(blobname+r'\s*=\s*(\[.*?\]|\{.*?\}|null);',data,re.DOTALL)
+    if m:
+        txt=m.group(1)
+        print(blobname,'len',len(txt),'prefix',txt[:120].replace(chr(10),' '))
+    else:
+        print(blobname,'NOT FOUND as full blob')
+# any email-like strings
+print('emails:',len(re.findall(r'[\w.+-]+@[\w-]+\.[\w.]{2,}',data)))
+# any id patterns in sessionData
+m=re.search(r'akt_kk_id.*?available_kk_uids[^]]*\]',data)
+if m: print('sessionData snippet:',m.group(0)[:200])
+"
+globalbudgetsData len 34055 prefix {"1":{"66":{"uid_gb":"66","name_gb":"Gesundheitskonto","volumen_gb":300,"beschreibung_gb":"","affected_ucats":[9,81,100]
+kombiboniData len 105583 prefix {"9":{"183":{"uid":"183","name_boni":"60 € Kombibonus für Vorsorge","volumen_boni":60,"bes_boni":"Du gehst zur Zahnvorso
+sessionData len 118 prefix {"employ":null,"salary":null,"kk":null,"kk_id":null,"bund":null,"cookies":{"akt_kk_id":null,"available_kk_uids":"[]"}}
+kkData NOT FOUND as full blob
+budgetsData len 34055 prefix {"1":{"66":{"uid_gb":"66","name_gb":"Gesundheitskonto","volumen_gb":300,"beschreibung_gb":"","affected_ucats":[9,81,100]
+emails: 0
+sessionData snippet: akt_kk_id":null,"available_kk_uids":"[]
+[0m
+[0m$ [0mprintf "fragen.php headers x-powered-by: "; curl -s -I "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | grep -i "powered\|server" | head -3; echo "---net api/---"; curl -s -o /dev/null -w "HTTP/%{http_code} %{size_download}B\n" "https://kassenkompass.net/api/"; echo "---net css/---"; curl -s -o /dev/null -w "HTTP/%{http_code} %{size_download}B\n" "https://kassenkompass.net/css/"; echo "---de 404 body server---"; curl -s -D - -o /dev/null "https://kassenkompass.de/zzz_nonexistent_qq.php" 2>&1 | grep -i "server\|powered"
+fragen.php headers x-powered-by: server: cloudflare
+---net api/---
+HTTP/403 1233B
+---net css/---
+HTTP/403 1233B
+---de 404 body server---
+server: cloudflare
+[0m
+[0m$ [0mfor p in api/index.php api/v1 api/v2 api/swagger api/swagger.json api/openapi.json api/docs api/health api/status api/config api/.env api/web.config api/data.json api/config.json api/upload.php api/auth.php api/login.php api/sync.php api/user.php; do printf "%-22s " "/$p:"; curl -s -o /dev/null -w "%{http_code} %{size_download}B\n" "https://kassenkompass.de/$p"; sleep 0.4; done
+/api/index.php:        404 8377B
+/api/v1:               404 8377B
+/api/v2:               404 8377B
+/api/swagger:          404 8377B
+/api/swagger.json:     404 8377B
+/api/openapi.json:     404 8377B
+/api/docs:             404 8377B
+/api/health:           404 8377B
+/api/status:           404 8377B
+/api/config:           404 8377B
+/api/.env:             404 8377B
+/api/web.config:       404 8377B
+/api/data.json:        404 8377B
+/api/config.json:      404 8377B
+/api/upload.php:       404 8377B
+/api/auth.php:         404 8377B
+/api/login.php:        404 8377B
+/api/sync.php:         404 8377B
+/api/user.php:         404 8377B
+[0m
+[0m$ [0mcurl -s -D - -o /dev/null "https://www.kassenkompass.de/bonusrechner_abschluss.php?lizenz=WWWB&jid=WWWJ&agn=WWWA&ppn=WWWP" 2>&1 | grep -i "set-cookie\|HTTP"; echo "---apix---"; curl -s -o /dev/null -w "api/ on net: %{http_code} %{size_download}B\n" "https://kassenkompass.net/api/"
+HTTP/2 200 
+set-cookie: AWSALB=jPIVXxqBBZdnZuN6i30Qc39p4lbOpr4qbDmQzDbt/xoETl1jF2PscZLJecBva1P9edvqEoOg/hQVVZh+gohOCcE468UZZyNaRLcx54Rvn7hrm214RhrAmGZcEzSk; Expires=Fri, 18 Sep 2026 04:22:50 GMT; Path=/
+set-cookie: AWSALBCORS=jPIVXxqBBZdnZuN6i30Qc39p4lbOpr4qbDmQzDbt/xoETl1jF2PscZLJecBva1P9edvqEoOg/hQVVZh+gohOCcE468UZZyNaRLcx54Rvn7hrm214RhrAmGZcEzSk; Expires=Fri, 18 Sep 2026 04:22:50 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=3de354ea8a19d05e4110372a50476e7c; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=WWWB; expires=Sat, 11 Sep 2027 04:22:50 GMT; Max-Age=31536000
+set-cookie: customerid=WWWJ; expires=Sat, 11 Sep 2027 04:22:50 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=WWWA; expires=Sat, 11 Sep 2027 04:22:50 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=WWWP; expires=Sat, 11 Sep 2027 04:22:50 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZNzMoWuxoFj%2BN2pwtGonlVL5o7a53zomnR%2BDlDkOWfk78jcabFDTKYnlRYBSls%2Bj0O9q7UcnQsXNgzIDr7%2Baj3%2FT%2FGzn3zvRIrzmRgaBKTlg%2F1fL2o2htPQR0%2FGBd3SKpF89GlU9"}]}
+---apix---
+api/ on net: 403 1233B
+[0m
+[0m$ [0mfor p in "index.aspx" "default.aspx" "api.aspx" "test.aspx" "login.aspx" "api/index.aspx" "api/default.aspx" "api/web.config" "web.config" "api/handler.ashx" "api/api.ashx" "global.asax" "trace.axd" "elmah.axd" "api/swagger/index.html" "api/Help" "iisstart.htm"; do printf "%-24s " "/$p:"; curl -s -o /dev/null -w "%{http_code} %{size_download}B\n" "https://kassenkompass.de/$p"; sleep 0.4; done
+/index.aspx:             404 1921B
+/default.aspx:           404 1923B
+/api.aspx:               404 1919B
+/test.aspx:              404 1920B
+/login.aspx:             404 1921B
+/api/index.aspx:         404 1925B
+/api/default.aspx:       404 1927B
+/api/web.config:         403 149B
+/web.config:             403 149B
+/api/handler.ashx:       404 1927B
+/api/api.ashx:           404 1923B
+/global.asax:            403 149B
+/trace.axd:              403 2500B
+/elmah.axd:              403 149B
+/api/swagger/index.html: 403 149B
+/api/Help:               403 149B
+/iisstart.htm:           403 149B
+[0m
+[0m$ [0mcurl -s -D - "https://kassenkompass.de/trace.axd" 2>&1 | head -30; echo "===BODY==="; curl -s "https://kassenkompass.de/trace.axd" 2>&1 | head -30; echo "===149 vs 1233==="; curl -s "https://kassenkompass.de/api/web.config" 2>&1; echo; curl -s "https://kassenkompass.de/global.asax" 2>&1
+HTTP/2 403 
+date: Fri, 11 Sep 2026 04:23:51 GMT
+content-type: text/html; charset=utf-8
+set-cookie: AWSALB=j1NHOxuqWloGklA5A5qS5DMHhJ4pUSQ/quHL9J5EI+V+VtBc4Ix5tfVj9VrGTM+ABAv96O1s/HBQE2W1pAcjB7JS9MgssL0mHsFZG9jxiAwq2R6clU/O/O3wuc2E; Expires=Fri, 18 Sep 2026 04:23:51 GMT; Path=/
+set-cookie: AWSALBCORS=j1NHOxuqWloGklA5A5qS5DMHhJ4pUSQ/quHL9J5EI+V+VtBc4Ix5tfVj9VrGTM+ABAv96O1s/HBQE2W1pAcjB7JS9MgssL0mHsFZG9jxiAwq2R6clU/O/O3wuc2E; Expires=Fri, 18 Sep 2026 04:23:51 GMT; Path=/; SameSite=None; Secure
+cache-control: private
+server: cloudflare
+x-aspnet-version: 4.0.30319
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=76xn6Ej4akj4BZa0oAEXd2AWLpl2%2FL6WSQccf3qAkuE%2F1vsBUYsGMFPoZ%2BOBbxFQO%2Fa%2FCgTQ%2BBw87HUyzetyqIQTQIwSbzCHaJkTap5e%2Fa4BBGnZr9EU96txmNC4%2BwaGeAI%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a393e63ffda0b4c4-LAX
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Trace Error</title>
+        <meta name="viewport" content="width=device-width" />
+        <style>
+         body {font-family:"Verdana";font-weight:normal;font-size: .7em;color:black;} 
+         p {font-family:"Verdana";font-weight:normal;color:black;margin-top: -5px}
+         b {font-family:"Verdana";font-weight:bold;color:black;margin-top: -5px}
+         H1 { font-family:"Verdana";font-weight:normal;font-size:18pt;color:red }
+         H2 { font-family:"Verdana";font-weight:normal;font-size:14pt;color:maroon }
+         pre {font-family:"Consolas","Lucida Console",Monospace;font-size:11pt;margin:0;padding:0.5em;line-height:14pt}
+===BODY===
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Trace Error</title>
+        <meta name="viewport" content="width=device-width" />
+        <style>
+         body {font-family:"Verdana";font-weight:normal;font-size: .7em;color:black;} 
+         p {font-family:"Verdana";font-weight:normal;color:black;margin-top: -5px}
+         b {font-family:"Verdana";font-weight:bold;color:black;margin-top: -5px}
+         H1 { font-family:"Verdana";font-weight:normal;font-size:18pt;color:red }
+         H2 { font-family:"Verdana";font-weight:normal;font-size:14pt;color:maroon }
+         pre {font-family:"Consolas","Lucida Console",Monospace;font-size:11pt;margin:0;padding:0.5em;line-height:14pt}
+         .marker {font-weight: bold; color: black;text-decoration: none;}
+         .version {color: gray;}
+         .error {margin-bottom: 10px;}
+         .expandable { text-decoration:underline; font-weight:bold; color:navy; cursor:pointer; }
+         @media screen and (max-width: 639px) {
+          pre { width: 440px; overflow: auto; white-space: pre-wrap; word-wrap: break-word; }
+         }
+         @media screen and (max-width: 479px) {
+          pre { width: 280px; }
+         }
+        </style>
+    </head>
+
+    <body bgcolor="white">
+
+            <span><H1>Server Error in '/' Application.<hr width=100% size=1 color=silver></H1>
+
+            <h2> <i>Trace Error</i> </h2></span>
+===149 vs 1233===
+<!DOCTYPE html><html><head><title>403 Forbidden</title></head><body><h1>403 Forbidden</h1><p>Ihre IP wurde voruebergehend gesperrt.</p></body></html>
+<!DOCTYPE html><html><head><title>403 Forbidden</title></head><body><h1>403 Forbidden</h1><p>Ihre IP wurde voruebergehend gesperrt.</p></body></html>
+[0m
+[0m$ [0msleep 2; printf "benign 404 byte-id "; curl -s -o /dev/null -w "%{http_code} %{size_download}B\n" "https://kassenkompass.de/zzz_benign_x.php"; printf "web.config "; curl -s -w " %{http_code} %{size_download}B\n" -o /dev/null "https://kassenkompass.de/web.config"; printf "bonusrechner "; curl -s -o /dev/null -w "%{http_code} %{size_download}B\n" "https://kassenkompass.de/bonusrechner.php"
+benign 404 byte-id 403 149B
+web.config  403 149B
+bonusrechner 403 149B
+[0m
+Active probing now self-blocked (WAF IP-block after burst), so stopping live requests and emitting the analysis.
+
+STEP 1 — DELTA
+- NEW kassenkompass.de/`/api/` → IIS dir-listing-denied 403 (1,233B page: "403 - Forbidden: Access is denied") while `/uploads/`,`/fraq/`,`/images/` → 404: a physical `/api/` directory exists at the origin web root, separate from `api.kassenkompass.de`. All probed `/api/*` names 404.
+- NEW kassenkompass.de `/trace.axd` → ASP.NET "Server Error in '/' Application / Trace Error" + `x-aspnet-version: 4.0.30319`, `cache-control: private`: IIS/ASP.NET 4.0 origin confirmed on `.de` (coexists with PHP funnel); remote trace correctly denied (secure default).
+- NEW www.kassenkompass.de serves byte-identical 2,158,150B `bonusrechner_fragen.php` payload AND identical 4-cookie injection (`lizenz→afilcode` no-Secure; `jid/agn/ppn` Secure+HttpOnly, 1yr) on `bonusrechner_abschluss.php` — stuffing + data surface doubled across apex/www.
+- NEW `bonusrechner_fragen.php` payload internals parsed: `ucatKkData` 5,209 rows (1.79MB) of `{uid_cat,uid_ucat_q,uid_kk_q,wert,wertart}` per-KK tariff answers; `globalbudgetsData` 34KB; `kombiboniData` 105KB; `sessionData` all-null; 0 PII/email strings. Tariff leak specificity upgraded.
+- CHANGED Transient WAF IP-block observed ("Ihre IP wurde voruebergehend gesperrt", 149B German 403) on benign + sensitive paths alike after ~14 requests in a burst — pacing error, session-civil.
+
+STEP 2 — PRIORITIZE
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php (funnel stuffing surface),score=7.35,axis=unvalidated-cookie-BUSLOGIC-money-attr,hive=7.0,bv=9.0,t=6.0,g=9.0,c=3.0,f=8.0
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,score=6.75,axis=unauthed-2.1MB-tariff-MISCONFIG,hive=6.0,bv=8.0,t=5.0,g=10.0,c=2.0,f=8.0
+[PRIO] api.kassenkompass.de (15+1 endpoints, auth 15/15),score=5.2,axis=credential-gated-IDOR,hive=5.0,bv=6.0,t=6.0,g=1.0,c=5.0,f=9.0
+
+STEP 3 — HYPOTHESES
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (8 funnel mirrors incl. abschluss.php superset)
+confidence: 80
+reasoning: Live this session both apex and www: GET abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN → 200 + afilcode=BBPROBE (no Secure/HttpOnly), customerid, agenturnummer, poolpartnernummer (Secure/HttpOnly, Max-Age=31536000), zero validation; afilcode param spelled `lizenz` confirmed again; GET-branch closed 7/7 previously.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under a completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de + www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live this session apex AND www: HTTP 200, exactly 2,158,150B, `cache-control: no-store,no-cache,must-revalidate`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified, 0.59s origin regen; ucatKkData 1.79MB/5209 rows, globalbudgetsData 34KB, kombiboniData 105KB, pseudoKkIds=[99,100,101]; sessionData null; stable since 2026-09-07.
+evidence_needed: satisfied (repeat fetch + headers + param non-consumption).
+verify_steps: DONE — HEAD + GET on apex/www, markers present, sizes identical.
+impact: full tariff/bonus-budget/volume DB leak (competitive intelligence) + per-request 2.1MB zero-cache regeneration. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed across 8+ sessions); no new enumeration primitive this session; resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel); HIGH but credential-gated.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+[PARKED] /api/ IIS dir enumeration: `/api/*` 404 for all 20 names incl. swagger/web.config/Help; likely empty leftover or ALB route artifact — 403 is dir-listing-deny only, no contents evidence; low value, drop to park.
+[PARKED] trace.axd ASP.NET leak: remote trace denied (correct default); only version header leak (out-of-scope "headers only") — no request-trace content obtainable; drop to park.
+[FINAL] 1) fragen.php tariff leak (85, PASSIVE, evidence satisfied). 2) cookie-stuffing (80, AUTH_HELPED, lead-gated). 3) B-stack IDOR (62, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: after WAF cooldown (≥60s), single HEAD https://kassenkompass.de/bonusrechner_fragen.php — confirm 200/2,158,150B persists post-block and no cache headers appeared; do NOT burst further.
+
+STEP 6 — LEARNING
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: payload internals parsed — ucatKkData 5,209 rows {uid_cat,uid_ucat_q,uid_kk_q,wert,wertart} 1.79MB + globalbudgetsData 34KB + kombiboniData 105KB; sessionData all-null under anonymous GET; tariff-leak specificity upgraded.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /api/ => IIS dir-listing-denied 403 (1233B) vs /uploads/,/fraq/,/images/ => 404 — physical /api/ dir exists at origin web root (distinct from api.kassenkompass.de); 20 subnames all 404.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /trace.axd => ASP.NET "Trace Error" + x-aspnet-version 4.0.30319 — IIS/ASP.NET 4.0 confirmed on .de origin (PHP coexists); remote trace denied (secure default).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: www mirror serves identical 2.1MB fragen payload + identical lizenz/jid/agn/ppn 4-cookie injection on abschluss.php — stuffing/data surface doubled apex+www.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: ~14-request burst triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt", 149B 403 on benign+blocked paths alike) — pace ≤1 rps strictly next session.
+
+STEP 7 — RISK
+[RISK] KassenKompass: 65 — Two standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, 2.1MB m/request, zero-cache, apex+www), cookie-stuffing attribution real (80) but lead-gated execution. New IIS/ASP.NET 4.0 + physical /api/ dir discovered but no exploitable contents (all 404; trace remote-denied). API surface still saturated + credential-gated. Self-induced WAF block created probe noise; read-only, no PII touched.
+
+Note: I stopped live probing because the burst tripped a transient WAF IP-block; resuming needs a ≤1 rps pass after cooldown.

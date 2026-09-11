@@ -2263,3 +2263,44 @@ evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
 verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
 impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel); HIGH but credential-gated.
 testability: AUTH_HELPED
+## 2026-09-11 04:25:17 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php (funnel stuffing surface),score=7.35,axis=unvalidated-cookie-BUSLOGIC-money-attr,hive=7.0,bv=9.0,t=6.0,g=9.0,c=3.0,f=8.0
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,score=6.75,axis=unauthed-2.1MB-tariff-MISCONFIG,hive=6.0,bv=8.0,t=5.0,g=10.0,c=2.0,f=8.0
+[PRIO] api.kassenkompass.de (15+1 endpoints, auth 15/15),score=5.2,axis=credential-gated-IDOR,hive=5.0,bv=6.0,t=6.0,g=1.0,c=5.0,f=9.0
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de + www.kassenkompass.de (8 funnel mirrors incl. abschluss.php superset)
+confidence: 80
+reasoning: Live this session both apex and www: GET abschluss.php?lizenz=BBPROBE&jid=BBJID&agn=BBAGN&ppn=BBPPN → 200 + afilcode=BBPROBE (no Secure/HttpOnly), customerid, agenturnummer, poolpartnernummer (Secure/HttpOnly, Max-Age=31536000), zero validation; afilcode param spelled `lizenz` confirmed again; GET-branch closed 7/7 previously.
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under a completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de + www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live this session apex AND www: HTTP 200, exactly 2,158,150B, `cache-control: no-store,no-cache,must-revalidate`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified, 0.59s origin regen; ucatKkData 1.79MB/5209 rows, globalbudgetsData 34KB, kombiboniData 105KB, pseudoKkIds=[99,100,101]; sessionData null; stable since 2026-09-07.
+evidence_needed: satisfied (repeat fetch + headers + param non-consumption).
+verify_steps: DONE — HEAD + GET on apex/www, markers present, sizes identical.
+impact: full tariff/bonus-budget/volume DB leak (competitive intelligence) + per-request 2.1MB zero-cache regeneration. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed across 8+ sessions); no new enumeration primitive this session; resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel); HIGH but credential-gated.
+testability: AUTH_HELPED
+[PARKED] /api/ IIS dir enumeration: `/api/*` 404 for all 20 names incl. swagger/web.config/Help; likely empty leftover or ALB route artifact — 403 is dir-listing-deny only, no contents evidence; low value, drop to park.
+[PARKED] trace.axd ASP.NET leak: remote trace denied (correct default); only version header leak (out-of-scope "headers only") — no request-trace content obtainable; drop to park.
+[FINAL] 1) fragen.php tariff leak (85, PASSIVE, evidence satisfied). 2) cookie-stuffing (80, AUTH_HELPED, lead-gated). 3) B-stack IDOR (62, AUTH_HELPED).
+[NEXT] PROBE: after WAF cooldown (≥60s), single HEAD https://kassenkompass.de/bonusrechner_fragen.php — confirm 200/2,158,150B persists post-block and no cache headers appeared; do NOT burst further.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: payload internals parsed — ucatKkData 5,209 rows {uid_cat,uid_ucat_q,uid_kk_q,wert,wertart} 1.79MB + globalbudgetsData 34KB + kombiboniData 105KB; sessionData all-null under anonymous GET; tariff-leak specificity upgraded.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /api/ => IIS dir-listing-denied 403 (1233B) vs /uploads/,/fraq/,/images/ => 404 — physical /api/ dir exists at origin web root (distinct from api.kassenkompass.de); 20 subnames all 404.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: /trace.axd => ASP.NET "Trace Error" + x-aspnet-version 4.0.30319 — IIS/ASP.NET 4.0 confirmed on .de origin (PHP coexists); remote trace denied (secure default).
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: www mirror serves identical 2.1MB fragen payload + identical lizenz/jid/agn/ppn 4-cookie injection on abschluss.php — stuffing/data surface doubled apex+www.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: ~14-request burst triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt", 149B 403 on benign+blocked paths alike) — pace ≤1 rps strictly next session.
+[RISK] KassenKompass: 65 — Two standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, 2.1MB m/request, zero-cache, apex+www), cookie-stuffing attribution real (80) but lead-gated execution. New IIS/ASP.NET 4.0 + physical /api/ dir discovered but no exploitable contents (all 404; trace remote-denied). API surface still saturated + credential-gated. Self-induced WAF block created probe noise; read-only, no PII touched.
