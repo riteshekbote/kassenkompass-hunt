@@ -72,3 +72,9 @@
   - | Q4 | **Partially** — error message mapping is passive; but exploitation proof requires valid key |
   - | 1 | Unauthenticated API Catalog Disclosure | **VALID** | 5.3 |
   - | 2 | Inconsistent Auth Error Handling (/sync/ 200) | **VALID** | 3.7 |
+
+- 4 lead(s) marked VALID at 2026-09-11 20:02:24 UTC
+  - | Q2 Reachable? | NO — requires valid X-API-Secret; all probes return 401/403 unauthenticated |
+  - | Q4 Provable? | NO — requires valid API secret (AUTH_HELPED only) |
+  - | Q2 Reachable? | NO — requires valid X-API-Secret |
+  - | Q2 Reachable? | NO — requires valid X-API-Secret |
