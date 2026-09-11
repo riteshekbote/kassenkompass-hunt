@@ -2304,3 +2304,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: www mirror serves identical 2.1MB fragen payload + identical lizenz/jid/agn/ppn 4-cookie injection on abschluss.php — stuffing/data surface doubled apex+www.
 [LEARN] ACCEPTED OTHER @ kassenkompass.de: ~14-request burst triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt", 149B 403 on benign+blocked paths alike) — pace ≤1 rps strictly next session.
 [RISK] KassenKompass: 65 — Two standing findings unchanged: tariff-DB leak fully verified PASSIVE (85, 2.1MB m/request, zero-cache, apex+www), cookie-stuffing attribution real (80) but lead-gated execution. New IIS/ASP.NET 4.0 + physical /api/ dir discovered but no exploitable contents (all 404; trace remote-denied). API surface still saturated + credential-gated. Self-induced WAF block created probe noise; read-only, no PII touched.
+## 2026-09-11 09:01:23 UTC [target] (model bigpickle)
