@@ -1,9 +1,21 @@
-## 2026-09-11 13:39:58 UTC [target] (model nemotron3)
+## 2026-09-11 17:16:43 UTC [target] (model nemotron3)
+[NEW] api.kassenkompass.de/ root returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
+[NEW] kassenkompass.de/login_partner.php: Standard HTML login form (POST to self), no client-side JS bundle delivering X-API-Secret; only standard.js (UI utilities) loaded — Partner Portal JS-delivered-secret inference unsupported
+[CHANGED] kassenkompass.de/bonusrechner_vergleich2.php: Sets new `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — not observed prior to 2026-09-09; sole funnel step emitting device_id
+[CHANGED] kassenkompass.de/bonusrechner_abschluss.php: Lead-gated POST confirmed — "Account-ID nicht gefunden" div appears ONLY on POST, absent on GET; server validates Account-ID on form submission, not page render
+[CHANGED] api.kassenkompass.de root catalog stable (15 v1 endpoints, ver 1.0) + /v2/ catalog stable (sole insurance_info, ver 2.0) — zero drift since 2026-09-07
+[CHANGED] v2 router-404 oracle saturated at 42 names — insurance_info sole route confirmed again
+[CHANGED] Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
+[CHANGED] Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps — no new entries since 2026-09-07
+[CHANGED] GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (cache-buster/nonce drift only); cookie consumption strictly POST/portal-path
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.5,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=8
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,7.8,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
 [PRIO] api.kassenkompass.de/ (root catalog),6.2,attack_surface=7 business_value=6 tech_exposure=5 gate_ease=10 cloud_surface=4 freshness=7
 [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.8,attack_surface=6 business_value=6 tech_exposure=5 gate_ease=3 cloud_surface=6 freshness=7
 [PRIO] kassenkompass.de/login_partner.php,4.2,attack_surface=5 business_value=5 tech_exposure=4 gate_ease=10 cloud_surface=3 freshness=3
+[PRIO] kassenkompass.de/bonusrechner_daten.php,3.8,attack_surface=6 business_value=4 tech_exposure=4 gate_ease=10 cloud_surface=3 freshness=6
+[PRIO] awv.kassenkompass.de (SGTM container),3.5,attack_surface=4 business_value=3 tech_exposure=5 gate_ease=10 cloud_surface=7 freshness=6
+[PRIO] kassenkompass.net/bonusrechner.php,3.2,attack_surface=4 business_value=3 tech_exposure=4 gate_ease=10 cloud_surface=3 freshness=5
 [HYP] Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
