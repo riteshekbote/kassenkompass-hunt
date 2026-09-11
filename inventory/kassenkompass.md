@@ -471,3 +471,5 @@ www.kassenkompass.de
 - NEW kassenkompass.de/login_partner.php: Standard HTML login form (POST to self), no client-side JS bundle delivering X-API-Secret; only standard.js (UI utilities) loaded — Partner Portal JS-delivered-secr
 - CHANGED kassenkompass.de/bonusrechner_vergleich2.php: Sets new `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — not observed prior to 2026-09-09; sole funnel step emitting device_id
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php: Lead-gated POST confirmed — "Account-ID nicht gefunden" div appears ONLY on POST, absent on GET; server validates Account-ID on form submission, not page r
+
+## 2026-09-11 13:40:20 UTC

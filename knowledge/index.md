@@ -316,3 +316,6 @@
 - 2026-09-11 ACCEPTED OTHER @ kassenkompass.de: attribution cookies not echoed at GET render (same-jar param-less request re-issues none) — mirror-once, cookie-jar-carries model
 - 2026-09-11 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - 2026-09-11 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
+- 2026-09-11 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data served unauthenticated, no rate limit, sessionData null under stuffed jar — confirmed stable since 2026-09-07.
+- 2026-09-11 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority.
+- 2026-09-11 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
