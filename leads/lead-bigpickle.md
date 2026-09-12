@@ -2540,3 +2540,4 @@ impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HI
 testability: AUTH_HELPED
 [NEXT] PARKED — all three standing hypotheses require either AUTH_HELPED (cookie-stuffing, B-Stack IDOR) or are PASSIVE-VERIFIED (tariff DB). API surface saturated, enumeration closed, no new primitive discovered in 10 days. Resume when B-scoped X-API-Secret becomes available or funnel settlement endpoint accessible.
 [RISK] KassenKompass: 64 — Surface unchanged; all standing probes are either PASSIVE-VERIFIED or AUTH_HELPED. API saturated + credential-gated. Funnel stuffing surface stable at 7 mirrors. No PII touched, ≤1 rps maintained. Program risk flat.
+## 2026-09-12 16:24:07 UTC [target] (model bigpickle)
