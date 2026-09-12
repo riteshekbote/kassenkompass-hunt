@@ -2508,3 +2508,4 @@ impact: cross-tenant PII read + destructive /cancel/{id} (Storno). HIGH but cred
 testability: AUTH_HELPED
 [NEXT] PROBE: single GET https://api.kassenkompass.de/v2/ — verify versioned catalog (ver 2.0, insurance_info sole) integrated at the 2026-09-07 baseline; then STOP (WAF boundary). 
 [RISK] KassenKompass: 64 — Surface unchanged this session (all probes ≤1 rps, no block). Standing findings: tariff-DB leak fully verified PASSIVE at 85 (2.1MB/request zero-cache, apex+www), cookie-stuffing attribution real at 80 but lead-gated execution, B-stack IDOR at 62 credential-gated. Two recon leads closed (web-root /api/ empty, .aspx no pages). API surface saturated + credential-gated; no new primitive; no PII touched.
+## 2026-09-12 05:06:07 UTC [target] (model bigpickle)
