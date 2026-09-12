@@ -334,3 +334,6 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
 - 2026-09-12 ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
 - 2026-09-12 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+- 2026-09-12 ACCEPTED MISCONFIG @ api.kassenkompass.de: Root catalog disclosure (15 v1 + 1 v2, ver 1.0/2.0) persists without auth across 12 sessions; content-length header now reports actual 1167B body vs prior 0-length anomaly — disclosure substance unchanged.
+- 2026-09-12 REJECTED MISCONFIG @ api.kassenkompass.de: Root content-length anomaly (0) was transient — header now matches body; no lasting structural regression.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ HTTP 200 + 67B auth-error body (legacy) and v2 401 middleware-A gate both live and unchanged — auth map stable.

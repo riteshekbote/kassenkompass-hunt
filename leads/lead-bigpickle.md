@@ -2541,3 +2541,36 @@ testability: AUTH_HELPED
 [NEXT] PARKED — all three standing hypotheses require either AUTH_HELPED (cookie-stuffing, B-Stack IDOR) or are PASSIVE-VERIFIED (tariff DB). API surface saturated, enumeration closed, no new primitive discovered in 10 days. Resume when B-scoped X-API-Secret becomes available or funnel settlement endpoint accessible.
 [RISK] KassenKompass: 64 — Surface unchanged; all standing probes are either PASSIVE-VERIFIED or AUTH_HELPED. API saturated + credential-gated. Funnel stuffing surface stable at 7 mirrors. No PII touched, ≤1 rps maintained. Program risk flat.
 ## 2026-09-12 16:24:07 UTC [target] (model bigpickle)
+## 2026-09-12 18:48:20 UTC [target] (model bigpickle)
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Stable since 2026-09-07; 2,158,150 bytes served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, kk_id param not consumed; ucatKkData 5,209 rows/1.79MB + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; apex+www identical; re-confirmed live across 8 sessions.
+evidence_needed: Satisfied — headers + stability re-verified across sessions incl. this session's apex root check class.
+verify_steps: DONE — GET apex confirmed stable; prior apex/www marker comparison verified.
+impact: Full tariff/bonus-budget DB leak, 2.1MB zero-cache regen per anon request, no rate limit. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors confirmed since 2026-09-05; alias map verified 2026-09-10 (lizenz→afilcode non-HttpOnly, jid/agn/ppn→HttpOnly, 1yr, zero validation); GET branch closed 7/7 byte-identical; consumption strictly POST/settlement; abschluss lead-gated ("Account-ID nicht gefunden" POST-only).
+evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; query/cookie/Bearer channels closed 8+ sessions — header sole channel; resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
+verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
+testability: AUTH_HELPED
+[NEXT] PARKED: resume when either (a) B-scoped X-API-Secret for api.kassenkompass.de becomes available (test IDOR/BOLA on /user/, /cancel/, /settlement_report/), or (b) funnel settlement endpoint + completed questionnaire access obtained (verify stuffing attribution). No new passive primitive exists — API recon saturated 12 consecutive days, all auth channels closed, stuffing surface stable, tariff leak fully verified. Further live probing without credentials yields zero marginal information and only adds WAF risk.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root catalog disclosure (15 v1 + 1 v2, ver 1.0/2.0) persists without auth across 12 sessions; content-length header now reports actual 1167B body vs prior 0-length anomaly — disclosure substance unchanged.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: Root content-length anomaly (0) was transient — header now matches body; no lasting structural regression.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ HTTP 200 + 67B auth-error body (legacy) and v2 401 middleware-A gate both live and unchanged — auth map stable.
+[RISK] KassenKompass: 62 — One PASSIVE-VERIFIED MEDIUM-HIGH (tariff DB leak, no PII) constitutes the entire independently-confirmable reportable surface; the two HIGH-value chains (stuffing attribution, B-Stack IDOR) remain credential-gated with no passive unlock in 12 days. API fully mapped and saturated; ≤1 rps maintained, no WAF block this session, no PII touched, no mutating probes. Program risk flat — value now hinges on credential availability, not further reconnaissance.

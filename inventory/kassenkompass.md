@@ -533,3 +533,10 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
 - CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+
+## 2026-09-12 18:50:03 UTC
+- CHANGED api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 endpoints, ver 1.0) still disclosed in response body — structural change from prior full-body catalog;
+- CHANGED kassenkompass.de/bonusrechner_fragen.php confirmed stable 2.1MB (2,158,150 bytes) tariff data response unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit since 2026-09-07
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
+- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
