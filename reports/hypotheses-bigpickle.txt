@@ -1,12 +1,21 @@
-## 2026-09-11 22:25:24 UTC [target] (model bigpickle)
+## 2026-09-12 00:40:44 UTC [target] (model bigpickle)
+[HYP] Unauthenticated 2.1MB Tariff Database Served Per-Request, No Cache, No Rate Limit
+class: MISCONFIG
+asset: kassenkompass.de + www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live this session: GET/HEAD 200, no-store/no-cache/must-revalidate, CF-DYNAMIC, AWSALB, no ETag/Last-Modified; stable since 2026-09-07; ucatKkData 5209 rows/1.79MB, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]; kk_id param not consumed; apex+www identical.
+evidence_needed: Satisfied (headers + stability re-verified this session).
+verify_steps: DONE — GET apex this session + prior apex/www with markers.
+impact: Full tariff/bonus-budget DB leak, 2.1MB zero-cache regen per anon request. MEDIUM-HIGH, PASSIVE, no PII.
+testability: PASSIVE
 [HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
 class: BUSLOGIC
 asset: kassenkompass.de + www.kassenkompass.de (7 funnel mirrors)
 confidence: 80
-reasoning: 7/7 mirrors confirmed across sessions; live re-probe this session (fragen HEAD 200) confirms funnel origin healthy post-WAF-block via AWSALB behind CF. Alias map verified 2026-09-10 on abschluss.php (lizenz→afilcode non-Secure/HttpOnly; jid/agn/ppn→HttpOnly; 1yr; zero validation). GET branch closed 7/7; consumption strictly POST/settlement. device_id vergleich2-sole, catoint force-deleted.
+reasoning: 7/7 mirrors confirmed; alias map verified (lizenz→afilcode non-HttpOnly; jid/agn/ppn→HttpOnly; 1yr, zero validation); GET branch closed 7/7 byte-identical; consumption strictly POST/settlement; funnel origin healthy this session post-WAF-block.
 evidence_needed: settlement/commission line-item attributed to stuffed afilcode under completed questionnaire.
-verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement/commission attribution; passive pre-step: HEAD 7 mirrors to map CF-vs-ALB-direct fronting.
-impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+verify_steps: WITH AUTH: victim-path questionnaire with lizenz=ATTACKER_LIZ → read settlement attribution.
+impact: commission/attribution theft on insurance-switch settlements. HIGH if verified.
 testability: AUTH_HELPED
 [HYP] B-Stack IDOR on /user/{ext_id} (kk_webapp-delegation middleware)
 class: IDOR
@@ -15,14 +24,7 @@ confidence: 62
 reasoning: /user/{ext_id} + /cancel/{id} share middleware B ("Ungültiger X-API-Secret" + RFC 9457 instance echo); enumerable ext_id; X-API-Secret header sole channel (query/cookie/Bearer closed 8+ sessions); resource-level authz untested behind gate.
 evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 differ.
 verify_steps: WITH AUTH: GET /user/{n} sequential n; compare PII.
-impact: cross-tenant PII read + destructive /cancel/{id} (Storno/FG-Wechsel). HIGH but credential-gated.
+impact: cross-tenant PII read + destructive /cancel/{id} (Storno). HIGH but credential-gated.
 testability: AUTH_HELPED
-[HYP] Vestigial ASP.NET 4.0 App Pool Holds Undiscovered Legacy Web Forms Pages
-class: MISCONFIG
-asset: kassenkompass.de (root .aspx routes)
-confidence: 48
-reasoning: Default.aspx → 404 with x-aspnet-version 4.0.30319, charset utf-8, cache-control private (pure ASP.NET handler signature); root trace.axd exists (denied); elmah.axd falls to PHP catch-all. Proves an IIS .NET app pool exists at root but zero .aspx pages mapped — the app is undescribed; only .php funnel was enumerated (PHP + ASP.NET coexistence undocumented until 2026-09-11).
-evidence_needed: any root `.aspx` path returning 200/distinct app content.
-verify_steps: LOW-PACE sweep (≤5 HEAD at 2s spacing) of generic legacy names: index.aspx, login.aspx, admin.aspx, api.aspx, Help.aspx; then depth on any 200.
-impact: exposure of a legacy .NET app surface (auth/logic) currently invisible to inventory; low-MED, only if a page exists.
-testability: PASSIVE
+[NEXT] PROBE: single GET https://api.kassenkompass.de/v2/ — verify versioned catalog (ver 2.0, insurance_info sole) integrated at the 2026-09-07 baseline; then STOP (WAF boundary). 
+[RISK] KassenKompass: 64 — Surface unchanged this session (all probes ≤1 rps, no block). Standing findings: tariff-DB leak fully verified PASSIVE at 85 (2.1MB/request zero-cache, apex+www), cookie-stuffing attribution real at 80 but lead-gated execution, B-stack IDOR at 62 credential-gated. Two recon leads closed (web-root /api/ empty, .aspx no pages). API surface saturated + credential-gated; no new primitive; no PII touched.

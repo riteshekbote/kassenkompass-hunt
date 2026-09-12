@@ -506,3 +506,9 @@ www.kassenkompass.de
 - CHANGED Auth map 15/15 complete — /cancel/{id} middleware B, v2 shares middleware A with v1 majority — stable
 - CHANGED Funnel stuffing surface stable at 7 confirmed entry points with divergent alias maps — no new entries since 2026-09-07
 - CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (cache-buster/nonce drift only); cookie consumption strictly POST/portal-path
+
+## 2026-09-12 00:41:50 UTC
+- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+- CHANGED api.kassenkompass.de/ root returns 200 with empty body (content-length: 0) but catalog still disclosed in JSON — structural change from prior full-body catalog; auth-gated endpoints unchanged
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php sets `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step emitting device_id (first observed 2026-09-09)
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php lead-gated POST confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
