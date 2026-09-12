@@ -337,3 +337,7 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ api.kassenkompass.de: Root catalog disclosure (15 v1 + 1 v2, ver 1.0/2.0) persists without auth across 12 sessions; content-length header now reports actual 1167B body vs prior 0-length anomaly — disclosure substance unchanged.
 - 2026-09-12 REJECTED MISCONFIG @ api.kassenkompass.de: Root content-length anomaly (0) was transient — header now matches body; no lasting structural regression.
 - 2026-09-12 ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ HTTP 200 + 67B auth-error body (legacy) and v2 401 middleware-A gate both live and unchanged — auth map stable.
+- 2026-09-12 ACCEPTED MISCONFIG @ api.kassenkompass.de: Root catalog disclosure (15 v1 + 1 v2) + /sync/ HTTP-200 legacy body + v2 middleware-A gate all live and unchanged as of 18:50 batch — auth map stable, no drift.
+- 2026-09-12 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable across 8 sessions incl. 2026-09-12 18:50 — no ETag/Last-Modified/rate-limit regression.
+- 2026-09-12 REJECTED OTHER @ kassenkompass pipeline: triage 21:15 consumed empty lead payload — no new findings from any agent this cycle; all 5 lead files header-only or repetition.
+- 2026-09-12 REJECTED MISCONFIG @ kassenkompass.de: 2026-09-11 transient WAF IP-block not reproduced; maintaining ≤1 rps discipline; no further burst probes planned.

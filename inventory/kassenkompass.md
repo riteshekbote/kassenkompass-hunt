@@ -540,3 +540,23 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
 - CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+
+## 2026-09-12 21:23:53 UTC
+- CHANGED api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 endpoints, ver 1.0) still disclosed in response body — structural change from prior full-body catalog;
+- CHANGED kassenkompass.de/bonusrechner_fragen.php confirmed stable 2.1MB (2,158,150 bytes) tariff data response unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit since 2026-09-07
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
+- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+- CHANGED api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 endpoints, ver 1.0) still disclosed in response body — structural change from prior full-body catalog;
+- CHANGED kassenkompass.de/bonusrechner_fragen.php confirmed stable 2.1MB (2,158,150 bytes) tariff data response unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit since 2026-09-07
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
+- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+- CHANGED ~2.5h since last automated probe batch (2026-09-12 18:50 UTC → now 21:20); probe-results tail ends at the 18:50 batch — all 3 standing smoke probes (fragen.php 200, bonusrechner.php stuffed 200, api r
+- CHANGED triage run 2026-09-12-21-15 received an EMPTY lead payload (pipeline artifact) — no new agent leads to validate; lead-laguna/ling3/longcat/mimo are header-only, nemotron3 tail repeats known hypotheses
+- CHANGED No KB entries after my 18:50 aggregation — catalogs (15+1 v2), auth map 15/15, 7 funnel mirrors, 2.1MB tariff payload, WAF posture all unchanged.
+- NEW api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 + 1 v2 endpoints, ver 1.0/2.0) still disclosed in response body — structural change from prior full-bo
+- CHANGED kassenkompass.de/bonusrechner_fragen.php confirmed stable 2.1MB (2,158,150 bytes) tariff data response unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit since 2026-09-07
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission, not page render
+- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
