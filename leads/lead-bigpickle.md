@@ -2776,3 +2776,23 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: triage 21:15 consumed empty lead payload — no new findings from any agent this cycle; all 5 lead files header-only or repetition.
 [LEARN] REJECTED MISCONFIG @ kassenkompass.de: 2026-09-11 transient WAF IP-block not reproduced; maintaining ≤1 rps discipline; no further burst probes planned.
 [RISK] KassenKompass: 62 — Flat. One PASSIVE-VERIFIED MEDIUM-HIGH (tariff DB, no PII) is the only independently-confirmable surface; both HIGH-value chains (stuffing attribution, B-Stack IDOR) remain credential-gated with no passive unlock after 12 days. API saturated + mapped, funnel stable at 7 mirrors, no PII touched, no mutating probes, ≤1 rps. Program value now hinges solely on credential/settlement-endpoint availability, not further reconnaissance.
+## 2026-09-12 23:23:04 UTC [target] (model bigpickle)
+[HYP] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: Middleware B is a distinct stack ("Ungültiger X-API-Secret" + instance-first echo) holding exactly {user, cancel}; ext_id enumerable; auth source-merge closed 8+ sessions (header sole channel); resource-level authz untested behind gate after 12 days mapping.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cross-tenant PII).
+verify_steps: WITH AUTH: GET /user/{n} sequential n=1..N; diff responses; then /cancel/{id} read-side only.
+impact: cross-tenant PII read + destructive /cancel/{id}. HIGH, credential-gated.
+testability: AUTH_HELPED
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors since 2026-09-05; lizenz→afilcode (non-HttpOnly), jid/agn/ppn→HttpOnly 1yr, zero validation; GET branch closed 7/7 byte-identical; cookie consumption strictly POST/settlement; abschluss POST-only Account-ID gate confirmed; stuffing persistence real, one-shot auto-register REFUTED (needs prior funnel lead).
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → read settlement/commission attribution.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
+testability: AUTH_HELPED
+[NEXT] RAG: resume conditions unchanged — (a) B-scoped X-API-Secret available → GET /user/1..N diff PII, test /settlement_report/ BOLA; (b) funnel settlement POST endpoint + completed questionnaire → verify afilcode stuffing attribution. Weekly-only 3-GET smoke cadence; no live probes this cycle (PARKED, WAF-block risk 2026-09-11).
