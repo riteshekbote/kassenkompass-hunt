@@ -1,20 +1,22 @@
-## 2026-09-12 23:23:04 UTC [target] (model bigpickle)
+## 2026-09-13 01:26:42 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,a=10 b=9 t=8 g=10 c=5 f=8 — only PASSIVE-VERIFIED high-value surface
+[PRIO] kassenkompass.de bonusrechner funnel {7 entries},7.95,a=9 b=8 t=7 g=9 c=5 f=8 — stuffing chain, POST/lead-gated
+[PRIO] api.kassenkompass.de/,6.60,a=7 b=6 t=5 g=10 c=4 f=7 — catalog disclosure, credential-gated beyond root
+[PRIO] api.kassenkompass.de/user/{ext_id},5.50,a=6 b=6 t=5 g=3 c=6 f=7 — B-stack IDOR, gate_ease 3, AUTH_HELPED
 [HYP] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware)
 class: IDOR
 asset: api.kassenkompass.de/user/{ext_id}
 confidence: 62
-reasoning: Middleware B is a distinct stack ("Ungültiger X-API-Secret" + instance-first echo) holding exactly {user, cancel}; ext_id enumerable; auth source-merge closed 8+ sessions (header sole channel); resource-level authz untested behind gate after 12 days mapping.
+reasoning: Middleware B is a distinct stack ("Ungültiger X-API-Secret" + instance-first echo) holding exactly {user, cancel}; ext_id enumerable; auth source-merge closed 9+ sessions (X-API-Secret header sole channel on A/B/v2); resource-level authorization untested behind the gate after 11 days of mapping.
 evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cross-tenant PII).
-verify_steps: WITH AUTH: GET /user/{n} sequential n=1..N; diff responses; then /cancel/{id} read-side only.
-impact: cross-tenant PII read + destructive /cancel/{id}. HIGH, credential-gated.
+verify_steps: WITH AUTH: GET /user/{n} for sequential n=1..N, diff bodies; read-side /cancel/{id} only.
+impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated.
 testability: AUTH_HELPED
-[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
-class: BUSLOGIC
-asset: kassenkompass.de (7 funnel mirrors)
-confidence: 80
-reasoning: 7/7 mirrors since 2026-09-05; lizenz→afilcode (non-HttpOnly), jid/agn/ppn→HttpOnly 1yr, zero validation; GET branch closed 7/7 byte-identical; cookie consumption strictly POST/settlement; abschluss POST-only Account-ID gate confirmed; stuffing persistence real, one-shot auto-register REFUTED (needs prior funnel lead).
-evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire.
-verify_steps: WITH AUTH: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → read settlement/commission attribution.
-impact: commission/attribution theft on insurance-switch settlements; HIGH if verified.
-testability: AUTH_HELPED
-[NEXT] RAG: resume conditions unchanged — (a) B-scoped X-API-Secret available → GET /user/1..N diff PII, test /settlement_report/ BOLA; (b) funnel settlement POST endpoint + completed questionnaire → verify afilcode stuffing attribution. Weekly-only 3-GET smoke cadence; no live probes this cycle (PARKED, WAF-block risk 2026-09-11).
+[PARKED] B-Stack IDOR: confidence 62 > 40 cutoff and verify exists, but not actionable without B secret — unchanged since 2026-09-04.
+[PARKED] Cookie-stuffing attribution (80): REFUTED one-shot chain 2026-09-09; needs completed victim questionnaire + settlement endpoint — AUTH_HELPED, no gate.
+[PARKED] Tariff DB leak (85): PASSIVE-VERIFIED, evidence satisfied, no further probes warranted (WAF risk).
+[FINAL] 1. Tariff DB leak (85, PASSIVE-VERIFIED) 2. Cookie stuffing (80, AUTH_HELPED) 3. B-Stack IDOR (62, AUTH_HELPED). No new hypothesis survives critique — surface saturated, not enumerated-but-unexamined.
+[NEXT] RAG: PARKED — no live probes this cycle; smoke batch 23:23 already confirmed stability and the gap is 2h within the standing 3-h cadence. Resume only on (a) B-scoped X-API-Secret → GET /user/1..N diff PII, probe /settlement_report/ BOLA; or (b) funnel settlement POST endpoint + completed questionnaire → verify lizenz=ATTACKER_LIZ attribution on commission line. Otherwise continue 3-GET smoke weekly; flag if a full ~24h batch gap elapses.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: triage runs 21:15/23:05 (12th) + 01:07 (13th) again consumed empty lead payloads — none of the 5 peer leads contributed content this cycle; observability gap, no signal.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: 23:23 batch reconfirmed 15+1 v2 catalogs, /sync/ HTTP-200 legacy body, middleware-A/B gates — auth map drift-free through 2026-09-13 01:26.
+[RISK] KassenKompass: 62 — Flat. Eleven days in, the sole independently-confirmable finding is the PASSIVE-VERIFIED MEDIUM-HIGH tariff-DB leak (no PII); both HIGH-value chains (commission stuffing, B-stack IDOR) remain credential-gated with no passive unlock and both require server-side settlement state that is untouchable under program rules. API fully mapped and saturated, funnel stable at 7 mirrors, no PII touched, no mutating probes, ≤1 rps maintained. Remaining program value depends entirely on credential/settlement-endpoint availability — further passive reconnaissance is zero-yield.

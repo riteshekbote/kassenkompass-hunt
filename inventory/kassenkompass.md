@@ -567,3 +567,6 @@ www.kassenkompass.de
 - NEW kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on fo
 - CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes not captured
 - CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step with device_id, first observed 2026-09-09
+
+## 2026-09-13 01:29:26 UTC
+- NEW NO_DELTA — All live probes confirm knowledge base: api.kassenkompass.de/ returns 200 with content-length:0 + full 15+1 catalog; bonusrechner_fragen.php 2.1MB tariff data unauthenticated; bonusrechner_

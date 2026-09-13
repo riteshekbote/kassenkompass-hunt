@@ -341,3 +341,12 @@
 - 2026-09-12 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable across 8 sessions incl. 2026-09-12 18:50 — no ETag/Last-Modified/rate-limit regression.
 - 2026-09-12 REJECTED OTHER @ kassenkompass pipeline: triage 21:15 consumed empty lead payload — no new findings from any agent this cycle; all 5 lead files header-only or repetition.
 - 2026-09-12 REJECTED MISCONFIG @ kassenkompass.de: 2026-09-11 transient WAF IP-block not reproduced; maintaining ≤1 rps discipline; no further burst probes planned.
+- 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: triage runs 21:15/23:05 (12th) + 01:07 (13th) again consumed empty lead payloads — none of the 5 peer leads contributed content this cycle; observability gap, no signal.
+- 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de: 23:23 batch reconfirmed 15+1 v2 catalogs, /sync/ HTTP-200 legacy body, middleware-A/B gates — auth map drift-free through 2026-09-13 01:26.
+- 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: Root returns 200 with content-length: 0 but full JSON catalog in body — structural change from prior full-body catalog; catalog disclosure without auth persists
+- 2026-09-13 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
+- 2026-09-13 ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+- 2026-09-13 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+- 2026-09-13 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+- 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated

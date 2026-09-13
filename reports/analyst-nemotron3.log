@@ -11953,3 +11953,160 @@ testability: PASSIVE
 
 ### STEP 7 — RISK
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-13 01:29:26 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -I "https://api.kassenkompass.de/" 2>&1 | head -20
+HTTP/2 200 
+date: Sun, 13 Sep 2026 01:26:00 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=hDTaN0hMa7ze9yI3nQTa1wrpajXasro%2B1GS%2BxnEvMvZBQDQcTZX1t1khdNRZHXZzvbi7YUcU4NuYYRVcEa1ZIvznTHOcqCBBhA926CiJxR1TqiP88oXoe%2FpXAQDYEK3Q%2B3QhICvW"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3a35c7819d49c72-IAD
+[0m
+[0m$ [0mcurl -s -I "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | head -20
+HTTP/2 200 
+date: Sun, 13 Sep 2026 01:26:00 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=IE8jV5TSDfeFdaTrIL5Z4EsBZnKd43CY+dPi8mJsse0MX9Nci/TF1isTx4/GU4i/ypZQbiiWRxbKZnguOa7kZWOjJSIzqqpZ3aZhmF5an2JqjGLRTmU+IzLiV3W9; Expires=Sun, 20 Sep 2026 01:26:00 GMT; Path=/
+set-cookie: AWSALBCORS=IE8jV5TSDfeFdaTrIL5Z4EsBZnKd43CY+dPi8mJsse0MX9Nci/TF1isTx4/GU4i/ypZQbiiWRxbKZnguOa7kZWOjJSIzqqpZ3aZhmF5an2JqjGLRTmU+IzLiV3W9; Expires=Sun, 20 Sep 2026 01:26:00 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=7e76afa8c48fa5d2c2a9ec054bf8503e; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=SqTMCMN5sPCnJ44LnWjHkfcYWiViFu6Y8MU7o0O362HEyleNm4DSf%2ByZpm5yMY%2BTNqGZ8Tb6G1%2F6T37fImZlg%2BuwdxY3DYCmtnMUtsxTBnqdO%2BjEPTxP9U6l97QsF3UAPeo%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3a35c7c48488292-IAD
+[0m
+[0m$ [0mcurl -s -I "https://kassenkompass.de/bonusrechner_vergleich2.php" 2>&1 | head -20
+HTTP/2 200 
+date: Sun, 13 Sep 2026 01:26:00 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=78rMbPYpWLQmmy18u8CC7e5jXq9urKdYdCp4q4n7tdvMjLQDlIPxLsBUNPJMQZdn0LHsetyK4wRJiDYpVjFMdhwomtQ/Xzlw+sZYuypwemgIvpcbtBqbmdU6xa3Y; Expires=Sun, 20 Sep 2026 01:26:00 GMT; Path=/
+set-cookie: AWSALBCORS=78rMbPYpWLQmmy18u8CC7e5jXq9urKdYdCp4q4n7tdvMjLQDlIPxLsBUNPJMQZdn0LHsetyK4wRJiDYpVjFMdhwomtQ/Xzlw+sZYuypwemgIvpcbtBqbmdU6xa3Y; Expires=Sun, 20 Sep 2026 01:26:00 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=eddd4d26faa157d305dacb89dbafa173; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: device_id=0a948e82f3f8886b492f77758566ae01; expires=Mon, 13 Sep 2027 01:26:00 GMT; Max-Age=31536000; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: catoint=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=S2Qc3Q1%2BVstfxZoy1EPJf5RT688HyxVhRU0vWirG1WWskdqUmWQrrT%2FfaXfQ%2B2YaPEoXMlgnnYcgTnNlOJRdS960HIWUX3xcx1Mmw4F2uPAXQ4F1drH2FtK2hlBgS1uoDr8%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+[0m
+[0m$ [0mcurl -s "https://api.kassenkompass.de/" 2>&1 | head -50
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mcurl -s -X POST "https://kassenkompass.de/bonusrechner_abschluss.php" -H "Content-Type: application/x-www-form-urlencoded" -d "email=test%40test.de&password=test123&password_confirm=test123&create_account=1" 2>&1 | grep -c "Account-ID nicht gefunden"
+1
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_abschluss.php" 2>&1 | grep -c "Account-ID nicht gefunden"
+0
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | wc -c
+2158150
+[0m
+**STEP 1 — DELTA**
+[NEW] NO_DELTA — All live probes confirm knowledge base: api.kassenkompass.de/ returns 200 with content-length:0 + full 15+1 catalog; bonusrechner_fragen.php 2.1MB tariff data unauthenticated; bonusrechner_vergleich2.php emits device_id (1yr Secure HttpOnly) + catoint deleted; bonusrechner_abschluss.php GET vs POST differential confirmed ("Account-ID nicht gefunden" POST-only). Surface stable since 2026-09-12 23:23.
+
+**STEP 2 — PRIORITIZE**
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.85,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=9
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.05,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
+[PRIO] api.kassenkompass.de/,6.60,attack_surface=7 business_value=6 tech_exposure=5 gate_ease=10 cloud_surface=4 freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.55,attack_surface=6 business_value=6 tech_exposure=5 gate_ease=3 cloud_surface=6 freshness=7
+[PRIO] kassenkompass.de/login_partner.php,5.25,attack_surface=5 business_value=5 tech_exposure=4 gate_ease=10 cloud_surface=3 freshness=3
+
+**STEP 3 — HYPOTHESES**
+[HYP] Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: 2.1MB response (2,158,150 bytes confirmed live) containing ucatKkData (5,209 rows with uid_cat,uid_ucat_q,uid_kk_q,wert,wertart), globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]; served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; sessionData all-null under stuffed cookie jar proves cookies not read at GET render; kk_id query param not consumed (akt_kk_id=null identical payload); full GKV/PKV tariff database with resolved references exposed
+evidence_needed: Confirm sustained 1 rps scraping succeeds without 429/WAF block; verify payload completeness across multiple requests
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php — measure response time, confirm Content-Length ~2.1MB, extract Cache-Control/ETag/Last-Modified headers; repeat 10x at 1 rps → verify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body
+impact: Competitive intelligence leak (full GKV/PKV tariff database with resolved references); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
+testability: PASSIVE
+
+[HYP] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_vergleich2.php → bonusrechner_abschluss.php
+confidence: 70
+reasoning: vergleich2.php (step 3/7) sets `device_id` (1yr Secure HttpOnly) + `expires catoint` — new cookie not seen before 2026-09-09; abschluss.php (step 7) validates Account-ID on POST only ("Account-ID nicht gefunden" appears ONLY on POST); full 4-step stuffed chain (entry→daten→fragen→abschluss POST) returned "Account-ID nicht gefunden"; device_id may serve as server-side session anchor linking stuffed cookies to lead state
+evidence_needed: Correlation between device_id value set at vergleich2.php and Account-ID expected at abschluss.php POST; or logic flaw allowing Account-ID derivation from device_id
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie incl. device_id; GET /bonusrechner_daten.php → observe HttpOnly cookies persist; GET /bonusrechner_fragen.php → confirm 2.1MB tariff data; GET /bonusrechner_vergleich2.php → capture device_id; GET /bonusrechner_abschluss.php → capture form + Account-ID field; POST /bonusrechner_abschluss.php with stuffed jar + email/password/confirm/create_account=1 → observe "Account-ID nicht gefunden" or account creation
+impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber, device_id across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
+testability: PASSIVE
+
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: Root endpoint returns 200 with full 15-endpoint catalog (health_insurance, state, health, sync, question_tree, detail_comparison, health_insurance_savings, health_insurance_comparison, post, delete, cancel, user, cat_detail, insurance_info, settlement_report) without auth; violates principle of least privilege; enables recon for targeted attacks on sensitive endpoints (user data deletion, financial reports, insurance switch cancellation); catalog structure stable since 2026-09-07 (ver 1.0); recent change: root now returns empty body (content-length: 0) but catalog still disclosed in JSON response
+evidence_needed: Confirm catalog enumeration enables prioritization of high-value endpoints for auth bypass attempts
+verify_steps: GET https://api.kassenkompass.de/ → parse endpoints; cross-reference with auth middleware map (A: 8 endpoints "ungültig oder nicht berechtigt", B: /user/{ext_id} + /cancel/{id} "Ungültiger X-API-Secret", /sync/ legacy HTTP 200); probe each for auth bypass vectors (header manipulation, method override, parameter pollution)
+impact: Recon amplifier — attacker maps full attack surface without auth; facilitates targeting of PII/financial endpoints; LOW-MEDIUM (credential-gated)
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+[FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 85, PASSIVE)
+[FINAL] 2. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 70, PASSIVE)
+[FINAL] 3. API Root Catalog Disclosure Enables Targeted Attack Planning (confidence 75, PASSIVE)
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — measure response time, confirm Content-Length ~2.1MB, extract Cache-Control/ETag/Last-Modified headers; repeat 10x at 1 rps → verify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body
+
+**STEP 6 — LEARNING**
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root returns 200 with content-length: 0 but full JSON catalog in body — structural change from prior full-body catalog; catalog disclosure without auth persists
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
+
+**STEP 7 — RISK**
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
