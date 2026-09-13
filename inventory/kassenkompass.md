@@ -579,3 +579,17 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de auth map 15/15 stable — /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged since 2026-09-03
 - CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route, greedy segment match reaches auth handler (401)
 - CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bon
+
+## 2026-09-13 12:45:45 UTC
+- NEW api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 + 1 v2 endpoints) in response body — structural change from prior full-body catalog; catalog disclosur
+- CHANGED kassenkompass.de/bonusrechner_fragen.php 2.1MB tariff payload (2,158,150 bytes) stable — ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds present, no-store+CF-DYNAMIC, no ETag/Last-Modified, no 
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step emitting device_id, confirmed live 2026-09-13 06:47
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on fo
+- CHANGED api.kassenkompass.de auth map 15/15 stable — /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged since 2026-09-03
+- CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route, greedy segment match reaches auth handler (401)
+- CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bon
+- CHANGED awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com layout fully mapped — 174 refs all uploads/fraq/{qid}/{n}.png question images, images-only, no sensitive objects
+- CHANGED kassenkompass.net parser differential tested — null byte (%00), parameter pollution (last-wins), trailing space handled identically on .de and .net; no differential
+- CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+- CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strict

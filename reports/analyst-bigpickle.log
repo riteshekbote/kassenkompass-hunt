@@ -17235,3 +17235,53 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass: 62 — Flat. Day 11: sole independently-confirmable finding remains the PASSIVE-VERIFIED MEDIUM-HIGH tariff-DB leak (no PII); both HIGH-value chains (commission stuffing, B-stack IDOR) remain credential/lead-gated with no passive unlock and depend on server-side settlement state that is untouchable under program rules. API fully mapped + saturated (15+1 catalogs, 42-name v2 oracle, auth source-merge closed, 15/15 map stable), funnel stable at 7 mirrors, no PII touched, no mutating probes, ≤1 rps maintained. Residual program value hinges solely on credential or settlement-endpoint availability — further passive recon is zero-yield.
+===== ANALYST bigpickle 2026-09-13 12:45:45 UTC =====
+[0m
+> build · big-pickle
+[0m
+I notice this is a security research/penetration testing engagement against kassenkompass.de. Let me provide the analysis output as requested.
+
+```markdown
+## 2026-09-13 07:15:00 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,a=10 b=9 t=8 g=10 c=5 f=8 — PASSIVE-VERIFIED tariff data leak
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,8.50,a=9 b=8 t=7 g=9 c=5 f=8 — lead-gated registration, cookie stuffing endpoint
+[PRIO] kassenkompass.de bonusrechner funnel {7 entries},7.95,a=9 b=8 t=7 g=9 c=5 f=8 — stuffing chain, POST/lead-gated
+[PRIO] api.kassenkompass.de/,6.60,a=7 b=6 t=5 g=10 c=4 f=7 — catalog disclosure, credential-gated
+[PRIO] api.kassenkompass.de/user/{ext_id},5.50,a=6 b=6 t=5 g=3 c=6 f=7 — B-stack IDOR, AUTH_HELPED
+
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: 2,158,150-byte response with ucatKkData (5,209 rows, 1.79MB), globalbudgetsData (34KB), kombiboniData (105KB) served unauthenticated. No rate limit, no-store+CF-DYNAMIC, no ETag/Last-Modified. Confirmed stable since 2026-09-07 across 9+ sessions.
+evidence_needed: none — PASSIVE-VERIFIED
+verify_steps: GET /bonusrechner_fragen.php — 200, Content-Length 2,158,150
+impact: wholesale competitor tariff/budget/combi-bonus intelligence extraction; MEDIUM-HIGH
+testability: PASSIVE
+
+[HYP] Cookie-Stuffing Attribution Theft
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors since 2026-09-05; lizenz→afilcode (non-HttpOnly), jid/agn/ppn→HttpOnly 1yr, zero validation; GET branch closed 7/7 byte-identical; cookie consumption POST/portal-path only; abschluss POST-only Account-ID gate confirmed.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire
+verify_steps: WITH AUTH: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → compare commission attribution
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified
+testability: AUTH_HELPED
+
+[HYP] B-Stack IDOR on /user/{ext_id}
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: Middleware B holds {user, cancel}; ext_id enumerable; X-API-Secret header sole channel (closed 11+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ
+verify_steps: WITH AUTH: GET /user/{n} sequential, diff bodies
+impact: cross-tenant PII read; HIGH, credential-gated
+testability: AUTH_HELPED
+
+[PARKED] B-Stack IDOR: confidence 62 > 40 but verify exists, not actionable without B secret
+[PARKED] Cookie-stuffing attribution: REFUTED one-shot chain; needs completed victim questionnaire
+[FINAL] 1. Tariff DB leak (85, PASSIVE) 2. Cookie stuffing (80, AUTH_HELPED) 3. B-Stack IDOR (62, AUTH_HELPED)
+[NEXT] RAG: maintain 3-GET weekly smoke cadence; flag if >24h batch gap
+[RISK] KassenKompass: 62 — Flat; API fully mapped, funnel stable, no PII touched; passive recon zero-yield
+```
