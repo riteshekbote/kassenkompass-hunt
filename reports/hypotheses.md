@@ -1478,3 +1478,9 @@
 - LEARN: REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+
+## RANKED HYPOTHESES 2026-09-13 16:59:38 UTC
+- [85] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Tariff Database Access via bonusrechner_fragen.php (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): RAG: hold — 3-GET smoke cadence healthy (last batch 06:47, ~6h gap, flag only at >24h); no new probe justified; next smoke batch per cadence re-fires fragen.php
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de/: root CL:0-with-body is PERSISTENT (09-12 23:23, 09-13 06:52/12:45) — 09-12 20:04 "transient" classification prematur
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: second consecutive analysis-only cycle since 06:47 batch; parity with 12:45 aggregation, no peer/self leads matured, no

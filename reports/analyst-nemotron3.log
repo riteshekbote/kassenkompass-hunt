@@ -12364,3 +12364,54 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
 
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-13 16:59:38 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mcurl -s -I "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | head -20
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:41:44 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=WdekA6bs8rVoQOWc32JT6kE2u/zzNOqQrIL4kCfVmb9jD0VINFIBii4FnZyUcJxjPuj7RWU5H3Kn9TmAX+jae64C0dMz1Wv243i2B5OwU9G6jEZ0xhQwcLtQxnVK; Expires=Sun, 20 Sep 2026 16:41:44 GMT; Path=/
+set-cookie: AWSALBCORS=WdekA6bs8rVoQOWc32JT6kE2u/zzNOqQrIL4kCfVmb9jD0VINFIBii4FnZyUcJxjPuj7RWU5H3Kn9TmAX+jae64C0dMz1Wv243i2B5OwU9G6jEZ0xhQwcLtQxnVK; Expires=Sun, 20 Sep 2026 16:41:44 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=7c169f16e0339705f7801b00715bbcd4; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=4ZJfTUThNjK4Yk3a1mhu%2FDemlcydF41JEOiJ%2FnXWSvwls2iiGhrVcD%2BtMvxPstQiYmReML6ScgvtFOeZwkT9PXLx5ywwL7j3OwUWJVE%2FbX1w8h8WaADMgZ5WW6PlvepJ0rg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3a899e07f4c10bb-ORD
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_fragen.php" -o /tmp/fragen.html -w "%{size_download}\n" 2>&1
+2158150
+[0m
+[0m$ [0mgrep -c "ucatKkData\|globalbudgetsData\|kombiboniData\|pseudoKkIds" /tmp/fragen.html 2>&1
+10
+[0m
+[0m$ [0mcurl -s -I "https://api.kassenkompass.de/" 2>&1 | head -20
+HTTP/2 200 
+date: Sun, 13 Sep 2026 16:56:06 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=bh771p0B%2FfCjJOwjzkxMUkdOP8Sx%2FPDA6k6Cor3ws54swNF8hcMOVynjneX30xSVUAFuvzxv20pPOevvl5gKsK%2FHTn9aNqv0Km1ZISc3%2BwMDiBvvGJtINzTQTd2LGhGrGBVYHtS4"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3a8aeef3e17e227-ORD
+[0m
+[0m$ [0mcurl -s "https://api.kassenkompass.de/" | wc -c
+1167
+[0m

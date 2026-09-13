@@ -350,3 +350,5 @@
 - 2026-09-13 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
 - 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
+- 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de/: root CL:0-with-body is PERSISTENT (09-12 23:23, 09-13 06:52/12:45) — 09-12 20:04 "transient" classification premature; cosmetic header/body mismatch only, no disclosure-substance change.
+- 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: second consecutive analysis-only cycle since 06:47 batch; parity with 12:45 aggregation, no peer/self leads matured, no new attack surface.
