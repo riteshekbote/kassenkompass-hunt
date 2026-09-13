@@ -78,3 +78,25 @@
   - | Q4 Provable? | NO — requires valid API secret (AUTH_HELPED only) |
   - | Q2 Reachable? | NO — requires valid X-API-Secret |
   - | Q2 Reachable? | NO — requires valid X-API-Secret |
+
+- 27 lead(s) marked VALID at 2026-09-13 16:28:25 UTC
+  - **Verdict: VALID** | CVSS 3.1: 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N) | Proof: single `GET /` returns full catalog JSON | Reporting: bugs.olivermaicher.eu
+  - **Verdict: VALID** | CVSS 3.1: 3.7 (AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N) | Proof: `GET /sync/` → HTTP 200 + auth error body | Reporting: bugs.olivermaicher.eu
+  - **Verdict: VALID** | CVSS 3.1: 7.5 (AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N) | Proof: form inspection shows hardcoded value | Reporting: bugs.olivermaicher.eu
+  - **Verdict: VALID** | CVSS 3.1: 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N) | Proof: Set-Cookie headers with attacker-controlled values on 7 endpoints | Reporting: bugs.olivermaicher.eu
+  - **Verdict: HOLD** | Standalone: "Lack of email verification" is out-of-scope. Combined with Finding 4 cookie-stuffing: VALID as chain component. Report together.
+  - | Q5 Novel? | **NO** | Already accepted in valid-bugs.md (2026-09-04) |
+  - **Verdict: DUPLICATE** | Already in valid-bugs.md
+  - | Q2 Reachable? | **PARTIAL** | Returns 401 without auth; requires valid X-API-Secret |
+  - | Q4 Provable? | **NO** | AUTH_HELPED; requires valid API secret |
+  - | Q7 Reasonable triager? | **NO** | Cannot demonstrate without valid credential |
+  - **Verdict: HOLD** | Requires valid X-API-Secret to verify
+  - | Q2 Reachable? | **NO** | Requires valid X-API-Secret; unauth returns 401 |
+  - | Q7 Reasonable triager? | **NO** | Cannot demonstrate without valid key + destructive testing |
+  - **Verdict: HOLD** | Requires valid X-API-Secret + destructive endpoint testing
+  - | Q2 Reachable? | **NO** | Requires valid X-API-Secret |
+  - | Q4 Provable? | **NO** | AUTH_HELPED; requires valid scoped secret |
+  - | Q7 Reasonable triager? | **NO** | Cannot demonstrate without valid credential |
+  - **Verdict: HOLD** | Requires valid X-API-Secret
+  - | Q2 Reachable? | **PARTIAL** | Error shapes observable unauthenticated; scoping differential requires valid key |
+  - | Q4 Provable? | **NO** | Passive mapping confirms architecture; cannot confirm exploitability without valid key |
