@@ -357,3 +357,4 @@
 - 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 16:59 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; no new enumeration primitive in 5 cycles.
 - 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: 8 consecutive triage cycles (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/now) consumed empty lead payloads — all peers header-only/repetition; observability gap, no signal; ranking monotonic at 85/80/62.
 - 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 19:04 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body persists with unchanged 15+1 disclosure substance.
+- 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: 8th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25) consumed empty/header-only lead payloads — all peers repetition; observability gap, no signal; ranking monotonic at 85/80/62.

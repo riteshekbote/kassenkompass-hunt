@@ -613,3 +613,5 @@ www.kassenkompass.de
 - CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
 - CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strict
 - CHANGED 5+ consecutive triage cycles consumed empty lead payloads — all peers header-only/repetition; observability gap, no signal
+
+## 2026-09-13 23:38:19 UTC

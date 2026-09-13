@@ -1517,3 +1517,9 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: second consecutive analysis-only cycle since 06:47 batch; parity with 12:45 aggregation, no peer/self leads matured, no
+
+## RANKED HYPOTHESES 2026-09-13 23:38:19 UTC
+- [85] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Tariff Database Access via bonusrechner_fragen.php (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): RAG: hold — last live probe batch 06:47 09-13 (~16.7h gap); trigger next 3-GET smoke only at >24h (after 06:47 09-14): fragen.php (200/CL 2,158,150), bonusrechn
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 8th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25) consumed empty/header-only 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 19:04 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body persi
