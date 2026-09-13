@@ -595,3 +595,5 @@ www.kassenkompass.de
 - CHANGED GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strict
 
 ## 2026-09-13 16:59:38 UTC
+
+## 2026-09-13 19:04:49 UTC

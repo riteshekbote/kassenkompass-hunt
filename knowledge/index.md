@@ -352,3 +352,6 @@
 - 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
 - 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de/: root CL:0-with-body is PERSISTENT (09-12 23:23, 09-13 06:52/12:45) — 09-12 20:04 "transient" classification premature; cosmetic header/body mismatch only, no disclosure-substance change.
 - 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: second consecutive analysis-only cycle since 06:47 batch; parity with 12:45 aggregation, no peer/self leads matured, no new attack surface.
+- 2026-09-13 REJECTED OTHER @ kassenkompass pipeline: 5+ consecutive triage cycles (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59) consumed empty lead payloads — all peers header-only/repetition; observability gap, no signal.
+- 2026-09-13 REJECTED MISCONFIG @ api.kassenkompass.de/: root CL:0-with-body PERSISTENT through 06:52/12:45 — cosmetic header/body mismatch, 15+1 catalog disclosure substance unchanged; 09-12 "transient" classification premature.
+- 2026-09-13 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 16:59 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; no new enumeration primitive in 5 cycles.
