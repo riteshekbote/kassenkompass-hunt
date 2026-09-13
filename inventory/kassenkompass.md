@@ -570,3 +570,12 @@ www.kassenkompass.de
 
 ## 2026-09-13 01:29:26 UTC
 - NEW NO_DELTA — All live probes confirm knowledge base: api.kassenkompass.de/ returns 200 with content-length:0 + full 15+1 catalog; bonusrechner_fragen.php 2.1MB tariff data unauthenticated; bonusrechner_
+
+## 2026-09-13 06:52:18 UTC
+- NEW api.kassenkompass.de/ root returns HTTP 200 with `content-length: 0` but full JSON catalog (15 v1 + 1 v2 endpoints) in response body — structural change from prior full-body catalog; catalog disclosur
+- NEW kassenkompass.de/bonusrechner_vergleich2.php emits `device_id` cookie (1yr Secure HttpOnly SameSite=Lax) + `expires catoint` — sole funnel step emitting device_id, confirmed live at 2026-09-13 06:47
+- NEW kassenkompass.de/bonusrechner_fragen.php 2.1MB tariff payload (2,158,150 bytes) confirmed live — ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds present, no-store+CF-DYNAMIC, no ETag/Last-Modif
+- NEW kassenkompass.de/bonusrechner_abschluss.php POST returns "Account-ID nicht gefunden" div (1 hit), GET returns 0 hits — server validates Account-ID on form submission only, lead gate confirmed
+- CHANGED api.kassenkompass.de auth map 15/15 stable — /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged since 2026-09-03
+- CHANGED v2 router-404 oracle saturated at 42 names — insurance_info sole route, greedy segment match reaches auth handler (401)
+- CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bon

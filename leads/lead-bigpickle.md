@@ -2818,3 +2818,31 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: triage runs 21:15/23:05 (12th) + 01:07 (13th) again consumed empty lead payloads — none of the 5 peer leads contributed content this cycle; observability gap, no signal.
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: 23:23 batch reconfirmed 15+1 v2 catalogs, /sync/ HTTP-200 legacy body, middleware-A/B gates — auth map drift-free through 2026-09-13 01:26.
 [RISK] KassenKompass: 62 — Flat. Eleven days in, the sole independently-confirmable finding is the PASSIVE-VERIFIED MEDIUM-HIGH tariff-DB leak (no PII); both HIGH-value chains (commission stuffing, B-stack IDOR) remain credential-gated with no passive unlock and both require server-side settlement state that is untouchable under program rules. API fully mapped and saturated, funnel stable at 7 mirrors, no PII touched, no mutating probes, ≤1 rps maintained. Remaining program value depends entirely on credential/settlement-endpoint availability — further passive reconnaissance is zero-yield.
+## 2026-09-13 06:48:16 UTC [target] (model bigpickle)
+[HYP] Unauthenticated Tariff Database Scraping via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: 2,158,150-byte body byte-stable across 9+ sessions since 2026-09-07; no-store+CF-DYNAMIC; no ETag/Last-Modified; no auth, no rate limit; 5,209 ucatKkData rows + globalbudgets + kombiboni, pseudoKkIds [99,100,101].
+evidence_needed: none — PASSIVE-VERIFIED, evidence satisfied.
+verify_steps: GET /bonusrechner_fragen.php — 200, Content-Length 2,158,150 (re-confirmed 06:47).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence extraction; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft Via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors, lizenz→afilcode (non-HttpOnly), jid/agn/ppn→HttpOnly 1yr, zero validation; consumption strictly POST/settlement; abschluss POST-only Account-ID gate; one-shot auto-register REFUTED (needs prior funnel lead); lizenz=ATTACKER_AFIL smoked 200/42,865 as of 06:47.
+evidence_needed: settlement line-item attributed to stuffed afilcode under a completed questionnaire.
+verify_steps: WITH AUTH/lead: victim-path questionnaire with lizenz=ATTACKER_LIZ → compare commission attribution.
+impact: commission/attribution theft on insurance-switch settlements; HIGH if verified, credential/lead-gated.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: Middleware B ("Ungültiger X-API-Secret", instance echo) holds exactly {user, cancel}; ext_id enumerable; X-API-Secret header sole channel on A/B/v2 (closed 9+ sessions); resource-level authz untested behind gate after 11 days.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cross-tenant PII).
+verify_steps: WITH AUTH: GET /user/{n} n=1..N sequential, diff bodies; read-side /cancel/{id} only.
+impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated.
+testability: AUTH_HELPED
