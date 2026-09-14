@@ -654,3 +654,8 @@ www.kassenkompass.de
 - CHANGED Auth map 15/15 drift-free — /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged
 - CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — no new entries, no drift since 2026-09-07
 - CHANGED 9th consecutive triage cycle consumed empty lead payloads — observability gap persists, no peer signal
+
+## 2026-09-14 22:49:01 UTC
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: my live GET 22:47 (≤1 rps) measured decompressed body **2,152,258 B** vs recorded 2,158,150 (−5,892 B, 0.27%); tariff payload is NOT byte-static — drift since
+- CHANGED fragen.php payload `lastchange` epochs are 2025 dates (1746314584=2025-05-03 … max 1766419026=2025-12-22) — prior KB "lastchange 2026-05-03" was an epoch mis-conversion.
+- CHANGED pipeline: triage run-2026-09-14-22-17 = "No leads provided"; peer state files all 33-byte stubs (phase/target only) — **10th consecutive empty triage cycle**.

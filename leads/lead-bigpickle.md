@@ -3220,3 +3220,73 @@ impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated
 testability: AUTH_HELPED
 [NEXT] RAG: hold — last live probe batch 01:46 09-14 (~12.9h ago); 24h smoke threshold not met (due after 01:46 09-15). Next 3-GET smoke: fragen.php (200/CL 2,158,150), bonusrechner.php stuffed-jar (200), api root (200 + 15+1 body), all at ≤1 rps; do NOT addverage the abschluss POST differential until explicitly authorized (write op). No other new probe justified until >24h gap or pipeline delivers novel lead.
 [RISK] KassenKompass: 62 — Flat: fourth consecutive analysis-only day (09-13 16:59/19:04/21:28, 09-14 01:46/07:13/14:37); API fully mapped + credential-gated, funnel 7/7 mapped + lead-gated, only top prize (tariff leak) PASSIVE-VERIFIED at 85, zero PII touched, no debt beyond the 3 standing hypotheses; holding, not escalating.
+## 2026-09-14 22:48:13 UTC [target] (model bigpickle)
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: 2,158,150-byte body — ucatKkData 5,209 rows/1.79MB (lastchange 2026-05-03), globalbudgetsData 34KB, kombiboniData 105KB, pseudoKkIds=[99,100,101]; no-store+CF-DYNAMIC regenerates full payload per request; no ETag/Last-Modified/rate-limit; stable ≥10 sessions since 2026-09-07.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET /bonusrechner_fragen.php — 200, CL 2,158,150, no-store+CF-DYNAMIC; monitoring-only.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence extraction; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors map raw query params into 1yr cookies unvalidated (lizenz→afilcode non-HttpOnly; jid/agn+connectionnumber/ppn/employeenumber HttpOnly); GET branch closed 7/7 byte-identical; server consumes cookies POST/settlement-only; abschluss POST-only Account-ID lead gate confirmed (one-shot auto-register REFUTED 09-09).
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH/lead respondent: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → attribution compare; write-gated addendum at next smoke batch: abschluss.php POST {email,password,password_confirm,create_account=1}+{lizenz=<tkn>,jid=<tkn>,account_id=<tkn>} vs baseline — diff 200 body/Set-Cookie/error-text (body-side attribution / account_id mass-assignment).
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: Middleware B ("Ungültiger X-API-Secret", instance echo) holds exactly {user, cancel}; ext_id enumerable; X-API-Secret header sole channel on A/B/v2 (closed 14+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cross-tenant PII).
+verify_steps: WITH AUTH: GET /user/{n} n=1..N sequential, diff bodies; read-side /cancel/{id} only.
+impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated.
+testability: AUTH_HELPED
+[NEXT] RAG: hold — last live probe batch 01:46 09-14 (~12.9h ago); 24h smoke threshold not met (due after 01:46 09-15). Next 3-GET smoke: fragen.php (200/CL 2,158,150), bonusrechner.php stuffed-jar (200), api root (200 + 15+1 body), all at ≤1 rps; do NOT addverage the abschluss POST differential until explicitly authorized (write op). No other new probe justified until >24h gap or pipeline delivers novel lead.
+[RISK] KassenKompass: 62 — Flat: fourth consecutive analysis-only day (09-13 16:59/19:04/21:28, 09-14 01:46/07:13/14:37); API fully mapped + credential-gated, funnel 7/7 mapped + lead-gated, only top prize (tariff leak) PASSIVE-VERIFIED at 85, zero PII touched, no debt beyond the 3 standing hypotheses; holding, not escalating.
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php: my live GET 22:47 (≤1 rps) measured decompressed body **2,152,258 B** vs recorded 2,158,150 (−5,892 B, 0.27%); tariff payload is NOT byte-static — drift since 01:46 09-14; substance unchanged (ucatKkData present, pseudoKkIds present, sessionData all-null, cache-control no-store + cf-cache-status DYNAMIC, no ETag/Last-Modified).
+[CHANGED] fragen.php payload `lastchange` epochs are 2025 dates (1746314584=2025-05-03 … max 1766419026=2025-12-22) — prior KB "lastchange 2026-05-03" was an epoch mis-conversion.
+[CHANGED] pipeline: triage run-2026-09-14-22-17 = "No leads provided"; peer state files all 33-byte stubs (phase/target only) — **10th consecutive empty triage cycle**.
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 6.75, a=8 b=8 t=3 g=10 c=2 f=6 — live 2.1MB competitive tariff DB, unauthenticated, no rate limit, data actively refreshed.
+[PRIO] kassenkompass.de funnel (7 mirrors) cookie-stuffing, 5.30, a=6 b=9 t=2 g=5 c=1 f=4 — commission/attribution money flow, POST/lead-gated.
+[PRIO] api.kassenkompass.de B-stack {/user,/cancel} IDOR, 4.45, a=5 b=8 t=4 g=2 c=1 f=2 — PII + destructive cancel, credential-gated, no egress.
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live GET 2026-09-14 22:47 → 200, body 2,152,258 B (was 2,158,150), no-store+CF-DYNAMIC, brotli-encoded, no ETag/Last-Modified/rate-limit; ucatKkData present with per-KK lastchange 2025-05-03…2025-12-22, pseudoKkIds present; sessionData all-null (cookies not read at GET render) — consistent 10+ sessions.
+evidence_needed: none — PASSIVE-VERIFIED; body-size delta confirms live data refresh, leak freshness increases.
+verify_steps: GET /bonusrechner_fragen.php — 200, CL ~2,152,258 (±drift); monitoring-only, ≤1 rps.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence at scale, fresh as of 2025-12-22 data touch; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors map raw query params into 1yr cookies unvalidated (lizenz→afilcode non-HttpOnly; jid/agn+connectionnumber/ppn/employeenumber HttpOnly); GET branch closed 7/7 byte-identical; server consumes cookies POST/settlement-only; abschluss POST-only Account-ID lead gate confirmed (one-shot auto-register REFUTED 09-09).
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire.
+verify_steps: WITH AUTH/lead respondent: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → attribution compare; abschluss.php POST differential stays write-gated (no POST without authorization).
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware)
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: Middleware B ("Ungültiger X-API-Secret", instance echo) holds exactly {user, cancel}; ext_id enumerable; X-API-Secret header sole channel on A/B/v2 (closed 14+ sessions); resource-level authz untested behind gate.
+evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cross-tenant PII).
+verify_steps: WITH AUTH: GET /user/{n} n=1..N sequential, diff bodies; read-side /cancel/{id} only.
+impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated.
+testability: AUTH_HELPED
+[PARKED] None dropped — all three survive critique; B-stack IDOR stays at 62 (no B-scoped secret egress after 15+ sessions, verify path exists but latent).
+[FINAL] 1. Tariff DB leak (85, PASSIVE-VERIFIED, drift-real = live data) 2. Cookie stuffing (80, AUTH_HELPED) 3. B-Stack IDOR (62, AUTH_HELPED).
+[NEXT] RAG: hold — fragen.php re-measured live at 22:47 09-14 (2,152,258 B, drift confirmed, no disclosure-substance change); smoking 3-GET batch (fragen.php CL-reconfirm, bonusrechner.php stuffed-jar 200, api root 200+15+1) next after 22:47 09-15 (≥24h gap) unless pipeline delivers a novel lead; no POST/mutation probes (abscluss differential stays write-gated).
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: live GET 22:47 measured 2,152,258 B vs recorded 2,158,150 — tariff payload drifts on data refresh; sessionData still all-null; leak substance unchanged; "byte-static" claim downgraded to "drift-in-±0.3%".
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: per-KK lastchange epochs are 2025 (1746314584=2025-05-03, max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion; data freshness ≤2025-12-22.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 10th consecutive triage cycle (run-2026-09-14-22-17 "No leads provided"; peer state 33-byte stubs) — observability gap persists, no peer signal.
+[RISK] KassenKompass: 62 — Flat: fifth analysis-only day; top prize PASSIVE-VERIFIED with live-drift confirmation, funnel 7/7 + API 15/15 fully mapped and gated; pipeline observability gap (10 empty cycles) is the only growing concern, no new attack surface; holding, not escalating.
