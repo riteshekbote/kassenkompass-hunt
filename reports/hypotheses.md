@@ -1563,3 +1563,9 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: second consecutive analysis-only cycle since 06:47 batch; parity with 12:45 aggregation, no peer/self leads matured, no
+
+## RANKED HYPOTHESES 2026-09-14 14:37:04 UTC
+- NEXT(hypotheses-bigpickle.txt): RAG: hold — last live probe batch 01:46 09-14 (~5.4h ago); 24h smoke threshold (post-06:47 09-14) met but 01:46 batch already confirmed no drift; defer next 3-G
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 9th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25, 09-14 01:46) consumed empty
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 01:46 09-14 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable ≥10 sessions since 2026-09-07 — no ETag/Last-Modified/rate-limit regr

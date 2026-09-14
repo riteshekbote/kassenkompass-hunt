@@ -12984,3 +12984,111 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-14 14:37:04 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[0m$ [0mdate -u +"%Y-%m-%d %H:%M:%S UTC"
+2026-09-14 14:20:44 UTC
+[0m
+[0m$ [0mcurl -s -I "https://api.kassenkompass.de/" | head -20
+HTTP/2 200 
+date: Mon, 14 Sep 2026 14:22:38 GMT
+content-type: application/json; charset=utf-8
+content-length: 0
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=u%2Bb5X8dMkhUXM3ESkuGtTxuYzuQi6hOLH7fRolk7zkVZ2fQZvoSbv5ch1L65%2F5uJH2o%2FrMgegwgW5HhUIw5%2BxHlqgHVf9VAm7cBKLIRj5tJPFeYpZYJJVng5y2haiSHgwNSlv6U9"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3b00b7f4b684f1b-SJC
+[0m
+[0m$ [0mcurl -s "https://api.kassenkompass.de/" | jq .
+{
+  "api_info": "KK API - REST",
+  "version": "1.0",
+  "authentication": "X-API-Secret header required",
+  "endpoints": {
+    "GET /health_insurance/": "API Krankenkassen",
+    "GET /state/": "API Bundesländer",
+    "GET /health/": "API- und Datenbank-Status (Health Check)",
+    "GET /sync/": "API Datensynchronisation",
+    "GET /question_tree/": "API Fragebaum",
+    "GET /detail_comparison/": "API Detailvergleich",
+    "GET /health_insurance_savings/": "API Krankenkasseneinsparungen",
+    "GET /health_insurance_comparison/": "API Krankenkassenvergleich",
+    "POST /post/": "API Datenempfang (POST)",
+    "DELETE /delete/{id}": "API Benutzerdaten löschen",
+    "POST /cancel/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+    "GET /user/{ext_id}": "Userdaten abrufen",
+    "GET /cat_detail/": "API Detaillierte Kategorien-Informationen",
+    "GET /insurance_info/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+    "GET /settlement_report/{year}/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)"
+  }
+}
+[0m
+[0m$ [0mcurl -s -I "https://kassenkompass.de/bonusrechner_fragen.php" | head -20
+HTTP/2 200 
+date: Mon, 14 Sep 2026 14:26:43 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=OCOKnilW3e6zBRG8nBdnWIf47g+Kb/FcYBZinMbDYoAQJbJmNvUYJazL6+7SYfjJo9GeoV5/APxDI7FLKjZEcNG2ITuryFAkoCAg1FeNLeQ2m8t1TfFSwHzh0Y5N; Expires=Mon, 21 Sep 2026 14:26:43 GMT; Path=/
+set-cookie: AWSALBCORS=OCOKnilW3e6zBRG8nBdnWIf47g+Kb/FcYBZinMbDYoAQJbJmNvUYJazL6+7SYfjJo9GeoV5/APxDI7FLKjZEcNG2ITuryFAkoCAg1FeNLeQ2m8t1TfFSwHzh0Y5N; Expires=Mon, 21 Sep 2026 14:26:43 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=21d637278ba025e92df978a7bfdbca37; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Cj8ew7PCq1sE5aoP3bHnZeih8fZJwTqpYT87MFMVxNr62oKGXihVimLBBWF3FgvDvmb8khfSrEgBacA%2FFtgJHkdrh7%2F%2FQu%2FYquEmgMpzaFFOvN3nQM2u16te91jHne9CJbo%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3b01178feba2734-SJC
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_fragen.php" | wc -c
+2158842
+[0m
+[0m$ [0mcurl -s "https://api.kassenkompass.de/v2/" | jq .
+{
+  "api_info": "KK API v2 - REST (breite Variante)",
+  "version": "2.0",
+  "authentication": "X-API-Secret header required",
+  "endpoints": {
+    "GET /v2/insurance_info/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse (breite Variante: inkl. Entwurfs-Kategorien und aufgelöster Referenzen)"
+  }
+}
+[0m
+[0m$ [0mcurl -s -I "https://kassenkompass.de/bonusrechner_vergleich2.php"
+HTTP/2 200 
+date: Mon, 14 Sep 2026 14:34:08 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=orQt2JmW1OM5CEV1Hn7sM1+zuCU5vrediN3T0UDMZkviSAUIxwEj2YsbxBmksQJP/EhS8AQYiGfxKuWu7TvGeVHdG/GQXZaHktzYaPW0kklB0sTMfQfetCgwrHnD; Expires=Mon, 21 Sep 2026 14:34:08 GMT; Path=/
+set-cookie: AWSALBCORS=orQt2JmW1OM5CEV1Hn7sM1+zuCU5vrediN3T0UDMZkviSAUIxwEj2YsbxBmksQJP/EhS8AQYiGfxKuWu7TvGeVHdG/GQXZaHktzYaPW0kklB0sTMfQfetCgwrHnD; Expires=Mon, 21 Sep 2026 14:34:08 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=b2ee70042c723fad8a1139578f9451e0; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: device_id=fc07571c079a2df158fac2a15fb0cdfe; expires=Tue, 14 Sep 2027 14:34:08 GMT; Max-Age=31536000; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: catoint=deleted; expires=Thu, 01 Jan 1970 00:00:01 GMT; Max-Age=0
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=KhUvClArv732JfOd742P33P8wgUm5ZKltdz1CvvYokLNGJEu9pQ1GbA97OIWQdYWRvTFYm7Po4mJBJlP3eE%2FB%2FYfyfmZMRO7jufV8%2FfSBCcDZ1wRMYa1ivjczgfBk0g44jY%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a3b01c5789a7cf2f-SJC
+[0m
+[0m$ [0mcurl -s "https://kassenkompass.de/bonusrechner_abschluss.php" | grep -c "Account-ID nicht gefunden"
+0
+[0m
