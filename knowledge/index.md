@@ -379,3 +379,4 @@
 - 2026-09-14 REJECTED OTHER @ kassenkompass pipeline: 9th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25, 09-14 01:46) consumed empty/header-only lead payloads — all peers repetition; observability gap persists; no signal.
 - 2026-09-14 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 01:46 09-14 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body persists with unchanged 15+1 disclosure substance.
 - 2026-09-14 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable ≥10 sessions since 2026-09-07 — no ETag/Last-Modified/rate-limit regression.
+- 2026-09-14 REJECTED OTHER @ kassenkompass pipeline: 9th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25, 09-14 01:46) consumed empty/header-only lead payloads — all peers repetition; observability gap, no signal

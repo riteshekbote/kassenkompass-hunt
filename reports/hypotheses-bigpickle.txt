@@ -1,9 +1,4 @@
-## 2026-09-14 07:13:11 UTC [target] (model bigpickle)
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,a=10 b=9 t=8 g=10 c=5 f=8
-[PRIO] kassenkompass.de funnel {7 mirrors},7.95,a=9 b=8 t=7 g=9 c=5 f=8
-[PRIO] api.kassenkompass.de/,6.60,a=7 b=6 t=5 g=10 c=4 f=7
-[PRIO] kassenkompass.de/bonusrechner_abschluss.php create_account POST,5.90,a=7 b=9 t=3 g=3 c=3 f=7
-[PRIO] api.kassenkompass.de/user/{ext_id},5.50,a=6 b=6 t=5 g=3 c=6 f=7
+## 2026-09-14 19:31:05 UTC [target] (model bigpickle)
 [HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -31,12 +26,5 @@ evidence_needed: valid B-scoped secret; GET /user/1 vs /user/2 body differ (cros
 verify_steps: WITH AUTH: GET /user/{n} n=1..N sequential, diff bodies; read-side /cancel/{id} only.
 impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated.
 testability: AUTH_HELPED
-[PARKED] Tariff leak (85): PASSIVE-VERIFIED, evidence satisfied; monitoring-only.
-[PARKED] Cookie stuffing (80): chain closed to me; the abschluss POST-body mass-assignment differential (~48) is the sole untested gap but needs write + valid Account-ID for full impact.
-[PARKED] B-Stack IDOR (62): no B-scoped secret after 14+ sessions; verify path exists but no egress.
-[FINAL] 1. Tariff DB leak (85, PASSIVE) 2. Cookie stuffing (80, AUTH_HELPED) 3. B-Stack IDOR (62, AUTH_HELPED)
-[NEXT] RAG: hold — last live probe batch 01:46 09-14 (~5.4h ago); 24h smoke threshold (post-06:47 09-14) met but 01:46 batch already confirmed no drift; defer next 3-GET smoke to >24h after 01:46 (after 01:46 09-15): fragen.php (200/CL 2,158,150), bonusrechner.php stuffed-jar (200), api root (200 + 15+1 body). abschluss POST-body differential remains blocked by PASSIVE-only scope rule (POST violates GET/HEAD/OPTIONS constraint). No new probe justified until >24h gap or pipeline delivers novel lead.
-[LEARN] REJECTED OTHER @ kassenkompass pipeline: 9th consecutive triage cycle (09-12 21:15/23:05, 09-13 01:07/06:47/12:45/16:59/19:04/21:25, 09-14 01:46) consumed empty/header-only lead payloads — all peers repetition; observability gap persists; no signal.
-[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 01:46 09-14 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body persists with unchanged 15+1 disclosure substance.
-[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable ≥10 sessions since 2026-09-07 — no ETag/Last-Modified/rate-limit regression.
-[RISK] KassenKompass: 62 — Flat, third consecutive analysis-only day: API fully mapped + credential-gated, funnel 7/7 mapped + lead-gated, only top prize (tariff leak) PASSIVE-VERIFIED at 85, zero PII touched, no debt beyond the 3 known hypotheses; holding, not escalating.
+[NEXT] RAG: hold — last live probe batch 01:46 09-14 (~12.9h ago); 24h smoke threshold not met (due after 01:46 09-15). Next 3-GET smoke: fragen.php (200/CL 2,158,150), bonusrechner.php stuffed-jar (200), api root (200 + 15+1 body), all at ≤1 rps; do NOT addverage the abschluss POST differential until explicitly authorized (write op). No other new probe justified until >24h gap or pipeline delivers novel lead.
+[RISK] KassenKompass: 62 — Flat: fourth consecutive analysis-only day (09-13 16:59/19:04/21:28, 09-14 01:46/07:13/14:37); API fully mapped + credential-gated, funnel 7/7 mapped + lead-gated, only top prize (tariff leak) PASSIVE-VERIFIED at 85, zero PII touched, no debt beyond the 3 standing hypotheses; holding, not escalating.
