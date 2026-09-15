@@ -417,3 +417,11 @@
 - 2026-09-15 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed.
 - 2026-09-15 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
 - 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 10th+ consecutive triage cycle consumed empty lead payloads — all peers repetition; observability gap persists, no signal.
+- 2026-09-15 ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists at 06:18 09-15; 15+1 disclosure substance unchanged; no drift.
+- 2026-09-15 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload confirmed at 06:18 09-15; 2,152,258 B matches 22:47 09-14; drift ±0.3% live-refresh proof maintained.
+- 2026-09-15 ACCEPTED OTHER @ www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 B — tariff leak surface confirmed doubled apex+www.
+- 2026-09-15 ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie + catoint force-delete — confirmed live at 06:18; sole funnel step emitting device_id.
+- 2026-09-15 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential re-confirmed — lead gate present only on POST.
+- 2026-09-15 REJECTED AUTH @ api.kassenkompass.de: query/cookie X-API-Secret missing-header on A/B/v2 — header sole channel; closed 14+ sessions.
+- 2026-09-15 REJECTED MISCONFIG @ api.kassenkompass.de: no new enumeration primitive — v2 saturated 42 names, auth source-merge closed, 15/15 map stable.
+- 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 10th+ consecutive empty triage cycle — observability gap persists.

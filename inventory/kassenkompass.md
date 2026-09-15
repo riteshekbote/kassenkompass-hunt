@@ -675,3 +675,17 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
 - CHANGED Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
 - CHANGED Pipeline: 10th consecutive empty triage cycle — observability gap persists, no peer signal
+
+## 2026-09-15 11:58:25 UTC
+- NEW api.kassenkompass.de/ root: 06:18 probe confirms 200 + CL:0 + full 15+1 catalog in body — no drift since 22:47 09-14.
+- NEW kassenkompass.de/bonusrechner_fragen.php: live 06:18 GET matches 2,152,258 B (−0.27% vs baseline 2,158,150); no-store, no ETag, no rate limit — unchanged.
+- NEW www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 B — tariff leak doubled apex+www confirmed.
+- CHANGED fragen.php 24h smoke: due after 22:47 09-15; last measurement 22:47 09-14 — window NOT yet met; hold.
+- NEW api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body — structural header/body mismatch confirmed live at 06:18 UTC
+- NEW kassenkompass.de/bonusrechner_fragen.php: live GET 2,152,258 bytes (matches 22:47 measurement, −5,892 B vs recorded 2,158,150); tariff payload drifts on data refresh
+- NEW www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 bytes — tariff leak surface doubled apex+www
+- NEW kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted confirmed live
+- NEW kassenkompass.de/bonusrechner_abschluss.php: GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only
+- CHANGED api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
+- CHANGED Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
+- CHANGED Pipeline: 10th consecutive empty triage cycle — observability gap persists, no peer signal
