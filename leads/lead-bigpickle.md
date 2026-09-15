@@ -3405,3 +3405,44 @@ impact: cross-tenant PII read + destructive /cancel/{id}; HIGH, credential-gated
 testability: AUTH_HELPED
 [NEXT] RAG: hold — 24h smoke threshold not yet met (fragen.php last re-measured 22:47 09-14; due after 22:47 09-15). Next 3-GET smoke exactly: fragen.php (200, ~2.16MB decompressed ±0.3%, no-store), bonusrechner.php stuffed-jar (200, Set-Cookie mirror), api root (200 + 15+1 catalog in body); all ≤1 rps spaced; no POST/mutation probes; run after 22:47 09-15 or on a novel pipeline lead, whichever first.
 [RISK] KassenKompass: 62 — Flat: fifth consecutive analysis-only day; top prize PASSIVE-VERIFIED with drift-in-±0.3% live-refresh proof, funnel 7/7 + API 15/15 fully mapped and gated at A/B/v2; only growing concern is the 11-cycle pipeline observability gap (an ops issue, not an in-scope finding); no new attack surface, no PII touched; holding, not escalating.
+## 2026-09-15 06:18:35 UTC [target] (model bigpickle)
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 85
+reasoning: Live GET 22:47 09-14 → 200, 2,152,258 B (−0.27% vs 2,158,150 baseline, data refresh drift); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgets/kombiboni/pseudoKkIds; lastchange epochs ≤2025-12-22; sessionData all-null; consistent 10+ sessions since 2026-09-07.
+evidence_needed: none — PASSIVE-VERIFIED; body-size drift confirms live refresh.
+verify_steps: 3-GET smoke at ≥24h gap only — GET /bonusrechner_fragen.php, expect 200 + ≤2.16MB ±0.3% (no burst repetition: 09-11 WAF-block precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence at scale, freshness ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors map raw params→1yr cookies unvalidated (lizenz→afilcode non-HttpOnly; jid/agn+connectionnumber/ppn/employeenumber HttpOnly); GET branch closed 7/7 byte-identical; cookies consumed POST/settlement-only; abschluss POST-only Account-ID lead gate confirmed; one-shot auto-register REFUTED 09-09; device_id issued at vergleich2.php sole step.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id anchor correlation.
+verify_steps: WITH AUTH/lead respondent: victim-path questionnaire w/ lizenz=ATTACKER_LIZ → attribution compare; abschluss.php POST stays write-gated (no POST un-authorized).
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: Root returns 200+CL:0 but full 15+1 catalog in body (ver 1.0/2.0); stable since 2026-09-07; auth map 15/15 complete; /sync/ HTTP-200 legacy; v2 oracle saturated; source-merge closed; no new enumeration primitive in 12+ sessions.
+evidence_needed: None — PASSIVE-VERIFIED.
+verify_steps: GET / → parse 15+1 endpoints. Done.
+impact: Recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] Cookie-Stuffing Attribution Theft: confidence 80 but AUTH_HELPED only — cannot execute settlement flow without human respondent; stuffing persistence proven but automated chain closed since 09-09; no new evidence path.
+[FINAL] 1. Unauthenticated Tariff Database Access (MISCONFIG, 85) — PASSIVE-VERIFIED, top prize, drift-in-±0.3% live-refresh proof
+[FINAL] 2. API Root Catalog Disclosure (MISCONFIG, 75) — PASSIVE-VERIFIED, stable recon amplifier
+[FINAL] 3. Cookie-Stuffing Attribution Theft (BUSLOGIC, 80) — AUTH_HELPED, gated
+[NEXT] RAG: hold — 24h fragen.php smoke threshold not yet met (last measured 22:47 09-14; due after 22:47 09-15). No live probes warranted until then. All peer lead files remain header-only/repetition. Surface fully mapped and gated. Next 3-GET smoke exactly: fragen.php (200, ~2.16MB ±0.3%, no-store), bonusrechner.php stuffed-jar (200, Set-Cookie mirror), api root (200+CL:0+15+1 catalog); all ≤1 rps spaced; run after 22:47 09-15.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 01:46 09-14 — 15/15 A/B map, /sync/ HTTP-200 legacy, v2 middleware-A; root CL:0-with-body persists with unchanged 15+1 disclosure substance.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable ≥10 sessions since 2026-09-07 — no ETag/Last-Modified/rate-limit regression.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 10th+ consecutive triage cycle consumed empty lead payloads — all peers repetition; observability gap persists, no signal.
+[RISK] KassenKompass: 62 — Flat. Sixth consecutive analysis-only day. Top prize PASSIVE-VERIFIED with drift-in-±0.3% live-refresh proof. Funnel 7/7 + API 15/15 fully mapped and gated at A/B/v2. No new attack surface since 2026-09-11 (IIS/ASP.NET discovery). 10+ pipeline triage cycles consumed empty payloads (ops issue, not in-scope finding). No PII touched. Holding, not escalating.
