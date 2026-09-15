@@ -693,3 +693,15 @@ www.kassenkompass.de
 ## 2026-09-15 16:49:34 UTC
 
 ## 2026-09-15 20:08:44 UTC
+
+## 2026-09-15 23:00:42 UTC
+- CHANGED 11th consecutive triage cycle (16:49 09-15) consumed empty/header-only peer leads — observability gap persists, zero peer signal
+- CHANGED api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body at 16:49 — no drift since 06:18
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable at 2,152,258 B (±0.3% drift), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit
+- CHANGED www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 B — leak surface confirmed doubled apex+www
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php: device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted confirmed live
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only
+- CHANGED api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
+- CHANGED Auth map 15/15 drift-free: /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged
+- CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — no new entries, no drift since 2026-09-07
+- CHANGED Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
