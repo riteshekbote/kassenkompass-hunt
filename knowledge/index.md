@@ -425,3 +425,5 @@
 - 2026-09-15 REJECTED AUTH @ api.kassenkompass.de: query/cookie X-API-Secret missing-header on A/B/v2 — header sole channel; closed 14+ sessions.
 - 2026-09-15 REJECTED MISCONFIG @ api.kassenkompass.de: no new enumeration primitive — v2 saturated 42 names, auth source-merge closed, 15/15 map stable.
 - 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 10th+ consecutive empty triage cycle — observability gap persists.
+- 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 11th consecutive triage cycle (16:49 09-15) — peer leads remain header-only/stub repetition; observability gap persists with zero signal; no new attack surface introduced anywhere.
+- 2026-09-15 ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists at 16:49 09-15; 15+1 disclosure substance unchanged; auth map drift-free; no new primitive.
