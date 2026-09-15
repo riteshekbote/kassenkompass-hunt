@@ -229,3 +229,29 @@ TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-15 11:03:03 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-15 11:58:00 UTC
+[HYP] REPOSCAN-EMPTY — Zero public repositories for KassenKompass
+class: OTHER
+asset: github.com/orgs/KassenKompass-GmbH (0 public repos)
+confidence: 100
+reasoning: |
+  KassenKompass-GmbH (GitHub org id 316947552) exists but has 0 public repositories.
+  KassenKompass (no suffix) returns HTTP 404 — no such org.
+  Unauthenticated GitHub API confirmed both: GET /orgs/KassenKompass-GmbH/repos → 200 + empty [];
+  GET /orgs/KassenKompass/repos → 404.
+  cands.txt = "no org candidates"; scope.yml github_orgs = "none-configured".
+  No candidate source code is publicly accessible for cloning, grep, or static analysis.
+impact: N/A — source-code secret surface is empty; no hardcoded credentials, API keys, cloud
+  creds, or insecure code patterns can be discovered in repos that do not exist.
+verify_steps: |
+  Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone;
+  no active scan needed. Match 13 prior scan entries reporting identical finding.
+## REPOSCAN 2026-09-15 15:36:58 UTC
+[HYP] REPOSCAN-EMPTY — Zero public repositories for KassenKompass
+class: OTHER
+asset: github.com/orgs/KassenKompass-GmbH (0 public repos)
+confidence: 100
+reasoning: |
+impact: N/A — source-code secret surface is empty; no hardcoded credentials, API keys, cloud
+verify_steps: |
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
