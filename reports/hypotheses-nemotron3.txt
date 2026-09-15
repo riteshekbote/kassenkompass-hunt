@@ -1,14 +1,6 @@
-## 2026-09-15 11:58:14 UTC [target] (model nemotron3)
-[NEW] api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body — structural header/body mismatch confirmed live at 06:18 UTC
-[NEW] kassenkompass.de/bonusrechner_fragen.php: live GET 2,152,258 bytes (matches 22:47 measurement, −5,892 B vs recorded 2,158,150); tariff payload drifts on data refresh
-[NEW] www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 bytes — tariff leak surface doubled apex+www
-[NEW] kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted confirmed live
-[NEW] kassenkompass.de/bonusrechner_abschluss.php: GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only
-[CHANGED] api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
-[CHANGED] Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
-[CHANGED] Pipeline: 10th consecutive empty triage cycle — observability gap persists, no peer signal
+## 2026-09-15 16:49:26 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.85,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=9
-[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,7.60,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.20,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.05,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
 [PRIO] api.kassenkompass.de/,6.60,attack_surface=7 business_value=6 tech_exposure=5 gate_ease=10 cloud_surface=4 freshness=7
 [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.55,attack_surface=6 business_value=6 tech_exposure=5 gate_ease=3 cloud_surface=6 freshness=7
@@ -30,7 +22,7 @@ reasoning: vergleich2.php (step 3/7) sets device_id (1yr Secure HttpOnly) + expi
 evidence_needed: Correlation between device_id value set at vergleich2.php and Account-ID expected at abschluss.php POST; or logic flaw allowing Account-ID derivation from device_id
 verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie incl. device_id; GET /bonusrechner_daten.php → observe HttpOnly cookies persist; GET /bonusrechner_fragen.php → confirm 2.1MB tariff data; GET /bonusrechner_vergleich2.php → capture device_id; GET /bonusrechner_abschluss.php → capture form + Account-ID field; POST /bonusrechner_abschluss.php with stuffed jar + email/password/confirm/create_account=1 → observe "Account-ID nicht gefunden" or account creation
 impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber, device_id across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
-testability: PASSIVE
+testability: AUTH_HELPED
 [HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
 class: MISCONFIG
 asset: api.kassenkompass.de/
@@ -43,9 +35,9 @@ testability: PASSIVE
 [PARKED] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware): confidence 62 but requires B-scoped X-API-Secret — no secret source identified; partner portal JS delivers none; login_partner.php standard HTML form; out of passive scope
 [PARKED] v2 Greedy Segment Match Path Traversal: confidence 55 — Cloudflare/WAF normalizes path traversal sequences (%2e%2e%2f → 404) before router; only raw greedy segments (//, /extra, %31) reach handler; no injection primitive
 [FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 85, PASSIVE)
-[FINAL] 2. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 70, PASSIVE)
+[FINAL] 2. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 70, AUTH_HELPED)
 [FINAL] 3. API Root Catalog Disclosure Enables Targeted Attack Planning (confidence 75, PASSIVE)
-[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — measure response time, confirm Content-Length ~2.1MB, extract Cache-Control/ETag/Last-Modified headers; repeat 10x at 1 rps → verify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body
+[NEXT] RAG: Query threat intel / peer leads for KassenKompass GmbH — 10th consecutive empty triage cycle, observability gap persists; check for new CVE disclosures, GitHub references, or bug bounty reports on bugs.olivermaicher.eu before 24h fragen.php smoke threshold (due after 22:47 2026-09-15).
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Root returns 200 with content-length: 0 but full JSON catalog in body — structural header/body mismatch persists; catalog disclosure without auth persists
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live

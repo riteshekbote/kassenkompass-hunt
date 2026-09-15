@@ -689,3 +689,5 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
 - CHANGED Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
 - CHANGED Pipeline: 10th consecutive empty triage cycle — observability gap persists, no peer signal
+
+## 2026-09-15 16:49:34 UTC
