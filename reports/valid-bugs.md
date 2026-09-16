@@ -100,3 +100,12 @@
   - **Verdict: HOLD** | Requires valid X-API-Secret
   - | Q2 Reachable? | **PARTIAL** | Error shapes observable unauthenticated; scoping differential requires valid key |
   - | Q4 Provable? | **NO** | Passive mapping confirms architecture; cannot confirm exploitability without valid key |
+
+- 7 lead(s) marked VALID at 2026-09-16 00:32:41 UTC
+  - **Verdict: VALID**
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret to confirm cross-user read. All unauth attempts return 401. No evidence of auth bypass. |
+  - **Verdict: HOLD** — Park until valid X-API-Secret obtained for verification. Current evidence is insufficient for submission.
+  - | Q4 | Provable non-invasively? | **NO** — requires valid scoped X-API-Secret |
+  - | Q3 | Real security impact? | **NO (as standalone)** — architectural observation, not a vulnerability. Only meaningful if combined with a valid key to test cross-middleware acceptance. |
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret |
+  - | 1 | Unauthenticated API Catalog Disclosure | **VALID** |
