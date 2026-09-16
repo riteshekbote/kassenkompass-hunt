@@ -109,3 +109,11 @@
   - | Q3 | Real security impact? | **NO (as standalone)** — architectural observation, not a vulnerability. Only meaningful if combined with a valid key to test cross-middleware acceptance. |
   - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret |
   - | 1 | Unauthenticated API Catalog Disclosure | **VALID** |
+
+- 6 lead(s) marked VALID at 2026-09-16 05:15:06 UTC
+  - **Verdict: VALID**
+  - | Q4 Provable? | **NO** — requires valid X-API-Secret; all unauth attempts return 401 |
+  - **Verdict: HOLD** — Park until valid API key obtained. Insufficient evidence for submission.
+  - | Q4 Provable? | **NO** — requires valid scoped X-API-Secret |
+  - | Q4 Provable? | **NO** — requires valid X-API-Secret |
+  - | 1 | API Catalog Disclosure | **VALID** |
