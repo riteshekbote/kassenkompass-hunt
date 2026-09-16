@@ -655,3 +655,6 @@ https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&ag
 
 ## 2026-09-16 20:04:47 UTC
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-16 22:50:49 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
