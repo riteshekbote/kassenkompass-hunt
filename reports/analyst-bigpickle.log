@@ -20083,3 +20083,431 @@ Expected: 200, ~2.15MB ±0.3% (2,145,000–2,160,000 B), no-store+CF-DYNAMIC, no
 ---
 
 **Status:** All hypotheses stable. Next probe window opens ≥01:19 UTC 2026-09-17. No action required until threshold. Standing discipline: ≤1 rps, GET-only, no auth bypass attempts.
+===== ANALYST bigpickle 2026-09-16 16:40:20 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m# [0mTodos
+[•] STEP 1: Delta — inventory + KB + last leads vs current surface
+[ ] STEP 2: Prioritize top assets
+[ ] STEP 3: Hypotheses top 3
+[ ] STEP 4: Self-critique
+[ ] STEP 5: Next action
+[ ] STEP 6: Learning
+[ ] STEP 7: Risk
+[0m
+[0m✱ [0mGlob "**/*"[90m 100 matches[0m
+[0m→ [0mRead triage/run-2026-09-16-15-01.md
+[0m→ [0mRead triage/run-2026-09-16-10-03.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m
+[0m$ [0mdate -u && echo "---" && cat state_bigpickle.json 2>/dev/null | head -50 && echo "---PEERS---" && for f in state_laguna.json state_ling3.json state_longcat.json state_mimo.json; do echo "== $f =="; cat "$f" 2>/dev/null; done
+Wed Sep 16 16:37:56 UTC 2026
+---
+{"phase": "POC", "target": "api"}---PEERS---
+== state_laguna.json ==
+{"phase": "POC", "target": "api"}== state_ling3.json ==
+{"phase": "POC", "target": "api"}== state_longcat.json ==
+{"phase": "POC", "target": "api"}== state_mimo.json ==
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mls -t triage/ | head -8; echo "---"; ls -la leads/; echo "---"; wc -c leads/*.md
+run-2026-09-13-23-14.md
+run-2026-09-14-01-13.md
+run-2026-09-14-06-26.md
+run-2026-09-14-13-20.md
+run-2026-09-14-18-43.md
+run-2026-09-14-22-17.md
+run-2026-09-15-00-43.md
+run-2026-09-15-05-54.md
+---
+total 1384
+drwxr-xr-x  2 runner runner   4096 Sep 16 16:37 .
+drwxr-xr-x 12 runner runner   4096 Sep 16 16:37 ..
+-rw-r--r--  1 runner runner 512299 Sep 16 16:37 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4437 Sep 16 16:37 lead-laguna.md
+-rw-r--r--  1 runner runner   4350 Sep 16 16:37 lead-ling3.md
+-rw-r--r--  1 runner runner   4524 Sep 16 16:37 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 16 16:37 lead-mimo.md
+-rw-r--r--  1 runner runner 844838 Sep 16 16:37 lead-nemotron3.md
+-rw-r--r--  1 runner runner  15460 Sep 16 16:37 reposcan-kassenkompass.md
+---
+ 512299 leads/lead-bigpickle.md
+   4437 leads/lead-laguna.md
+   4350 leads/lead-ling3.md
+   4524 leads/lead-longcat.md
+     18 leads/lead-mimo.md
+ 844838 leads/lead-nemotron3.md
+  15460 leads/reposcan-kassenkompass.md
+1385926 total
+[0m
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-longcat.md
+[0m
+[0m$ [0mls -t triage/ | head -30; echo "---LEAD-MIMO---"; cat leads/lead-mimo.md; echo "---SYNC-ISSUES---"; head -50 .github/workflows/hunt.yml 2>/dev/null
+run-2026-09-13-23-14.md
+run-2026-09-14-01-13.md
+run-2026-09-14-06-26.md
+run-2026-09-14-13-20.md
+run-2026-09-14-18-43.md
+run-2026-09-14-22-17.md
+run-2026-09-15-00-43.md
+run-2026-09-15-05-54.md
+run-2026-09-15-11-15.md
+run-2026-09-15-15-36.md
+run-2026-09-15-19-12.md
+run-2026-09-15-22-19.md
+run-2026-09-16-00-32.md
+run-2026-09-16-05-15.md
+run-2026-09-16-10-03.md
+run-2026-09-16-15-01.md
+run-2026-09-10-17-02.md
+run-2026-09-10-19-47.md
+run-2026-09-10-22-18.md
+run-2026-09-11-00-15.md
+run-2026-09-11-04-50.md
+run-2026-09-11-09-23.md
+run-2026-09-11-13-48.md
+run-2026-09-11-17-35.md
+run-2026-09-11-20-02.md
+run-2026-09-11-22-39.md
+run-2026-09-12-00-39.md
+run-2026-09-12-05-05.md
+run-2026-09-12-09-26.md
+run-2026-09-12-13-07.md
+---LEAD-MIMO---
+# Lead log (seed)
+---SYNC-ISSUES---
+name: Deep Hunt (KassenKompass GmbH)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  PROBE_ALLOW: "kassenkompass.de"
+
+jobs:
+  analyst:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: hunt-kassenkompass-${{ matrix.model.name }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - { id: opencode/big-pickle, name: bigpickle }
+          - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+          - { id: opencode/longcat-2.0-free, name: longcat }
+          - { id: opencode/ling-3.0-flash-free, name: ling3 }
+          - { id: opencode/laguna-s-2.1-free, name: laguna }
+    env:
+      MODEL_ID: ${{ matrix.model.id }}
+      OPENCODE_REASONING: xhigh
+      MODEL_NAME: ${{ matrix.model.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OpenCode
+        run: |
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          if command -v opencode >/dev/null 2>&1; then opencode --version; exit 0; fi
+          npm install -g opencode-ai 2>/dev/null || npm install -g --prefix "$HOME/.npm-global" opencode-ai 2>/dev/null || true
+          if ! command -v opencode >/dev/null 2>&1; then
+            for i in 1 2 3; do
+              curl -fsSL https://opencode.ai/install | bash && break
+              echo "opencode.ai installer attempt $i failed, retrying in 15s..."
+              sleep 15
+            done
+          fi
+[0m
+[0m$ [0mfor f in run-2026-09-16-15-01.md run-2026-09-16-10-03.md run-2026-09-16-05-15.md run-2026-09-16-00-32.md; do echo "== $f =="; cat "triage/$f"; done 2>/dev/null | head -120
+== run-2026-09-16-15-01.md ==
+
+===== TRIAGE 2026-09-16 15:01:35 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please paste the probe results you want me to triage.
+== run-2026-09-16-10-03.md ==
+
+===== TRIAGE 2026-09-16 10:03:25 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+No leads provided. Please share the probe results to evaluate.
+== run-2026-09-16-05-15.md ==
+
+===== TRIAGE 2026-09-16 05:15:06 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+[0m✱ [0mGlob "**/scope.yml"[90m 1 match[0m
+[0m✱ [0mGlob "**/kassenkompass.md"[90m 1 match[0m
+[0m✱ [0mGlob "**/*.md"[90m 100 matches[0m
+I see the LEADS section is empty. Before I can evaluate leads, I need to check the program scope and inventory files to understand what's in scope.
+
+Let me check for the referenced files:
+[0m→ [0mRead scope.yml
+[0m→ [0mRead inventory/kassenkompass.md
+[0m→ [0mRead leads
+Let me read the scope, inventory, and lead files to understand the context:
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-laguna.md
+[0m→ [0mRead leads/lead-ling3.md
+[0m→ [0mRead leads/lead-longcat.md
+[0m→ [0mRead leads/lead-mimo.md
+[0m→ [0mRead leads/lead-nemotron3.md
+Let me read the lead files to understand what the hunt bots have found:
+[0m→ [0mRead probe-results.md[90m [limit=200][0m
+[0m→ [0mRead triage/run-2026-09-16-00-32.md[90m [limit=100][0m
+Let me also check the latest triage run and probe results:
+[0m→ [0mRead triage/run-2026-09-16-00-32.md[90m [offset=101][0m
+Now I have full context. The LEADS section was empty in your message, but I have the hunt bot outputs from the lead files. Here is the complete triage against the 7-Question Gate:
+
+---
+
+## TRIAGE REPORT — KassenKompass GmbH Bug Bounty
+
+### Lead 1: Unauthenticated API Catalog Disclosure at `api.kassenkompass.de`
+
+| Q | Answer |
+|---|---|
+| Q1 Scope? | **YES** — api.kassenkompass.de is company-owned API per scope.yml |
+| Q2 Reachable? | **YES** — any unauth HTTP client GETs `/` and gets full catalog |
+| Q3 Impact? | **YES** — 15-endpoint catalog (incl. `/user/{ext_id}`, `/delete/{id}`, `/settlement_report/`, `/cancel/`) disclosed, enabling targeted attack planning |
+| Q4 Provable? | **YES** — `curl -s https://api.kassenkompass.de/` returns full JSON catalog. Read-only, zero auth. |
+| Q5 Novel? | **HOLD** — common for MVP APIs but program may not know |
+| Q6 OOS? | **NO** — "descriptive error messages" excludes stack traces/banners, not full API schema |
+| Q7 Accept? | **YES** — multi-bot consensus (confidence 88-90), confirmed across 10+ sessions |
+
+**Verdict: VALID**
+**Proof:** `curl https://api.kassenkompass.de/` → full 15-endpoint catalog with descriptions, versions, auth requirements. Repeatable.
+**Impact:** Low-Medium. Recon amplifier — maps complete attack surface without auth.
+**CVSS 3.1:** 5.3 (AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N)
+**Report via:** bugs.olivermaicher.eu
+
+---
+
+### Lead 2: IDOR on `/user/{ext_id}` — Cross-User PII Access
+
+| Q | Answer |
+|---|---|
+| Q1 Scope? | **YES** |
+| Q2 Reachable? | **YES** — returns 401 without auth |
+| Q3 Impact? | **YES (if confirmed)** — PII breach across tenants |
+| Q4 Provable? | **NO** — requires valid X-API-Secret; all unauth attempts return 401 |
+| Q5 Novel? | **HOLD** — hypothesis only, 62% confidence |
+| Q6 OOS? | **NO** |
+| Q7 Accept? | **NO** — no PoC, scanner-style speculation |
+
+**Verdict: HOLD** — Park until valid API key obtained. Insufficient evidence for submission.
+
+---
+
+### Lead 3: BOLA on `/settlement_report/{year}/{month}` — Cross-Tenant Financial Data
+
+| Q | Answer |
+|---|---|
+| Q1 Scope? | **YES** |
+| Q2 Reachable? | **YES** — returns 401 without auth |
+| Q3 Impact? | **YES (if confirmed)** — financial settlement data leakage |
+| Q4 Provable? | **NO** — requires valid scoped X-API-Secret |
+| Q5 Novel? | **HOLD** — hypothesis only, 60% confidence |
+| Q6 OOS? | **NO** |
+| Q7 Accept? | **NO** — no PoC |
+
+**Verdict: HOLD** — Same as Lead 2.
+
+---
+
+### Lead 4: `/sync/` Returns HTTP 200 with Auth Error Body
+
+| Q | Answer |
+|---|---|
+| Q1 Scope? | **YES** |
+| Q2 Reachable? | **YES** — GET returns 200 + error JSON |
+| Q3 Impact? | **DEBATABLE** — could bypass WAF/scanners expecting 4xx; but no data leak, no auth bypass |
+| Q4 Provable? | **YES** — `curl https://api.kassenkompass.de/sync/` returns 200 with `{"table":401,...}` |
+| Q5 Novel? | **HOLD** — may be intentional |
+| Q6 OOS? | **BORDERLINE** — "descriptive error messages" is OOS; this is status-code misconfiguration, arguably different |
+| Q7 Accept? | **NO** — minimal security impact; unlikely to be accepted |
+
+**Verdict: INVALID** — No data exposure, no auth bypass. Status-code mismatch without consequence. Likely closed as informational/no-fix.
+
+---
+
+### Lead 5: Missing CSRF Tokens on Login/Password-Reset Forms
+
+| Q | Answer |
+|---|---|
+| Q1 Scope? | **YES** |
+[0m
+[0m$ [0mtail -60 probe-results.md 2>/dev/null; echo "=====MY LAST HYPOTHESES====="; tail -40 reports/hypotheses-bigpickle.txt
+## 2026-09-14 07:13:42 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-14 14:37:04 UTC
+
+
+## 2026-09-14 19:40:21 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-14 22:49:06 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-15 01:21:19 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+
+## 2026-09-15 06:23:26 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-15 11:58:30 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-15 16:49:39 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-15 20:08:50 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-15 23:00:47 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+
+## 2026-09-16 01:21:04 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+
+## 2026-09-16 06:21:04 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+
+## 2026-09-16 11:58:17 UTC
+
+=====MY LAST HYPOTHESES=====
+[PRIO] kassenkompass.de 7 funnel mirrors,8.20,attack_surface(8)+business_value(9)+gate_ease(9) — unvalidated 1yr cookie write on 7 entry points with divergent alias maps, consumption POST-gated
+[PRIO] api.kassenkompass.de/,7.15,gate_ease(10)+tech_exposure(7) — 200 + 1167B 15-endpoint catalog unauth, custom X-API-Secret header stack, /sync/ HTTP-200 legacy
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.20,tech_exposure(8)+freshness(7),gate_ease(2) — BOLA parked; 401 without key; payload domain publicly replicated by fragen.php
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 89
+reasoning: Live 01:19 09-16 GET = 200, 2,152,680 B (+0.02% vs 06:18 09-15) — drift-on-refresh, not byte-static; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows {uid_cat,uid_ucat_q,uid_kk_q,wert,wertart} 1.79MB + globalbudgetsData 34KB + kombiboniData 105KB + pseudoKkIds=[99,100,101]; per-KK lastchange epochs ≤2025-12-22; apex+www identical; stable 12+ sessions since 09-07.
+evidence_needed: none — PASSIVE-VERIFIED; only ≥24h re-measurement rotates proof (next ≥01:19 09-17).
+verify_steps: single 1-rps GET /bonusrechner_fragen.php fresh jar → expect 200, ≤2.16MB ±0.3%, no-store; no burst (WAF precedent 09-11).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw params→1yr cookies unvalidated (01:19 09-16 re-confirmed: lizenz→afilcode non-HttpOnly/Secure; jid→customerid; agn→agenturnummer; ppn→poolpartnernummer; HttpOnly+Secure on 3); GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2 (1yr Secure HttpOnly), catoint force-deleted.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:19 09-16 root = 200, 1167 B, 15 v1 endpoints ver 1.0 (X-API-Secret auth note); content-length absent this sample (prior CL:0-with-body) — cosmetic; stable ≥12 sessions since 09-07; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed. Already tallied VALID in valid-bugs.md (duplicate risk on submission).
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[FINAL] fragen.php 89 — sole weakness "intended-public data?": countered by api v2 insurance_info gating the same ucatKkData domain behind middleware A → access inconsistency stands; verify window ≥01:19 09-17.
+[FINAL] cookie-stuffing 81 — verification requires victim-path/respondent (AUTH_HELPED), not executable solo; lead-gate keeps write-path closed; stays top BUSINESS-LOGIC candidate.
+[FINAL] api root disclosure 76 — cosmetic class, already VALID in valid-bugs.md; only additive value is report packaging.
+[PARKED] v2 insurance_info BOLA — confidence 58, requires valid X-API-Secret; payload domain publicly replicated by fragen.php (downgraded 09-07); no new primitive this cycle.
+[NEXT] PROBE: hold — nothing before ≥01:19 09-17 (24h since 01:19 09-16 fragen.php 2,152,680 B measurement). At threshold, exactly one 1-rps GET, fresh jar:
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 89 justified.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 01:19 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+[RISK] KassenKompass GmbH: 62 — Flat, thirteenth consecutive analysis-only day. Top finding (fragen.php 2.1MB tariff leak) remains PASSIVE-VERIFIED at 89 with 24h-rotated drift proof, reportable any time; funnel stuffing 81 and api catalog 76 unchanged and gated; no escalation trigger — no PII touched, no writes, ≤1 rps discipline intact, API surface fully credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and pipeline observability, not live attack surface.
+[0m
+NO_DELTA this cycle. Peers remain header-only stubs (laguna/ling3/longcat/mimo: pure timestamp headers, no content); triage 10:03/15:01 "No leads provided"; valid-bugs.md unchanged (23 VALID tallies, catalog + /sync/ + 7). Standing hypotheses intact; fragen.php 24h re-measure window (≥01:19 09-17) not yet reached (now 16:37 09-16).
+
+STEP 1 — DELTA
+- NO_DELTA inventory: api/www/awv/load.awv unchanged; no new hosts, no endpoint drift (15+1 v2 stable since 09-07).
+- NO_DELTA pipeline: 15th consecutive analysis-only cycle; all 4 peers (laguna/ling3/longcat/mimo) header-only, nemotron3 reprint; triage 10:03/15:01 empty.
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.85,attack_surface(9)+business_value(9)+gate_ease(10)+freshness(8) — 2.1MB tariff/budget/combi-bonus intel unauth, no-store+CF-DYNAMIC, apex+www doubled; PASSIVE-VERIFIED at 89
+- [PRIO] kassenkompass.de 7 funnel mirrors,8.20,attack_surface(8)+business_value(9)+gate_ease(9) — unvalidated 1yr cookie write, divergent alias maps, consumption POST/lead-gated
+- [PRIO] api.kassenkompass.de/,7.15,gate_ease(10)+tech_exposure(7) — 200 + 1167B 15-endpoint catalog unauth, already VALID (duplicate risk)
+- [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.20,tech_exposure(8)+freshness(7),gate_ease(2) — BOLA parked; 401 without key; payload public via fragen.php
+
+STEP 3 — HYPOTHESES
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 89
+reasoning: 01:19 09-16 GET = 200, 2,152,680 B (+0.02% vs prior) — drift-on-refresh not byte-static; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows 1.79MB + globalbudgetsData 34KB + kombiboniData 105KB + pseudoKkIds=[99,100,101]; per-KK lastchange ≤2025-12-22; apex+www identical; stable 13+ sessions since 09-07; api v2 insurance_info gates same domain behind middleware A → access inconsistency.
+evidence_needed: none — PASSIVE-VERIFIED; 24h re-measure rotates proof (window ≥01:19 09-17).
+verify_steps: exactly one 1-rps GET /bonusrechner_fragen.php fresh jar → 200, ≤2.16MB ±0.3%, no-store; no burst (WAF 09-11 precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw params→1yr cookies unvalidated (lizenz→afilcode non-HttpOnly; jid→customerid; agn→agenturnummer; ppn→poolpartnernummer; HttpOnly+Secure on 3); GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:19 09-16 root = 200, 1167 B, 15 v1 endpoints ver 1.0; content-length absent (was CL:0) — cosmetic; stable ≥12 sessions; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed. Already VALID in valid-bugs.md (duplicate risk on submission).
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] v2 insurance_info BOLA — 58, requires valid X-API-Secret; payload domain publicly replicated by fragen.php (downgraded 09-07); no primitive.
+- [FINAL] fragen.php 89 — sole weakness "intended-public data?" countered by v2 middleware-A gating same domain; window ≥01:19 09-17.
+- [FINAL] cookie-stuffing 81 — victim-path/respondent required (AUTH_HELPED); lead-gate keeps write path closed.
+- [FINAL] api root disclosure 76 — cosmetic, VALID already; packaging-only value.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: hold — window not met (now 16:37 09-16; threshold ≥01:19 09-17). At threshold, exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar, capture status/bytes/cache headers, compare vs 2,152,680 B.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED OTHER @ kassenkompass pipeline: 15th consecutive empty triage cycle (09-12 21:15 → 09-16 15:01) — all peers header-only/stub; observability gap persists, zero signal, no new attack surface.
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,680 B measurement at 01:19 09-16 stands; no regression; drift-on-refresh model holds.
+
+STEP 7 — RISK
+[RISK] KassenKompass GmbH: 62 — Flat, 15th analysis-only day. Top finding (fragen.php 2.1MB tariff leak) PASSIVE-VERIFIED at 89, reportable any time; cookie-stuffing 81 and api catalog 76 unchanged/gated; no escalation trigger — no PII touched, no writes, ≤1 rps intact, API surface credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and pipeline observability, not live attack surface.

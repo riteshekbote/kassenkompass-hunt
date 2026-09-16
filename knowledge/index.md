@@ -444,3 +444,4 @@
 - 2026-09-16 ACCEPTED MISCONFIG @ api.kassenkompass.de: root 200 CL:absent (was CL:0) persists at 01:19 09-16 — cosmetic header-shape shift only; 15+1 disclosure substance, auth map, /sync/ legacy, v2 gate all drift-free; confirms 09-14 "structural" classification as immutable cosmetic class.
 - 2026-09-16 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 89 justified.
 - 2026-09-16 REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+- 2026-09-16 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 16:38 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact

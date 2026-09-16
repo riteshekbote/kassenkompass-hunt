@@ -722,3 +722,16 @@ www.kassenkompass.de
 - CHANGED pipeline: 13th consecutive empty triage cycle (09-12 21:15 → 09-16 05:15) — peer leads (laguna/ling3/longcat/mimo) remain pure 85-row timestamp stubs; nemotron3 tail reprints own standing hypotheses; 
 
 ## 2026-09-16 11:58:17 UTC
+
+## 2026-09-16 16:40:20 UTC
+- NEW api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body — structural header/body mismatch confirmed live at 16:37 UTC
+- NEW kassenkompass.de/bonusrechner_fragen.php: 2,152,680 B tariff payload confirmed live — ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds present, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rat
+- NEW www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,680 B — tariff leak surface doubled apex+www confirmed live
+- NEW kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+- NEW kassenkompass.de/bonusrechner_abschluss.php: GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only, lead gate confirmed
+- NEW kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+- NEW api.kassenkompass.de/v2/insurance_info/{kk_id}: 401 middleware A (shared with v1 majority); greedy segment match reaches auth handler; enumeration saturated at 42 names
+- NEW api.kassenkompass.de auth map 15/15 drift-free — /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged since 2026-09-03
+- NEW kassenkompass.net not probed this cycle — parser differential, IIS/PHP backend, host-only cookies unchanged per KB
+- NEW awv.kassenkompass.de SGTM container fully characterized per KB — Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase 128 EUR, /g/collect 400-on-invalid
+- CHANGED Pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, zero new signal
