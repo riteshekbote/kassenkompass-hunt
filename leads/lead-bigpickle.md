@@ -3624,3 +3624,37 @@ verify_steps: GET / → parse 15+1 endpoints. Done.
 impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
 testability: PASSIVE
 [NEXT] PROBE: at ≥22:47 09-15 (24h since 22:47 09-14 measurement), single 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh empty jar → expect HTTP 200, body ≈2,152,258 B ±0.3% (drift-on-refresh allowed), no-store+CF-DYNAMIC, no ETag/Last-Modified; hold — nothing before threshold.
+## 2026-09-16 01:20:41 UTC [target] (model bigpickle)
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 88
+reasoning: Live 01:19 09-16 GET = 200, 2,152,680 B (drift +0.02% vs 06:18 09-15), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgets/kombiboni/pseudoKkIds=[99,100,101]; freshness ≤2025-12-22; unauthenticated; apex+www identical (2026-09-15).
+evidence_needed: none — PASSIVE-VERIFIED; only ≥24h-gap re-measurement rotates proof (next ≥01:19 09-17).
+verify_steps: single 1-rps GET /bonusrechner_fragen.php → expect 200, ≤2.16MB ±0.3%, no-store. No burst (WAF precedent 09-11).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors map raw params→1yr cookies unvalidated (re-confirmed 01:19 09-16: lizenz→afilcode non-HttpOnly, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer; HttpOnly+Secure on 3); GET branch closed byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2, catoint force-deleted.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: 01:19 09-16 root = 200, 1167 B full 15-endpoint v1 catalog (ver 1.0, X-API-Secret auth note); content-length absent this sample (prior CL:0-with-body) — cosmetic only; stable ≥12 sessions since 09-07; auth map 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle saturated 42 names; source-merge closed.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[NEXT] PROBE: hold until ≥01:19 09-17 (24h since fragen.php 2,152,680 B measurement at 01:19 09-16). At threshold, single 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar → expect 200, ≈2.1526 MB ±0.3%, no-store+CF-DYNAMIC, no ETag/Last-Modified. Nothing before threshold.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 88 justified.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 01:19 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 12th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+[RISK] KassenKompass GmbH: 62 — Flat, ninth consecutive analysis-only day. Top prize PASSIVE-VERIFIED with refreshed drift+probe proof (2,152,680 B @ 01:19 09-16), doubled apex+www; funnel 7/7 + API 15/15 fully mapped and gated at A/B/v2; cookie-stuffing stays AUTH_HELPED pending respondent; no escalation trigger, no PII touched, ≤1 rps discipline intact.

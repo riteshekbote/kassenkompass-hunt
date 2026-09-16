@@ -19641,3 +19641,125 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass GmbH: 62 — Flat, eighth consecutive analysis-only day. Top prize PASSIVE-VERIFIED (88) with drift-in-±0.3% refresh proof and doubled apex+www surface; funnel 7/7 + API 15/15 fully mapped and gated at A/B/v2; no new attack surface since 09-11; cookie-stuffing stays AUTH_HELPED pending a human respondent; no escalation trigger, no PII touched, no live probes until 22:47 threshold.
+===== ANALYST bigpickle 2026-09-16 01:21:00 UTC =====
+[0m
+> build · big-pickle
+[0m
+Executing the scheduled 24h smoke (threshold ≥22:47 09-15 met; today is 09-16). Three spaced 1-rps read-only GETs.
+[0m$ [0mmkdir -p /tmp/opencode && date -u && curl -sS --compressed -o /tmp/opencode/fragen.body -D /tmp/opencode/fragen.hdr -w "fragen HTTP %{http_code} wire_bytes=%{size_download} t=%{time_total}\n" https://kassenkompass.de/bonusrechner_fragen.php && sleep 1 && curl -sS --compressed -o /tmp/opencode/br.body -D /tmp/opencode/br.hdr -c /tmp/opencode/br.jar -w "bonusrechner HTTP %{http_code} wire_bytes=%{size_download} t=%{time_total}\n" "https://kassenkompass.de/bonusrechner.php?lizenz=KKTST1&jid=KKTST2&agn=KKTST3&ppn=KKTST4" && sleep 1 && curl -sS --compressed -o /tmp/opencode/api.body -D /tmp/opencode/api.hdr -w "api HTTP %{http_code} wire_bytes=%{size_download} t=%{time_total}\n" https://api.kassenkompass.de/ && wc -c /tmp/opencode/fragen.body /tmp/opencode/br.body /tmp/opencode/api.body
+Wed Sep 16 01:19:53 UTC 2026
+fragen HTTP 200 wire_bytes=155111 t=1.257915
+bonusrechner HTTP 200 wire_bytes=9729 t=0.480194
+api HTTP 200 wire_bytes=534 t=0.407718
+2152680 /tmp/opencode/fragen.body
+  42865 /tmp/opencode/br.body
+   1167 /tmp/opencode/api.body
+2196712 total
+[0m
+[0m$ [0mcat /tmp/opencode/fragen.hdr && echo "---SPLIT---" && grep -i "set-cookie" /tmp/opencode/br.hdr && echo "---SPLIT---" && grep -iE "^(HTTP|content-length|content-type|cache-control|etag|last-modified|CF-RAY|server|cf-cache-status|x-powered)" /tmp/opencode/api.hdr
+HTTP/2 200 
+date: Wed, 16 Sep 2026 01:19:54 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=en2Hh6UDvTCpBGcu8/bsdYR9yse2t9tmExaZEofs2l5Ok9NnClhd6o0RePVWegTdo0X1F0okYx0K+unDCV3w8zOlrB7ogvqvr7RrK6uoWw959xirATavZmYovxmd; Expires=Wed, 23 Sep 2026 01:19:54 GMT; Path=/
+set-cookie: AWSALBCORS=en2Hh6UDvTCpBGcu8/bsdYR9yse2t9tmExaZEofs2l5Ok9NnClhd6o0RePVWegTdo0X1F0okYx0K+unDCV3w8zOlrB7ogvqvr7RrK6uoWw959xirATavZmYovxmd; Expires=Wed, 23 Sep 2026 01:19:54 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=14273a324ceb1da8482a05cbf6e758dd; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=RFbSXabdhmPatLJuICr%2F%2BCVObBTQp%2BXfyRtzQKYmLiDW1aNjVsv5ByHdkDmIaGW0RFd7ddaEbLGPnvsddZpL1Q%2F3u8WPk7qlYmH4ZQjb0M9MB8iZJTQ%2FFmSGnu%2F0TxVeawQ%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+content-encoding: br
+cf-ray: a3bc0baa9e8c8b73-IAD
+
+---SPLIT---
+set-cookie: AWSALB=DmNzvtotTHDHSayRqQ15cEBqHyOnMsZv2IHkdAERZ7jalD4vluzM8nN5tejTyHeQ1sbdOpJDtw9Md3zfbna26kuqQnaW6awa3vTQJnp+IYZZXXrfgc19PwpqPL8V; Expires=Wed, 23 Sep 2026 01:19:56 GMT; Path=/
+set-cookie: AWSALBCORS=DmNzvtotTHDHSayRqQ15cEBqHyOnMsZv2IHkdAERZ7jalD4vluzM8nN5tejTyHeQ1sbdOpJDtw9Md3zfbna26kuqQnaW6awa3vTQJnp+IYZZXXrfgc19PwpqPL8V; Expires=Wed, 23 Sep 2026 01:19:56 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=26f5de608354882f121f1d69268cd879; path=/; secure; HttpOnly; SameSite=Lax
+set-cookie: afilcode=KKTST1; expires=Thu, 16 Sep 2027 01:19:56 GMT; Max-Age=31536000
+set-cookie: customerid=KKTST2; expires=Thu, 16 Sep 2027 01:19:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: agenturnummer=KKTST3; expires=Thu, 16 Sep 2027 01:19:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+set-cookie: poolpartnernummer=KKTST4; expires=Thu, 16 Sep 2027 01:19:56 GMT; Max-Age=31536000; path=/; secure; HttpOnly
+---SPLIT---
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+server: cloudflare
+x-powered-by: PHP/8.4.3
+cf-cache-status: DYNAMIC
+cf-ray: a3bc0bc1ea63b114-IAD
+[0m
+[0m$ [0mgrep -oE '"path":"[^"]*"' /tmp/opencode/api.body | sort | uniq -c && echo "---" && grep -oE '"ver(?:sion)?"[^,}]*' /tmp/opencode/api.body | head -5 && echo "---" && wc -c /tmp/opencode/api.body
+---
+grep: warning: ? at start of expression
+---
+1167 /tmp/opencode/api.body
+[0m
+All three smoke probes succeeded. Verifying the api catalog body substance and the fragen payload drift delta:
+[0m$ [0mgrep -oE '\"(path|endpoint|method|version|ver|name)\"[[:space:]]*:[[:space:]]*\"[^\"]*\"' /tmp/opencode/api.body | head -40
+"version": "1.0"
+[0m
+[0m→ [0mRead /tmp/opencode/api.body
+All three probes green. Writing analysis.
+
+**STEP 1 — DELTA**
+- NO_DELTA — 24h smoke reconfirmed all standing findings: fragen.php 200 @ 2,152,680 B decompressed (`+422 B / +0.02%` vs 2,152,258 recorded, within ±0.3% drift), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; api `/` 200 @ 1167 B with full 15-endpoint v1 catalog + `version 1.0` + X-API-Secret auth note; bonusrechner.php stuffed jar re-mirrored all 4 cookies (`afilcode=KKTST1` no Secure/HttpOnly + `customerid/agenturnummer/poolpartnernummer` 1yr Secure HttpOnly).
+- CHANGED api `/` header nuance: `content-length` header now **absent** (not CL:0) on this response — same cosmetic class, 1167 B body matches recorded catalog substance; PHP/8.4.3 x-powered-by unchanged.
+
+**STEP 2 — PRIORITIZE**
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php, 7.9, gate_ease=10 + attack_surface=7 + business_value=7 (0.25·7+0.25·7+0.15·7+0.15·10+0.10·7+0.10·7)
+- [PRIO] kassenkompass.de funnel (7 mirrors), 6.6, money-flow buslogic + gate_ease=10 but AUTH_HELPED to consummate
+- [PRIO] api.kassenkompass.de, 5.6, credential-gated 15/15 + v2 saturated; redisclosure recon-amplifier only
+
+**STEP 3 — HYPOTHESES**
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 88
+reasoning: Live 01:19 09-16 GET = 200, 2,152,680 B (drift +0.02% vs 06:18 09-15), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgets/kombiboni/pseudoKkIds=[99,100,101]; freshness ≤2025-12-22; unauthenticated; apex+www identical (2026-09-15).
+evidence_needed: none — PASSIVE-VERIFIED; only ≥24h-gap re-measurement rotates proof (next ≥01:19 09-17).
+verify_steps: single 1-rps GET /bonusrechner_fragen.php → expect 200, ≤2.16MB ±0.3%, no-store. No burst (WAF precedent 09-11).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 80
+reasoning: 7/7 mirrors map raw params→1yr cookies unvalidated (re-confirmed 01:19 09-16: lizenz→afilcode non-HttpOnly, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer; HttpOnly+Secure on 3); GET branch closed byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2, catoint force-deleted.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: 01:19 09-16 root = 200, 1167 B full 15-endpoint v1 catalog (ver 1.0, X-API-Secret auth note); content-length absent this sample (prior CL:0-with-body) — cosmetic only; stable ≥12 sessions since 09-07; auth map 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle saturated 42 names; source-merge closed.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+- [FINAL] 1. fragen.php Tariff Leak — 88, PASSIVE-VERIFIED (drift-proof refreshed 01:19 09-16)
+- [FINAL] 2. Cookie-Stuffing Attribution Theft — 80, AUTH_HELPED, lead-gated
+- [FINAL] 3. API Root Catalog Disclosure — 75, PASSIVE, cosmetic-only substance
+- [PARKED] B-Stack IDOR /user/{ext_id} + /cancel/{id} (62): B-scoped X-API-Secret not sourced in 15+ sessions.
+- [PARKED] v2 Greedy Segment Path Traversal (55): WAF normalizes traversal before router; no primitive.
+
+**STEP 5 — NEXT ACTION**
+[NEXT] PROBE: hold until ≥01:19 09-17 (24h since fragen.php 2,152,680 B measurement at 01:19 09-16). At threshold, single 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar → expect 200, ≈2.1526 MB ±0.3%, no-store+CF-DYNAMIC, no ETag/Last-Modified. Nothing before threshold.
+
+**STEP 6 — LEARNING**
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 88 justified.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged.
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 01:19 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 12th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+
+**STEP 7 — RISK**
+[RISK] KassenKompass GmbH: 62 — Flat, ninth consecutive analysis-only day. Top prize PASSIVE-VERIFIED with refreshed drift+probe proof (2,152,680 B @ 01:19 09-16), doubled apex+www; funnel 7/7 + API 15/15 fully mapped and gated at A/B/v2; cookie-stuffing stays AUTH_HELPED pending respondent; no escalation trigger, no PII touched, ≤1 rps discipline intact.

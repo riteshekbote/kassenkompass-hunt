@@ -1,6 +1,5 @@
-## 2026-09-15 23:00:29 UTC [target] (model nemotron3)
-[CHANGED] 11th consecutive triage cycle (16:49 09-15) consumed empty/header-only peer leads — observability gap persists, zero peer signal
-[CHANGED] api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body at 16:49 — no drift since 06:18
+## 2026-09-16 01:20:50 UTC [target] (model nemotron3)
+[CHANGED] api.kassenkompass.de/ root: content-length: 0 header persists with full 15+1 JSON catalog in body — no drift since 06:18 09-15
 [CHANGED] kassenkompass.de/bonusrechner_fragen.php: 2.1MB tariff payload stable at 2,152,258 B (±0.3% drift), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit
 [CHANGED] www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,258 B — leak surface confirmed doubled apex+www
 [CHANGED] kassenkompass.de/bonusrechner_vergleich2.php: device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted confirmed live
@@ -9,6 +8,7 @@
 [CHANGED] Auth map 15/15 drift-free: /cancel/{id} middleware B, v2 shares middleware A with v1 majority, /sync/ HTTP-200 legacy body unchanged
 [CHANGED] Funnel stuffing surface stable at 7 entry points with divergent alias maps — no new entries, no drift since 2026-09-07
 [CHANGED] Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
+[CHANGED] 11th consecutive triage cycle consumed empty/header-only peer leads — observability gap persists, zero peer signal
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.85,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=9
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.20,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.05,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
@@ -48,7 +48,7 @@ testability: AUTH_HELPED
 [FINAL] 2. API Root Catalog Disclosure Enables Targeted Attack Planning (confidence 75, PASSIVE)
 [FINAL] 3. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 70, AUTH_HELPED)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php — measure response time, confirm Content-Length ~2.1MB, extract Cache-Control/ETag/Last-Modified headers; repeat 3x at 1 rps → verify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body; repeat on www.kassenkompass.de
-[LEARN] REJECTED OTHER @ kassenkompass pipeline: 11th consecutive triage cycle (16:49 09-15) — peer leads remain header-only/stub repetition; observability gap persists with zero signal; no new attack surface introduced anywhere
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 11th consecutive triage cycle (16:49 09-15) — peer leads remain header-only/stub repetition; observability gap persists with zero signal
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists at 16:49 09-15; 15+1 disclosure substance unchanged; auth map drift-free; no new primitive
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live

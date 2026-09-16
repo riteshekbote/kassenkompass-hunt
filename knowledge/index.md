@@ -427,3 +427,16 @@
 - 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 10th+ consecutive empty triage cycle — observability gap persists.
 - 2026-09-15 REJECTED OTHER @ kassenkompass pipeline: 11th consecutive triage cycle (16:49 09-15) — peer leads remain header-only/stub repetition; observability gap persists with zero signal; no new attack surface introduced anywhere.
 - 2026-09-15 ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists at 16:49 09-15; 15+1 disclosure substance unchanged; auth map drift-free; no new primitive.
+- 2026-09-16 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 88 justified.
+- 2026-09-16 ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged.
+- 2026-09-16 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 01:19 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact.
+- 2026-09-16 REJECTED OTHER @ kassenkompass pipeline: 12th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+- 2026-09-16 REJECTED OTHER @ kassenkompass pipeline: 11th consecutive triage cycle (16:49 09-15) — peer leads remain header-only/stub repetition; observability gap persists with zero signal
+- 2026-09-16 ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists at 16:49 09-15; 15+1 disclosure substance unchanged; auth map drift-free; no new primitive
+- 2026-09-16 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.1MB inline tariff data (2,158,150 bytes) served unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed stable since 2026-09-07
+- 2026-09-16 ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+- 2026-09-16 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+- 2026-09-16 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+- 2026-09-16 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- 2026-09-16 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
+- 2026-09-16 REJECTED OTHER @ kassenkompass pipeline: 10th consecutive triage cycle (run-2026-09-14-22-17 "No leads provided"; peer state 33-byte stubs) — observability gap persists, no peer signal
