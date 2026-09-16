@@ -267,3 +267,12 @@ TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-16 15:01:13 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-16 18:56:15 UTC
+[HYP] REPOSCAN-EMPTY — Zero public repositories for KassenKompass
+class: OTHER
+asset: github.com/orgs/KassenKompass-GmbH (0 public repos)
+confidence: 100
+reasoning: |
+impact: N/A — source-code secret surface is empty; no hardcoded credentials, API keys, cloud
+verify_steps: |
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
