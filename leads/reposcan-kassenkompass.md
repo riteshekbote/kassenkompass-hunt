@@ -276,3 +276,12 @@ reasoning: |
 impact: N/A — source-code secret surface is empty; no hardcoded credentials, API keys, cloud
 verify_steps: |
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-16 21:54:16 UTC
+[HYP] No public source code available for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: KassenKompass-GmbH has 0 public GitHub repos; no candidate org repos exist to audit. Workspace grep for AKIA*, AIza*, ghp_*, sk_live_*, -----BEGIN PRIVATE, password=, api_key, secret, token, client_secret, s3/google/azure bucket URLs — all zero true positives.
+impact: N/A
+verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone; no active scan needed.
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
