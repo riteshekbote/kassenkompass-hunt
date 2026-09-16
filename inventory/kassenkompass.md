@@ -717,3 +717,6 @@ www.kassenkompass.de
 - CHANGED Funnel stuffing surface stable at 7 entry points with divergent alias maps — no new entries, no drift since 2026-09-07
 - CHANGED Per-KK lastchange epochs confirmed 2025 (max 1766419026=2025-12-22); prior "2026-05-03" was epoch mis-conversion
 - CHANGED 11th consecutive triage cycle consumed empty/header-only peer leads — observability gap persists, zero peer signal
+
+## 2026-09-16 06:21:00 UTC
+- CHANGED pipeline: 13th consecutive empty triage cycle (09-12 21:15 → 09-16 05:15) — peer leads (laguna/ling3/longcat/mimo) remain pure 85-row timestamp stubs; nemotron3 tail reprints own standing hypotheses; 
