@@ -735,3 +735,5 @@ www.kassenkompass.de
 - NEW kassenkompass.net not probed this cycle — parser differential, IIS/PHP backend, host-only cookies unchanged per KB
 - NEW awv.kassenkompass.de SGTM container fully characterized per KB — Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase 128 EUR, /g/collect 400-on-invalid
 - CHANGED Pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, zero new signal
+
+## 2026-09-16 20:04:45 UTC

@@ -1807,3 +1807,11 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surf
+
+## RANKED HYPOTHESES 2026-09-16 20:04:45 UTC
+- [89] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Tariff Database Access via bonusrechner_fragen.php (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: HOLD — nothing before ≥01:19 09-17 (24h since 01:19 09-16 fragen.php 2,152,680 B measurement; now 19:46 09-16). At threshold, exactly one 1-rps GET https
+- LEARN: REJECTED OTHER @ pipeline: 13th+ consecutive empty triage cycle (through 16:40 09-16 ranked block) — peer leads header-only/stub; observability gap persists, no
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed at 01:19 09-16 — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching 
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 16:38 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asym
