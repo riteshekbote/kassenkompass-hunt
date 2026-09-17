@@ -285,3 +285,12 @@ reasoning: KassenKompass-GmbH has 0 public GitHub repos; no candidate org repos 
 impact: N/A
 verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone; no active scan needed.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-17 00:04:15 UTC
+[HYP] No public repos in scope for source-code secret scan
+class: OTHER
+asset: github.com/KassenKompass-GmbH
+confidence: 100
+reasoning: GitHub API confirms 0 public repos on the KassenKompass-GmbH org. scope.yml also lists no configured GitHub orgs. cands.txt reads "no org candidates".
+impact: None — no source artifacts to yield secrets
+verify_steps: curl -s "https://api.github.com/orgs/KassenKompass-GmbH" | jq '.public_repos'
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
