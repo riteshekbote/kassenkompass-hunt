@@ -305,3 +305,5 @@ verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token)
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 ## REPOSCAN 2026-09-17 09:55:48 UTC
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-17 14:41:11 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
