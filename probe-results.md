@@ -662,3 +662,8 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 ## 2026-09-17 01:21:31 UTC
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-17 06:17:07 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?

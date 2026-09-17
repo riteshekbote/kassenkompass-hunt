@@ -20744,3 +20744,190 @@ testability: AUTH_HELPED
 
 ## STEP 7 — RISK
 [RISK] KassenKompass GmbH: 63 — Flat, 16th analysis-only day. Top finding (fragen.php 2.1MB tariff leak) now byte-identical across 24h at 90 — reportable any time; cookie-stuffing 81 and api catalog 76 unchanged/gated; no escalation trigger — no PII touched, no writes, ≤1 rps intact, API surface credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and pipeline observability, not live attack surface.
+===== ANALYST bigpickle 2026-09-17 06:17:03 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mRead .
+[0m
+[0m$ [0mdate -u; ls -la triage/ 2>/dev/null | tail -15; ls -la leads/ 2>/dev/null | tail -15
+Thu Sep 17 06:15:15 UTC 2026
+-rw-r--r--  1 runner runner   172 Sep 17 06:14 run-2026-09-14-22-17.md
+-rw-r--r--  1 runner runner   174 Sep 17 06:14 run-2026-09-15-00-43.md
+-rw-r--r--  1 runner runner   181 Sep 17 06:14 run-2026-09-15-05-54.md
+-rw-r--r--  1 runner runner   189 Sep 17 06:14 run-2026-09-15-11-15.md
+-rw-r--r--  1 runner runner   831 Sep 17 06:14 run-2026-09-15-15-36.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:14 run-2026-09-15-19-12.md
+-rw-r--r--  1 runner runner    99 Sep 17 06:14 run-2026-09-15-22-19.md
+-rw-r--r--  1 runner runner 13175 Sep 17 06:14 run-2026-09-16-00-32.md
+-rw-r--r--  1 runner runner  8823 Sep 17 06:14 run-2026-09-16-05-15.md
+-rw-r--r--  1 runner runner   143 Sep 17 06:14 run-2026-09-16-10-03.md
+-rw-r--r--  1 runner runner   153 Sep 17 06:14 run-2026-09-16-15-01.md
+-rw-r--r--  1 runner runner   268 Sep 17 06:14 run-2026-09-16-18-56.md
+-rw-r--r--  1 runner runner   186 Sep 17 06:14 run-2026-09-16-21-57.md
+-rw-r--r--  1 runner runner   160 Sep 17 06:14 run-2026-09-17-00-14.md
+-rw-r--r--  1 runner runner   150 Sep 17 06:14 run-2026-09-17-04-59.md
+total 1420
+drwxr-xr-x  2 runner runner   4096 Sep 17 06:14 .
+drwxr-xr-x 12 runner runner   4096 Sep 17 06:14 ..
+-rw-r--r--  1 runner runner 533875 Sep 17 06:14 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4641 Sep 17 06:14 lead-laguna.md
+-rw-r--r--  1 runner runner   4550 Sep 17 06:14 lead-ling3.md
+-rw-r--r--  1 runner runner   4732 Sep 17 06:14 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 17 06:14 lead-mimo.md
+-rw-r--r--  1 runner runner 856257 Sep 17 06:14 lead-nemotron3.md
+-rw-r--r--  1 runner runner  17847 Sep 17 06:14 reposcan-kassenkompass.md
+[0m
+[0m→ [0mRead triage/run-2026-09-17-04-59.md
+[0m→ [0mRead triage/run-2026-09-17-00-14.md
+[0m
+[0m$ [0mtail -c 3000 leads/lead-nemotron3.md; echo "===LAGUNA==="; tail -c 1500 leads/lead-laguna.md; echo "===LING3==="; tail -c 1200 leads/lead-ling3.md; echo "===LONGCAT==="; tail -c 1200 leads/lead-longcat.md
+ify no 429/rate limit; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from response body; repeat on www.kassenkompass.de
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 89 justified
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 16:38 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-16 20:04:35 UTC [target] (model nemotron3)
+## 2026-09-16 22:50:35 UTC [target] (model nemotron3)
+## 2026-09-17 01:15:40 UTC [target] (model nemotron3)
+===LAGUNA===
+rget] (model laguna)
+## 2026-09-12 16:24:48 UTC [target] (model laguna)
+## 2026-09-12 18:46:45 UTC [target] (model laguna)
+## 2026-09-12 21:20:57 UTC [target] (model laguna)
+## 2026-09-12 23:21:51 UTC [target] (model laguna)
+## 2026-09-13 01:25:39 UTC [target] (model laguna)
+## 2026-09-13 06:46:27 UTC [target] (model laguna)
+## 2026-09-13 12:39:28 UTC [target] (model laguna)
+## 2026-09-13 16:40:05 UTC [target] (model laguna)
+## 2026-09-13 19:03:16 UTC [target] (model laguna)
+## 2026-09-13 21:25:38 UTC [target] (model laguna)
+## 2026-09-13 23:32:57 UTC [target] (model laguna)
+## 2026-09-14 01:39:36 UTC [target] (model laguna)
+## 2026-09-14 07:11:59 UTC [target] (model laguna)
+## 2026-09-14 14:16:54 UTC [target] (model laguna)
+## 2026-09-14 19:30:09 UTC [target] (model laguna)
+## 2026-09-14 22:47:05 UTC [target] (model laguna)
+## 2026-09-15 01:19:08 UTC [target] (model laguna)
+## 2026-09-15 06:17:10 UTC [target] (model laguna)
+## 2026-09-15 11:56:25 UTC [target] (model laguna)
+## 2026-09-15 16:44:44 UTC [target] (model laguna)
+## 2026-09-15 20:06:03 UTC [target] (model laguna)
+## 2026-09-15 22:58:02 UTC [target] (model laguna)
+## 2026-09-16 01:19:32 UTC [target] (model laguna)
+## 2026-09-16 06:16:35 UTC [target] (model laguna)
+## 2026-09-16 11:50:07 UTC [target] (model laguna)
+## 2026-09-16 16:37:30 UTC [target] (model laguna)
+## 2026-09-16 19:46:02 UTC [target] (model laguna)
+## 2026-09-16 22:49:25 UTC [target] (model laguna)
+## 2026-09-17 01:14:27 UTC [target] (model laguna)
+===LING3===
+## 2026-09-13 06:46:22 UTC [target] (model ling3)
+## 2026-09-13 12:39:34 UTC [target] (model ling3)
+## 2026-09-13 16:39:58 UTC [target] (model ling3)
+## 2026-09-13 19:01:16 UTC [target] (model ling3)
+## 2026-09-13 21:25:16 UTC [target] (model ling3)
+## 2026-09-13 23:33:05 UTC [target] (model ling3)
+## 2026-09-14 01:40:11 UTC [target] (model ling3)
+## 2026-09-14 07:10:26 UTC [target] (model ling3)
+## 2026-09-14 14:18:02 UTC [target] (model ling3)
+## 2026-09-14 19:30:33 UTC [target] (model ling3)
+## 2026-09-14 22:46:48 UTC [target] (model ling3)
+## 2026-09-15 01:19:13 UTC [target] (model ling3)
+## 2026-09-15 06:17:14 UTC [target] (model ling3)
+## 2026-09-15 11:55:07 UTC [target] (model ling3)
+## 2026-09-15 16:44:44 UTC [target] (model ling3)
+## 2026-09-15 20:06:03 UTC [target] (model ling3)
+## 2026-09-15 22:57:58 UTC [target] (model ling3)
+## 2026-09-16 01:19:26 UTC [target] (model ling3)
+## 2026-09-16 06:16:35 UTC [target] (model ling3)
+## 2026-09-16 11:50:14 UTC [target] (model ling3)
+## 2026-09-16 16:37:31 UTC [target] (model ling3)
+## 2026-09-16 19:45:44 UTC [target] (model ling3)
+## 2026-09-16 22:49:24 UTC [target] (model ling3)
+## 2026-09-17 01:14:26 UTC [target] (model ling3)
+===LONGCAT===
+at)
+## 2026-09-13 12:39:26 UTC [target] (model longcat)
+## 2026-09-13 16:39:35 UTC [target] (model longcat)
+## 2026-09-13 19:01:43 UTC [target] (model longcat)
+## 2026-09-13 21:25:39 UTC [target] (model longcat)
+## 2026-09-13 23:33:03 UTC [target] (model longcat)
+## 2026-09-14 01:41:56 UTC [target] (model longcat)
+## 2026-09-14 07:09:50 UTC [target] (model longcat)
+## 2026-09-14 14:18:03 UTC [target] (model longcat)
+## 2026-09-14 19:29:53 UTC [target] (model longcat)
+## 2026-09-14 22:47:20 UTC [target] (model longcat)
+## 2026-09-15 01:19:11 UTC [target] (model longcat)
+## 2026-09-15 06:17:11 UTC [target] (model longcat)
+## 2026-09-15 11:56:06 UTC [target] (model longcat)
+## 2026-09-15 16:44:46 UTC [target] (model longcat)
+## 2026-09-15 20:06:03 UTC [target] (model longcat)
+## 2026-09-15 22:58:15 UTC [target] (model longcat)
+## 2026-09-16 01:19:26 UTC [target] (model longcat)
+## 2026-09-16 06:16:33 UTC [target] (model longcat)
+## 2026-09-16 11:50:02 UTC [target] (model longcat)
+## 2026-09-16 16:37:27 UTC [target] (model longcat)
+## 2026-09-16 19:45:29 UTC [target] (model longcat)
+## 2026-09-16 22:49:23 UTC [target] (model longcat)
+## 2026-09-17 01:14:28 UTC [target] (model longcat)
+[0m
+STEP 1 — DELTA
+- NEW triage run-2026-09-17-00-14 + -04-59 both "No leads provided" — 15th consecutive empty cycle; peer state files remain timestamp stubs (laguna/ling3/longcat tails = pure headers, nemotron3 reprint).
+- NO_DELTA surface: fragen.php 2,152,680 B (last measured 01:20 09-17), api.root CL-absent catalog, auth map 15/15, 7 funnel mirrors, device_id sole at vergleich2 — nothing drifted in the 5h since my 01:20 measure; no live probe due until ≥01:20 09-18.
+- NO_DELTA leads: no new fingerprints, no reposcan anomaly introduced; no peer-generated new surface anywhere.
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php,7.1,attack=9/gate=10/fresh=10 — unauthenticated 2.1MB tariff DB, apex+www, 2x 24h byte-pegged.
+- [PRIO] api.kassenkompass.de/,6.7,gate=10/tech=6 — root catalog disclosure, credential-gated beyond it; stable ≥15 sessions.
+- [PRIO] kassenkompass.de funnel (7 mirrors),6.0,biz=9/gate=4 — cookie-stuffing, lead-gated consumption.
+- [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},4.6,gate=2 — BOLA parked, no credential.
+
+STEP 3 — HYPOTHESES
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 91
+reasoning: 01:20 09-17 live GET = 200, 2,152,680 B byte-identical to 01:19 09-16 (0.00% over 25h); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows/1.79MB + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101], per-KK lastchange ≤2025-12-22; apex+www identical size; api v2 insurance_info gates same data domain behind middleware A — access inconsistency stands across public-vs-protected in same company surface.
+evidence_needed: PASSIVE-VERIFIED; next 24h re-measure at ≥01:20 09-18 rotates proof.
+verify_steps: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar → expect 2,152,680 B ±0.3%, no-store; single request, no burst.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw pass-params→1yr cookies unvalidated (16:38 09-16 re-confirmed lizenz/jid/agn/ppn→4 cookies exact, afilcode non-HttpOnly, 3 HttpOnly+Secure); jid/customerid + connectionnumber/agenturnummer dual-alias duplicates; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated (no mutating probes).
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:20 09-17 root = 200, 1167 B, 15 v1 endpoints ver 1.0 (X-API-Secret auth note), content-length absent (prior CL:0) — cosmetic header-shape class; stable ≥13 sessions; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed. Already VALID in valid-bugs.md (duplicate risk on submission).
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] v2 insurance_info BOLA (58): credential-gated; payload domain publicly replicated by fragen.php ucatKkData → unpublished-draft-only read at best; no secret available.
+- [NAMES] fragen.php 91 / cookie-stuffing 81 / api-root 76 — all PASSIVE or AUTH_HELPED-gated, none mutated anything.
+
+STEP 5 — NEXT ACTION
+- [NEXT] PROBE: HOLD — nothing before ≥01:20 09-18 (24h since 2,152,680 B at 01:20 09-17; now 06:15 09-17). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params), capture status/content-length/cache-control/CF-DYNAMIC, compare vs 2,152,680 B (±0.3%; accept 2.15–2.16 MB); single request, no burst (WAF 09-11 precedent); plus one GET https://api.kassenkompass.de/ for catalog continuity, ≥2 s spacing.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED OTHER @ kassenkompass pipeline: 15th consecutive empty triage cycle (09-12 21:15 → 09-17 04:59) — peer leads pure timestamp stubs, nemotron3 reprint only; observability gap persists, no signal; no new attack surface introduced anywhere.
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 25h stability confirmed — 2,152,680 B at 01:20 09-17 byte-identical to 01:19 09-16; drift-on-refresh + no-mitigation model holds; ranking 91 justified (reportable now).
+
+STEP 7 — RISK
+- [RISK] KassenKompass GmbH: 63 — Flat, 17th analysis-only day. Top finding (fragen.php 2.1MB tariff leak) PASSIVE-VERIFIED at 91, byte-pegged across two 24h windows — reportable any time; cookie-stuffing 81 and api catalog 76 unchanged/gated; no escalation trigger — no PII touched, no writes, ≤1 rps intact, API surface credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and 15-cycle pipeline observability gap, not live attack surface.
