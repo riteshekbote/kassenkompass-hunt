@@ -1819,3 +1819,7 @@
 ## RANKED HYPOTHESES 2026-09-16 22:50:47 UTC
 - [89] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Tariff Database Access via bonusrechner_fragen.php (from art/lead_bigpickle.txt)
 - NEXT(hypotheses-bigpickle.txt): PROBE: HOLD — nothing before ≥01:19 09-17 (24h since 01:19 09-16 fragen.php 2,152,680 B measurement; now 20:04 09-16). At threshold, exactly one 1-rps GET https
+
+## RANKED HYPOTHESES 2026-09-17 01:21:27 UTC
+- [90] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Tariff Database Access via bonusrechner_fragen.php (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: HOLD — nothing before ≥01:20 09-18 (24h since 2,152,680 B at 01:20 09-17). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_frag

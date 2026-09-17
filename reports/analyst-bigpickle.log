@@ -20629,3 +20629,118 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] KassenKompass GmbH: 62 — Flat, 15th analysis-only day. Top finding (fragen.php 2.1MB tariff leak) PASSIVE-VERIFIED at 89, reportable any time; cookie-stuffing 81 and api catalog 76 unchanged/gated; no escalation trigger — no PII touched, no writes, ≤1 rps intact, API surface credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and pipeline observability, not live attack surface.
+===== ANALYST bigpickle 2026-09-17 01:21:27 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-09-17 01:14:33 UTC
+[0m
+Hold window: threshold ≥01:19 09-17 from prior 2,152,680 B measurement at 01:19 09-16. Current 01:14:33 UTC — 5 min early. I'll wait for the exact threshold, then run the scheduled single-probe cadence.
+[0m$ [0msleep 360; date -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-09-17 01:20:38 UTC
+[0m
+Threshold reached. Executing scheduled single-probe cadence (1 rps, fresh jar, no params).
+[0m$ [0mcd /tmp/opencode && rm -f fq_headers fq_body && curl -sS -o fq_body -D fq_headers --max-time 60 -A "Mozilla/5.0 (X11; Linux x86_64) Probe/1.0" "https://kassenkompass.de/bonusrechner_fragen.php" ; echo "EXIT=$?"; echo "--- HEADERS ---"; grep -iE '^(HTTP/|content-length|cache-control|cf-cache-status|content-type|expires|etag|last-modified|set-cookie)' fq_headers; echo "--- BODY SIZE ---"; wc -c < fq_body
+EXIT=0
+--- HEADERS ---
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=OYfUT12Z6cDsNWCf7vABrodgLYP4l7LveQCWus4rbjcynv0Est9KbEE5vCUrrZ/DIalhETp6QGK3f+ZY0+0ORjOWbsYGt1A5EDD74iApuR0YRxdxv1HXd28kY8YK; Expires=Thu, 24 Sep 2026 01:20:42 GMT; Path=/
+set-cookie: AWSALBCORS=OYfUT12Z6cDsNWCf7vABrodgLYP4l7LveQCWus4rbjcynv0Est9KbEE5vCUrrZ/DIalhETp6QGK3f+ZY0+0ORjOWbsYGt1A5EDD74iApuR0YRxdxv1HXd28kY8YK; Expires=Thu, 24 Sep 2026 01:20:42 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=20189358f983a73ce61736e53e675dc4; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+cf-cache-status: DYNAMIC
+--- BODY SIZE ---
+2152680
+[0m
+fragen.php 24h smoke: 200, body = **2,152,680 B — byte-identical to 01:19 09-16 baseline** (+0.00%), no-store+CF-DYNAMIC confirmed, no ETag/Last-Modified. Leak persists. Now the api root catalog smoke (target).
+[0m$ [0msleep 2; cd /tmp/opencode && rm -f api_headers api_body && curl -sS -o api_body -D api_headers --max-time 30 -A "Mozilla/5.0 (X11; Linux x86_64) Probe/1.0" "https://api.kassenkompass.de/" ; echo "EXIT=$?"; echo "--- HEADERS ---"; grep -iE '^(HTTP/|content-length|cache-control|cf-cache-status|content-type|server|x-powered-by)' api_headers; echo "--- BODY ---"; wc -c < api_body; head -c 400 api_body
+EXIT=0
+--- HEADERS ---
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+cf-cache-status: DYNAMIC
+--- BODY ---
+1167
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Frageba
+[0m
+Two scheduled probes complete at ≤1 rps (spaced ~2s), no burst, no params, no writes.
+
+## STEP 1 — DELTA
+- [NEW] fragen.php 24h smoke (01:20 09-17): HTTP/2 200, body **2,152,680 B = exact 01:19 09-16 baseline (0.00% drift)**; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; payload-refresh window narrowed to (09-15 06:18 2,152,258 → 09-16 16:37 2,152,680 → stable ≥24h).
+- [NEW] api.kassenkompass.de/ root (01:20 09-17): HTTP/2 200, `content-length: 1167` present (header shape absent→present), `x-powered-by: PHP/8.4.3`, body 1167 B catalog disclosed without auth — substance unchanged.
+- [CHANGED] Pipeline: 14th consecutive triage cycle, empty/header-only peer leads; no new peer signal, no new attack surface anywhere.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php, 7.65, attack_surface=9/10 (unauth, no rate limit), business_value=8, tech=4, gate=10 (anonymous GET), cloud=3, freshness=10 (byte-identical 24h proof just refreshed)
+- [PRIO] kassenkompass.de (7 funnel mirrors), 6.60, attack_surface=7, business_value=9 (commission/attribution), tech=4, gate=6 (GET open, consumption POST-gated), cloud=3, freshness=8
+- [PRIO] api.kassenkompass.de/, 5.55, attack_surface=5 (credential-gated beyond catalog), business_value=7, tech=6, gate=3 (X-API-Secret sole channel), cloud=4, freshness=8
+
+## STEP 3 — HYPOTHESES
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: 01:20 09-17 live GET = 200, 2,152,680 B byte-identical to 01:19 09-16 (0.00%); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows/1.79MB + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101], per-KK lastchange ≤2025-12-22; apex+www identical size; api v2 insurance_info gates same data domain behind middleware A → access inconsistency stands.
+evidence_needed: PASSIVE-VERIFIED; next 24h re-measure rotates proof at ≥01:20 09-18.
+verify_steps: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar → expect 2,152,680 B ±0.3%, no-store; compare bytes; single request, no burst.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw pass-params→1yr cookies unvalidated (16:38 09-16 re-confirmed lizenz/jid/agn/ppn→4 cookies exact, afilcode non-HttpOnly, 3 HttpOnly+Secure); jid/customerid + connectionnumber/agenturnummer dual-alias duplicates; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:20 09-17 root = 200, 1167 B, 15 v1 endpoints ver 1.0 (X-API-Secret auth note), content-length now correct (absent at 16:37) — cosmetic header-shape class; stable ≥13 sessions; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed. Already VALID in valid-bugs.md (duplicate risk).
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[HYP] v2 insurance_info BOLA
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 58
+reasoning: greedy segment match reaches middleware-A 401; payload domain (draft categories + resolved refs) publicly replicated by fragen.php ucatKkData → cross-tenant read value downgraded uncompressed; requires valid X-API-Secret.
+evidence_needed: valid secret; then kk_id enumeration beyond own tenant.
+verify_steps: blocked without credential — parked.
+impact: unpublished-draft-only read, LOW-MEDIUM.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] v2 insurance_info BOLA — 58, valid secret required; public replica on fragen.php caps value; no new primitive.
+- [FINAL] fragen.php 90 — byte-identical 24h stability now proven at 2,152,680 B; sole weakness "intended-public data" countered by api v2 gating same ucatKkData domain behind middleware A; access inconsistency stands; reportable now.
+- [FINAL] cookie-stuffing 81 — needs victim-path/respondent (AUTH_HELPED), not solo-executable; lead-gate keeps write path closed.
+- [FINAL] api root disclosure 76 — cosmetic, already VALID in valid-bugs.md; additive value only in report packaging.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: HOLD — nothing before ≥01:20 09-18 (24h since 2,152,680 B at 01:20 09-17). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params), capture status/content-length/cache-control/CF-DYNAMIC, compare vs 2,152,680 B (±0.3%; accept 2.15–2.16 MB); single request, no burst (WAF 09-11 precedent); plus one GET https://api.kassenkompass.de/ for catalog continuity, ≥2 s spacing.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h byte-identical smoke passed — 2,152,680 B = exact 01:19 09-16 baseline (0.00%); refresh window narrowed to (09-15 06:18 → 09-16 16:37); no-store+CF-DYNAMIC persists; ranking 90 justified.
+- [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length header shape absent→1167 (now correct); body 1167 B unchanged; cosmetic header-shape class, disclosure substance drift-free.
+- [LEARN] REJECTED OTHER @ pipeline: 14th consecutive triage cycle consumed empty/header-only peer leads; observability gap persists, zero signal, no new attack surface introduced anywhere.
+
+## STEP 7 — RISK
+[RISK] KassenKompass GmbH: 63 — Flat, 16th analysis-only day. Top finding (fragen.php 2.1MB tariff leak) now byte-identical across 24h at 90 — reportable any time; cookie-stuffing 81 and api catalog 76 unchanged/gated; no escalation trigger — no PII touched, no writes, ≤1 rps intact, API surface credential-gated beyond known recon amplifiers. Bottleneck is program-side (response/credentials via bugs.olivermaicher.eu) and pipeline observability, not live attack surface.
