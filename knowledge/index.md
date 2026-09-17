@@ -467,3 +467,6 @@
 - 2026-09-17 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - 2026-09-17 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
 - 2026-09-17 REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere
+- 2026-09-17 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 11:59 09-17 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A; root CL-absent 1167B persists; no new primitive in 14+ cycles.
+- 2026-09-17 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed at 01:20 09-17 — 2,152,680 B (0.00% vs prior 25h), no caching mitigation; next rotation ≥01:20 09-18.
+- 2026-09-17 REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive empty triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.

@@ -4034,3 +4034,42 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-17 16:44:41 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,89,attack_surface=9|business_value=9|tech_exposure=3|gate_ease=10|cloud_surface=3|freshness=5
+[PRIO] kassenkompass.de (7 funnel mirrors),81,attack_surface=8|business_value=9|tech_exposure=4|gate_ease=10|cloud_surface=3|freshness=5
+[PRIO] api.kassenkompass.de/,76,attack_surface=7|business_value=8|tech_exposure=5|gate_ease=2|cloud_surface=4|freshness=5
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 91
+reasoning: 01:20 09-17 live GET = 200, 2,152,680 B byte-identical to 01:19 09-16 (0.00% over 25h); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows/1.79MB + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101], per-KK lastchange ≤2025-12-22; apex+www identical size; api v2 insurance_info gates same data domain behind middleware A — same-company public-vs-protected inconsistency stands.
+evidence_needed: PASSIVE-VERIFIED; next re-measure ≥01:20 09-18 rotates proof.
+verify_steps: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar → expect 2,152,680 B ±0.3%, no-store; single request, no burst (WAF 09-11 precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw pass-params→1yr cookies unvalidated (16:38 09-16 re-confirmed lizenz/jid/agn/ppn→4 cookies exact, afilcode non-HttpOnly, 3 HttpOnly+Secure); jid/customerid + connectionnumber/agenturnummer dual-alias duplicates; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09; device_id sole at vergleich2.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; abschluss POST stays write-gated (no mutating probes).
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:20 09-17 root = 200, 1167 B, 15 v1 endpoints ver 1.0 (X-API-Secret auth note), content-length absent (prior CL:0) — cosmetic header-shape class; stable ≥13 sessions; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] API Root Catalog Disclosure: already VALID in valid-bugs.md — surface-only confirmation, no escalation path; keep as continuity smoke, not submission candidate.
+[PARKED] Cookie-Stuffing: executability tanked 09-09 (one-shot chain REFUTED, lead-gate verified) — HIGH impact but AUTH_HELPED/HUMAN_ONLY gate blocks cheap verification; hold at 81, no probe budget.
+[FINAL] 1) fragen.php tariff leak 91 (PASSIVE, verifiable, no risk) 2) cookie-stuffing 81 (AUTH_HELPED) 3) api root disclosure 76 (already VALID).
+[NEXT] PROBE: HOLD — nothing before ≥01:20 09-18 (24h since 2,152,680 B at 01:20 09-17). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params), capture status/content-length/cache-control/CF-DYNAMIC, compare vs 2,152,680 B (±0.3%; accept 2.15–2.16 MB); single request, no burst (WAF 09-11 precedent); plus one GET https://api.kassenkompass.de/ for catalog continuity, ≥2 s spacing.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 11:59 09-17 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A; root CL-absent 1167B persists; no new primitive in 14+ cycles.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed at 01:20 09-17 — 2,152,680 B (0.00% vs prior 25h), no caching mitigation; next rotation ≥01:20 09-18.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive empty triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+[RISK] KassenKompass GmbH: 85 — Unauthenticated 2.1MB tariff/budget/bonus intelligence at one GET (no rate limit, no cache, ≥12 sessions stable) is the substantiated exposure; 7 cookie-stuffing mirrors sit behind a lead-gate that blocks cheap verification but not real attackers with funnel access; API remains credential-gated with consistent authz (A/B map), reining in the header-space risk; AWS S3/HubSpot/SGTM surfaces passive-only. Waits on ≥01:20 09-18 smoke to harden the top finding.
