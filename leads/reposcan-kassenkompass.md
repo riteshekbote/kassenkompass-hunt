@@ -303,3 +303,5 @@ reasoning: scope.yml github_orgs=none-configured; cands.txt="no org candidates";
 impact: None — no source artifacts to yield secrets
 verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone; no active scan needed.
 TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-17 09:55:48 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
