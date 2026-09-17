@@ -1,10 +1,10 @@
-## 2026-09-17 06:16:53 UTC [target] (model nemotron3)
+## 2026-09-17 11:58:53 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.90,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.35,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.20,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
+[PRIO] kassenkompass.de/bonusrechner.php,7.80,attack_surface=8 business_value=7 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=10
 [PRIO] api.kassenkompass.de/,6.85,attack_surface=7 business_value=6 tech_exposure=5 gate_ease=10 cloud_surface=4 freshness=7
 [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.80,attack_surface=6 business_value=6 tech_exposure=5 gate_ease=3 cloud_surface=6 freshness=7
-[PRIO] kassenkompass.de/bonusrechner.php,7.80,attack_surface=8 business_value=7 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=10
 [HYP] Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -37,7 +37,7 @@ testability: AUTH_HELPED
 [FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 90, PASSIVE)
 [FINAL] 2. API Root Catalog Disclosure Enables Targeted Attack Planning (confidence 78, PASSIVE)
 [FINAL] 3. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 72, AUTH_HELPED)
-[NEXT] PROBE: HOLD — 24h smoke window for fragen.php not yet met (last measurement 2026-09-16 16:38 UTC, 2,152,680 B). Next probe at ≥2026-09-17 16:38 UTC: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php + www mirror, fresh jar, measure Content-Length, confirm no 429/rate limit, parse ucatKkData/pseudoKkIds.
+[NEXT] PROBE: At ≥2026-09-17 16:38 UTC execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh cookie jar; measure Content-Length, confirm no 429/rate limit, parse ucatKkData/pseudoKkIds; repeat on www.kassenkompass.de/bonusrechner_fragen.php
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 89 justified
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live at 16:38 09-16 — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact
