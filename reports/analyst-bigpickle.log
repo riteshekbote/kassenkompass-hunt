@@ -21051,3 +21051,328 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 [RISK] KassenKompass GmbH: 85 — Unauthenticated 2.1MB tariff/budget/bonus intelligence at one GET (no rate limit, no cache, ≥12 sessions stable) is the substantiated exposure; 7 cookie-stuffing mirrors sit behind a lead-gate that blocks cheap verification but not real attackers with funnel access; API remains credential-gated with consistent authz (A/B map), reining in the header-space risk; AWS S3/HubSpot/SGTM surfaces passive-only. Waits on ≥01:20 09-18 smoke to harden the top finding.
+===== ANALYST bigpickle 2026-09-17 20:10:15 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u; ls -la art/ 2>/dev/null | head -30
+Thu Sep 17 20:08:27 UTC 2026
+[0m
+[0m✱ [0mGlob "**/lead*.txt"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la; echo "---"; find . -maxdepth 2 -name "*.txt" -o -maxdepth 2 -name "*.md" 2>/dev/null | head -40
+total 540
+drwxr-xr-x 12 runner runner   4096 Sep 17 20:08 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 20:08 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 20:08 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 20:08 .github
+-rw-r--r--  1 runner runner   1767 Sep 17 20:08 README.md
+-rw-r--r--  1 runner runner    171 Sep 17 20:08 analyst-out.txt
+-rw-r--r--  1 runner runner 214950 Sep 17 20:08 analyst-prompt.txt
+-rw-r--r--  1 runner runner 211132 Sep 17 20:08 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 leads
+-rw-r--r--  1 runner runner  35275 Sep 17 20:08 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 17 20:08 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 triage
+---
+./analyst-out.txt
+./triage/run-2026-09-05-10-04.md
+./triage/run-2026-09-13-18-56.md
+./triage/run-2026-09-05-22-41.md
+./triage/run-2026-09-12-00-39.md
+./triage/run-2026-09-10-17-02.md
+./triage/run-2026-09-06-05-06.md
+./triage/run-2026-09-06-00-38.md
+./triage/run-2026-09-09-23-51.md
+./triage/run-2026-09-07-11-45.md
+./triage/run-2026-09-08-21-38.md
+./triage/run-2026-09-04-08-04.md
+./triage/run-2026-09-11-00-15.md
+./triage/run-2026-09-05-01-06.md
+./triage/run-2026-09-08-23-39.md
+./triage/run-2026-09-07-17-23.md
+./triage/run-2026-09-17-18-50.md
+./triage/run-2026-09-03-01-26.md
+./triage/run-2026-09-10-03-25.md
+./triage/run-2026-09-03-19-08.md
+./triage/run-2026-09-12-18-44.md
+./triage/run-2026-09-12-13-07.md
+./triage/run-2026-09-08-01-15.md
+./triage/run-2026-09-06-22-44.md
+./triage/run-2026-09-14-18-43.md
+./triage/run-2026-09-10-19-47.md
+./triage/run-2026-09-06-16-20.md
+./triage/run-2026-09-16-05-15.md
+./triage/run-2026-09-13-21-17.md
+./triage/run-2026-09-08-18-48.md
+./triage/run-2026-09-15-19-12.md
+./triage/run-2026-09-12-23-05.md
+./triage/run-2026-09-03-23-49.md
+./triage/run-2026-09-04-19-20.md
+./triage/run-2026-09-03-11-42.md
+./triage/run-2026-09-15-00-43.md
+./triage/run-2026-09-10-13-06.md
+./triage/run-2026-09-11-04-50.md
+./triage/run-2026-09-09-11-52.md
+./triage/run-2026-09-11-17-35.md
+[0m
+[0m$ [0mcat triage/run-2026-09-17-18-50.md; echo "=== LEADS ==="; ls -la leads/; echo "=== STATE ==="; cat state_bigpickle.json; echo; cat analyst-out.txt
+===== TRIAGE 2026-09-17 18:50:28 UTC =====
+[0m
+> build · mimo-v2.5-free
+[0m
+The "LEADS:" section is empty — no leads were provided for triage. Please paste the probe results/leads you'd like me to evaluate against the 7-Question Gate.
+=== LEADS ===
+total 1460
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 .
+drwxr-xr-x 12 runner runner   4096 Sep 17 20:08 ..
+-rw-r--r--  1 runner runner 550570 Sep 17 20:08 lead-bigpickle.md
+-rw-r--r--  1 runner runner   4794 Sep 17 20:08 lead-laguna.md
+-rw-r--r--  1 runner runner   4700 Sep 17 20:08 lead-ling3.md
+-rw-r--r--  1 runner runner   4888 Sep 17 20:08 lead-longcat.md
+-rw-r--r--  1 runner runner     18 Sep 17 20:08 lead-mimo.md
+-rw-r--r--  1 runner runner 883974 Sep 17 20:08 lead-nemotron3.md
+-rw-r--r--  1 runner runner  18183 Sep 17 20:08 reposcan-kassenkompass.md
+=== STATE ===
+{"phase": "POC", "target": "api"}
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u; ls -la art/ 2>/dev/null | head -30
+Thu Sep 17 20:08:27 UTC 2026
+[0m
+[0m✱ [0mGlob "**/lead*.txt"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la; echo "---"; find . -maxdepth 2 -name "*.txt" -o -maxdepth 2 -name "*.md" 2>/dev/null | head -40
+total 540
+drwxr-xr-x 12 runner runner   4096 Sep 17 20:08 .
+drwxr-xr-x  3 runner runner   4096 Sep 17 20:08 ..
+drwxr-xr-x  7 runner runner   4096 Sep 17 20:08 .git
+drwxr-xr-x  3 runner runner   4096 Sep 17 20:08 .github
+-rw-r--r--  1 runner runner   1767 Sep 17 20:08 README.md
+-rw-r--r--  1 runner runner    171 Sep 17 20:08 analyst-out.txt
+-rw-r--r--  1 runner runner 214950 Sep 17 20:08 analyst-prompt.txt
+-rw-r--r--  1 runner runner 211132 Sep 17 20:08 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 leads
+-rw-r--r--  1 runner runner  35275 Sep 17 20:08 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 reports
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 17 20:08 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 scripts
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 17 20:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner   4096 Sep 17 20:08 triage
+---
+./analyst-out.txt
+./triage/run-2026-09-05-10-04.md
+./triage/run-2026-09-13-18-56.md
+./triage/run-2026-09-05-22-41.md
+./triage/run-2026-09-12-00-39.md
+./triage/run-2026-09-10-17-02.md
+./triage/run-2026-09-06-05-06.md
+./triage/run-2026-09-06-00-38.md
+./triage/run-2026-09-09-23-51.md
+./triage/run-2026-09-07-11-45.md
+./triage/run-2026-09-08-21-38.md
+./triage/run-2026-09-04-08-04.md
+./triage/run-2026-09-11-00-15.md
+./triage/run-2026-09-05-01-06.md
+./triage/run-2026-09-08-23-39.md
+./triage/run-2026-09-07-17-23.md
+./triage/run-2026-09-17-18-50.md
+./triage/run-2026-09-03-01-26.md
+./triage/run-2026-09-10-03-25.md
+./triage/run-2026-09-03-19-08.md
+./triage/run-2026-09-12-18-44.md
+./triage/run-2026-09-12-13-07.md
+./triage/run-2026-09-08-01-15.md
+./triage/run-2026-09-06-22-44.md
+./triage/run-2026-09-14-18-43.md
+./triage/run-2026-09-10-19-47.md
+./triage/run-2026-09-06-16-20.md
+./triage/run-2026-09-16-05-15.md
+./triage/run-2026-09-13-21-17.md
+./triage/run-2026-09-08-18-48.md
+./triage/run-2026-09-15-19-12.md
+./triage/run-2026-09-12-23-05.md
+./triage/run-2026-09-03-23-49.md
+./triage/run-2026-09-04-19-20.md
+./triage/run-2026-09-03-11-42.md
+./triage/run-2026-09-15-00-43.md
+./triage/run-2026-09-10-13-06.md
+./triage/run-2026-09-11-04-50.md
+./triage/run-2026-09-09-11-52.md
+./triage/run-2026-09-11-17-35.md
+[0m
+[0m
+[0m$ [0mecho "=== mimo ==="; cat leads/lead-mimo.md; echo; echo "=== laguna (tail) ==="; tail -30 leads/lead-laguna.md; echo; echo "=== ling3 (tail) ==="; tail -30 leads/lead-ling3.md; echo; echo "=== longcat (tail) ==="; tail -30 leads/lead-longcat.md
+=== mimo ===
+# Lead log (seed)
+
+=== laguna (tail) ===
+## 2026-09-12 21:20:57 UTC [target] (model laguna)
+## 2026-09-12 23:21:51 UTC [target] (model laguna)
+## 2026-09-13 01:25:39 UTC [target] (model laguna)
+## 2026-09-13 06:46:27 UTC [target] (model laguna)
+## 2026-09-13 12:39:28 UTC [target] (model laguna)
+## 2026-09-13 16:40:05 UTC [target] (model laguna)
+## 2026-09-13 19:03:16 UTC [target] (model laguna)
+## 2026-09-13 21:25:38 UTC [target] (model laguna)
+## 2026-09-13 23:32:57 UTC [target] (model laguna)
+## 2026-09-14 01:39:36 UTC [target] (model laguna)
+## 2026-09-14 07:11:59 UTC [target] (model laguna)
+## 2026-09-14 14:16:54 UTC [target] (model laguna)
+## 2026-09-14 19:30:09 UTC [target] (model laguna)
+## 2026-09-14 22:47:05 UTC [target] (model laguna)
+## 2026-09-15 01:19:08 UTC [target] (model laguna)
+## 2026-09-15 06:17:10 UTC [target] (model laguna)
+## 2026-09-15 11:56:25 UTC [target] (model laguna)
+## 2026-09-15 16:44:44 UTC [target] (model laguna)
+## 2026-09-15 20:06:03 UTC [target] (model laguna)
+## 2026-09-15 22:58:02 UTC [target] (model laguna)
+## 2026-09-16 01:19:32 UTC [target] (model laguna)
+## 2026-09-16 06:16:35 UTC [target] (model laguna)
+## 2026-09-16 11:50:07 UTC [target] (model laguna)
+## 2026-09-16 16:37:30 UTC [target] (model laguna)
+## 2026-09-16 19:46:02 UTC [target] (model laguna)
+## 2026-09-16 22:49:25 UTC [target] (model laguna)
+## 2026-09-17 01:14:27 UTC [target] (model laguna)
+## 2026-09-17 06:14:15 UTC [target] (model laguna)
+## 2026-09-17 11:54:47 UTC [target] (model laguna)
+## 2026-09-17 16:44:11 UTC [target] (model laguna)
+
+=== ling3 (tail) ===
+## 2026-09-12 21:21:05 UTC [target] (model ling3)
+## 2026-09-12 23:21:51 UTC [target] (model ling3)
+## 2026-09-13 01:25:43 UTC [target] (model ling3)
+## 2026-09-13 06:46:22 UTC [target] (model ling3)
+## 2026-09-13 12:39:34 UTC [target] (model ling3)
+## 2026-09-13 16:39:58 UTC [target] (model ling3)
+## 2026-09-13 19:01:16 UTC [target] (model ling3)
+## 2026-09-13 21:25:16 UTC [target] (model ling3)
+## 2026-09-13 23:33:05 UTC [target] (model ling3)
+## 2026-09-14 01:40:11 UTC [target] (model ling3)
+## 2026-09-14 07:10:26 UTC [target] (model ling3)
+## 2026-09-14 14:18:02 UTC [target] (model ling3)
+## 2026-09-14 19:30:33 UTC [target] (model ling3)
+## 2026-09-14 22:46:48 UTC [target] (model ling3)
+## 2026-09-15 01:19:13 UTC [target] (model ling3)
+## 2026-09-15 06:17:14 UTC [target] (model ling3)
+## 2026-09-15 11:55:07 UTC [target] (model ling3)
+## 2026-09-15 16:44:44 UTC [target] (model ling3)
+## 2026-09-15 20:06:03 UTC [target] (model ling3)
+## 2026-09-15 22:57:58 UTC [target] (model ling3)
+## 2026-09-16 01:19:26 UTC [target] (model ling3)
+## 2026-09-16 06:16:35 UTC [target] (model ling3)
+## 2026-09-16 11:50:14 UTC [target] (model ling3)
+## 2026-09-16 16:37:31 UTC [target] (model ling3)
+## 2026-09-16 19:45:44 UTC [target] (model ling3)
+## 2026-09-16 22:49:24 UTC [target] (model ling3)
+## 2026-09-17 01:14:26 UTC [target] (model ling3)
+## 2026-09-17 06:15:12 UTC [target] (model ling3)
+## 2026-09-17 11:54:52 UTC [target] (model ling3)
+## 2026-09-17 16:44:12 UTC [target] (model ling3)
+
+=== longcat (tail) ===
+## 2026-09-12 21:20:49 UTC [target] (model longcat)
+## 2026-09-12 23:21:52 UTC [target] (model longcat)
+## 2026-09-13 01:25:47 UTC [target] (model longcat)
+## 2026-09-13 06:46:24 UTC [target] (model longcat)
+## 2026-09-13 12:39:26 UTC [target] (model longcat)
+## 2026-09-13 16:39:35 UTC [target] (model longcat)
+## 2026-09-13 19:01:43 UTC [target] (model longcat)
+## 2026-09-13 21:25:39 UTC [target] (model longcat)
+## 2026-09-13 23:33:03 UTC [target] (model longcat)
+## 2026-09-14 01:41:56 UTC [target] (model longcat)
+## 2026-09-14 07:09:50 UTC [target] (model longcat)
+## 2026-09-14 14:18:03 UTC [target] (model longcat)
+## 2026-09-14 19:29:53 UTC [target] (model longcat)
+## 2026-09-14 22:47:20 UTC [target] (model longcat)
+## 2026-09-15 01:19:11 UTC [target] (model longcat)
+## 2026-09-15 06:17:11 UTC [target] (model longcat)
+## 2026-09-15 11:56:06 UTC [target] (model longcat)
+## 2026-09-15 16:44:46 UTC [target] (model longcat)
+## 2026-09-15 20:06:03 UTC [target] (model longcat)
+## 2026-09-15 22:58:15 UTC [target] (model longcat)
+## 2026-09-16 01:19:26 UTC [target] (model longcat)
+## 2026-09-16 06:16:33 UTC [target] (model longcat)
+## 2026-09-16 11:50:02 UTC [target] (model longcat)
+## 2026-09-16 16:37:27 UTC [target] (model longcat)
+## 2026-09-16 19:45:29 UTC [target] (model longcat)
+## 2026-09-16 22:49:23 UTC [target] (model longcat)
+## 2026-09-17 01:14:28 UTC [target] (model longcat)
+## 2026-09-17 06:15:34 UTC [target] (model longcat)
+## 2026-09-17 11:55:13 UTC [target] (model longcat)
+## 2026-09-17 16:44:11 UTC [target] (model longcat)
+[0m
+NO_DELTA verified: peer lead files (laguna/ling3/longcat/mimo) are pure timestamp stubs through 16:44 UTC today; triage run-2026-09-17-18-50 consumed empty lead payload; nemotron3 tail reprints standing hypotheses. No probes run this cycle (HOLD discipline — 24h rotation due ≥01:20 09-18; last measure 2,152,680 B @ 01:20 09-17; current 20:08 UTC 09-17 = 14th+ empty cycle).
+
+## STEP 1 — DELTA
+NO_DELTA — surface unchanged since 01:20 09-17 batch; peer leads header-only stubs ≥14 cycles; no new scoped surface.
+
+## STEP 2 — PRIORITIZE
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,89,attack_surface=9|business_value=9|tech_exposure=3|gate_ease=10|cloud_surface=3|freshness=5
+[PRIO] kassenkompass.de (7 funnel mirrors),81,attack_surface=8|business_value=9|tech_exposure=4|gate_ease=10|cloud_surface=3|freshness=5
+[PRIO] api.kassenkompass.de/,76,attack_surface=7|business_value=8|tech_exposure=5|gate_ease=2|cloud_surface=4|freshness=5
+
+## STEP 3 — HYPOTHESES
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 91
+reasoning: 01:20 09-17 live GET = 200, 2,152,680 B (0.00% over 25h vs 01:19 09-16); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows/1.79MB + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; per-KK lastchange ≤2025-12-22; apex+www identical size; api v2 insurance_info gates same data domain behind middleware A — public-vs-protected inconsistency stands.
+evidence_needed: PASSIVE-VERIFIED; next re-measure ≥01:20 09-18 rotates proof.
+verify_steps: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params) ≥01:20 09-18 → expect 2,152,680 B ±0.3%, no-store; single request, no burst.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 7/7 mirrors map raw pass-params→1yr cookies unvalidated (16:38 09-16 re-confirmed lizenz/jid/agn/ppn→4 cookies exact, afilcode non-HttpOnly); GET branch closed 7/7; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot auto-register REFUTED 09-09.
+evidence_needed: settlement line-item attributed to stuffed afilcode under victim-path questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 01:20 09-17 root = 200, 1167 B, 15 v1 endpoints ver 1.0, content-length absent (prior CL:0) — cosmetic header-shape class; stable ≥13 sessions; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+[PARKED] API Root Catalog Disclosure: already VALID in valid-bugs.md — surface-only confirmation, no escalation path; keep as continuity smoke alongside fragen.php rotation, not submission candidate.
+[PARKED] Cookie-Stuffing: executability tanked 09-09 (one-shot chain REFUTED, POST lead-gate verified) — HIGH impact but AUTH_HELPED/HUMAN_ONLY gate blocks cheap verification; hold at 81, no probe budget.
+[FINAL] 1) fragen.php tariff leak 91 (PASSIVE, verifiable, no risk) 2) cookie-stuffing 81 (AUTH_HELPED) 3) api root disclosure 76 (already VALID).
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: HOLD — nothing before ≥01:20 09-18 (24h since 2,152,680 B at 01:20 09-17). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params), capture status/content-length/cache-control/CF-DYNAMIC, compare vs 2,152,680 B (±0.3%; accept 2.15–2.16 MB); single request, no burst (WAF 09-11 precedent); plus one GET https://api.kassenkompass.de/ for catalog continuity, ≥2 s spacing.
+
+## STEP 6 — LEARNING
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 14th consecutive triage cycle (through run-2026-09-17-18-50, peers laguna/ling3/longcat/mimo pure timestamp stubs, nemotron3 reprint) — observability gap persists, zero new signal; standing rankings unchanged 91/81/76.
+
+## STEP 7 — RISK
+[RISK] KassenKompass GmbH: 85 — Unauthenticated 2.1MB tariff/budget/bonus intelligence at one GET (no rate limit, no cache, ≥13 sessions stable) remains the substantiated exposure; 7 cookie-stuffing mirrors sit behind a lead-gate blocking cheap verification but not real attackers with funnel access; API credential-gated with consistent authz (A/B map); S3/HubSpot/SGTM passive-only. Exams fragen.php rotation ≥01:20 09-18 to harden top finding; no new attack surface introduced anywhere this cycle.

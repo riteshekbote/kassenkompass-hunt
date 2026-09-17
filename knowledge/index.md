@@ -470,3 +470,4 @@
 - 2026-09-17 ACCEPTED MISCONFIG @ api.kassenkompass.de: auth map drift-free through 11:59 09-17 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A; root CL-absent 1167B persists; no new primitive in 14+ cycles.
 - 2026-09-17 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed at 01:20 09-17 — 2,152,680 B (0.00% vs prior 25h), no caching mitigation; next rotation ≥01:20 09-18.
 - 2026-09-17 REJECTED OTHER @ kassenkompass pipeline: 13th+ consecutive empty triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
+- 2026-09-17 REJECTED OTHER @ kassenkompass pipeline: 14th consecutive triage cycle (through run-2026-09-17-18-50, peers laguna/ling3/longcat/mimo pure timestamp stubs, nemotron3 reprint) — observability gap persists, zero new signal; standing rankings unchanged 91/81/76.
