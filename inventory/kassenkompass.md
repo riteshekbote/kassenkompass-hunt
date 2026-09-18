@@ -766,3 +766,8 @@ www.kassenkompass.de
 ## 2026-09-18 18:39:29 UTC
 - CHANGED Current time 2026-09-18 18:38 UTC vs last KB aggregation 11:37 UTC — ~7h gap; scheduled 1-rps probe window for bonusrechner_fragen.php elapsed with no new results in KB
 - CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
+
+## 2026-09-18 21:18:22 UTC
+- CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
+- CHANGED Scheduled 11:35 UTC probe window for bonusrechner_fragen.php elapsed with no new KB results
+- CHANGED Next scheduled probe at ≥18:40 UTC (in ~1 minute) for bonusrechner_fragen.php 1-rps check
