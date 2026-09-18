@@ -21494,3 +21494,16 @@ __HTTP:200 CL:534
 [93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
 [0m✗ [0mGrep "akt_kk_id[^,]*" failed[90m in /tmp/kk_fragen_0918.html[0m
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-18 06:07:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+Performing the standing 24h smoke probe for `bonusrechner_fragen.php` (rotation due ≥01:20 09-18) plus api catalog continuity, at ≤1 rps spacing.
+[0m$ [0mcurl -sS --compressed -o /tmp/kk_fragen_20260918.html -D /tmp/kk_fragen_20260918.hdr -w "fragen: code=%{http_code} size_download=%{size_download}\n" https://kassenkompass.de/bonusrechner_fragen.php; sleep 2; curl -sS --compressed -o /tmp/kk_api_root_20260918.json -D /tmp/kk_api_root_20260918.hdr -w "api: code=%{http_code} size_download=%{size_download}\n" https://api.kassenkompass.de/
+fragen: code=200 size_download=156216
+api: code=200 size_download=534
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mwc -c /tmp/kk_fragen_20260918.html /tmp/kk_api_root_20260918.json; echo "---- fragen headers ----"; cat /tmp/kk_fragen_20260918.hdr; echo "---- api headers ----"; cat /tmp/kk_api_root_20260918.hdr failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+Transfer sizes don't match baselines — checking headers and actual bodies.

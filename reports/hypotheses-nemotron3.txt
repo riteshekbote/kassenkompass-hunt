@@ -1,4 +1,4 @@
-## 2026-09-18 01:10:58 UTC [target] (model nemotron3)
+## 2026-09-18 06:07:27 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.30,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.05,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=9 cloud_surface=5 freshness=9
@@ -32,8 +32,6 @@ evidence_needed: Correlation between device_id value set at vergleich2.php and A
 verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie incl. device_id; GET /bonusrechner_daten.php → observe HttpOnly cookies persist; GET /bonusrechner_fragen.php → confirm 2.1MB tariff data; GET /bonusrechner_vergleich2.php → capture device_id; GET /bonusrechner_abschluss.php → capture form + Account-ID field; POST /bonusrechner_abschluss.php with stuffed jar + email/password/confirm/create_account=1 → observe "Account-ID nicht gefunden" or account creation
 impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber, device_id across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
 testability: AUTH_HELPED
-[PARKED] B-Stack IDOR on /user/{ext_id} + /cancel/{id} (kk_webapp-delegation middleware): confidence 62 but requires B-scoped X-API-Secret — no secret source identified; partner portal JS delivers none; login_partner.php standard HTML form; out of passive scope
-[PARKED] v2 Greedy Segment Match Path Traversal: confidence 55 — Cloudflare/WAF normalizes path traversal sequences (%2e%2e%2f → 404) before router; only raw greedy segments (//, /extra, %31) reach handler; no injection primitive
 [FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 90, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 88, PASSIVE)
 [FINAL] 3. Funnel Cookie Stuffing → device_id Anchored Lead State Bypass (confidence 72, AUTH_HELPED)
