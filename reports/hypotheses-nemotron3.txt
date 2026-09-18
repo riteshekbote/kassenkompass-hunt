@@ -1,7 +1,12 @@
-## 2026-09-18 21:18:11 UTC [target] (model nemotron3)
+## 2026-09-18 23:30:05 UTC [target] (model nemotron3)
+[NEW] Scheduled 1-rps probe window (≥2026-09-18 18:40 UTC) for `bonusrechner_fragen.php` elapsed with no new KB results — live probe at 2026-09-18 23:25 UTC confirms 2,152,708 B payload, `no-store`, `CF-DYNAMIC`, no `ETag`/`Last-Modified`, no rate limit
+[NEW] `www.kassenkompass.de/bonusrechner_fragen.php` mirror identical 2,152,708 B — leak surface doubled apex+www confirmed live
+[CHANGED] `api.kassenkompass.de/` root: `content-length: 0` header persists with full 15+1 JSON catalog in body — structural header/body mismatch, disclosure substance unchanged
+[CHANGED] `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed live (`/1/extra` → 401 middleware A); enumeration saturated at 42 names
+[CHANGED] `kassenkompass.de/bonusrechner.php` stuffing mirror re-confirmed live — `lizenz/jid/agn/ppn→4` 1yr cookies exact, attribute asymmetry intact (`afilcode` non-HttpOnly, others HttpOnly)
+[CHANGED] `kassenkompass.de/bonusrechner_vergleich2.php` emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `catoint` force-deleted — sole funnel step emitting `device_id`
+[CHANGED] `kassenkompass.de/bonusrechner_abschluss.php` GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on form submission only
 [CHANGED] Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
-[CHANGED] Scheduled 11:35 UTC probe window for bonusrechner_fragen.php elapsed with no new KB results
-[CHANGED] Next scheduled probe at ≥18:40 UTC (in ~1 minute) for bonusrechner_fragen.php 1-rps check
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.30,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.20,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
@@ -21,9 +26,9 @@ testability: PASSIVE
 class: MISCONFIG
 asset: www.kassenkompass.de/bonusrechner_fragen.php
 confidence: 90
-reasoning: www mirror serves identical 2,152,680 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-18 11:30 UTC
+reasoning: www mirror serves identical 2,152,708 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-18 23:25 UTC
 evidence_needed: Confirm www mirror payload byte-identical to apex; verify independent rate-limit buckets (or shared)
-verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,680 B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
+verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,708 B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
 impact: Attack surface multiplier — scraper can distribute load across two hostnames; MEDIUM
 testability: PASSIVE
 [HYP] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass
@@ -38,7 +43,7 @@ testability: AUTH_HELPED
 [PARKED] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass: confidence 75 but requires multi-step chain with POST mutation at abschluss.php; prior 4-step chain failed at lead gate; device_id↔Account-ID correlation unproven; downstream verification needs AUTH_HELPED which violates passive-first for initial validation
 [FINAL] 1. Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 92, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 90, PASSIVE)
-[NEXT] PROBE: At ≥2026-09-18 18:40 UTC execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh cookie jar (no cookies/params); measure Content-Length, confirm 2,152,680 B ±0.3%, capture Cache-Control=no-store / CF-DYNAMIC / no ETag / no Last-Modified; repeat on https://www.kassenkompass.de/bonusrechner_fragen.php ≥2s spacing; single request per host, no burst (WAF 2026-09-11 precedent)
+[NEXT] PROBE: At ≥2026-09-19 11:30 UTC execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh cookie jar (no cookies/params); measure Content-Length, confirm 2,152,680 B ±0.3%, capture Cache-Control=no-store / CF-DYNAMIC / no ETag / no Last-Modified; repeat on https://www.kassenkompass.de/bonusrechner_fragen.php ≥2s spacing; single request per host, no burst (WAF 2026-09-11 precedent)
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed — 2,152,680 B (+0.02% vs prior), no-store+CF-DYNAMIC, no caching mitigation; drift-on-refresh model holds; ranking 89 justified
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class, disclosure substance unchanged
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)

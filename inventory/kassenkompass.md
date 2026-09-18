@@ -771,3 +771,13 @@ www.kassenkompass.de
 - CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
 - CHANGED Scheduled 11:35 UTC probe window for bonusrechner_fragen.php elapsed with no new KB results
 - CHANGED Next scheduled probe at ≥18:40 UTC (in ~1 minute) for bonusrechner_fragen.php 1-rps check
+
+## 2026-09-18 23:30:14 UTC
+- NEW Scheduled 1-rps probe window (≥2026-09-18 18:40 UTC) for `bonusrechner_fragen.php` elapsed with no new KB results — live probe at 2026-09-18 23:25 UTC confirms 2,152,708 B payload, `no-store`, `CF-DYN
+- NEW `www.kassenkompass.de/bonusrechner_fragen.php` mirror identical 2,152,708 B — leak surface doubled apex+www confirmed live
+- CHANGED `api.kassenkompass.de/` root: `content-length: 0` header persists with full 15+1 JSON catalog in body — structural header/body mismatch, disclosure substance unchanged
+- CHANGED `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed live (`/1/extra` → 401 middleware A); enumeration saturated at 42 names
+- CHANGED `kassenkompass.de/bonusrechner.php` stuffing mirror re-confirmed live — `lizenz/jid/agn/ppn→4` 1yr cookies exact, attribute asymmetry intact (`afilcode` non-HttpOnly, others HttpOnly)
+- CHANGED `kassenkompass.de/bonusrechner_vergleich2.php` emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `catoint` force-deleted — sole funnel step emitting `device_id`
+- CHANGED `kassenkompass.de/bonusrechner_abschluss.php` GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on 
+- CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
