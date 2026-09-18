@@ -21431,3 +21431,66 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass GmbH: 85 — Unauthenticated 2.1MB tariff/budget/bonus intelligence at one GET (no rate limit, no cache, ≥14 sessions stable, apex+www doubled) remains the substantiated exposure; 7 cookie-stuffing mirrors sit behind a lead-gate that blocks cheap verification but not real attackers with funnel access; API credential-gated with consistent authz (A/B map); S3/HubSpot/SGTM passive-only. Next hardening data point: ≥01:20 09-18 fragen.php rotation. No new attack surface introduced anywhere this cycle.
+===== ANALYST bigpickle 2026-09-18 01:11:07 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s --compressed -D - -c /tmp/kk_jar_0918.txt -o /tmp/kk_fragen_0918.html -w "\n__HTTP:%{http_code} CL:%{size_download}\n" "https://kassenkompass.de/bonusrechner_fragen.php"; echo; sleep 2; curl -s --compressed -D - -o /tmp/kk_api_root_0918.json -w "\n__HTTP:%{http_code} CL:%{size_download}\n" "https://api.kassenkompass.de/"
+HTTP/2 200 
+date: Fri, 18 Sep 2026 01:10:34 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=nc9oud4LlJ0Epf+9zos9x9nYFYSPm72fdpfJlcV1OCn4LCgdRPkqBWVJmKgfrxhGJwubcrIw4sSFmWiXsAJSubnm+F7eCmYbmCLzMGxvdRYZKrGtwo5w4tyI6ypi; Expires=Fri, 25 Sep 2026 01:10:34 GMT; Path=/
+set-cookie: AWSALBCORS=nc9oud4LlJ0Epf+9zos9x9nYFYSPm72fdpfJlcV1OCn4LCgdRPkqBWVJmKgfrxhGJwubcrIw4sSFmWiXsAJSubnm+F7eCmYbmCLzMGxvdRYZKrGtwo5w4tyI6ypi; Expires=Fri, 25 Sep 2026 01:10:34 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=f518ea049b9aaf426c1b7af23406c372; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=noodiN6pYgtbYJP9LukprFFw1pE%2FhO9FBVJ%2FNZVATt7urs3po1dS4ITpdWNO1DrZyNthbA2y8nqdBdqH6kh%2FKlFfjBmCq1PmStMLlMG%2B8eWMGw7J%2FUxgTmAlDvFnVakuFdg%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+content-encoding: br
+cf-ray: a3cc78bdcb9072e5-ORD
+
+
+__HTTP:200 CL:154767
+
+HTTP/2 200 
+date: Fri, 18 Sep 2026 01:10:37 GMT
+content-type: application/json; charset=utf-8
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=2Y2w5D84AINw9v%2FDQ6DEqqJou6Z3iCXqoqYGGUdRL9Gdr2hUyyhg1UAT49QLpifrSyT%2BMYlTe4JOhvEWWTDnzqbuBXuQFhgmTkTmM3thusFY8P29QvhyzYVfM%2Bskg8LW%2FaaR03H1"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+content-encoding: br
+cf-ray: a3cc78d39a55f861-ORD
+
+
+__HTTP:200 CL:534
+[0m
+[0m$ [0mwc -c /tmp/kk_fragen_0918.html /tmp/kk_api_root_0918.json; echo "---"; rg -o "ucatKkData|globalbudgetsData|kombiboniData|pseudoKkIds" /tmp/kk_fragen_0918.html | sort | uniq -c; echo "---"; rg -o "akt_kk_id[^,}]*" /tmp/kk_fragen_0918.html | head -3
+2152680 /tmp/kk_fragen_0918.html
+   1167 /tmp/kk_api_root_0918.json
+2153847 total
+---
+/bin/bash: line 1: rg: command not found
+---
+/bin/bash: line 1: rg: command not found
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mGrep "ucatKkData|globalbudgetsData|kombiboniData|pseudoKkIds" failed[90m in /tmp/kk_fragen_0918.html[0m
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mGrep "akt_kk_id[^,]*" failed[90m in /tmp/kk_fragen_0918.html[0m
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
