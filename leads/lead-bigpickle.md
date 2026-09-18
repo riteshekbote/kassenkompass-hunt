@@ -4215,3 +4215,31 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none (settlement_report /json /csv consistent), 15/15 auth map stable; api passive surface remains credential-gated.
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 14th+ consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surface introduced anywhere.
 [RISK] KassenKompass GmbH: 86 (stable, +0 from 85) — 2.1MB tariff/budget/bonus intelligence unauthenticated at one GET with zero drift mitigation remains the substantiated top exposure (exact-size verified across multiple rotations now at 92 confidence); 7 cookie-stuffing mirrors sit behind a POST lead-gate blocking cheap verification, not real attackers with funnel access; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only. No new attack surface introduced anywhere this cycle.
+## 2026-09-18 18:38:05 UTC [target] (model bigpickle)
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php (apex+www identical)
+confidence: 92
+reasoning: 11:30 09-18 live GET = 200, 2,152,680 B (0.00% vs 01:20 09-17); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData 34KB + kombiboniData 105KB + pseudoKkIds=[99,100,101]; per-KK lastchange ≤2025-12-22; api v2 insurance_info gates same data domain behind middleware A → public-vs-protected inconsistency; sessionData all-null under stuffed jar confirms server-side-only consumption.
+evidence_needed: PASSIVE-VERIFIED; next re-measure ≥11:30 09-19 rotates proof.
+verify_steps: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar (no cookies/params) ≥11:30 09-19 → expect 200, 2,145–2,159 MB, no-store. Single request, no burst (WAF 09-11 precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 16:38 09-16 re-confirmed lizenz/jid/agn/ppn→4 1yr cookies exact; afilcode non-HttpOnly asym; jid/customerid + connectionnumber/agenturnummer dual-alias duplicates; GET branch closed 7/7; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot register REFUTED 09-09; vergleich2 device_id (1yr Secure HttpOnly SameSite=Lax) sole anchor-emitting step, catoint force-deleted.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure — Recon Amplifier
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 11:30 09-18 root = 200, 1167 B, 15 v1 ver 1.0, content-length accurate again (was absent/CL:0 — cosmetic header-shape noise class, substance constant); auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET / → parse catalog; re-confirm alongside next threshold probe. Done.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE

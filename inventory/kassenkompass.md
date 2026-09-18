@@ -762,3 +762,7 @@ www.kassenkompass.de
 - NEW Scheduled probe window (≥2026-09-18 11:35 UTC) for `bonusrechner_fragen.php` 1-rps check has passed; no new probe results in KB since 11:37:09 aggregation
 - NEW Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
 - CHANGED Risk score holds at 85 — API catalog disclosure + 7-entry cookie stuffing funnel + 2.1MB tariff leak + v2 draft data surface unchanged
+
+## 2026-09-18 18:39:29 UTC
+- CHANGED Current time 2026-09-18 18:38 UTC vs last KB aggregation 11:37 UTC — ~7h gap; scheduled 1-rps probe window for bonusrechner_fragen.php elapsed with no new results in KB
+- CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
