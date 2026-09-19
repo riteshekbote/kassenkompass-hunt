@@ -2120,3 +2120,18 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: 14th consecutive triage cycle — peer leads header-only/stub; observability gap persists, no signal; no new attack surfa
+
+## RANKED HYPOTHESES 2026-09-19 17:59:55 UTC
+- [92] kassenkompass.de/bonusrechner_fragen.php: Unauth Tariff Database Scraping — 24h smoke verification (iteration 3) (from art/lead_bigpickle.txt)
+- [92] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: at ≥2026-09-20 17:55 UTC (24h since 2,152,708 B @17:54 09-19) execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh j
+- NEXT(hypotheses-nemotron3.txt): PROBE: Execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh cookie jar (no cookies/params); measure Content-Length, confirm
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,680 B @11:30 09-18 → 2,152,708 B @23:25 09-18, +0.001%); next byte-r
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now absent (was CL:0) — same cosmetic class
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (a
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step em
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates A
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive triage cycle (through run-2026-09-19-00-36; laguna/ling3/longcat pure timestamp stubs, mimo "No leads

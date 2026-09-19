@@ -4526,3 +4526,33 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: auth map drift-free through 23:25 09-18 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A, root 1167 B/15 v1 with accurate content-length; no new enumeration primitive in 16+ cycles.
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive triage cycle (through run-2026-09-19-00-36; laguna/ling3/longcat pure timestamp stubs, mimo "No leads provided", nemotron3 reprint) — observability gap persists, zero new signal; no new attack surface introduced anywhere.
 [RISK] KassenKompass GmbH: 86 (stable) — 2.1MB unauthenticated tariff/budget/bonus intelligence at one GET with zero rate-limit/caching mitigation remains the substantiated top exposure (92, exact-size rotation across ≥12 windows); 7 cookie-stuffing mirrors sit behind a POST lead-gate blocking cheap verification, not real attackers with funnel access; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only. No new attack surface introduced anywhere this cycle; executing scheduled rotation probe ≥11:30 09-19.
+## 2026-09-19 17:54:59 UTC [target] (model bigpickle)
+[HYP] Unauth Tariff Database Scraping — 24h smoke verification (iteration 3)
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php (apex+www identical)
+confidence: 92
+reasoning: 17:54 09-19 = 2,152,708 B byte-identical to 23:25 09-18 (+0.0013% vs 11:30 09-18 baseline); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; lastchange ≤2025-12-22; api v2 insurance_info gates same data domain behind middleware-A (public-vs-protected inconsistency persists).
+evidence_needed: next rotation measurement inside 2.145–2.159 MB proves continued drift-on-refresh, not frozen cache.
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no cookies/params), exactly one 1-rps request ≥2026-09-20 17:55 UTC; capture status/content-length/cache-control/CF-DYNAMIC.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: stuffing mirror exact 4-cookie injection 17:54-consistent (lizenz/jid/agn/ppn); afilcode non-HttpOnly asym; jid/customerid + connectionnumber/agenturnummer dual-alias last-wins; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot register REFUTED.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure — Recon Amplifier
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 17:54 09-19 root = 200, CL 1167 == body 1167 B, 15 v1 ver 1.0; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed; header-shape noise (CL:0/absent/accurate) cosmetic-only across 16+ sessions.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET https://api.kassenkompass.de/ → parse catalog; re-confirm alongside next fragen probe, ≥2 s spacing.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[NEXT] PROBE: at ≥2026-09-20 17:55 UTC (24h since 2,152,708 B @17:54 09-19) execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar (no cookies/params); measure status/content-length/cache-control/CF-DYNAMIC; accept 2.145–2.159 MB; then one GET https://api.kassenkompass.de/ at ≥2 s spacing for catalog/auth-map continuity. No burst (WAF 09-11 precedent).
+[RISK] KassenKompass GmbH: 88 (stable) — 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET with no rate-limit/caching mitigation remains the substantiated top exposure (92, exact-size verified across 3-window rotation, whole payload refreshed on data update); 7 cookie-stuffing mirrors sit behind a POST lead-gate blocking cheap verification, not real attackers with funnel access; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only. No new attack surface introduced anywhere; holding until ≥17:55 09-20 rotation.

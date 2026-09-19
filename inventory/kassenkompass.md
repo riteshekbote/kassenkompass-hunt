@@ -804,3 +804,11 @@ www.kassenkompass.de
 ## 2026-09-19 11:38:46 UTC
 
 ## 2026-09-19 14:55:03 UTC
+
+## 2026-09-19 17:59:55 UTC
+- NEW Scheduled 1-rps probe window for `bonusrechner_fragen.php` at ≥2026-09-19 11:30 UTC has elapsed (now 14:55 UTC) but no new probe results in KB — live verification of tariff leak stability pending
+- CHANGED All major surfaces stable: api catalog (15+
+- NEW Scheduled 1-rps probe window for `bonusrechner_fragen.php` at ≥2026-09-19 11:30 UTC has elapsed (now 14:55 UTC) but no new probe results in KB — live verification of tariff leak stability pending
+- CHANGED All major surfaces stable: api catalog (15+1, CL:0 header), v2 (insurance_info sole route, 42-name saturation), 7 funnel entry points with divergent alias maps, auth map 15/15 drift-free, tariff paylo
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07
