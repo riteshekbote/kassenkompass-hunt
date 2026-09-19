@@ -800,3 +800,5 @@ www.kassenkompass.de
 - CHANGED `kassenkompass.de/bonusrechner_vergleich2.php` emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `catoint` force-deleted — sole funnel step emitting `device_id`, confirmed live
 - CHANGED `kassenkompass.de/bonusrechner_abschluss.php` GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on 
 - CHANGED Peer pipeline remains silent — 15th+ consecutive triage cycle with header-only/stub leads; observability gap persists
+
+## 2026-09-19 11:38:46 UTC
