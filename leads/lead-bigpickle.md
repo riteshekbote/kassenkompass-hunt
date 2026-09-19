@@ -4423,3 +4423,43 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,680 B @11:30 09-18 → 2,152,708 B @23:25 09-18, +0.001%); next byte-rotation ≥11:30 09-19; drift-on-refresh in ±0.3% window maintained.
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: auth map drift-free through 23:25 09-18 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A, root 1167 B/15 v1 with accurate content-length; no new enumeration primitive in 15+ cycles.
 [RISK] KassenKompass GmbH: 86 (stable) — 2.1MB unauthenticated tariff/budget/bonus intelligence at one GET with zero drift/rate-limit mitigation remains the substantiated top exposure (92 confidence, exact-size verified across ≥12 rotations); 7 cookie-stuffing mirrors sit behind a POST lead-gate blocking cheap verification, not real attackers with funnel access; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only. No new attack surface introduced anywhere this cycle; holding until ≥11:30 09-19 rotation.
+## 2026-09-19 06:39:42 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,6.55,0.25*8+0.25*8+0.15*5+0.15*10+0.10*0+0.10*3
+[PRIO] kassenkompass.de (funnel 7 mirrors),5.90,0.25*6+0.25*8+0.15*5+0.15*9+0.10*0+0.10*3+0.15g9
+[PRIO] api.kassenkompass.de,5.70,0.25*6+0.25*9+0.15*7+0.15*2+0.10*3+0.10*3
+[HYP] Unauthenticated Tariff Database Access via bonusrechner_fragen.php
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php (apex+www identical)
+confidence: 92
+reasoning: 23:25 09-18 = 2,152,708 B; 11:30 09-18 = 2,152,680 B (+0.001%, inside ±0.3% window); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; per-KK lastchange ≤2025-12-22; api v2 insurance_info gates same data domain behind middleware-A (public-vs-protected inconsistency); sessionData all-null under stuffed jar.
+evidence_needed: exactly one clean 1-rps GET ≥11:30 09-19 fresh jar, body inside 2.145–2.159 MB.
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (no cookies/params, fresh jar) at ≥11:30 09-19, 1-rps single request → expect 200, 2.145–2.159 MB, no-store. No burst (WAF 09-11 precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: 16:38 09-16 exact 4-cookie injection re-confirmed; afilcode non-HttpOnly asym; jid/customerid + connectionnumber/agenturnummer dual-alias last-wins; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate (09-09 and 09-18 differentials); one-shot register REFUTED; vergleich2 device_id sole anchor-emitting step, catoint force-deleted.
+evidence_needed: settlement line-item attributed to stuffed afilcode under a completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure — Recon Amplifier
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 23:25 09-18 root = 200, 1167 B, 15 v1 ver 1.0, content-length accurate; auth 15/15 A/B + v2 middleware-A; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed; header-shape class (CL:0/absent/accurate) cosmetic-only, substance constant across 15+ sessions.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET https://api.kassenkompass.de/ → parse catalog; re-confirm alongside threshold probe ≥11:30 09-19, ≥2 s spacing.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] None new — v2 oracle (42/42), auth source-merge, format differential, subdomain sweep, parser differential all saturated across 16+ cycles; surfaces unchanged since prior aggregation.
+[FINAL] kassenkompass.de/bonusrechner_fragen.php: 92, PASSIVE-VERIFIED, exact-size rotation holds through 2,152,708 B @23:25 09-18; next proof ≥11:30 09-19.
+[FINAL] Cookie-Stuffing Attribution Theft: 81, AUTH_HELPED, lead-gated, 7-mirror divergent alias map intact.
+[FINAL] API Root Catalog Disclosure: 76, PASSIVE-VERIFIED, cosmetic header-shape class; substance constant.
+[NEXT] HOLD — nothing before ≥11:30 09-19 UTC (24h since 2,152,680 B at 11:30 09-18; now 01:38). At threshold: exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php fresh jar (no cookies/params), capture status/content-length/cache-control/CF-DYNAMIC, accept 2.145–2.159 MB; plus one GET https://api.kassenkompass.de/ ≥2 s spacing; no burst (WAF 09-11 precedent).
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive empty triage cycle (through 01:38 09-19; laguna/ling3/longcat pure timestamp stubs, mimo "No leads provided", nemotron3 reprint) — observability gap persists, zero new signal; no new attack surface introduced anywhere.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,680 B @11:30 09-18 → 2,152,708 B @23:25 09-18, +0.001%); next byte-rotation ≥11:30 09-19; drift-on-refresh in ±0.3% window maintained.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: auth map drift-free through 23:25 09-18 — 15/15 A/B, /sync/ HTTP-200 legacy, v2 middleware-A, root 1167 B/15 v1 with accurate content-length; no new enumeration primitive in 16+ cycles.
+[RISK] KassenKompass GmbH: 86 (stable) — 2.1MB unauthenticated tariff/budget/bonus intelligence at one GET with zero drift/rate-limit mitigation remains the substantiated top exposure (92 confidence, exact-size verified across ≥12 rotations); 7 cookie-stuffing mirrors sit behind a POST lead-gate blocking cheap verification, not real attackers with funnel access; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only. No new attack surface introduced anywhere this cycle; holding until ≥11:30 09-19 rotation.
