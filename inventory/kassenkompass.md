@@ -812,3 +812,9 @@ www.kassenkompass.de
 - CHANGED All major surfaces stable: api catalog (15+1, CL:0 header), v2 (insurance_info sole route, 42-name saturation), 7 funnel entry points with divergent alias maps, auth map 15/15 drift-free, tariff paylo
 - CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07
+
+## 2026-09-19 20:27:29 UTC
+- NEW Scheduled 1-rps probe window for `bonusrechner_fragen.php` at ≥2026-09-19 11:30 UTC elapsed (now 17:59 UTC) with no new KB results — live verification of tariff leak stability pending
+- CHANGED All major surfaces stable: api catalog (15+1, CL:0 header), v2 (insurance_info sole route, 42-name saturation), 7 funnel entry points with divergent alias maps, auth map 15/15 drift-free, tariff paylo
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07
