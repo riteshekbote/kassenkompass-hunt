@@ -781,3 +781,12 @@ www.kassenkompass.de
 - CHANGED `kassenkompass.de/bonusrechner_vergleich2.php` emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `catoint` force-deleted — sole funnel step emitting `device_id`
 - CHANGED `kassenkompass.de/bonusrechner_abschluss.php` GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on 
 - CHANGED Peer pipeline remains silent — 14th+ consecutive triage cycle with header-only/stub leads; observability gap persists
+
+## 2026-09-19 01:38:28 UTC
+- NEW Next scheduled 1-rps probe window for `bonusrechner_fragen.php` opens at ≥2026-09-19 11:30 UTC (24h since last measurement at 11:30 09-18)
+- CHANGED `api.kassenkompass.de/` root: `content-length: 0` header persists with full 15+1 JSON catalog in body — structural header/body mismatch, disclosure substance unchanged
+- CHANGED `api.kassenkompass.de/v2/insurance_info/{kk_id}` greedy segment match confirmed live (`/1/extra` → 401 middleware A); enumeration saturated at 42 names
+- CHANGED `kassenkompass.de/bonusrechner.php` stuffing mirror re-confirmed live — `lizenz/jid/agn/ppn→4` 1yr cookies exact, attribute asymmetry intact (`afilcode` non-HttpOnly, others HttpOnly)
+- CHANGED `kassenkompass.de/bonusrechner_vergleich2.php` emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + `catoint` force-deleted — sole funnel step emitting `device_id`
+- CHANGED `kassenkompass.de/bonusrechner_abschluss.php` GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST (1 hit), absent on GET (0 hits); server validates Account-ID on 
+- CHANGED Peer pipeline remains silent — 15th+ consecutive triage cycle with header-only/stub leads; observability gap persists
