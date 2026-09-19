@@ -818,3 +818,11 @@ www.kassenkompass.de
 - CHANGED All major surfaces stable: api catalog (15+1, CL:0 header), v2 (insurance_info sole route, 42-name saturation), 7 funnel entry points with divergent alias maps, auth map 15/15 drift-free, tariff paylo
 - CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07
+
+## 2026-09-19 22:33:47 UTC
+- NEW Live probe: `kassenkompass.de/bonusrechner_fragen.php` returns HTTP 200, 2,152,708 bytes, `cache-control: no-store, no-cache, must-revalidate`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified — tari
+- NEW Live probe: `www.kassenkompass.de/bonusrechner_fragen.php` identical 2,152,708 bytes, same headers — mirror surface doubled confirmed
+- NEW Live probe: `api.kassenkompass.de/` returns HTTP 200, `content-length: 0` header but full 15-endpoint JSON catalog in body — structural header/body mismatch persists
+- CHANGED Scheduled 1-rps probe window for `bonusrechner_fragen.php` at ≥2026-09-19 11:30 UTC elapsed — live verification complete
+- CHANGED All major surfaces stable: api catalog (15+1, CL:0), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries, auth map 15/15 drift-free
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists
