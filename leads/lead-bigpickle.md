@@ -4645,3 +4645,43 @@ impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
 testability: PASSIVE
 [NEXT] PROBE: at ≥2026-09-20 20:25 UTC (24h since 2,152,708 B @20:25 09-19) execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar (no cookies/params); measure status/content-length/cache-control/CF-DYNAMIC; accept 2.145–2.159 MB; then one GET https://api.kassenkompass.de/ at ≥2 s spacing for catalog/auth-map continuity. No burst (WAF 09-11 precedent). Window NOT open as of 22:29 09-19 — held.
 [RISK] KassenKompass GmbH: 88 (stable) — single substantiated high-value exposure unchanged for 18th cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET, no rate-limit/caching mitigation, exact-size verified across 4 independent rotation windows, whole payload regenerated per request; reconstruction into active threat remains contingent on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz; S3/HubSpot/SGTM passive-only; peer pipeline adds no new signal for 17+ cycles.
+## 2026-09-20 00:23:48 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php (apex+www),6.85,gate_ease
+[PRIO] kassenkompass.de/bonusrechner.php (7-funnel stuffing),7.25,business_value
+[PRIO] api.kassenkompass.de/ (catalog+auth map),6.35,attack_surface
+[HYP] Sustained Unauthenticated Tariff Database Scraping — Rotation-6 Smoke
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php (www mirror identical)
+confidence: 92
+reasoning: 22:33 09-19 measured 2,152,708 B exact (4-window rotation since 11:30 09-18); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; freshness ≤2025-12-22; api v2 insurance_info gates same data domain behind middleware-A; www mirror doubles surface.
+evidence_needed: next rotation size inside 2.145–2.159 MB proves continued drift-on-refresh rather than frozen cache.
+verify_steps: at ≥2026-09-20 22:33 UTC one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no cookies/params); capture status/content-length/cache-control/cf-cache-status; then one GET https://api.kassenkompass.de/ at ≥2 s spacing for catalog/auth-map continuity. No burst (WAF 09-11 precedent).
+impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: stuffing mirror exact 4-cookie injection live (lizenz→afilcode non-HttpOnly asym, jid→customerid, agn→agenturnummer, ppn→poolpartnernummer); dual-alias last-wins duplicates; GET branch closed 7/7 byte-identical; consumption POST/settlement-only; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09; device_id (vergleich2 only) + catoint force-delete unchanged.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] API Root Catalog Disclosure — Recon Amplifier (standing)
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 76
+reasoning: 22:33 09-19 root = 200, CL:0-with-body, 15 v1 ver 1.0 + v2 insurance_info; auth 15/15 A/B; /sync/ HTTP-200 legacy; v2 oracle 42/42; source-merge closed; header-shape noise (CL:0/absent/accurate) cosmetic-only across 16+ sessions.
+evidence_needed: none — PASSIVE-VERIFIED.
+verify_steps: GET https://api.kassenkompass.de/ → parse catalog; re-confirm alongside next fragen probe ≥2 s spacing.
+impact: recon amplifier for credential-gated surface; LOW-MEDIUM.
+testability: PASSIVE
+[PARKED] device_id↔Account-ID lead-state correlation (confidence 75): multi-step chain needs POST mutation at abschluss.php; prior 4-step stuffed chain failed lead gate; correlation unproven; AUTH_HELPED violates passive-first for initial validation.
+[FINAL] 1. Unauthenticated Tariff Database Scraping (confidence 92, PASSIVE)
+[FINAL] 2. Cookie-Stuffing Attribution Theft (confidence 81, BUSLOGIC, AUTH_HELPED)
+[FINAL] 3. API Root Catalog Disclosure (confidence 76, MISCONFIG, PASSIVE)
+[NEXT] PROBE: at ≥2026-09-20 22:33 UTC (24h since 2,152,708 B @22:33 09-19) execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar (no cookies/params); measure status/content-length/cache-control/CF-DYNAMIC; accept 2.145–2.159 MB; then one GET https://api.kassenkompass.de/ at ≥2 s spacing. No burst (WAF 09-11 precedent). Window NOT open as of this analysis cycle — held.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke holds — 2,152,708 B @22:33 09-19 matches 23:25 09-18 measurement; drift-on-refresh within ±0.3% window maintained across 5 rotation windows; next rotation ≥22:33 09-20.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root CL:0-with-body persists through 22:33 09-19; 15+1 disclosure substance unchanged; auth map drift-free through 16+ cycles; no new enumeration primitive.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive triage cycle consumed header-only/stub peer leads; observability gap persists, zero new signal; no new attack surface anywhere.
+[RISK] KassenKompass GmbH: 88 (stable) — single substantiated high-value exposure unchanged for 19th cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET per host (apex+www), no rate-limit/caching mitigation, exact-size verified across 5 rotation windows; reconstruction into active threat remains contingent on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz; stuffing surface real at 81 but verification AUTH_HELPED and lead-blocked; S3/HubSpot/SGTM passive-only; peer pipeline adds no signal for 17+ cycles.
