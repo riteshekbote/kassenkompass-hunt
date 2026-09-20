@@ -1,43 +1,58 @@
-## 2026-09-20 14:20:35 UTC [target] (model bigpickle)
-[CHANGED] Time ~10:17 UTC 09-20 vs last live probes 10:10-10:11 UTC 09-20 (within the hour) — api root now serves accurate content-length 1167 (was CL:0-with-body), catalog substance unchanged; fragen.php + www mirror re-measured 2,152,708 B; stuffing mirror/device_id/abschluss lead-gate all re-confirmed live.
-[CHANGED] 24h fragen smoke rotation not yet due — last measurement 2,152,708 B @22:33 09-19; window opens ≥22:33 UTC 09-20 (~12h away); hold.
-[CHANGED] Peer pipeline: 16th+ consecutive triage cycle (run-2026-09-20-10-17); laguna/ling3/longcat stub-only, nemo reprint; observability gap persists, zero new signal.
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.10,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.45,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.25,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
-[PRIO] api.kassenkompass.de/,6.85,attack_surface=7 business_value=6 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=7
+## 2026-09-20 17:35:49 UTC [target] (model bigpickle)
+evidence_needed: Confirm www mirror payload byte-identical to apex; verify independent rate-limit buckets (or shared)
+verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,708 B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
+impact: Attack surface multiplier — scraper can distribute load across two hostnames; MEDIUM
+testability: PASSIVE
+[HYP] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_vergleich2.php → bonusrechner_abschluss.php
+confidence: 75
+reasoning: vergleich2.php (step 3/7) sets device_id (1yr Secure HttpOnly SameSite=Lax) + expires catoint — new cookie not seen before 2026-09-09; abschluss.php (step 7) validates Account-ID on POST only ("Account-ID nicht gefunden" appears ONLY on POST); full 4-step stuffed chain (entry→daten→fragen→abschluss POST) returned "Account-ID nicht gefunden"; device_id may serve as server-side session anchor linking stuffed cookies to lead state; abschluss.php accepts full superset alias map (lizenz→afilcode non-HttpOnly; jid→customerid; agn+connectionnumber→agenturnummer dual-alias duplicate; ppn→poolpartnernummer; employeenumber)
+evidence_needed: Correlation between device_id value set at vergleich2.php and Account-ID expected at abschluss.php POST; or logic flaw allowing Account-ID derivation from device_id
+verify_steps: GET https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN → capture all Set-Cookie incl. device_id; GET /bonusrechner_daten.php → observe HttpOnly cookies persist; GET /bonusrechner_fragen.php → confirm 2.1MB tariff data; GET /bonusrechner_vergleich2.php → capture device_id; GET /bonusrechner_abschluss.php → capture form + Account-ID field; POST /bonusrechner_abschluss.php with stuffed jar + email/password/confirm/create_account=1 → observe "Account-ID nicht gefunden" or account creation
+impact: Attribution hijacking — attacker controls afilcode (partner commission), customerid, agenturnummer, poolpartnernummer, employeenumber, device_id across 7-step funnel; commission theft, lead misattribution, financial harm; HIGH
+testability: AUTH_HELPED
+[PARKED] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass: confidence 75 but requires multi-step chain with POST mutation at abschluss.php; prior 4-step chain failed at lead gate; device_id↔Account-ID correlation unproven; downstream verification needs AUTH_HELPED which violates passive-first for initial validation
+[FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 92, PASSIVE)
+[FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 90, PASSIVE)
+[NEXT] PROBE: Execute sustained 1-rps scraping test on both hosts — GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests (10 per host) with 1s spacing; monitor for 429/WAF responses, measure response time variance, confirm payload integrity across all responses
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,708 B stable), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed live at 2026-09-20 10:11 UTC
+[LEARN] ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now accurate (was 0); catalog disclosure without auth persists
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (only /user/{ext_id}, /cancel/{id}) — separate auth middleware stacks confirmed
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none, 15/15 auth map stable; api passive surface remains credential-gated
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
 [HYP] Sustained Unauthenticated Tariff Database Scraping — Rotation-7 Smoke (held)
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php (www mirror identical)
 confidence: 92
-reasoning: 2,152,708 B last measured @22:33 09-19; stable across 6 rotation windows within ±0.3% since 11:30 09-18; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; freshness ≤2025-12-22; www doubles surface; re-confirmed 10:10 UTC 09-20.
-evidence_needed: next rotation size inside 2.145–2.159 MB proves continued drift-on-refresh, not frozen cache; 429/WAF differential under sustained pacing (NOT this window).
-verify_steps: at ≥2026-09-20 22:33 UTC one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no cookies/params); capture status/content-length/cache-control/cf-cache-status; then GET https://www.kassenkompass.de/bonusrechner_fragen.php and https://api.kassenkompass.de/ each at ≥2 s spacing. No burst (WAF 09-11 precedent).
+reasoning: 2,152,708 B last measured @22:33 09-19, re-confirmed 10:10 09-20; stable within ±0.3% across 6 rotation windows since 11:30 09-18; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; data freshness ≤2025-12-22; GET render always full set (kk_id param not consumed).
+evidence_needed: next rotation size inside 2.145–2.159 MB proves continued drift-on-refresh, not frozen cache.
+verify_steps: at ≥2026-09-20 22:33 UTC one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no cookies/params); record status/content-length/cache-control/cf-cache-status.
 impact: wholesale competitor tariff/budget/combi-bonus intelligence ≤2025-12-22; MEDIUM-HIGH, no PII.
 testability: PASSIVE
 [HYP] Mirror Doubles Tariff Leak Surface
 class: MISCONFIG
 asset: www.kassenkompass.de/bonusrechner_fragen.php
 confidence: 90
-reasoning: www serves byte-identical 2,152,708 B payload, same no-store+CF-DYNAMIC headers, re-confirmed 10:10 09-20; independent rate-limit buckets untested; doubles unauthenticated scraping surface.
-evidence_needed: www size within same ±0.3% window as apex at same rotation; optional 429 differential under sustained 2-host pacing (deferred).
-verify_steps: one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php (fresh jar) ≥2 s from apex probe; compare content-length/cache-control/cf-cache-status same rotation.
+reasoning: www serves byte-identical 2,152,708 B, same no-store+CF-DYNAMIC headers, re-confirmed 10:10 09-20; independent rate-limit buckets untested.
+evidence_needed: www size within same ±0.3% window at same rotation.
+verify_steps: one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php (fresh jar) ≥2 s after apex probe; compare content-length/cache-control/cf-cache-status.
 impact: attack-surface multiplier for scraping load distribution; MEDIUM.
 testability: PASSIVE
 [HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies (held)
 class: BUSLOGIC
 asset: kassenkompass.de (7 funnel mirrors)
 confidence: 81
-reasoning: stuffing mirror 4-cookie injection re-confirmed 10:10 09-20 (lizenz→afilcode non-HttpOnly asym; jid→customerid; agn→agenturnummer; ppn→poolpartnernummer); dual-alias last-wins duplicates; GET branch closed 7/7 byte-identical; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09.
+reasoning: lizenz→afilcode non-HttpOnly asym + jid→customerid + agn→agenturnummer + ppn→poolpartnernummer re-confirmed 10:10 09-20; dual-alias last-wins duplicates; GET branch closed 7/7; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09.
 evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
 verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
 impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
 testability: AUTH_HELPED
-[FINAL] 1. Sustained Unauthenticated Tariff Database Scraping — Rotation-7 (confidence 92, PASSIVE)
-[FINAL] 2. Mirror Doubles Tariff Leak Surface (confidence 90, PASSIVE)
-[FINAL] 3. Cookie-Stuffing Attribution Theft (confidence 81, AUTH_HELPED — held)
-[NEXT] PROBE: at ≥2026-09-20 22:33 UTC (24h since 2,152,708 B @22:33 09-19) execute exactly one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php with fresh jar (no cookies/params); measure status/content-length/cache-control/cf-cache-status; accept 2.145–2.159 MB; then GET https://www.kassenkompass.de/bonusrechner_fragen.php and GET https://api.kassenkompass.de/ each at ≥2 s spacing for mirror parity + catalog/auth-map continuity. Window NOT open as of 10:17 UTC — held.
-[LEARN] REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive triage cycle (run-2026-09-20-10-17) — peer leads header-only/stub; observability gap persists, zero new signal.
-[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length now accurate (1167 = body) at 10:10 09-20 — cosmetic header-shape drift (CL:0→absent→accurate) across sessions, disclosure substance constant; auth map drift-free through 16+ cycles.
-[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds at 2,152,708 B per 10:10 09-20; next rotation window ≥22:33 UTC 09-20 not yet reached — hold maintained, no premature probe.
-[RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged for 21st+ cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET per host (apex+www), exact-size verified across 6 rotation windows, no rate-limit/caching mitigation; reconstruction to active threat contingent on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz; stuffing surface real at 81 but AUTH_HELPED/lead-blocked; S3/HubSpot/SGTM passive-only; peer pipeline no signal for 18+ cycles.
