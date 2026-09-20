@@ -117,3 +117,19 @@
   - | Q4 Provable? | **NO** — requires valid scoped X-API-Secret |
   - | Q4 Provable? | **NO** — requires valid X-API-Secret |
   - | 1 | API Catalog Disclosure | **VALID** |
+
+- 14 lead(s) marked VALID at 2026-09-20 18:57:41 UTC
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret to test. All passive probes returned 401. Cannot verify without auth |
+  - **Verdict: HOLD** — Blocked on Q4. Requires valid X-API-Secret to prove cross-user access. Confidence 62 is insufficient without PoC.
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret. Cannot verify cross-tenant access passively |
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Same blocker as Lead 2. Cannot prove cross-tenant access without valid key |
+  - **Verdict: HOLD** — Blocked on Q4. Needs valid X-API-Secret + cross-tenant test.
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret to confirm v2 returns draft fields vs v1 |
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Cannot confirm data differential (draft vs v1) without valid key |
+  - **Verdict: HOLD** — Blocked on Q4. Needs valid X-API-Secret for v2 vs v1 body comparison.
+  - | Q4 | Provable non-invasively? | Partially — error message mapping confirmed (message A on 8 endpoints, message B on /user/{ext_id}). But exploitability requires valid key to test cross-middleware se
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Architectural signal only. Not a standalone vulnerability. Would need a valid key proving cross-middleware authorization bypass to become reportabl
+  - | Q7 | Would reasonable triager accept? | **VALID** — but with caveat: downstream impact (commission hijack) requires partner-portal access to confirm. The injection itself is proven. Report as "Unval
+  - **Verdict: VALID** (with caveat on downstream impact)
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret. Also, DELETE method is destructive — violates passive-first principle |
+  - | 9 | **Funnel Cookie Injection** | **VALID** | **Reportable** — injection proven, downstream impact caveat |
