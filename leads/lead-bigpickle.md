@@ -5016,3 +5016,36 @@ evidence_needed: settlement line-item attributed to stuffed afilcode under compl
 verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
 impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
 testability: AUTH_HELPED
+## 2026-09-20 19:47:44 UTC [target] (model bigpickle)
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale — held
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: 2,152,708 B @22:33 09-19 re-confirmed 10:10 09-20; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows+globalbudgets+kombiboni+pseudoKkIds; freshness ≤2025-12-22; kk_id param not consumed (always full set).
+evidence_needed: next rotation size stays within 2,145–2,159 MB window (proves continued drift-on-refresh, not frozen cache).
+verify_steps: at ≥22:33 UTC 09-20 — one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params); record status/content-length/cache-control/cf-cache-status. Window NOT due this cycle; not executed.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Mirror Doubles Tariff Leak Surface — held
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: www byte-identical 2,152,708 B, same no-store+CF-DYNAMIC, re-confirmed 10:10 09-20; independent rate-limit buckets remain unverified.
+evidence_needed: www size inside same ±0.3% window at same rotation; bucket independence only provable via multi-request differential.
+verify_steps: 3 s after apex probe at ≥22:33 UTC 09-20 — one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php; compare content-length/cache-control/cf-cache-status. Sustained 20-request bucket test remains DEFERRED (09-11 WAF IP-block at ~14-request burst; "no further burst probes planned" 09-12).
+impact: scraping load distribution across two hostnames; MEDIUM.
+testability: PASSIVE
+[HYP] Authz-scope differential between middleware A and B
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 30
+reasoning: B stack {/user/{ext_id},/cancel/{id}} uses distinct 403 wording + instance echo vs A majority; kk_webapp-delegation implies separate authorization scopes; but every primitive (source-merge, header-name, magic secrets, v2 enumeration) is closed or saturated.
+evidence_needed: valid per-stack credential to compare authorization policy — unobtainable via passive surface.
+verify_steps: none passive; would require partner-portal credential → AUTH_HELPED.
+impact: potential authorization pruning/IDOR across stacks if a scope mismatch exists; HIGH if found.
+testability: AUTH_HELPED
+[NEXT] PROBE: DEFERRED-HOLD — scheduled 24h smoke at ≥2026-09-20 22:33 UTC: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params) then 3 s later GET https://www.kassenkompass.de/bonusrechner_fragen.php; record status/content-length/cache-control/cf-cache-status on each; expected 2,152,708 B ±0.3% per host. Window not yet open (17:36 < 22:33); sustained 20-request bucket test stays cancelled due to WAF-block history.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: rotation window ≥22:33 UTC 09-20 correctly withheld at 17:36 — discipline prevents premature probe-noise; drift-on-refresh model intact across 6 prior windows (2,152,680→2,152,708 B, +0.001%).
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle through run-2026-09-20-10-17 consumed header-only/stub peer leads — observability gap persists, zero new signal, no new attack surface anywhere.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: root header-shape noise class (CL:0→absent→accurate 1167) not re-tested this cycle — cosmetic, disclosure substance constant; no new enumeration primitive.
+[RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged 21st+ cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET per host (apex+www), exact-size verified across 6-7 rotation windows, no rate-limit/caching mitigation; reconstruction to active threat gated on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz and no new passive primitive in 17+ cycles; stuffing surface real at 81 but AUTH_HELPED/lead-blocked; S3/HubSpot/SGTM passive-only; peer pipeline silent 17+ cycles.
