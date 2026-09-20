@@ -866,3 +866,8 @@ www.kassenkompass.de
 - CHANGED www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,708 B payload confirmed — mirror surface doubled, independent rate-limit buckets untested
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable per live probes at 10:10 UTC
 - CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+
+## 2026-09-20 14:26:48 UTC
+- CHANGED Time ~10:17 UTC 09-20 vs last live probes 10:10-10:11 UTC 09-20 (within the hour) — api root now serves accurate content-length 1167 (was CL:0-with-body), catalog substance unchanged; fragen.php + www
+- CHANGED 24h fragen smoke rotation not yet due — last measurement 2,152,708 B @22:33 09-19; window opens ≥22:33 UTC 09-20 (~12h away); hold.
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle (run-2026-09-20-10-17); laguna/ling3/longcat stub-only, nemo reprint; observability gap persists, zero new signal.

@@ -544,3 +544,6 @@
 - 2026-09-20 ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
 - 2026-09-20 ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (only /user/{ext_id}, /cancel/{id}) — separate auth middleware stacks confirmed
 - 2026-09-20 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+- 2026-09-20 REJECTED OTHER @ kassenkompass pipeline: 16th+ consecutive triage cycle (run-2026-09-20-10-17) — peer leads header-only/stub; observability gap persists, zero new signal.
+- 2026-09-20 ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length now accurate (1167 = body) at 10:10 09-20 — cosmetic header-shape drift (CL:0→absent→accurate) across sessions, disclosure substance constant; auth map drift-free through 16+ cycles.
+- 2026-09-20 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds at 2,152,708 B per 10:10 09-20; next rotation window ≥22:33 UTC 09-20 not yet reached — hold maintained, no premature probe.
