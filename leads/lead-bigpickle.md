@@ -5049,3 +5049,31 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle through run-2026-09-20-10-17 consumed header-only/stub peer leads — observability gap persists, zero new signal, no new attack surface anywhere.
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: root header-shape noise class (CL:0→absent→accurate 1167) not re-tested this cycle — cosmetic, disclosure substance constant; no new enumeration primitive.
 [RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged 21st+ cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET per host (apex+www), exact-size verified across 6-7 rotation windows, no rate-limit/caching mitigation; reconstruction to active threat gated on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz and no new passive primitive in 17+ cycles; stuffing surface real at 81 but AUTH_HELPED/lead-blocked; S3/HubSpot/SGTM passive-only; peer pipeline silent 17+ cycles.
+## 2026-09-20 22:20:22 UTC [target] (model bigpickle)
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: 2,152,708 B @22:33 09-19 re-confirmed 10:10 09-20; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; freshness ≤2025-12-22; kk_id param not consumed (GET always full set).
+evidence_needed: next rotation size within 2,145–2,159 MB window — proves continued drift-on-refresh, not frozen cache.
+verify_steps: at ≥2026-09-20 22:33 UTC one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params); record status/content-length/cache-control/cf-cache-status. Window not open at 19:49 UTC — not executed.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence; MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Attribution Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 81
+reasoning: lizenz→afilcode non-HttpOnly asym + jid→customerid + agn→agenturnummer + ppn→poolpartnernummer re-confirmed 10:10 09-20; dual-alias last-wins duplicates; GET branch closed 7/7; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09.
+evidence_needed: settlement line-item attributed to stuffed afilcode under completed questionnaire; device_id↔Account-ID anchor.
+verify_steps: AUTH_HELPED — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[HYP] Middleware A/B authz-scope differential
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 30
+reasoning: B stack {/user/{ext_id},/cancel/{id}} uses distinct 403 wording + instance echo vs A majority; kk_webapp-delegation implies separate authorization scopes; all passive primitives closed (source-merge, header-name, magic secrets, v2 saturation 42).
+evidence_needed: valid per-stack credential to compare authorization policy — unobtainable via passive surface.
+verify_steps: none passive; requires partner-portal credential → AUTH_HELPED.
+impact: authorization pruning/IDOR across stacks if scope mismatch; HIGH if found.
+testability: AUTH_HELPED

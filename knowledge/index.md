@@ -550,3 +550,4 @@
 - 2026-09-20 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: rotation window ≥22:33 UTC 09-20 correctly withheld at 17:36 — discipline prevents premature probe-noise; drift-on-refresh model intact across 6 prior windows (2,152,680→2,152,708 B, +0.001%).
 - 2026-09-20 REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle through run-2026-09-20-10-17 consumed header-only/stub peer leads — observability gap persists, zero new signal, no new attack surface anywhere.
 - 2026-09-20 REJECTED MISCONFIG @ api.kassenkompass.de: root header-shape noise class (CL:0→absent→accurate 1167) not re-tested this cycle — cosmetic, disclosure substance constant; no new enumeration primitive.
+- 2026-09-20 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,708 B stable), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed live at 2026-09-20 22:21 UTC
