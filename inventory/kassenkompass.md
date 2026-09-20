@@ -853,3 +853,16 @@ www.kassenkompass.de
 - CHANGED Time advanced to 2026-09-20 05:26 UTC — ~5h since last live probes (00:24 UTC); scheduled 24h smoke window for `bonusrechner_fragen.php` next rotation ≥22:33 UTC (per 09-19 22:33 measurement)
 - CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable per 00:24 live probes
+
+## 2026-09-20 10:17:07 UTC
+- CHANGED Time advanced to 2026-09-20 05:26 UTC — ~5h since last live probes (00:24 UTC); scheduled 24h smoke window for `bonusrechner_fragen.php` next rotation ≥22:33 UTC (per 09-19 22:33 measurement)
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable per 00:24 live probes
+- CHANGED Time 05:26 UTC vs last probes 00:24 09-20 — 5h quiet; 24h fragen smoke rotation due window ≥22:33 UTC 09-20 not yet reached
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle (run-2026-09-20-07-01 "No leads to triage", 01-36 incomplete) — laguna/ling3/longcat timestamp stubs, nemo reprint, no peer signal
+- CHANGED All live surfaces stable per 00:24 batch — no new attack surface introduced since 2026-09-07
+- CHANGED api.kassenkompass.de/ root: content-length header now accurately reports 1167 (was 0 with full body) — cosmetic header/body mismatch resolved; catalog disclosure without auth persists
+- CHANGED bonusrechner_fragen.php: 24h smoke model holds at 2,152,708 B (±0.0% vs 09-19 22:33); drift-on-refresh within ±0.3% window maintained across 6 rotation windows
+- CHANGED www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,708 B payload confirmed — mirror surface doubled, independent rate-limit buckets untested
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable per live probes at 10:10 UTC
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
