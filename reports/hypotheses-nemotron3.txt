@@ -1,19 +1,12 @@
-## 2026-09-20 00:26:04 UTC [target] (model nemotron3)
-[NEW] Live probe: `kassenkompass.de/bonusrechner_fragen.php` HTTP 200, 2,152,708 bytes, `cache-control: no-store`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified — tariff leak stable
-[NEW] Live probe: `www.kassenkompass.de/bonusrechner_fragen.php` identical 2,152,708 bytes, same headers — mirror surface doubled confirmed
-[NEW] Live probe: `api.kassenkompass.de/` HTTP 200, `content-length: 0` header but full 1167-byte JSON catalog (15 v1 + 1 v2 endpoints, ver 1.0/2.0) in body — structural header/body mismatch persists
-[NEW] Live probe: `api.kassenkompass.de/v2/insurance_info/1/extra` HTTP 401 middleware A — greedy segment match confirmed, enumeration saturated at 42 names
-[NEW] Live probe: `kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` sets 4 attribution cookies (afilcode non-HttpOnly, others HttpOnly) — stuffing mirror re-confirmed live
-[NEW] Live probe: `kassenkompass.de/bonusrechner_vergleich2.php` sets `device_id` (1yr Secure HttpOnly SameSite=Lax) + force-deletes `catoint` — sole funnel step emitting device_id confirmed
-[NEW] Live probe: `kassenkompass.de/bonusrechner_abschluss.php` GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only, lead gate confirmed
-[CHANGED] All major surfaces stable since 2026-09-07: api catalog (15+1, CL:0), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-free
+## 2026-09-20 05:27:39 UTC [target] (model nemotron3)
+[CHANGED] Time advanced to 2026-09-20 05:26 UTC — ~5h since last live probes (00:24 UTC); scheduled 24h smoke window for `bonusrechner_fragen.php` next rotation ≥22:33 UTC (per 09-19 22:33 measurement)
 [CHANGED] Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
-[CHANGED] No new attack surface introduced anywhere since 2026-09-07
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.30,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.20,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
-[PRIO] kassenkompass.de/bonusrechner.php,7.70,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=10
-[PRIO] api.kassenkompass.de/,6.75,attack_surface=7 business_value=6 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=7
+[CHANGED] No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable per 00:24 live probes
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.10,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.45,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.25,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
+[PRIO] kassenkompass.de/bonusrechner.php,7.80,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=10
+[PRIO] api.kassenkompass.de/,6.85,attack_surface=7 business_value=6 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=7
 [HYP] Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php

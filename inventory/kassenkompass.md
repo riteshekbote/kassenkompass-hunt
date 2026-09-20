@@ -838,3 +838,18 @@ www.kassenkompass.de
 - CHANGED All major surfaces stable since 2026-09-07: api catalog (15+1, CL:0), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-free
 - CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07
+
+## 2026-09-20 05:28:10 UTC
+- NEW Live probe: `kassenkompass.de/bonusrechner_fragen.php` HTTP 200, 2,152,708 bytes, `cache-control: no-store`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified — tariff leak stable
+- NEW Live probe: `www.kassenkompass.de/bonusrechner_fragen.php` identical 2,152,708 bytes, same headers — mirror surface doubled confirmed
+- NEW Live probe: `api.kassenkompass.de/` HTTP 200, `content-length: 0` header but full 1167-byte JSON catalog (15 v1 + 1 v2 endpoints, ver 1.0/2.0) in body — structural header/body mismatch persists
+- NEW Live probe: `api.kassenkompass.de/v2/insurance_info/1/extra` HTTP 401 middleware A — greedy segment match confirmed, enumeration saturated at 42 names
+- NEW Live probe: `kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` sets 4 attribution cookies (afilcode non-HttpOnly, others HttpOnly) — stuffing mirror re-confirmed live
+- NEW Live probe: `kassenkompass.de/bonusrechner_vergleich2.php` sets `device_id` (1yr Secure HttpOnly SameSite=Lax) + force-deletes `catoint` — sole funnel step emitting device_id confirmed
+- NEW Live probe: `kassenkompass.de/bonusrechner_abschluss.php` GET 0 hits "Account-ID nicht gefunden", POST 1 hit — server validates Account-ID on form submission only, lead gate confirmed
+- CHANGED All major surfaces stable since 2026-09-07: api catalog (15+1, CL:0), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-free
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07
+- CHANGED Time advanced to 2026-09-20 05:26 UTC — ~5h since last live probes (00:24 UTC); scheduled 24h smoke window for `bonusrechner_fragen.php` next rotation ≥22:33 UTC (per 09-19 22:33 measurement)
+- CHANGED Peer pipeline: 16th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable per 00:24 live probes
