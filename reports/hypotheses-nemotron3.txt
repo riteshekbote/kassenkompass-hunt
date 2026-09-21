@@ -1,13 +1,13 @@
-## 2026-09-21 00:23:08 UTC [target] (model nemotron3)
-[CHANGED] Current time 2026-09-20 22:22 UTC vs last live probes 22:21 UTC — ~1 minute gap; all surfaces stable per 22:21 batch
-[CHANGED] 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC (per 09-19 22:33 measurement at 2,152,708 B) — not yet reached (11 min away)
+## 2026-09-21 05:32:20 UTC [target] (model nemotron3)
+[CHANGED] Time advanced ~7h since last live probes (2026-09-20 22:21 UTC → 2026-09-21 05:29 UTC); 24h fragen.php smoke rotation window (≥22:33 UTC 09-20) has elapsed with no new KB results
 [CHANGED] Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
-[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.10,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.45,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
-[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.25,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
-[PRIO] kassenkompass.de/bonusrechner.php,7.80,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=10
-[PRIO] api.kassenkompass.de/,6.85,attack_surface=7 business_value=6 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=7
+[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 22:21 UTC
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.30,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.20,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
+[PRIO] kassenkompass.de/bonusrechner.php,7.70,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=4 freshness=10
+[PRIO] api.kassenkompass.de/,6.75,attack_surface=7 business_value=6 tech_exposure=6 gate_ease=10 cloud_surface=4 freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.70,attack_surface=6 business_value=7 tech_exposure=6 gate_ease=3 cloud_surface=4 freshness=7
 [HYP] Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -38,7 +38,7 @@ testability: AUTH_HELPED
 [PARKED] Funnel Cookie Stuffing → device_id Anchored Lead State Bypass: confidence 75 but requires multi-step chain with POST mutation at abschluss.php; prior 4-step chain failed at lead gate; device_id↔Account-ID correlation unproven; downstream verification needs AUTH_HELPED which violates passive-first for initial validation
 [FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 92, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 90, PASSIVE)
-[NEXT] PROBE: Scheduled 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC 2026-09-20 (per 09-19 22:33 measurement at 2,152,708 B); current time 22:22 UTC — execute 1-rps scraping test on both hosts: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests with 1s spacing
+[NEXT] PROBE: Execute overdue 24h smoke rotation for bonusrechner_fragen.php — GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; measure Content-Length, confirm no 429/WAF block, extract headers (Cache-Control, ETag, Last-Modified, CF-Cache-Status), parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,708 B stable), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed live at 2026-09-20 22:21 UTC
 [LEARN] ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now accurate (was 0); catalog disclosure without auth persists

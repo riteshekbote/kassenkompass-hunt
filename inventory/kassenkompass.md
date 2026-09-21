@@ -883,3 +883,12 @@ www.kassenkompass.de
 - CHANGED 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC (per 09-19 22:33 measurement at 2,152,708 B) — not yet reached (11 min away)
 - CHANGED Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+
+## 2026-09-21 05:32:29 UTC
+- CHANGED Current time 2026-09-20 22:22 UTC vs last live probes 22:21 UTC — ~1 minute gap; all surfaces stable per 22:21 batch
+- CHANGED 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC (per 09-19 22:33 measurement at 2,152,708 B) — not yet reached (11 min away)
+- CHANGED Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+- CHANGED Time advanced ~7h since last live probes (2026-09-20 22:21 UTC → 2026-09-21 05:29 UTC); 24h fragen.php smoke rotation window (≥22:33 UTC 09-20) has elapsed with no new KB results
+- CHANGED Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 22:21 UTC
