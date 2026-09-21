@@ -5304,3 +5304,44 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds — 2,152,708 B across 8+ rotation windows (frozen since ~09-18, ±0.3% drift-only), no caching/rate-limit mitigation regression; re-confirmed 09-20 22:21, now on hold until ≥22:21 09-21.
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle consumed header-only/stub peer leads; observability gap persists, zero new signal, no new attack surface introduced anywhere.
 [RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged 23rd cycle: 2.1MB unauthenticated full in-force tariff/budget/combi-bonus DB at one GET per host (apex+www), byte-exact frozen across 8+ rotation windows, no rate-limit/caching mitigation; reconstruction to active threat gated on lead-gated settled chain + unpublished-draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, no new passive primitive in 18+ cycles; stuffing real at 68 but lead-gated/AUTH_HELPED; S3/HubSpot/SGTM passive-only; peer pipeline silent 17+ cycles.
+## 2026-09-21 21:09:00 UTC [target] (model bigpickle)
+[CHANGED] Time now 2026-09-21 21:08:34 UTC; last live measurement 2,152,708 B @ 22:21 09-20 — 24h smoke rotation window opens ≥22:21 09-21 (~1h 12m remaining); hold maintained, no premature probe-noise.
+[CHANGED] Peer pipeline: 18th consecutive empty triage cycle (run-2026-09-21-18-48 "No leads provided"; laguna/ling3/longcat timestamp-only stubs, mimo empty, nemotron3 reprint) — observability gap persists, zero new signal.
+[CHANGED] No new attack surface since 2026-09-07 — api catalog (15+1 v2), auth map 15/15, v2 42-name saturation, 7 funnel mirrors all drift-free per last batch.
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, a=9 b=8 t=5 g=10 c=3 f=3 → 7.15
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php, a=6 b=8 t=5 g=10 c=3 f=3 → 6.55
+[PRIO] kassenkompass.de (7 funnel mirrors), a=6 b=9 t=6 g=10 c=3 f=3 → 6.80
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: 2,152,708 B measured 09-20 22:21 UTC per host; no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; frozen ±0.3% across 8+ rotation windows since 09-18; ucatKkData 5,209 rows + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; kk_id unconsumed — GET always serves full set.
+evidence_needed: next rotation (window opens ≥22:21 09-21) size within 2,145–2,159 KB proves sustained leak, not transient.
+verify_steps: at ≥2026-09-21 22:21 UTC one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params); record status/content-length/cache-control/cf-cache-status.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence (full in-force dataset, freshness ≤2025-12-22); MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Mirror Doubles Tariff Leak Surface
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: www byte-identical 2,152,708 B, same no-store+CF-DYNAMIC; independent rate-limit/bucket separation remains sole unproven differentiator; sustained multi-request bucket test stays DEFERRED (WAF IP-block 09-11).
+evidence_needed: www same size at next rotation; (deferred) bucket independence proof.
+verify_steps: 3 s after apex probe — one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php; compare content-length/cache-control.
+impact: load distribution across two hostnames for scraping; MEDIUM.
+testability: PASSIVE
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 68
+reasoning: lizenz→afilcode non-HttpOnly + jid→customerid + agn/connectionnumber→agenturnummer dual-alias + ppn→poolpartnernummer re-confirmed 09-21 00:22; GET branch closed 7/7; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09.
+evidence_needed: settlement line attributed to stuffed afilcode under completed questionnaire; or device_id↔Account-ID binding flaw.
+verify_steps: AUTH_HELD — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+[PARKED] api BOLA (v2 insurance_info draft payload) — publicly replicated by fragen.php ucatKkData; downgraded to unpublished-draft-only, no new angle.
+[PARKED] v2 enumeration — 42-name oracle saturated; insurance_info sole route; closed.
+[FINAL] fragen.php sustained leak (92), www mirror (90), cookie-stuffing (68) — unchanged, ranked order retained.
+[NEXT] PROBE: DEFERRED-HOLD — 24h smoke rotation window opens ≥2026-09-21 22:21 UTC (per 09-20 22:21 measurement at 2,152,708 B). At window: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params), 3 s later GET https://www.kassenkompass.de/bonusrechner_fragen.php; record status/content-length/cache-control/cf-cache-status; expected 2,152,708 B ±0.3% per host. No premature probe-noise before window.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: 18th consecutive triage cycle consumed header-only/stub peer leads (run-2026-09-21-18-48 empty; laguna/ling3/longcat pure timestamp stubs, mimo empty, nemotron3 reprint) — observability gap persists, zero new signal, no new attack surface introduced anywhere.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds — 2,152,708 B across 8+ rotation windows (frozen since ~09-18, ±0.3% drift-only), no caching/rate-limit mitigation regression; window ≥22:21 09-21 correctly withheld at 21:08 — discipline maintained, no premature probe.
+[RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged 24th cycle: 2.1MB unauthenticated full in-force tariff/budget/combi-bonus DB at one GET per host (apex+www), byte-exact frozen across 8+ rotation windows, no rate-limit/caching mitigation; reconstruction to active threat gated on lead-gated settled chain + unpublished-draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, no new passive primitive in 19+ cycles; stuffing real at 68 but lead-gated/AUTH_HELPED; S3/HubSpot/SGTM passive-only; peer pipeline silent 18+ cycles.

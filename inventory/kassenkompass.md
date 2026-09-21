@@ -902,3 +902,11 @@ www.kassenkompass.de
 - CHANGED Time advanced ~7h since last live probes (2026-09-20 22:21 UTC → 2026-09-21 05:29 UTC); 24h fragen.php smoke rotation window (≥22:33 UTC 09-20) has elapsed with no new KB results
 - CHANGED Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 22:21 UTC
+
+## 2026-09-21 21:09:47 UTC
+- CHANGED Time now 2026-09-21 21:08:34 UTC; last live measurement 2,152,708 B @ 22:21 09-20 — 24h smoke rotation window opens ≥22:21 09-21 (~1h 12m remaining); hold maintained, no premature probe-noise.
+- CHANGED Peer pipeline: 18th consecutive empty triage cycle (run-2026-09-21-18-48 "No leads provided"; laguna/ling3/longcat timestamp-only stubs, mimo empty, nemotron3 reprint) — observability gap persists, ze
+- CHANGED No new attack surface since 2026-09-07 — api catalog (15+1 v2), auth map 15/15, v2 42-name saturation, 7 funnel mirrors all drift-free per last batch.
+- NEW Time advanced ~4h since last aggregation (2026-09-21 17:09 → 2026-09-21 21:08 UTC); 24h fragen.php smoke rotation window (≥22:33 UTC 09-20) elapsed with no new KB results
+- NEW Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
+- NEW No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 2026-09-20 22:21 UTC
