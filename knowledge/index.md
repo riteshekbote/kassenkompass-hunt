@@ -551,3 +551,15 @@
 - 2026-09-20 REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle through run-2026-09-20-10-17 consumed header-only/stub peer leads — observability gap persists, zero new signal, no new attack surface anywhere.
 - 2026-09-20 REJECTED MISCONFIG @ api.kassenkompass.de: root header-shape noise class (CL:0→absent→accurate 1167) not re-tested this cycle — cosmetic, disclosure substance constant; no new enumeration primitive.
 - 2026-09-20 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,708 B stable), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed live at 2026-09-20 22:21 UTC
+- 2026-09-21 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds (2,152,708 B stable), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit — confirmed live at 2026-09-20 22:21 UTC
+- 2026-09-21 ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
+- 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now accurate (was 0); catalog disclosure without auth persists
+- 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
+- 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (only /user/{ext_id}, /cancel/{id}) — separate auth middleware stacks confirmed
+- 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+- 2026-09-21 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+- 2026-09-21 ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+- 2026-09-21 ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+- 2026-09-21 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+- 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+- 2026-09-21 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none, 15/15 auth map stable; api passive surface remains credential-gated

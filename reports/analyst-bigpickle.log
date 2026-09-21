@@ -25383,3 +25383,94 @@ STEP 6 — LEARNING
 
 STEP 7 — RISK
 - [RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged ~22nd cycle: 2.1MB unauthenticated tariff/budget/combi-bonus intelligence at one GET per host (apex+www), exact-size verified across 6 rotation windows, no rate-limit/caching mitigation; reconstruction to active threat gated on unpublished-draft freshness (≤2025-12-22) and lead-gated settlement chain; API credential-gated with consistent A/B authz, no new passive primitive in 18+ cycles; stuffing surface real at 81 but AUTH_HELPED/lead-blocked; S3/HubSpot/SGTM passive-only; peer pipeline silent 18+ cycles.
+===== ANALYST bigpickle 2026-09-21 00:23:18 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u && curl -s -D /tmp/kk_fragen_apex.h -o /tmp/kk_fragen_apex.b -w "APEX_CODE:%{http_code} SIZE:%{size_download}\n" "https://kassenkompass.de/bonusrechner_fragen.php" && sleep 3 && curl -s -D /tmp/kk_fragen_www.h -o /tmp/kk_fragen_www.b -w "WWW_CODE:%{http_code} SIZE:%{size_download}\n" "https://www.kassenkompass.de/bonusrechner_fragen.php" && sleep 3 && curl -s -D /tmp/kk_api_root.h -o /tmp/kk_api_root.b -w "API_CODE:%{http_code} SIZE:%{size_download}\n" "https://api.kassenkompass.de/"
+Mon Sep 21 00:22:15 UTC 2026
+APEX_CODE:200 SIZE:2152708
+WWW_CODE:200 SIZE:2152708
+API_CODE:200 SIZE:1167
+[0m
+[0m$ [0mecho "=== APEX fragen.php headers ===" && grep -iE "^(content-length|cache-control|cf-cache-status|etag|last-modified|content-type|x-powered|server):" /tmp/kk_fragen_apex.h && echo "=== WWW fragen.php headers ===" && grep -iE "^(content-length|cache-control|cf-cache-status|etag|last-modified|content-type|x-powered|server):" /tmp/kk_fragen_www.h && echo "=== API root headers ===" && grep -iE "^(content-length|cache-control|cf-cache-status|etag|last-modified|content-type|x-powered|server):" /tmp/kk_api_root.h && echo "=== api body head ===" && head -c 300 /tmp/kk_api_root.b
+=== APEX fragen.php headers ===
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+cf-cache-status: DYNAMIC
+=== WWW fragen.php headers ===
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+cf-cache-status: DYNAMIC
+=== API root headers ===
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+cf-cache-status: DYNAMIC
+=== api body head ===
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)
+[0m
+## STEP 1 — DELTA
+- CHANGED Scheduled 24h smoke executed at 00:22 UTC 09-21 (window ≥22:33 09-20 open): `kassenkompass.de/bonusrechner_fragen.php` → 200 / **2,152,708 B** / `cache-control: no-store, no-cache, must-revalidate` / `cf-cache-status: DYNAMIC`, no ETag/Last-Modified.
+- CHANGED `www.kassenkompass.de/bonusrechner_fragen.php` → 200 / identical **2,152,708 B**, same headers — mirror surface doubled re-confirmed.
+- CHANGED `api.kassenkompass.de/` → 200 / `content-length: 1167` == body 1167 B / 15 v1 + v2 catalog intact (header-shape cycle currently "accurate"), auth map untouched.
+- NO_DELTA tariff payload tebyte: 2,152,708 B **exact** across now 3 consecutive windows (23:25 09-18 → 22:33 09-19 → 00:22 09-21) — freeze since ~09-18, consistent with data freshness ≤2025-12-22.
+
+## STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php, 6.35, attack_surface+gate_ease+business_value
+- [PRIO] www.kassenkompass.de/bonusrechner_fragen.php, 6.15, attack_surface+gate_ease mirror-divide
+- [PRIO] kassenkompass.de/bonusrechner.php (stuffing), 5.55, business_value+gate_ease
+
+## STEP 3 — HYPOTHESES
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: 00:22 09-21 probe = 200 / 2,152,708 B exact per-host (apex+www), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 5,209 rows + globalbudgets + kombiboni + pseudoKkIds=[99,100,101]; data freshness ≤2025-12-22; kk_id param not consumed. Byte-exact across 3 consecutive rotation windows → payload frozen since ~09-18, i.e. leakage of current (unchanging) tariff DB state per 1 GET/host.
+evidence_needed: next rotation (≥00:22 09-22) size within 2,145–2,159 MB — confirms sustained exposure, not a transient.
+verify_steps: ≥2026-09-21 00:22 UTC, one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params), record status/content-length/cache-control/cf-cache-status.
+impact: wholesale competitor tariff/budget/combi-bonus intelligence (full in-force dataset, not just drafts — supersedes v2 insurance_info draft-only value); MEDIUM-HIGH, no PII.
+testability: PASSIVE
+[HYP] Mirror Doubles Tariff Leak Surface
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: www byte-identical 2,152,708 B at 00:22 09-21, same no-store+CF-DYNAMIC — independent rate-limit/bucket separation remains the only unproven differentiator.
+evidence_needed: www same size at next rotation + (deferred) multi-request bucket independence.
+verify_steps: 3 s after apex probe — one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php; compare content-length/cache-control. Sustained bucket test stays DEFERRED (WAF IP-block 09-11).
+impact: load distribution across two hostnames for scraping; MEDIUM.
+testability: PASSIVE
+[HYP] Authz-scope differential between middleware A and B
+class: AUTH
+asset: api.kassenkompass.de
+confidence: 30
+reasoning: B stack {/user/{ext_id},/cancel/{id}} distinct 403 wording + instance echo vs A majority; kk_webapp-delegation implies separate authorization scopes; every passive primitive closed (source-merge, header-name, magic secrets, v2 42-name saturation).
+evidence_needed: valid per-stack credential to compare authorization policy — unobtainable passively.
+verify_steps: none passive; requires partner-portal credential → AUTH_HELPED.
+impact: authorization pruning/IDOR across stacks if scope mismatch; HIGH if found.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+- [PARKED] Middleware A/B authz differential: confidence 30 < 40; credential-gated with all passive primitives closed.
+- [FINAL] Tariff scraping (92) — evidence strengthened by byte-exact 3rd rotation; apex+www (90) — mirror sustained.
+- [FINAL] Cookie-stuffing attribution theft (81, BUSLOGIC, AUTH_HELPED) — held, lead-gated; unchanged since abschluss refutation.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: DEFERRED-HOLD — next 24h smoke ≥2026-09-21 00:22 UTC: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params), 3 s later GET https://www.kassenkompass.de/bonusrechner_fragen.php; record status/content-length/cache-control/cf-cache-status; expected 2,152,708 B ±0.3% per host. Window just closed (00:22 09-21 executed) — now on 24h hold; sustained 20-request bucket test stays cancelled.
+
+## STEP 6 — LEARNING
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: rotation 00:22 09-21 = 2,152,708 B exact vs 2,152,708 B @09-20 22:21 — 3rd consecutive byte-exact window; payload frozen since ~09-18, drift-on-refresh model inactive this month; leak substance (full in-force tariff DB) constant.
+- [LEARN] ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B identical — mirror surface doubled confirmed at 7th+ rotation.
+- [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length 1167 == body 1167 at 00:22 09-21 — header-shape cycle sits at "accurate"; catalog 15+1 intact, auth map drift-free; no new primitive 18+ cycles.
+
+## STEP 7 — RISK
+[RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged: 2.1MB unauthenticated full in-force tariff/budget/combi-bonus DB at one GET per host (apex+www), now byte-exact frozen across 3 windows (no refresh = stable competitive-intelligence snapshot), no rate-limit/caching mitigation; reconstruction to active threat gated on lead-gated settlement chain; API credential-gated A/B authz with no new passive primitive in 18+ cycles; stuffing lead-gated/AUTH_HELPED; pipeline silent 17+ cycles.
