@@ -563,3 +563,5 @@
 - 2026-09-21 REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
 - 2026-09-21 ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
 - 2026-09-21 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none, 15/15 auth map stable; api passive surface remains credential-gated
+- 2026-09-21 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds at 2,152,708 B across 8+ rotation windows (frozen since ~09-18, ±0.3% drift-only); no caching/rate-limit mitigation regression — re-confirmed 09-20 22:21, now on hold until ≥22:21 09-21.
+- 2026-09-21 REJECTED OTHER @ kassenkompass pipeline: 17th+ consecutive triage cycle consumed header-only/stub peer leads; observability gap persists, zero new signal, no new attack surface introduced anywhere.
