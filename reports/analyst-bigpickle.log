@@ -26900,3 +26900,226 @@ STEP 6 — LEARNING:
 
 STEP 7 — RISK:
 [RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged into its 5th byte-frozen window: 2.1MB unauthenticated full in-force tariff/budget/combi-bonus DB at one GET per host (apex+www), byte-exact 2,152,708 B across 4+ consecutive windows since 09-18, no rate-limit/caching/ETag mitigation over ≥15 days of repeated measurement; reconstruction to active threat still gated on lead-gated settled chain + draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, no new passive primitive in 19+ cycles; stuffing real at 68 but AUTH_HELPED/lead-gated; S3/HubSpot/SGTM passive-only; peer pipeline silent 18+ cycles.
+===== ANALYST bigpickle 2026-09-22 22:02:50 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la --time-style=+%Y-%m-%dT%H:%M:%SZ art/ 2>/dev/null | head -40; echo '---'; ls -la inventory/ 2>/dev/null | head; echo '---'; date -u +%Y-%m-%dT%H:%M:%SZ
+---
+total 124
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 .
+drwxr-xr-x 12 runner runner   4096 Sep 22 22:00 ..
+-rw-r--r--  1 runner runner 116603 Sep 22 21:59 kassenkompass.md
+---
+2026-09-22T22:00:26Z
+[0m
+[0m$ [0mls -la; echo '---'; find . -maxdepth 2 -name 'lead*' -o -maxdepth 2 -name '*state*' 2>/dev/null | head -20
+total 656
+drwxr-xr-x 12 runner runner   4096 Sep 22 22:00 .
+drwxr-xr-x  3 runner runner   4096 Sep 22 21:59 ..
+drwxr-xr-x  7 runner runner   4096 Sep 22 22:00 .git
+drwxr-xr-x  3 runner runner   4096 Sep 22 21:59 .github
+-rw-r--r--  1 runner runner   1767 Sep 22 21:59 README.md
+-rw-r--r--  1 runner runner    411 Sep 22 22:00 analyst-out.txt
+-rw-r--r--  1 runner runner 265447 Sep 22 22:00 analyst-prompt.txt
+-rw-r--r--  1 runner runner 261629 Sep 22 22:00 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 leads
+-rw-r--r--  1 runner runner  45574 Sep 22 21:59 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 reports
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 22 21:59 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 scripts
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 22 21:59 triage
+---
+./state_nemotron3.json
+./state_ling3.json
+./state_longcat.json
+./state_bigpickle.json
+./leads
+./leads/lead-nemotron3.md
+./leads/lead-bigpickle.md
+./leads/lead-laguna.md
+./leads/lead-ling3.md
+./leads/lead-mimo.md
+./leads/lead-longcat.md
+./state_laguna.json
+./state_mimo.json
+[0m
+[0m$ [0mls -la --time-style=+%H:%M:%S leads/; echo '---'; wc -c leads/* state_*.json
+total 1976
+drwxr-xr-x  2 runner runner    4096 21:59:58 .
+drwxr-xr-x 12 runner runner    4096 22:00:06 ..
+-rw-r--r--  1 runner runner  747459 21:59:58 lead-bigpickle.md
+-rw-r--r--  1 runner runner    6477 21:59:58 lead-laguna.md
+-rw-r--r--  1 runner runner    6350 21:59:58 lead-ling3.md
+-rw-r--r--  1 runner runner    6604 21:59:58 lead-longcat.md
+-rw-r--r--  1 runner runner      18 21:59:58 lead-mimo.md
+-rw-r--r--  1 runner runner 1211386 21:59:58 lead-nemotron3.md
+-rw-r--r--  1 runner runner   22414 21:59:58 reposcan-kassenkompass.md
+---
+ 747459 leads/lead-bigpickle.md
+   6477 leads/lead-laguna.md
+   6350 leads/lead-ling3.md
+   6604 leads/lead-longcat.md
+     18 leads/lead-mimo.md
+1211386 leads/lead-nemotron3.md
+  22414 leads/reposcan-kassenkompass.md
+     33 state_bigpickle.json
+     33 state_laguna.json
+     33 state_ling3.json
+     33 state_longcat.json
+     33 state_mimo.json
+     33 state_nemotron3.json
+2000906 total
+[0m
+[0m$ [0mcat state_bigpickle.json; echo; echo '---'; cat analyst-out.txt
+{"phase": "POC", "target": "api"}
+---
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la --time-style=+%Y-%m-%dT%H:%M:%SZ art/ 2>/dev/null | head -40; echo '---'; ls -la inventory/ 2>/dev/null | head; echo '---'; date -u +%Y-%m-%dT%H:%M:%SZ
+---
+total 124
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 .
+drwxr-xr-x 12 runner runner   4096 Sep 22 22:00 ..
+-rw-r--r--  1 runner runner 116603 Sep 22 21:59 kassenkompass.md
+---
+2026-09-22T22:00:26Z
+[0m
+[0m$ [0mls -la; echo '---'; find . -maxdepth 2 -name 'lead*' -o -maxdepth 2 -name '*state*' 2>/dev/null | head -20
+total 656
+drwxr-xr-x 12 runner runner   4096 Sep 22 22:00 .
+drwxr-xr-x  3 runner runner   4096 Sep 22 21:59 ..
+drwxr-xr-x  7 runner runner   4096 Sep 22 22:00 .git
+drwxr-xr-x  3 runner runner   4096 Sep 22 21:59 .github
+-rw-r--r--  1 runner runner   1767 Sep 22 21:59 README.md
+-rw-r--r--  1 runner runner    411 Sep 22 22:00 analyst-out.txt
+-rw-r--r--  1 runner runner 265447 Sep 22 22:00 analyst-prompt.txt
+-rw-r--r--  1 runner runner 261629 Sep 22 22:00 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 leads
+-rw-r--r--  1 runner runner  45574 Sep 22 21:59 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 reports
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 22 21:59 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 22 21:59 scripts
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 22 21:59 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 22 21:59 triage
+---
+./state_nemotron3.json
+./state_ling3.json
+./state_longcat.json
+./state_bigpickle.json
+./leads
+./leads/lead-nemotron3.md
+./leads/lead-bigpickle.md
+./leads/lead-laguna.md
+./leads/lead-ling3.md
+./leads/lead-mimo.md
+./leads/lead-longcat.md
+./state_laguna.json
+./state_mimo.json
+[0m
+[0m$ [0mls -la --time-style=+%H:%M:%S leads/; echo '---'; wc -c leads/* state_*.json
+total 1976
+drwxr-xr-x  2 runner runner    4096 21:59:58 .
+drwxr-xr-x 12 runner runner    4096 22:00:06 ..
+-rw-r--r--  1 runner runner  747459 21:59:58 lead-bigpickle.md
+-rw-r--r--  1 runner runner    6477 21:59:58 lead-laguna.md
+-rw-r--r--  1 runner runner    6350 21:59:58 lead-ling3.md
+-rw-r--r--  1 runner runner    6604 21:59:58 lead-longcat.md
+-rw-r--r--  1 runner runner      18 21:59:58 lead-mimo.md
+-rw-r--r--  1 runner runner 1211386 21:59:58 lead-nemotron3.md
+-rw-r--r--  1 runner runner   22414 21:59:58 reposcan-kassenkompass.md
+---
+ 747459 leads/lead-bigpickle.md
+   6477 leads/lead-laguna.md
+   6350 leads/lead-ling3.md
+   6604 leads/lead-longcat.md
+     18 leads/lead-mimo.md
+1211386 leads/lead-nemotron3.md
+  22414 leads/reposcan-kassenkompass.md
+     33 state_bigpickle.json
+     33 state_laguna.json
+     33 state_ling3.json
+     33 state_longcat.json
+     33 state_mimo.json
+     33 state_nemotron3.json
+2000906 total
+[0m
+[0m
+[0m→ [0mRead leads/reposcan-kassenkompass.md[90m [limit=60][0m
+Conditions confirmed: peer lead files seeded 21:59:58 with no new content (mimo 18B empty, laguna/ling3/longcat 6.3-6.6KB stubs, all states 33-byte), reposcan surface empty (no GitHub org). Time 22:00Z 09-22; scheduled smoke window opens ≥00:11 09-23 → ~2h out, hold maintained.
+
+STEP 1 — DELTA
+- NO_DELTA: no new peer/self lead content this cycle (all files seeded 21:59:58, states 33-byte stubs, mimo 18B); reposcan surface empty.
+- CHANGED: time 22:00Z 09-22 vs last KB aggregation 19:02Z — surface frozen; scheduled fragen.php smoke rotation (≥00:11 09-23) ~2h out, probe held.
+
+STEP 2 — PRIORITIZE
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php,7.1,a8/b8/t4/g10/c5/f5
+- [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,6.9,a7/b8/t4/g10/c5/f5
+- [PRIO] kassenkompass.de (7 funnel mirrors),6.6,a6/b10/t5/g6/c3/f6
+
+STEP 3 — HYPOTHESES
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: 2,152,708 B byte-frozen apex+www across 5 consecutive windows (09-18→09-22); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; kk_id unconsumed (GET always full set); ucatKkData×7 + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; freshness ≤2025-12-22.
+evidence_needed: next rotation (≥00:11 09-23) size within 2,145–2,159 KB per host; any cache/rate-limit header regression material.
+verify_steps: at ≥00:11 09-23 — one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params); record status/content-length/cache-control/cf-cache-status.
+impact: wholesale competitor in-force tariff/budget/combi-bonus intelligence; no PII; MEDIUM-HIGH.
+testability: PASSIVE
+
+[HYP] Mirror Doubles Tariff Leak Surface
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: www = 2,152,708 B exact, identical headers, 1-byte cfemail-nonce diff @712; independent rate-limit buckets unproven — sustained alternating test DEFERRED (WAF IP-block 09-11).
+evidence_needed: www same size at next rotation; (deferred) bucket-independence proof.
+verify_steps: 3 s after apex probe — one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php; compare content-length/cache-control.
+impact: load distribution across two hostnames for scraping; MEDIUM.
+testability: PASSIVE
+
+[HYP] Cookie-Stuffing Attribution Theft via Unvalidated 1-Year Cookies
+class: BUSLOGIC
+asset: kassenkompass.de (7 funnel mirrors)
+confidence: 68
+reasoning: lizenz→afilcode non-HttpOnly + jid→customerid + agn/connectionnumber→agenturnummer dual-alias + ppn→poolpartnernummer re-confirmed 09-16/09-18/09-21; GET branch closed 7/7; abschluss POST-only Account-ID lead gate; one-shot register refuted 09-09.
+evidence_needed: settlement line attributed to stuffed afilcode under completed questionnaire; or device_id↔Account-ID binding flaw.
+verify_steps: AUTH_HELD — victim-path questionnaire with lizenz=ATTACKER_LIZ then attribution compare; no mutating probes.
+impact: commission/attribution theft on FG-Wechsel settlements; HIGH if verified, lead-gated.
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE
+- [PARKED] Sustained bucket-independence test (nemotron3 20×1-rps alternating): WAF IP-block 09-11 makes 20-request burst higher-risk than its marginal value (bucket proof only); remit to ≥2 more clean single-pair rotations.
+- [PARKED] api BOLA (v2 draft payload): publicly replicated by fragen.php ucatKkData; unpublished-draft-only, no new angle.
+- [PARKED] v2 enumeration: 42-name oracle saturated, insurance_info sole route.
+- [FINAL] fragen.php sustained leak (92), www mirror (90), cookie-stuffing (68) — ranked order retained; no new egress this cycle.
+
+STEP 5 — NEXT ACTION
+[NEXT] PROBE: DEFERRED-HOLD — window opens ≥2026-09-23 00:11 UTC (baseline 2,152,708 B @00:11 09-22; now 22:00Z 09-22, ~2h early). At window: one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params), 3 s later GET https://www.kassenkompass.de/bonusrechner_fragen.php; record status/content-length/cache-control/cf-cache-status; expected 2,152,708 B ±0.3% per host. Do NOT execute the 20-request alternating bucket test before ≥2 more clean single-pair rotations. No premature probe-noise before window.
+
+STEP 6 — LEARNING
+- [LEARN] REJECTED OTHER @ kassenkompass pipeline: 20th consecutive empty triage cycle (peer leads all seeded 21:59:58, states 33-byte stubs, mimo 18B empty, reposcan no-org) — observability gap persists, zero new signal, no new attack surface anywhere.
+- [LEARN] ACCEPTED OTHER @ kassenkompass (cycle hygiene): probe discipline holds — window ≥00:11 09-23 ~2h out, no premature probe; frozen-surface hold maintains clean WAF posture.
+
+STEP 7 — RISK
+[RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure unchanged into its 5th byte-frozen window: 2.1MB unauthenticated full in-force tariff/budget/combi-bonus DB at one GET per host (apex+www), byte-exact 2,152,708 B across 5 consecutive windows since 09-18, no rate-limit/caching/ETag mitigation over ≥15 days; reconstruction to active threat still gated on lead-gated settled chain + draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, no new passive primitive in 20+ cycles; stuffing real at 68 but AUTH_HELPED/lead-gated; S3/HubSpot/SGTM passive-only; peer pipeline silent 20+ cycles.
