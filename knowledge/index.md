@@ -597,3 +597,4 @@
 - 2026-09-22 REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none, 15/15 auth map stable; api passive surface remains credential-gated
 - 2026-09-22 REJECTED OTHER @ kassenkompass pipeline: 18th consecutive triage cycle consumed header-only/stub peer leads; observability gap persists, zero new signal, no new attack surface introduced anywhere
 - 2026-09-22 REJECTED OTHER @ kassenkompass pipeline: 18th+ consecutive empty triage cycle (run-2026-09-21-18-48 "No leads provided"; laguna/ling3/longcat timestamp stubs, mimo empty, nemotron3 reprint + unsupported bucket-test NEXT) — observability gap persists, zero new signal, no new attack surface anywhere.
+- 2026-09-22 REJECTED OTHER @ kassenkompass pipeline: 18th+ consecutive empty triage cycle — observability gap persists, zero new signal, no new attack surface anywhere.
