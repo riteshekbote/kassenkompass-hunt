@@ -910,3 +910,11 @@ www.kassenkompass.de
 - NEW Time advanced ~4h since last aggregation (2026-09-21 17:09 → 2026-09-21 21:08 UTC); 24h fragen.php smoke rotation window (≥22:33 UTC 09-20) elapsed with no new KB results
 - NEW Peer pipeline: 17th+ consecutive triage cycle with header-only/stub leads; observability gap persists, zero new signal
 - NEW No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 2026-09-20 22:21 UTC
+
+## 2026-09-22 00:18:51 UTC
+- NEW 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:33 UTC 09-20 per 09-19 22:33 measurement at 2,152,708 B; window ≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no
+- CHANGED Peer pipeline: 18th consecutive triage cycle with header-only/stub leads (run-2026-09-21-18-48 empty; laguna/ling3/longcat timestamp stubs, mimo empty, nemotron3 reprint) — observability gap persists,
+- CHANGED Time advanced ~4h since last aggregation (2026-09-21 17:09 → 2026-09-21 21:08 UTC); all major surfaces stable per last live probes at 2026-09-20 22:21 UTC
+- NEW 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:33 UTC 09-20 per 09-19 22:33 measurement at 2,152,708 B; window ≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no
+- CHANGED Peer pipeline: 18th consecutive triage cycle with header-only/stub leads (run-2026-09-21-18-48 empty; laguna/ling3/longcat timestamp stubs, mimo empty, nemotron3 reprint) — observability gap persists,
+- CHANGED Time advanced ~4h since last aggregation (2026-09-21 17:09 → 2026-09-21 21:08 UTC); all major surfaces stable per last live probes at 2026-09-20 22:21 UTC
