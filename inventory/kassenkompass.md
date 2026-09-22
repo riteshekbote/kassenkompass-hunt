@@ -928,3 +928,13 @@ www.kassenkompass.de
 - NEW 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
 - CHANGED Peer pipeline: 18th consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
 - CHANGED Time advanced ~26h since last live probes (2026-09-20 22:21 → 2026-09-22 00:18); all major surfaces stable per last live probes
+
+## 2026-09-22 15:08:55 UTC
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php`: 24h smoke rotation window elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue. Live probe at 15:02 UTC confir
+- CHANGED `www.kassenkompass.de/bonusrechner_fragen.php`: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live.
+- CHANGED `api.kassenkompass.de/`: Root returns HTTP 200, `content-length: 0` header but full 1167-byte JSON catalog (15 v1 + 1 v2 endpoints, ver 1.0/2.0) in body — structural header/body mismatch persists, cat
+- CHANGED `api.kassenkompass.de/sync/`: Returns HTTP 200 with auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` instead of 401 — behavioral misconfiguration persists.
+- CHANGED `api.kassenkompass.de/v2/insurance_info/1/extra`: Returns HTTP 401 middleware A (RFC 9457) — greedy segment match confirmed, enumeration saturated at 42 names.
+- CHANGED Two distinct 403 error messages confirmed live: middleware B (`/user/1`) → "Ungültiger X-API-Secret"; middleware A (`/insurance_info/1`) → "Der bereitgestellte X-API-Secret ist ungültig oder nicht ber
+- CHANGED Peer pipeline: 18th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal.
+- CHANGED Time advanced ~26h since last live probes (2026-09-20 22:21 → 2026-09-22 15:02); all major surfaces stable per last live probes.

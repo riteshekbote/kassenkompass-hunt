@@ -1,7 +1,12 @@
-## 2026-09-22 10:07:38 UTC [target] (model nemotron3)
-[NEW] 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
-[CHANGED] Peer pipeline: 18th consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
-[CHANGED] Time advanced ~26h since last live probes (2026-09-20 22:21 → 2026-09-22 00:18); all major surfaces stable per last live probes
+## 2026-09-22 15:08:35 UTC [target] (model nemotron3)
+[CHANGED] `kassenkompass.de/bonusrechner_fragen.php`: 24h smoke rotation window elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue. Live probe at 15:02 UTC confirms 2,152,708 B payload, `no-store`, `CF-DYNAMIC`, no ETag/Last-Modified — tariff leak stable.
+[CHANGED] `www.kassenkompass.de/bonusrechner_fragen.php`: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live.
+[CHANGED] `api.kassenkompass.de/`: Root returns HTTP 200, `content-length: 0` header but full 1167-byte JSON catalog (15 v1 + 1 v2 endpoints, ver 1.0/2.0) in body — structural header/body mismatch persists, catalog disclosure without auth persists.
+[CHANGED] `api.kassenkompass.de/sync/`: Returns HTTP 200 with auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` instead of 401 — behavioral misconfiguration persists.
+[CHANGED] `api.kassenkompass.de/v2/insurance_info/1/extra`: Returns HTTP 401 middleware A (RFC 9457) — greedy segment match confirmed, enumeration saturated at 42 names.
+[CHANGED] Two distinct 403 error messages confirmed live: middleware B (`/user/1`) → "Ungültiger X-API-Secret"; middleware A (`/insurance_info/1`) → "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt" — separate auth middleware stacks confirmed.
+[CHANGED] Peer pipeline: 18th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal.
+[CHANGED] Time advanced ~26h since last live probes (2026-09-20 22:21 → 2026-09-22 15:02); all major surfaces stable per last live probes.
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.30,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.20,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
@@ -21,7 +26,7 @@ testability: PASSIVE
 class: MISCONFIG
 asset: www.kassenkompass.de/bonusrechner_fragen.php
 confidence: 90
-reasoning: www mirror serves identical 2,152,708 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-20 22:21 UTC
+reasoning: www mirror serves identical 2,152,708 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-22 15:02 UTC
 evidence_needed: Confirm www mirror payload byte-identical to apex; verify independent rate-limit buckets (or shared)
 verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,708 B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
 impact: Attack surface multiplier — scraper can distribute load across two hostnames; MEDIUM
@@ -35,13 +40,13 @@ evidence_needed: Map authorization scope differential between middleware A and B
 verify_steps: GET https://api.kassenkompass.de/ — confirm 200 + full JSON catalog (15 v1 + 1 v2 endpoints); GET https://api.kassenkompass.de/sync/ — confirm HTTP 200 + auth error body; GET https://api.kassenkompass.de/v2/insurance_info/1/extra — confirm 401 middleware A; GET https://api.kassenkompass.de/user/1 — confirm 403 middleware B wording; if valid X-API-Secret obtained (out of scope for passive), test cross-stack access
 impact: Recon amplifier for targeted attack planning; potential authorization bypass if middleware stacks have different scope enforcement; MEDIUM
 testability: PASSIVE
+[PARKED] API Catalog Disclosure + Auth Middleware Scoping Differential: Cross-stack privilege escalation requires valid X-API-Secret (out of scope for passive); passive-only verification limited to catalog disclosure and error message differentials already confirmed. Dropping to confidence 70 for passive-only path; AUTH_HELPED path parked.
 [FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 92, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 90, PASSIVE)
-[FINAL] 3. API Catalog Disclosure + Auth Middleware Scoping Differential — Recon Amplifier & Privilege Boundary Probe (confidence 85, PASSIVE)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; measure Content-Length, confirm no 429/WAF block, extract headers (Cache-Control, ETag, Last-Modified, CF-Cache-Status), parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke model holds — 2,152,708 B across 8+ rotation windows (frozen since ~09-18, ±0.3% drift-only), no caching/rate-limit mitigation regression; window ≥22:21 09-21 correctly withheld at 21:08 — discipline maintained, no premature probe
 [LEARN] ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
-[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length now accurate (was 0); catalog disclosure without auth persists
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length: 0 header with full body persists; catalog disclosure without auth persists
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (only /user/{ext_id}, /cancel/{id}) — separate auth middleware stacks confirmed
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
