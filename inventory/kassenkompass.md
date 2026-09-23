@@ -952,3 +952,11 @@ www.kassenkompass.de
 ## 2026-09-23 05:22:43 UTC
 
 ## 2026-09-23 10:13:02 UTC
+
+## 2026-09-23 15:09:45 UTC
+- NEW Time advanced ~7h since last live probes (2026-09-22 15:02 UTC → 2026-09-22 22:02 UTC per 00:25 lead, now 10:13 UTC); all major surfaces stable per last live batch
+- NEW 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
+- NEW Peer pipeline: 18th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
+- NEW No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free
+- CHANGED Bigpickle NEXT: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24
+- CHANGED Nemotron3 NEXT: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps

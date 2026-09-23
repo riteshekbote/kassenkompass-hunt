@@ -898,3 +898,7 @@ https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 ## 2026-09-23 10:13:05 UTC
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-23 15:09:48 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
