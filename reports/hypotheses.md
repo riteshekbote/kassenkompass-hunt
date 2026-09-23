@@ -2622,3 +2622,8 @@
 - NEXT(hypotheses-bigpickle.txt): PROBE: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24. At window: one 1-rps GET https://kassenkompass.de
 - LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed 00:23 09-23 — apex+www both 2,152,708 B exact vs 00:11 09-22 baseline; single-by
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: 19th+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal, no n
+
+## RANKED HYPOTHESES 2026-09-23 10:13:02 UTC
+- [93] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24. At window: one 1-rps GET https://kassenkompass.de
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 19th+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal, no n
