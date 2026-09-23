@@ -2668,3 +2668,38 @@
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: 18+ consecutive triage cycles consumed header-only/stub peer leads; observability gap persists, zero new signal, no new
+
+## RANKED HYPOTHESES 2026-09-23 22:27:21 UTC
+- [92] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (from art/lead_nemotron3.txt)
+- [90] www.kassenkompass.de/bonusrechner_fragen.php: Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; m
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; m
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed 00:23 09-23 — apex+www both 2,152,708 B exact vs 00:11 09-22 baseline; single-by
+- LEARN: ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length: 0 header with full body persists; catalog 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (o
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at rou
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (a
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step em
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on POST; server validates A
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 18+ consecutive triage cycles consumed header-only/stub peer leads; observability gap persists, zero new signal, no new
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 5 consecutive triage cycles (09-22 20:14/23:00, 09-23 01:32/06:38/12:10/17:12) return backend "Unexpected server error"
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: nemotron3's 20-request alternating bucket NEXT remains DEFERRED — only 1 clean single-pair rotation (00:23 09-23) since
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: harness smokes 05:22→19:09 09-23 all HTTP 200 on apex+www (len=? chunked) — endpoint liveness maintai
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed 00:23 09-23 — apex+www both 2,152,708 B exact vs 00:11 09-22 baseline; single-by
+- LEARN: ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root disclosure stable — 1167 B, 15 v1 endpoints, ver 1.0; content-length: 0 header with full body persists; catalog 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: /sync/ returns HTTP 200 with auth error body instead of 401 — behavioral misconfiguration persists
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Two distinct 403 error messages — "ungültig oder nicht berechtigt" (8 endpoints + v2) vs "Ungültiger X-API-Secret" (o
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at rou
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (a
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/bonusrechner_vergleich2.php: device_id cookie (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step em
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
+- LEARN: REJECTED OTHER @ kassenkompass pipeline: 20th consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal, no ne
