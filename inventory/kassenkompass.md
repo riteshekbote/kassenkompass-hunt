@@ -948,3 +948,5 @@ www.kassenkompass.de
 - CHANGED 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
 - CHANGED Peer pipeline: 18th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free
+
+## 2026-09-23 05:22:43 UTC
