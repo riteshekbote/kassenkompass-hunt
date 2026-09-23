@@ -1,7 +1,7 @@
-## 2026-09-23 15:09:35 UTC [target] (model nemotron3)
-[NEW] Time advanced ~7h since last live probes (2026-09-22 15:02 UTC → 2026-09-22 22:02 UTC per 00:25 lead, now 10:13 UTC); all major surfaces stable per last live batch
+## 2026-09-23 19:09:18 UTC [target] (model nemotron3)
+[NEW] Time advanced ~4h since last aggregation (2026-09-23 15:09 → 2026-09-23 19:07 UTC); all major surfaces stable per last live batch (2026-09-22 15:02 UTC)
 [NEW] 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
-[NEW] Peer pipeline: 18th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
+[NEW] Peer pipeline: 19th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
 [NEW] No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free
 [CHANGED] Bigpickle NEXT: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24
 [CHANGED] Nemotron3 NEXT: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps
@@ -38,9 +38,10 @@ evidence_needed: Verify full 7-step chain with stuffed cookies binds to lead sta
 verify_steps: 1) GET bonusrechner.php with stuffing params → capture 4 cookies; 2) GET bonusrechner_daten.php with same jar → verify jid/agn/ppn mirrored; 3) GET bonusrechner_fragen.php → confirm 2.1MB payload, sessionData null; 4) GET bonusrechner_vergleich2.php → capture device_id; 5) GET bonusrechner_abschluss.php → confirm 0 "Account-ID nicht gefunden"; 6) POST bonusrechner_abschluss.php with create_account=1 + stuffed jar → confirm 1 "Account-ID nicht gefunden" (lead gate); 7) Test device_id readability via document.cookie on abschluss.php (afilcode non-HttpOnly)
 impact: Automated cookie-stuffing → lead creation → account registration chain if lead gate bypassed; PII/health data exposure via funnel; MEDIUM-HIGH
 testability: PASSIVE
+[PARKED] Cookie-Stuffing → Lead-Gated Account Creation Chain: Lead gate requires completed questionnaire (Account-ID state) — one-shot stuffing→register does not bind; automated chain unexecutable without prior lead; confidence 85→65 per KB 2026-09-09/10 correction
 [FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 92, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 90, PASSIVE)
-[FINAL] 3. Cookie-Stuffing → Lead-Gated Account Creation Chain — 7-Entry Funnel with Divergent Alias Maps (confidence 85, PASSIVE)
+[FINAL] 3. Cookie-Stuffing → Lead-Gated Account Creation Chain — 7-Entry Funnel with Divergent Alias Maps (confidence 65, PASSIVE)
 [NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; measure Content-Length, confirm no 429/WAF block, extract headers (Cache-Control, ETag, Last-Modified, CF-Cache-Status), parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke passed 00:23 09-23 — apex+www both 2,152,708 B exact vs 00:11 09-22 baseline; single-byte cfemail-nonce diff @711; byte-frozen 5 consecutive windows (09-18→09-23); no-store+CF-DYNAMIC, no ETag/Last-Modified/rate-limit regression; responses chunked (no content-length line) — cosmetic only
 [LEARN] ACCEPTED MISCONFIG @ www.kassenkompass.de/bonusrechner_fragen.php: Identical 2,152,708 B payload, same headers — mirror surface doubled confirmed live

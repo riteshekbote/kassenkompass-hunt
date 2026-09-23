@@ -960,3 +960,11 @@ www.kassenkompass.de
 - NEW No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free
 - CHANGED Bigpickle NEXT: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24
 - CHANGED Nemotron3 NEXT: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps
+
+## 2026-09-23 19:09:28 UTC
+- NEW Time advanced ~4h since last aggregation (2026-09-23 15:09 → 2026-09-23 19:07 UTC); all major surfaces stable per last live batch (2026-09-22 15:02 UTC)
+- NEW 24h smoke rotation window for `kassenkompass.de/bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — no new KB results recorded; probe overdue
+- NEW Peer pipeline: 19th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
+- NEW No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free
+- CHANGED Bigpickle NEXT: DEFERRED-HOLD — next 24h smoke rotation window opens ≥2026-09-23 00:23 UTC baseline → due ≥00:23 09-24
+- CHANGED Nemotron3 NEXT: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps
