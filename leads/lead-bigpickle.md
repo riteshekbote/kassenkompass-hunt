@@ -6040,3 +6040,31 @@ testability: PASSIVE
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads (12:34 backend "Unexpected server error"; laguna/ling3/longcat timestamp stubs, mimo empty, nemotron3 reprint) — observability gap persists, zero new signal, no new attack surface anywhere; reposcan runs "TARGET_ORG not configured; skipping" — no repo-scanning surface for this program.
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: smoke window ≥00:52 09-25 not yet open at this cycle — hold maintained; baseline 2,152,708 B frozen 6 windows (09-18→09-24), no caching/rate-limit regression across 21+ days of on-schedule servicing.
 [RISK] KassenKompass GmbH: 88 — single substantiated high-value exposure byte-frozen across 6 windows over ≥6 days at exact 2,152,708 B on both apex+www: full unauthenticated in-force tariff/budget/combi-bonus DB at one 1-rps GET per host, no caching/rate-limit mitigation, 21+ days on-schedule; reconstruction to active threat still gated on lead-gated settled POST chain + draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, 23+ cycles no new passive primitive; stuffing real but lead-gated closed; peer pipeline functionally broken — zero corroborating signal anywhere.
+## 2026-09-24 23:10:20 UTC [target] (model bigpickle)
+[HYP] Sustained Unauthenticated Tariff Database Scraping — 2.1MB Competitive Intelligence Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 93
+reasoning: Last measured 2,152,708 B starkle across 6 consecutive windows (09-18→09-24); chunked, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; kk_id unconsumed (GET always full set); ucatKkData + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101]; per-KK freshness ≤2025-12-22.
+evidence_needed: window ≥00:52 09-25 size 2,145–2,159 KB per host; any cache/rate-limit header regression is material.
+verify_steps: at ≥00:52 09-25 — one 1-rps GET https://kassenkompass.de/bonusrechner_fragen.php (fresh jar, no params); record status/size/cache-control/cf-cache-status.
+impact: wholesale competitor in-force tariff/budget/combi-bonus intelligence at one GET; MEDIUM-HIGH.
+testability: PASSIVE
+[HYP] Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 91
+reasoning: www = 2,152,708 B exact at prior rotation, sole byte-712 cfemail-nonce diff vs apex; independent rate-limit buckets still unproven — bucket test DEFERRED (WAF IP-block 09-11 precedent; gate ≥2 clean single-pair rotations post-block, 1 of 2 met).
+evidence_needed: www same size at next rotation; (deferred) bucket-independence.
+verify_steps: 3 s after apex probe — one 1-rps GET https://www.kassenkompass.de/bonusrechner_fragen.php; compare size/cache-control/cf-cache-status.
+impact: load spread across two hostnames; MEDIUM.
+testability: PASSIVE
+[HYP] API Root Catalog Disclosure Persists With Cosmetic Header Drift
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: Live 23:10 09-24 — 200, content-length 1167 == body 1167 B, 15 v1 ver 1.0, PHP 8.4.3 x-powered-by; header-shape drifted CL:0→absent→accurate across sessions (cosmetic only); auth map 15/15 drift-free, /sync/ HTTP-200 legacy and v2 middleware-A gate unchanged; no new enumeration primitive in 23+ cycles.
+evidence_needed: next cycle root still 200/1167 B/15 v1; any endpoint-count or auth-map drift is material.
+verify_steps: one GET https://api.kassenkompass.de/ ; record status/content-length/body-length/endpoint count.
+impact: unauthenticated full API catalog recon amplifier; LOW-MEDIUM (recon only, data endpoints credential-gated).
+testability: PASSIVE
