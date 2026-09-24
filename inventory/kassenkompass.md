@@ -984,3 +984,5 @@ www.kassenkompass.de
 - CHANGED No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free per live probes
 
 ## 2026-09-24 06:01:58 UTC
+
+## 2026-09-24 11:40:50 UTC
