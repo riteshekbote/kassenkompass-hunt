@@ -1,4 +1,4 @@
-## 2026-09-24 11:40:37 UTC [target] (model nemotron3)
+## 2026-09-24 15:56:37 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,9.15,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.50,attack_surface=9 business_value=8 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=10
 [PRIO] kassenkompass.de/bonusrechner_vergleich2.php→bonusrechner_abschluss.php,8.40,attack_surface=9 business_value=8 tech_exposure=8 gate_ease=9 cloud_surface=5 freshness=9
@@ -18,7 +18,7 @@ testability: PASSIVE
 class: MISCONFIG
 asset: www.kassenkompass.de/bonusrechner_fragen.php
 confidence: 91
-reasoning: www mirror serves identical 2,152,708 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-23 22:23 UTC
+reasoning: www mirror serves identical 2,152,708 B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-24 15:55 UTC
 evidence_needed: Confirm www mirror payload byte-identical to apex; verify independent rate-limit buckets (or shared)
 verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,708 B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
 impact: Attack surface multiplier — scraper can distribute load across two hostnames; MEDIUM

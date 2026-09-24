@@ -923,3 +923,8 @@ https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-24 15:57:06 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
