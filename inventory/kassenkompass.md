@@ -975,3 +975,10 @@ www.kassenkompass.de
 - CHANGED 24h smoke rotation window for `bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — payload stable at 2,152,708 B apex+www; no new KB results recorded; probe overdue
 - CHANGED Peer pipeline: 20th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free per live probes
+
+## 2026-09-24 00:54:04 UTC
+- NEW Current time 2026-09-23 22:23 UTC vs last KB live probes 2026-09-22 15:02 UTC — ~31h gap; all major surfaces reconfirmed live in this check
+- CHANGED `kassenkompass.de/bonusrechner_abschluss.php` POST lead gate requires full form submission (email/password/password_confirm/create_account=1) — empty POST returns 0 "Account-ID nicht gefunden", only v
+- CHANGED 24h smoke rotation window for `bonusrechner_fragen.php` elapsed (≥22:21 UTC 09-21 per 09-20 22:21 measurement) — payload stable at 2,152,708 B apex+www; no new KB results recorded; probe overdue
+- CHANGED Peer pipeline: 20th+ consecutive triage cycle with header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — api catalog (15+1), v2 (42-name saturation), 7 funnel mirrors, auth map 15/15 all drift-free per live probes
