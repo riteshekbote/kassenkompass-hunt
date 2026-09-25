@@ -1,10 +1,9 @@
-## 2026-09-25 17:21:56 UTC [target] (model nemotron3)
-[CHANGED] kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; byte-frozen 7+ consecutive windows (09-18→09-25); no-store+CF-DYNAMIC, no ETag/Last-Modified/rate-limit regression; responses chunked (no content-length line)
-[CHANGED] api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth map drift-free through 24+ cycles
-[CHANGED] api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
-[CHANGED] kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
-[CHANGED] kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
-[CHANGED] kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal; no new attack surface anywhere
+## 2026-09-25 20:37:29 UTC [target] (model nemotron3)
+[NEW] Tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3% — drift-on-refresh model confirmed stable
+[NEW] API root header-shape drift class confirmed cosmetic: CL:0→absent→accurate 1167 B, catalog substance unchanged through 24+ cycles
+[NEW] All auth maps (15/15), v2 enumeration (42 names saturated), 7 funnel entry points, stuffing mirrors — zero drift since 2026-09-07
+[NEW] Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+[CHANGED] NEXT probe windows: nemotron3 alternating 20×1-rps GET on apex+www fragen.php; bigpickle single GET at ≥2026-09-26 01:37 UTC
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
 [PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.50,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
 [PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.10,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=5
@@ -37,7 +36,6 @@ evidence_needed: Obtain valid X-API-Secret to probe authenticated response struc
 verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1/extra (confirm 401 middleware A); GET https://api.kassenkompass.de/v2/insurance_info/9999 (confirm 401 not 404 — greedy match); with valid secret: GET /v2/insurance_info/{valid_kk_id} → parse draft categories + resolved references; diff against v1 /insurance_info/{kk_id} and bonusrechner_fragen.php ucatKkData
 impact: Unpublished draft tariff/insurance data exposure if credentials obtained; BOLA cross-tenant read value downgraded to unpublished-draft-only since ucatKkData publicly replicates resolved references; MEDIUM
 testability: AUTH_HELPED
-[PARKED] Cookie-Stuffing → Lead-Gated Account Creation Chain: Lead gate requires completed questionnaire (Account-ID state) — one-shot stuffing→register does not bind; automated chain unexecutable without prior lead; confidence 85→65 per KB 2026-09-09/10 correction; no verify steps without human-completed funnel
 [FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 94, PASSIVE)
 [FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 92, PASSIVE)
 [FINAL] 3. v2 Insurance Info Draft Data Exposure Via Greedy Segment (confidence 78, AUTH_HELPED)

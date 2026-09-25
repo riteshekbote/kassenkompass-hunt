@@ -6214,3 +6214,122 @@ testability: AUTH_HELPED
 [LEARN] REJECTED OTHER @ api.kassenkompass.de/{,v2/}graphql: GET /graphql returns the 1167-byte v1 catch-all catalog and GET /v2/graphql returns the structured router-404 oracle — GraphQL is absent from both routers, no introspection or mutation surface exists, and the 42-name v2 saturation can now be recorded as covering the GraphQL class as well.
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/: root re-measured 200 with accurate content-length 1167 matching the 15-endpoint ver 1.0 catalog, byte-identical to the 01:37 09-25 baseline; disclosure substance is unchanged, and the header-shape variation seen across 09-12→09-20 is confirmed cosmetic.
 [RISK] KassenKompass GmbH: 89 — unchanged. The one carried finding (unauthenticated 2.15 MB commercial dataset) remains high-confidence and was last measured 16h ago, well inside its corroboration interval. This session's three read-only requests added zero new attack surface and explicitly closed the last open GraphQL-class gap as negative; the api target remains fully credential-gated with no new enumeration primitive, and the peer pipeline has now returned empty or stub leads for 22+ consecutive cycles.
+## 2026-09-25 20:42:55 UTC [target] (model bigpickle)
+[HYP] No candidate repositories identified for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"
+impact: N/A
+verify_steps: N/A - no repos to scan
+[HYP] No candidate repositories identified for source-code audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"; GitHub API returns 404 for KassenKompass org (case-insensitive); no public GitHub org exists under this name
+impact: N/A — source-code secret scan surface is empty
+verify_steps: N/A — nothing to confirm; the org either has no public GitHub repos or uses a different org name
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; byte-frozen 7+ consecutive windows (09-18→09-25); no-store+CF-DYNAMIC, no ETag/Last-Modified/rate-limit regression; responses chunked (no content-length line)
+[CHANGED] api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth map drift-free through 24+ cycles
+[CHANGED] api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[CHANGED] kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[CHANGED] kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[CHANGED] kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal; no new attack surface anywhere
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.50,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.10,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=5
+[PRIO] kassenkompass.de/bonusrechner.php,6.80,attack_surface=8,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=5
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.20,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=2,cloud_surface=5,freshness=6
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 94
+reasoning: 2.15MB response with ucatKkData (5,209 rows: uid_cat,uid_ucat_q,uid_kk_q,wert,wertart), globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]; served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; sessionData all-null under stuffed cookie jar proves cookies not read at GET render; kk_id query param not consumed (akt_kk_id=null identical payload); full GKV/PKV tariff database with resolved references exposed ≤2025-12-22; www mirror doubles surface
+evidence_needed: Confirm sustained 1 rps scraping succeeds without 429/WAF block; verify payload completeness across multiple requests; confirm www mirror identical
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; measure Content-Length, confirm no 429/rate limit; extract Cache-Control/ETag/Last-Modified/CF-Cache-Status headers; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
+impact: Competitive intelligence leak (full GKV/PKV tariff database with resolved references ≤2025-12-22); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
+testability: PASSIVE
+[HYP] Mirror Doubles Tariff Leak Surface
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: www mirror serves identical 2,152,708B tariff payload with same ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds structure; same no-store+CF-DYNAMIC headers, no caching mitigation; doubles unauthenticated scraping surface without additional effort; confirmed live at 2026-09-25 12:15 UTC
+evidence_needed: Confirm www mirror payload byte-identical to apex; verify independent rate-limit buckets (or shared)
+verify_steps: GET https://www.kassenkompass.de/bonusrechner_fragen.php — measure Content-Length, confirm 2,152,708B; diff response body against apex; repeat 5x at 1 rps on both hosts concurrently → observe 429 behavior
+impact: Attack surface multiplier — scraper can distribute load across two hostnames; MEDIUM
+testability: PASSIVE
+[HYP] v2 Insurance Info Draft Data Exposure Via Greedy Segment
+class: MISCONFIG
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 78
+reasoning: v2 router (ver 2.0 "breite Variante") exposes GET /v2/insurance_info/{kk_id} returning draft categories + resolved references — undocumented in 4+ prior recon sessions; widest per-request data surface on API; greedy segment match confirmed — /v2/insurance_info/1/extra, //1, %31 all reach protected handler (401 middleware A shared with v1 majority); kk_id not validated at routing; enumeration saturated at 42 names (only insurance_info registered); auth source-merge closed (query/cookie X-API-Secret both 401)
+evidence_needed: Obtain valid X-API-Secret to probe authenticated response structure; confirm draft categories differ from v1 published data
+verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1/extra (confirm 401 middleware A); GET https://api.kassenkompass.de/v2/insurance_info/9999 (confirm 401 not 404 — greedy match); with valid secret: GET /v2/insurance_info/{valid_kk_id} → parse draft categories + resolved references; diff against v1 /insurance_info/{kk_id} and bonusrechner_fragen.php ucatKkData
+impact: Unpublished draft tariff/insurance data exposure if credentials obtained; BOLA cross-tenant read value downgraded to unpublished-draft-only since ucatKkData publicly replicates resolved references; MEDIUM
+testability: AUTH_HELPED
+[PARKED] Cookie-Stuffing → Lead-Gated Account Creation Chain: Lead gate requires completed questionnaire (Account-ID state) — one-shot stuffing→register does not bind; automated chain unexecutable without prior lead; confidence 85→65 per KB 2026-09-09/10 correction; no verify steps without human-completed funnel
+[FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 94, PASSIVE)
+[FINAL] 2. Mirror Doubles Tariff Leak Surface — www.kassenkompass.de Identical 2.1MB Exposure (confidence 92, PASSIVE)
+[FINAL] 3. v2 Insurance Info Draft Data Exposure Via Greedy Segment (confidence 78, AUTH_HELPED)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; measure Content-Length, confirm no 429/WAF block, extract headers (Cache-Control, ETag, Last-Modified, CF-Cache-Status), parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; byte-frozen 7+ consecutive windows (09-18→09-25); no-store+CF-DYNAMIC, no ETag/Last-Modified/rate-limit regression; responses chunked (no content-length line) — cosmetic only
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of the persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth map drift-free through 24+ cycles
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge closed
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares middleware A with v1 majority
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential none, 15/15 auth map stable; api passive surface remains credential-gated
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[NEW] kk-s3-01.s3.eu-central-1.amazonaws.com has a reliable existence oracle never previously established: real key -> 200 (public read, full body), absent key -> 403 AccessDenied XML (~243-263B, length varies only with HostId hex). Bucket "layout fully mapped" in prior cycles was an inference from 174 page-referenced keys, not from bucket contents; the oracle makes future bucket testing conclusive.
+[CHANGED] kk-s3-01 qid space is 1..180, not 1..174: qid 175-180 return 200 with no page reference (qid 180 -> 200, qid 181 -> 403). All of 174/175/180 share ETag 52f04d114ad9a1ab359ff47d672bbd0b / 747,082 B / Last-Modified 2025-10-28 — 6 unreferenced object IDs carrying ZERO new content. Inventory correction, not a vulnerability.
+[NEW] kk-s3-01 n-dimension extends beyond 1: /uploads/fraq/60/2.png -> 200 (1,051,319 B) while qid 5 n=2 and qid 60 n=3 are 403 — multi-image questionnaire items exist; the n-axis is unenumerated.
+[NEW] kk-s3-01 non-image/sensitive objects all AccessDenied: .env, .git/config, web.config (root and /api/), backup.sql, dump.sql, error_log, phpinfo.php. /uploads/ returns 200 but is a zero-byte S3 autoindex marker (content-type application/x-directory, content-length 0) — NOT a directory listing. Bucket remains images-only; /uploads/fraq/1/1.png verified as a genuine 1024x1024 RGB PNG by magic bytes (not a disguised document).
+[CHANGED] kassenkompass.net has NO existence oracle: every app-handled path returns 302, not 404 — both .php and non-.php (/api/web.config, /api/.env, /api/index.php, /api/sync.php, /api/insurance_info.php all 302). Only IIS-level handlers are distinguishable (/api/ -> 403 dir-listing-denied, /trace.axd -> 403 Trace Error secure-default). This retroactively renders all prior ".net -> 302/404" negatives non-informative; .net is a thin funnel proxy, not a full filesystem mirror, so origin-bypass differential testing against .de is structurally impossible.
+[CHANGED] api.kassenkompass.de/health/ re-confirmed unchanged: 200, 22 B application/json, server: cloudflare, x-powered-by: PHP/8.4.3, XFO DENY, no rate limit observed. Auth map 15/15 and v2 42-name saturation untouched this session (0 requests spent on re-probing credential-gated routes).
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.50,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=7
+[PRIO] kassenkompass.net,7.65,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=8,cloud_surface=5,freshness=9
+[PRIO] api.kassenkompass.de/,7.50,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.20,attack_surface=7,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=9
+[HYP] Unauthenticated exposure of non-public tariff dataset
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 94
+reasoning: Carried FINAL#1, corroborated across 22+ days and byte-frozen at 2,152,708 B over 7+ consecutive 24h windows (09-18 to 09-25), apex and www differing by 1 cfemail nonce byte only. cache-control no-store, cf-cache-status DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData (5,209 rows) + globalbudgetsData + kombiboniData + pseudoKkIds=[99,100,101] served to an anonymous request with an empty cookie jar. Not re-probed this session: the 24h rotation window opens >=2026-09-26 01:37 UTC and discipline was maintained rather than creating premature probe noise.
+evidence_needed: One fresh unauthenticated GET inside the window returns 200 at the recorded size with the four data fields present.
+verify_steps: At or after 2026-09-26 01:37 UTC issue exactly one GET to https://kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters; record status, body length, cache-control, cf-cache-status, and presence of ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds. Stop after one request.
+impact: Anonymous bulk retrieval of a commercial GKV/PKV tariff, budget and combination-bonus dataset with per-KK resolved references, data freshness <=2025-12-22. MEDIUM-HIGH commercial confidentiality loss. No credential compromise, no authorization bypass, no customer or financial records read.
+testability: PASSIVE
+[HYP] Cross-tenant read on ext_id and settlement_report under any valid secret
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id} + api.kassenkompass.de/settlement_report/{year}/{month}
+confidence: 45
+reasoning: Both routes sit on middleware B and are gated by a single X-API-Secret with no second identity claim; no scoping claim, tenant identifier or ownership check has ever been observed. Untestable so far: no valid secret obtained in 20+ sessions, and both known magic values (KKX3382745, X8372) were rejected 403 on every stack. This is the only remaining authorization boundary on the api target that one credential would settle — untested, not refuted. Unchanged this session: 0 requests spent against credential-gated routes.
+evidence_needed: A scoped non-production X-API-Secret, then a differential on an identifier outside that secret's tenant.
+verify_steps: Given a scoped test secret, GET /user/{ext_id} for an ext_id outside the secret's own tenant and compare only status code and response field-name set against the in-tenant baseline (do not read or retain field contents — the program note excludes exposure of customer/financial data during testing). Repeat the status-only comparison on GET /settlement_report/{year}/{month}.
+impact: Cross-tenant PII and settlement read. HIGH if the boundary is absent. Unassessed until a credential exists.
+testability: AUTH_HELPED
+[HYP] kassenkompass.net is an unfiltered duplicate origin whose blanket 302 hides paths the .de WAF blocks
+class: MISCONFIG
+asset: kassenkompass.net
+confidence: 45
+reasoning: Measured this session: .net is direct Microsoft-IIS/10.0 + PHP 8.4.3 with no Cloudflare in front, serving the same application as .de (identical /api/ 403 dir-listing-denied at 1233 B, identical /trace.axd ASP.NET 4.0.30319 Trace Error, identical attribution cookies, identical Set-Cookie semantics). .net is registered in-scope by the program and is independently resolvable. A second, differently-protected origin of the same app is a classic WAF-bypass surface. Critically, it is currently UNTESTABLE: every app-handled path returns a blanket 302, so there is no existence oracle and no differential against .de is possible. The 09-11 "all *.php -> 302" observation was generalised as "no name oracle, closed"; that generalisation is too strong and is now corrected to "no oracle at all, therefore untestable", not "closed and safe".
+evidence_needed: Program confirmation of kassenkompass.net's intended status (active mirror vs decommissioned origin) and whether .net is expected to enforce the same WAF rules as .de — or any .net path that returns a status distinguishable from the blanket 302.
+verify_steps: Not resolvable by probing — the blanket 302 removes the signal. Requires a human/program answer: is kassenkompass.net a live production mirror, and is it in the WAF's enforcement scope? If a decommission date exists, the surface closes by definition.
+impact: If .net is unfiltered and still serves application paths, the Cloudflare WAF protecting .de is bypassable by hostname swap, which would also unblock the parked IDOR on /user/{ext_id} and the v2 draft-data read. Currently speculative — zero bypass demonstrated.
+testability: HUMAN_ONLY
+[PARKED] kk-s3-01 unreferenced-object exposure: refuted by my own evidence — qid 175-180 do exist outside the page-referenced set, but are byte-identical to qid 174 (same ETag/bytes/date), so there is no hidden content. The residual n-axis is unenumerated, but bounding qid x n would cost hundreds of requests for at most question images. No verify steps worth the budget.
+[PARKED] API vhost confusion: dropped as a false positive — byte-identical to the already-public homepage, differing only in nonce bytes. Reporting this would be a scanner-grade finding with no exploit, explicitly REJECTED by program policy.
+[PARKED] CORS on .net and the .de funnel: tested and negative this session, so no hypothesis survives to carry.
+[PARKED] API root catalog disclosure and /sync/ HTTP-200 auth-error body: re-rejected — descriptive errors and endpoint-map-only disclosure are out of scope per program policy.
+[FINAL] 1. Unauthenticated non-public tariff dataset exposure — kassenkompass.de/bonusrechner_fragen.php, confidence 94, PASSIVE, corroborated by the www mirror (92). Sole actionable candidate. Window opens 2026-09-26 01:37 UTC.
+[FINAL] 2. Cross-tenant authorization boundary on /user/{ext_id} and /settlement_report/{year}/{month} — parked at 45, AUTH_HELPED, no credential in hand after 20+ sessions.
+[FINAL] 3. kassenkompass.net duplicate unfiltered origin — parked at 45, HUMAN_ONLY, untestable by probing due to blanket 302; needs a program answer.
+[NEXT] PROBE: At or after 2026-09-26 01:37 UTC issue exactly one GET to https://kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters; record status, body length, cache-control, cf-cache-status and presence of ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds. Do not probe before the window opens and do not repeat the request.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed by manual validation — Host: kassenkompass.de returns the public 36,070 B homepage, byte-identical to a direct fetch apart from 51 nonce bytes; Cloudflare edge Host-routing, not an origin misconfiguration. Any Host-header probe on this target must be diffed against the direct fetch before being reported.
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: first-ever CORS test outside api.kassenkompass.de — no access-control-allow-origin and no allow-credentials with an arbitrary Origin or Origin: null; negative class now covers the non-CloudFront .net origin and the funnel, not just the API.
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: existence oracle established (200 = public-readable object, 403 AccessDenied = absent) — the bucket can now be tested conclusively; the prior "layout fully mapped" claim rested only on page-referenced keys.
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis is 1..180, six IDs beyond the page-referenced set, all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n axis exceeds 1 (qid 60 n=2); /uploads/ is a zero-byte autoindex marker not a listing; all sensitive non-image keys AccessDenied; images-only content confirmed by PNG magic bytes.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on every app-handled path (both .php and non-.php) means no existence oracle exists — this corrects, and weakens, the earlier "name oracle closed" conclusion; .net cannot be used for origin-bypass differential testing in its current state.
+[RISK] KassenKompass GmbH: 87 — up one point on evidence quality rather than new exposure. The single carried finding (unauthenticated 2.15 MB commercial tariff dataset) is unchanged and was last measured 16 h ago. This session's ~45 read-only requests bought three corrections that raise confidence in the map and kill one false positive: the S3 bucket now has a conclusive existence oracle with an exact qid bound of 1..180 and no sensitive objects, the CORS negative was extended past the API to the non-CloudFront .net origin and the funnel, and the previously "closed" .net name oracle was shown never to have existed. The genuinely new risk is structural: kassenkompass.net is an in-scope, non-Cloudflare, IIS-fronted duplicate origin of the same application, and its blanket 302 makes the Cloudflare WAF-bypass question permanently unanswerable by probing — that is now the program's question to answer, not mine. Peer pipeline continues to return stubs and reprints for a 23rd consecutive cycle.

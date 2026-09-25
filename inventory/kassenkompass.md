@@ -1006,3 +1006,22 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; le
 - CHANGED kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal; no new attack surface anywhere
+
+## 2026-09-25 20:43:07 UTC
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; byte-frozen 7+ consecutive windows (09-18→09-25); no-store+CF-D
+- CHANGED api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth m
+- CHANGED api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+- CHANGED kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; le
+- CHANGED kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal; no new attack surface anywhere
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com has a reliable existence oracle never previously established: real key -> 200 (public read, full body), absent key -> 403 AccessDenied XML (~243-263B, length var
+- CHANGED kk-s3-01 qid space is 1..180, not 1..174: qid 175-180 return 200 with no page reference (qid 180 -> 200, qid 181 -> 403). All of 174/175/180 share ETag 52f04d114ad9a1ab359ff47d672bbd0b / 747,082 B / L
+- NEW kk-s3-01 n-dimension extends beyond 1: /uploads/fraq/60/2.png -> 200 (1,051,319 B) while qid 5 n=2 and qid 60 n=3 are 403 — multi-image questionnaire items exist; the n-axis is unenumerated.
+- NEW kk-s3-01 non-image/sensitive objects all AccessDenied: .env, .git/config, web.config (root and /api/), backup.sql, dump.sql, error_log, phpinfo.php. /uploads/ returns 200 but is a zero-byte S3 autoind
+- CHANGED kassenkompass.net has NO existence oracle: every app-handled path returns 302, not 404 — both .php and non-.php (/api/web.config, /api/.env, /api/index.php, /api/sync.php, /api/insurance_info.php all 
+- CHANGED api.kassenkompass.de/health/ re-confirmed unchanged: 200, 22 B application/json, server: cloudflare, x-powered-by: PHP/8.4.3, XFO DENY, no rate limit observed. Auth map 15/15 and v2 42-name saturation
+- NEW Tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3% — drift-on-refresh model confirmed stable
+- NEW API root header-shape drift class confirmed cosmetic: CL:0→absent→accurate 1167 B, catalog substance unchanged through 24+ cycles
+- NEW All auth maps (15/15), v2 enumeration (42 names saturated), 7 funnel entry points, stuffing mirrors — zero drift since 2026-09-07
+- NEW Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED NEXT probe windows: nemotron3 alternating 20×1-rps GET on apex+www fragen.php; bigpickle single GET at ≥2026-09-26 01:37 UTC
