@@ -1025,3 +1025,15 @@ www.kassenkompass.de
 - NEW All auth maps (15/15), v2 enumeration (42 names saturated), 7 funnel entry points, stuffing mirrors — zero drift since 2026-09-07
 - NEW Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED NEXT probe windows: nemotron3 alternating 20×1-rps GET on apex+www fragen.php; bigpickle single GET at ≥2026-09-26 01:37 UTC
+
+## 2026-09-25 23:35:15 UTC
+- NEW Tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3% — drift-on-refresh model confirmed stable
+- NEW API root header-shape drift class confirmed cosmetic: CL:0→absent→accurate 1167 B, catalog substance unchanged through 24+ cycles
+- NEW All auth maps (15/15), v2 enumeration (42 names saturated), 7 funnel entry points, stuffing mirrors — zero drift since 2026-09-07
+- NEW Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED NEXT probe windows: nemotron3 alternating 20×1-rps GET on apex+www fragen.php; bigpickle single GET at ≥2026-09-26 01:37 UTC
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis extends to 1..180 (6 IDs beyond page-referenced set), all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n-dimension extends beyo
+- NEW kassenkompass.net: blanket 302 on every app-handled path (both .php and non-.php) → no existence oracle; cannot be used for origin-bypass differential testing
+- CHANGED api.kassenkompass.de: root header-shape drift class confirmed cosmetic (CL:0→absent→accurate 1167 B), catalog substance unchanged through 24+ cycles; auth map 15/15 drift-free
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
