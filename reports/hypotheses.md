@@ -2869,3 +2869,20 @@
 - LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; by
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of the persistent cosmetic drift clas
 - LEARN: REJECTED OTHER @ kassenkompass pipeline: 22nd+ consecutive triage cycle (through 23:10 09-24) consumed header-only/stub peer leads — observability gap persists,
+
+## RANKED HYPOTHESES 2026-09-25 12:27:48 UTC
+- [94] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated exposure of non-public tariff dataset (from art/lead_bigpickle.txt)
+- [94] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: At or after 2026-09-26 01:37 UTC, issue exactly one GET to https://kassenkompass.de/bonusrechner_fragen.php with a fresh empty cookie jar and no query pa
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 20 requests at 1 rps; m
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: Repeated unauthenticated 2,152,708-byte responses expose recorded tariff, budget, and combination
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/: The unauthenticated catalog is useful reconnaissance but has no demonstrated standalone data or authorization impact.
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de/sync/: The HTTP-200 authentication-error response is descriptive error behavior only; no authentication bypass or data
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; by
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of the persistent cosmetic drift clas
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not 
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (a
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED AUTH @ api.kassenkompass.de: query-string AND cookie X-API-Secret both return missing-header 401 on A/B/v2 — header strictly sole channel; source-merge
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: Auth map 15/15 complete — /cancel/{id} joins middleware B; B = kk_webapp-delegation stack {user, cancel}; v2 shares m
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de: No new enumeration primitive — v2 oracle saturated at 42 names, auth source-merge closed, format-side differential no
