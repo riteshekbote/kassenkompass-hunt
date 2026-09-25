@@ -6175,3 +6175,42 @@ testability: PASSIVE
 [LEARN] REJECTED OTHER @ api.kassenkompass.de/: The unauthenticated catalog is useful reconnaissance but has no demonstrated standalone data or authorization impact.  
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de/sync/: The HTTP-200 authentication-error response is descriptive error behavior only; no authentication bypass or data exposure was shown.
 [RISK] KassenKompass GmbH: 89 — One high-confidence, repeatedly corroborated unauthenticated commercial-data exposure remains the only actionable candidate; no new API authorization, account, settlement, or funnel-chain evidence was recorded.
+## 2026-09-25 17:21:12 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=10 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=7
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.50,attack_surface=9 business_value=9 tech_exposure=8 gate_ease=10 cloud_surface=6 freshness=7
+[PRIO] api.kassenkompass.de/,7.50,attack_surface=8 business_value=7 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=7
+[HYP] Unauthenticated exposure of non-public tariff dataset
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 94
+reasoning: Last in-window unauthenticated GET (01:37 09-25) returned 200 with 2,152,708 bytes containing ucatKkData, globalbudgetsData, kombiboniData and pseudoKkIds; cache-control no-store, cf-cache-status DYNAMIC, no ETag, no Last-Modified, no rate limit; byte-frozen across 7+ consecutive windows 09-18→09-25; apex and www differ by 1 cfemail-nonce byte only. No credential, cookie, or query parameter is required. No probe was issued this session because the 24h window opens ≥2026-09-26 01:37 UTC.
+evidence_needed: One fresh unauthenticated GET inside the window returns 200 at the recorded size with the four data fields present.
+verify_steps: At or after 2026-09-26 01:37 UTC, issue exactly one GET to https://kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters. Record status, body length, cache-control, cf-cache-status, and presence of ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds. Stop after one request.
+impact: Anonymous bulk retrieval of a commercial tariff, budget and combination-bonus dataset plus per-KK resolved references. MEDIUM-HIGH commercial confidentiality loss. No credential compromise, no authorization bypass, no customer or financial records read.
+testability: PASSIVE
+[HYP] Independent www mirror serves the identical tariff dataset
+class: MISCONFIG
+asset: www.kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: Recorded www responses match the apex response at 2,152,708 bytes with identical cache posture and a one-byte cfemail-nonce difference; no authentication required on either host; per-host rate-limit buckets remain untested (no burst probing after the 2026-09-11 WAF IP-block).
+evidence_needed: One fresh single GET confirms www still returns the same-sized unauthenticated payload.
+verify_steps: At or after 2026-09-26 01:37 UTC, issue exactly one GET to https://www.kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters. Compare status, body length, and data-field presence against the apex baseline.
+impact: The same commercial dataset is reachable through a second hostname, doubling collection redundancy and undercutting single-host throttling. MEDIUM incremental.
+testability: PASSIVE
+[HYP] Cross-tenant read on ext_id / settlement_report under any valid secret
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id} + api.kassenkompass.de/settlement_report/{year}/{month}
+confidence: 45
+reasoning: Both routes sit on middleware B and are uniformly gated by a single X-API-Secret with no second identity claim; no scoping claim, tenant identifier, or ownership check has ever been observed. Untestable so far: no valid secret has been obtained in 20+ sessions, and the two known magic values (KKX3382745, X8372) were rejected 403 on every stack. This is the only remaining authorization boundary on the api target that a single credential would settle, and it is untested, not refuted.
+evidence_needed: A scoped non-production X-API-Secret, then a differential on an identifier not owned by that secret's tenant.
+verify_steps: Given a scoped test secret, issue GET /user/{ext_id} for an ext_id outside the secret's own tenant and compare only status code and response schema/field-name set against the in-tenant baseline (do not read or retain field contents — the program note excludes exposure of customer/financial data during testing). Repeat the status-only comparison on GET /settlement_report/{year}/{month}.
+impact: Cross-tenant PII and settlement read. HIGH if the boundary is absent. Unassessed until a credential exists.
+testability: AUTH_HELPED
+[PARKED] Cross-tenant read on ext_id / settlement_report: real and untested, but hard-gated on a scoped credential that has never been obtained; no executable path this cycle and any content-bearing check is constrained by the program's data-exposure exclusion.
+[PARKED] Independent www mirror: same root cause and same dataset as the apex finding; retained as corroboration, not a second finding.
+[FINAL] 1. Unauthenticated non-public tariff dataset exposure — kassenkompass.de/bonusrechner_fragen.php (confidence 94, PASSIVE), corroborated by the www mirror (92). Sole actionable candidate.
+[FINAL] 2. Cross-tenant authorization boundary on /user/{ext_id} and /settlement_report/{year}/{month} — parked at 45, AUTH_HELPED, no credential in hand.
+[NEXT] PROBE: At or after 2026-09-26 01:37 UTC, issue exactly one GET to https://kassenkompass.de/bonusrechner_fragen.php with a fresh empty cookie jar and no query parameters; record status, body length, cache-control, cf-cache-status, and presence of ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds. Do not probe before the window opens and do not repeat the request.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/{,v2/}graphql: GET /graphql returns the 1167-byte v1 catch-all catalog and GET /v2/graphql returns the structured router-404 oracle — GraphQL is absent from both routers, no introspection or mutation surface exists, and the 42-name v2 saturation can now be recorded as covering the GraphQL class as well.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/: root re-measured 200 with accurate content-length 1167 matching the 15-endpoint ver 1.0 catalog, byte-identical to the 01:37 09-25 baseline; disclosure substance is unchanged, and the header-shape variation seen across 09-12→09-20 is confirmed cosmetic.
+[RISK] KassenKompass GmbH: 89 — unchanged. The one carried finding (unauthenticated 2.15 MB commercial dataset) remains high-confidence and was last measured 16h ago, well inside its corroboration interval. This session's three read-only requests added zero new attack surface and explicitly closed the last open GraphQL-class gap as negative; the api target remains fully credential-gated with no new enumeration primitive, and the peer pipeline has now returned empty or stub leads for 22+ consecutive cycles.
