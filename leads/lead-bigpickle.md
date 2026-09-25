@@ -6101,3 +6101,37 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of the persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth map drift-free through 24+ cycles.
 [LEARN] REJECTED OTHER @ kassenkompass pipeline: 22nd+ consecutive triage cycle (through 23:10 09-24) consumed header-only/stub peer leads — observability gap persists, zero new signal; reposcan "TARGET_ORG not configured" non-actionable; no new attack surface anywhere.
 [RISK] KassenKompass GmbH: 89 — single substantiated high-value exposure byte-frozen 7+ windows since 09-18 at exact 2,152,708 B on apex+www: full unauthenticated in-force tariff/budget/combi-bonus DB at one 1-rps GET per host, no caching/rate-limit mitigation, 22+ days on-schedule; reconstruction of active abuse still gated on lead-gated settled POST chain + draft freshness (≤2025-12-22); API credential-gated with consistent A/B authz, 24+ cycles no new passive primitive; stuffing real but lead-gated closed; peer pipeline functionally broken — zero corroborating signal anywhere.
+## 2026-09-25 06:39:25 UTC [target] (model bigpickle)
+[PRIO]  
+[HYP] Sustained unauthenticated tariff-database scraping  
+class: MISCONFIG  
+asset: kassenkompass.de/bonusrechner_fragen.php  
+confidence: 94  
+reasoning: Recorded responses are HTTP 200 and 2,152,708 bytes without authentication, with ucatKkData, globalbudgetsData, and kombiboniData present; the size and no-store/CF-DYNAMIC posture recur across dated checks.  
+evidence_needed: A fresh read-only GET returns the full data fields without authentication and without cache or rate-limit mitigation.  
+verify_steps: At or after 2026-09-26 01:37 UTC, send one GET to https://kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters; record status, body length, cache-control, cf-cache-status, and data-field presence.  
+impact: Unauthenticated access to competitor tariff, budget, and combination-bonus data; MEDIUM-HIGH.  
+testability: PASSIVE
+[HYP] Independent www mirror doubles the tariff disclosure surface  
+class: MISCONFIG  
+asset: www.kassenkompass.de/bonusrechner_fragen.php  
+confidence: 92  
+reasoning: The recorded www response is the same 2,152,708 bytes as the apex response, with the same cache posture and only a one-byte cfemail nonce difference.  
+evidence_needed: A fresh read-only GET confirms www remains unauthenticated and same-sized at the next window.  
+verify_steps: At or after 2026-09-26 01:37 UTC, send one GET to https://www.kassenkompass.de/bonusrechner_fragen.php with an empty cookie jar and no query parameters; compare body length, cache-control, and cf-cache-status with the recorded apex measurement.  
+impact: The same commercial dataset is available through a second hostname, expanding scraping reach; MEDIUM.  
+testability: PASSIVE
+[HYP] Unauthenticated API root catalog disclosure persists  
+class: MISCONFIG  
+asset: api.kassenkompass.de/  
+confidence: 75  
+reasoning: The last recorded response is HTTP 200 with content-length 1167 and a 15-endpoint v1 catalog at version 1.0, returned without an API secret; repeated records show no endpoint-count drift.  
+evidence_needed: A fresh unauthenticated GET still returns the catalog without an authentication challenge.  
+verify_steps: Send one GET to https://api.kassenkompass.de/ with an empty cookie jar and no X-API-Secret; record status, content-length, body length, and endpoint count.  
+impact: Unauthenticated API reconnaissance and targeted attack planning; LOW-MEDIUM, while data routes remain credential-gated.  
+testability: PASSIVE
+[PARKED]  
+[FINAL]  
+[NEXT] PROBE: At or after 2026-09-26 01:37 UTC, issue exactly one 1-rps GET to https://kassenkompass.de/bonusrechner_fragen.php with a fresh empty cookie jar and no query parameters; record status, body length, cache-control, cf-cache-status, and tariff-data presence.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: Repeated unauthenticated 2,152,708-byte responses without cache validators support a stable commercial-data exposure; no credential compromise is asserted.
+[RISK] KassenKompass GmbH: 89 — Repeated unauthenticated disclosure of a large tariff dataset is high-confidence and commercially valuable; the API remains credential-gated and the broader funnel chain is lead-gated.
