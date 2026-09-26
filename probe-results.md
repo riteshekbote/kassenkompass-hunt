@@ -1014,3 +1014,11 @@ https://api.kassenkompass.de/post/help -> HTTP 405
 https://api.kassenkompass.de/post/create_user -> HTTP 405
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-26 22:16:53 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/post/delete_user'` -> 200 len=?
+https://api.kassenkompass.de/cancel/1'` -> HTTP 401

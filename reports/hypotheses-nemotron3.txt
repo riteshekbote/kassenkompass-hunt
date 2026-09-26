@@ -1,5 +1,4 @@
-## 2026-09-26 19:39:58 UTC [target] (model nemotron3)
-[NEW] api.kassenkompass.de/post/* write namespace mounted OUTSIDE X-API-Secret dependency — HEAD /delete/1 → 401 problem+json, HEAD /state/ → 401 problem+json, but HEAD /post/ → 405 problem+json, HEAD /post/create_user → 405 problem+json, GET /post/help → 200 application/json advertising POST /post/create_user
+## 2026-09-26 22:14:43 UTC [target] (model nemotron3)
 [NEW] Three-state route-membership oracle on v1 router: 401 problem+json = registered+gated, 405 problem+json = registered+ungated (POST-only), 200+1167B application/json = unregistered catch-all
 [NEW] KB 2026-09-03 "/post/ also requires X-API-Secret" FALSIFIED — method-confounded (GET/OPTIONS cannot separate auth from method mismatch on POST-only route)
 [NEW] "Auth map 15/15 complete" VOID — POST /post/ is catalogued route ("API Datenempfang (POST)") and is the ONE catalogued route not auth-gated
@@ -8,12 +7,12 @@
 [NEW] api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
 [NEW] kk-s3-01 `?versionId=null` → 403 Forbidden — cheap version-history read closed; no versionId obtainable passively
 [CHANGED] Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
-[PRIO] api.kassenkompass.de/post/create_user,9.25,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=6,freshness=9
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.00,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
-[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
-[PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.10,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/post/create_user,9.10,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=6,freshness=9
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.85,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.60,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.30,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=9,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.15,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
 [PRIO] kassenkompass.de/bonusrechner.php,6.90,attack_surface=8,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
-[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=9,freshness=7
 [PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.20,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=2,cloud_surface=5,freshness=6
 [HYP] Unauthenticated User Provisioning Via /post/create_user Write Namespace
 class: AUTH
@@ -21,9 +20,9 @@ asset: api.kassenkompass.de/post/create_user
 confidence: 92
 reasoning: /post/* namespace mounted outside X-API-Secret dependency — calibrated HEAD differential: /delete/1 → 401, /state/ → 401 (both gated), /post/ → 405 problem+json, /post/create_user → 405 problem+json, GET /post/help → 200 application/json explicitly advertising "POST /post/create_user = Erstellt einen neuen User. Erwartet JSON im Body." Three-state oracle confirms /post/ is registered+ungated (405 not 401). Catalog lists "API Datenempfang (POST)" as one of 15 routes. No alternate auth channel exists (query/cookie/header all tested 24+ cycles).
 evidence_needed: Successful POST /post/create_user with valid JSON body returns 2xx and creates user account without any credential
-verify_steps: GET https://api.kassenkompass.de/post/help (confirm 200 application/json with create_user spec); POST https://api.kassenkompass.de/post/create_user with minimal JSON {"email":"test@example.com","password":"Test1234"} — measure status, body, check for user creation side effects (no auth header)
+verify_steps: GET https://api.kassenkompass.de/post/help (confirm 200 application/json with create_user spec); POST https://api.kassenkompass.de/post/create_user with minimal JSON {"email":"test_$(date +%s)@example.com","password":"Test1234"} — measure status, body, check for user creation side effects (no auth header)
 impact: Full unauthenticated user account provisioning on API — ATO precursor, potential privilege escalation if created users inherit default roles; HIGH
-testability: PASSIVE (read-only GET /post/help) then AUTH_HELPED (POST requires safe test account cleanup coordination)
+testability: AUTH_HELPED
 [HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php

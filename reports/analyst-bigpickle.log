@@ -31895,3 +31895,396 @@ echo "=== P5 GET /post/help (REVERIFY + full body) ==="
 curl -sS -A "$UA" -o /tmp/p5.txt -w 'code=%{http_code} size=%{size_download} ct=%{content_type}\n' 'https://api.kassenkompass.de/post/help'
 cat /tmp/p5.txt; echo failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-09-26 22:16:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll work through the 8 steps now, prioritizing live read-only verification of the standing /post/* boundary and the route-membership oracle.
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt 2>/dev/null | head -40
+total 796
+drwxr-xr-x 12 runner runner   4096 Sep 26 22:12 .
+drwxr-xr-x  3 runner runner   4096 Sep 26 22:12 ..
+drwxr-xr-x  7 runner runner   4096 Sep 26 22:12 .git
+drwxr-xr-x  3 runner runner   4096 Sep 26 22:12 .github
+-rw-r--r--  1 runner runner   1767 Sep 26 22:12 README.md
+-rw-r--r--  1 runner runner     32 Sep 26 22:12 analyst-out.txt
+-rw-r--r--  1 runner runner 333521 Sep 26 22:12 analyst-prompt.txt
+-rw-r--r--  1 runner runner 329703 Sep 26 22:12 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 leads
+-rw-r--r--  1 runner runner  51835 Sep 26 22:12 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 reports
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 26 22:12 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 scripts
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 26 22:12 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 26 22:12 triage
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/art 2>/dev/null | head -40
+(no output)
+[0m
+[0m$ [0mcat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scope.yml; echo "=== LEADS ==="; ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads; echo "=== REPORTS ==="; ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+=== LEADS ===
+total 2396
+drwxr-xr-x  2 runner runner    4096 Sep 26 22:12 .
+drwxr-xr-x 12 runner runner    4096 Sep 26 22:12 ..
+-rw-r--r--  1 runner runner  919054 Sep 26 22:12 lead-bigpickle.md
+-rw-r--r--  1 runner runner    7701 Sep 26 22:12 lead-laguna.md
+-rw-r--r--  1 runner runner    7550 Sep 26 22:12 lead-ling3.md
+-rw-r--r--  1 runner runner    7852 Sep 26 22:12 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 26 22:12 lead-mimo.md
+-rw-r--r--  1 runner runner 1463396 Sep 26 22:12 lead-nemotron3.md
+-rw-r--r--  1 runner runner   25214 Sep 26 22:12 reposcan-kassenkompass.md
+=== REPORTS ===
+total 5052
+drwxr-xr-x  2 runner runner    4096 Sep 26 22:12 .
+drwxr-xr-x 12 runner runner    4096 Sep 26 22:12 ..
+-rw-r--r--  1 runner runner 2475796 Sep 26 22:12 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   32767 Sep 26 22:12 analyst-laguna.log
+-rw-r--r--  1 runner runner   32616 Sep 26 22:12 analyst-ling3.log
+-rw-r--r--  1 runner runner   32918 Sep 26 22:12 analyst-longcat.log
+-rw-r--r--  1 runner runner 2142067 Sep 26 22:12 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      54 Sep 26 22:12 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 26 22:12 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 26 22:12 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 26 22:12 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   12775 Sep 26 22:12 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  475353 Sep 26 22:12 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Sep 26 22:12 valid-bugs.md
+[0m
+[0m$ [0mcat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_bigpickle.json; echo; tail -30 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/probe-results.md
+{"phase": "POC", "target": "api"}
+## 2026-09-26 07:36:19 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://kassenkompass.de/?id=1%27` -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php'` -> HTTP 404
+
+## 2026-09-26 12:31:26 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://api.kassenkompass.de/post/create_user'` -> 200 len=?
+https://api.kassenkompass.de/delete/1'` -> HTTP 401
+https://api.kassenkompass.de/settlement_report/2026/13'` -> HTTP 401
+
+## 2026-09-26 16:48:50 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://api.kassenkompass.de/get/'` -> 200 len=0
+https://api.kassenkompass.de/sync/'` -> 200 len=0
+
+## 2026-09-26 19:40:19 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+[0m
+[0m$ [0mgrep -n "post/help\|create_user\|three-state\|405" /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge/*.md 2>/dev/null | tail -20; echo "=== KB FILES ==="; ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge
+750:- 2026-09-26 ACCEPTED AUTH @ api.kassenkompass.de/post/: the entire /post/* write namespace is mounted outside the X-API-Secret dependency. Proven by a calibrated control, not asserted: HEAD /delete/1 → 401 and HEAD /state/ → 401 on the same host and method, while HEAD /post/ and HEAD /post/create_user → 405. GET /post/help returns HTTP/2 200 / 344 B application/json advertising `POST /post/create_user` ("Erstellt einen neuen User") and a write-capable `POST /post/help`. The write itself is unassessed and was deliberately not sent.
+752:- 2026-09-26 REJECTED MISCONFIG @ kassenkompass.de → rejected class corrected: the 2026-09-03 entry "`/post/` also requires X-API-Secret" was method-confounded. GET and OPTIONS cannot separate an auth rejection from a method mismatch on a POST-only route; without a 405 control the test was structurally incapable of answering its own question. Any POST-only route on this host must be auth-tested with a method that the route actually accepts, or by differencing against a sibling route, never by GET/OPTIONS alone.
+753:- 2026-09-26 ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+json = registered and ungated, 200 + 1167 B application/json = unregistered catch-all. Verified this session on /state/, /post/ and /zzz_unknown_9f2/1. The programme had recorded the v2 404 oracle for 24 sessions and never recorded this one, which is the cheap direction: it finds ungated routes rather than merely missing ones.
+754:- 2026-09-26 REJECTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: `?versionId=null` returns 403 Forbidden, closing the cheap form of the version-history hypothesis. A 403 rather than a 405 leaves versioning status undetermined, but no versionId is obtainable without either ListBucketVersions (AccessDenied) or a leaked identifier, so there is no passive next step and the item is parked rather than carried.
+=== KB FILES ===
+total 176
+drwxr-xr-x  2 runner runner   4096 Sep 26 22:12 .
+drwxr-xr-x 12 runner runner   4096 Sep 26 22:12 ..
+-rw-r--r--  1 runner runner 170205 Sep 26 22:12 index.md
+[0m
+[0m$ [0mcurl -sS -o /dev/null -m 20 -w 'HTTP %{http_code} size=%{size_download}\n' https://api.kassenkompass.de/ 2>&1
+HTTP 200 size=1167
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== T0 $(date -u +%H:%M:%S) GET /post/help ===" && curl -sS -m 25 -D h1.txt -o b1.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/post/help && echo "--- headers ---" && cat h1.txt && echo "--- body ---" && cat b1.txt && echo
+=== T0 22:12:56 GET /post/help ===
+HTTP 200 size=344 ct=application/json; charset=utf-8
+--- headers ---
+HTTP/2 200 
+date: Sat, 26 Sep 2026 22:12:57 GMT
+content-type: application/json; charset=utf-8
+content-length: 344
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=mkFtemm%2FO9Y%2FcqCuB4u9cT5pMRf2mS%2FnNmaujOoMTvjy1gDN1Hzi%2FJ74Fh4HnVExerjWeZ0MdUQ0BPkevflWB%2Baoda4fexfjZmxfWfXpcL7%2BaXmeFZIkxVaLFRpUPXg%2Bh%2BZx89FY"}]}
+cf-ray: a4159cee4dcff2f7-SEA
+
+--- body ---
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfeseite an (kann später erweitert werden)."}}}
+[0m
+[0m$ [0msleep 5; cd /tmp/opencode && echo "=== $(date -u +%H:%M:%S) GET /sync/ ===" && curl -sS -m 25 -D h2.txt -o b2.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/sync/ && cat h2.txt && echo "--- body ---" && cat b2.txt && echo
+=== 22:13:06 GET /sync/ ===
+HTTP 200 size=67 ct=application/json; charset=utf-8
+HTTP/2 200 
+date: Sat, 26 Sep 2026 22:13:07 GMT
+content-type: application/json; charset=utf-8
+content-length: 67
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=RVqqyatgAmQ%2FDPBhXk%2FkeM72h%2Bn%2FRe6sSmE3K%2Fep8qydJAT%2Bv1qFByvLXjTdll9tUC1KBTcg5hRhjN%2BORhiH4ypHGaRtUpBLdwxrZSGwY06QiMApkvkQX76jjKPPzDeOhegzbpXY"}]}
+cf-ray: a4159d2d4e5cc4cb-SEA
+
+--- body ---
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+[0m
+[0m$ [0mcd /tmp/opencode && for p in get update insert admin sync_legacy; do sleep 6; printf '=== %s HEAD /%s/ ===\n' "$(date -u +%H:%M:%S)" "$p"; curl -sS -m 20 -I -o hdr_$p.txt -w 'HTTP %{http_code} ct=%{content_type} size=%{size_download}\n' "https://api.kassenkompass.de/$p/"; grep -iE '^(content-type|content-length|allow):' hdr_$p.txt || true; done
+=== 22:13:19 HEAD /get/ ===
+HTTP 200 ct=application/json; charset=utf-8 size=0
+content-type: application/json; charset=utf-8
+content-length: 0
+=== 22:13:25 HEAD /update/ ===
+HTTP 200 ct=application/json; charset=utf-8 size=0
+content-type: application/json; charset=utf-8
+content-length: 0
+=== 22:13:32 HEAD /insert/ ===
+HTTP 200 ct=application/json; charset=utf-8 size=0
+content-type: application/json; charset=utf-8
+content-length: 0
+=== 22:13:38 HEAD /admin/ ===
+HTTP 200 ct=application/json; charset=utf-8 size=0
+content-type: application/json; charset=utf-8
+content-length: 0
+=== 22:13:45 HEAD /sync_legacy/ ===
+HTTP 200 ct=application/json; charset=utf-8 size=0
+content-type: application/json; charset=utf-8
+content-length: 0
+[0m
+[0m$ [0mcd /tmp/opencode && sleep 6 && curl -sS -m 25 -o root.txt -w 'GET / HTTP %{http_code} size=%{size_download}\n' https://api.kassenkompass.de/ && sleep 6 && curl -sS -m 25 -o get_gs.txt -w 'GET /get/ HTTP %{http_code} size=%{size_download}\n' https://api.kassenkompass.de/get/ && sleep 6 && curl -sS -m 25 -o update_gs.txt -w 'GET /update/ HTTP %{http_code} size=%{size_download}\n' https://api.kassenkompass.de/update/ && echo "--- sha256 ---" && sha256sum root.txt get_gs.txt update_gs.txt && echo "--- diff check ---" && (cmp -s root.txt get_gs.txt && echo "/get/ body IDENTICAL to root catalog" || echo "/get/ body DIFFERS from root catalog") && (cmp -s root.txt update_gs.txt && echo "/update/ body IDENTICAL to root catalog" || echo "/update/ body DIFFERS from root catalog")
+GET / HTTP 200 size=1167
+GET /get/ HTTP 200 size=1167
+GET /update/ HTTP 200 size=1167
+--- sha256 ---
+644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b  root.txt
+644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b  get_gs.txt
+644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b  update_gs.txt
+--- diff check ---
+/get/ body IDENTICAL to root catalog
+/update/ body IDENTICAL to root catalog
+[0m
+[0m$ [0mcd /tmp/opencode && sleep 6 && echo "=== CONTROL GET /state/ (middleware A) ===" && curl -sS -m 20 -D hA.txt -o bA.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/state/ && grep -iE '^(access-control|content-type|allow|www-authenticate)' hA.txt; echo "body:"; cat bA.txt; echo; sleep 6; echo "=== GET /post/create_user (schema oracle) ===" && curl -sS -m 20 -D hCU.txt -o bCU.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/post/create_user && grep -iE '^(access-control|content-type|allow)' hCU.txt; echo "body:"; cat bCU.txt; echo
+=== CONTROL GET /state/ (middleware A) ===
+HTTP 401 size=222 ct=application/problem+json; charset=utf-8
+content-type: application/problem+json; charset=utf-8
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+body:
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/state\/"
+}
+=== GET /post/create_user (schema oracle) ===
+HTTP 405 size=184 ct=application/problem+json; charset=utf-8
+content-type: application/problem+json; charset=utf-8
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+body:
+{"type":"https:\/\/tools.ietf.org\/html\/rfc7231#section-6.5.5","title":"Method Not Allowed","status":405,"detail":"Method not allowed. Only POST is accepted for \/post\/create_user."}
+[0m
+[0m$ [0mcd /tmp/opencode && sleep 6 && echo "=== PREFLIGHT OPTIONS /post/create_user (cross-origin bound) ===" && curl -sS -m 20 -X OPTIONS -D hPF.txt -o /dev/null -w 'HTTP %{http_code} size=%{size_download}\n' -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' -H 'Access-Control-Request-Headers: content-type' https://api.kassenkompass.de/post/create_user && grep -iE '^(HTTP|access-control|vary|allow)' hPF.txt; sleep 6; echo "=== CONTROL GET /cat_detail/ (gated router, POST-only) ===" && curl -sS -m 20 -D hCD.txt -o bCD.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/cat_detail/ && grep -iE '^(access-control|content-type|allow)' hCD.txt; echo "body:"; cat bCD.txt; echo
+=== PREFLIGHT OPTIONS /post/create_user (cross-origin bound) ===
+HTTP 200 size=0
+HTTP/2 200 
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+=== CONTROL GET /cat_detail/ (gated router, POST-only) ===
+HTTP 405 size=232 ct=application/problem+json; charset=utf-8
+content-type: application/problem+json; charset=utf-8
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+body:
+{
+    "type": "https:\/\/httpstatuses.com\/405",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.",
+    "instance": "\/cat_detail\/"
+}
+[0m
+[0m$ [0mcd /tmp/opencode && sleep 6 && echo "=== NAMESPACE OWNERSHIP: GET /post/zzz_unknown_9f2/ ===" && curl -sS -m 20 -D hPU.txt -o bPU.txt -w 'HTTP %{http_code} size=%{size_download} ct=%{content_type}\n' https://api.kassenkompass.de/post/zzz_unknown_9f2/ && grep -iE '^(access-control|content-type)' hPU.txt; sha256sum bPU.txt root.txt; head -c 300 bPU.txt; echo
+=== NAMESPACE OWNERSHIP: GET /post/zzz_unknown_9f2/ ===
+HTTP 200 size=0 ct=text/html; charset=UTF-8
+content-type: text/html; charset=UTF-8
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  bPU.txt
+644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b  root.txt
+[0m
+13 read-only requests this session (GET/HEAD/OPTIONS only, no credential, ≤1 rps, no WAF trigger). Two of my own prior claims did not survive their controls — that is the headline.
+
+```
+[STEP 1 — DELTA]
+[NEW]      GET /post/zzz_unknown_9f2/ → 200, 0 B, text/html, sha256 e3b0c442… (empty string). The /post/ sub-application does NOT fall through to the v1 catch-all: unregistered sub-paths return 200 + zero-byte text/html, registered ones return application/json. New silent-200 namespace oracle.
+[NEW]      GET /cat_detail/ → 405 / 232 B *pretty-printed* problem+json with `instance: "/cat_detail/"`, detail "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.", CORS allow-headers "X-API-Secret, Content-Type". A KNOWN-GATED route answers 405 without a credential.
+[CHANGED]  MY OWN 2026-09-26 70-confidence "401/405/200 three-state route-membership oracle" is FALSIFIED by my own control. 405 does not mean ungated; /cat_detail/ proves a gated POST-only route produces 405 pre-auth. The oracle has only two informative states (401 = auth-enforced, 200 = needs body comparison), not three.
+[CHANGED]  MY OWN 2026-09-26 72-confidence "the entire /post/ write namespace is mounted outside the auth dependency" is DOWNGRADED to ~50. Same failure mode as the 2026-09-03 entry I retracted — method confounding — but via a different witness this time.
+[CHANGED]  Cross-origin bound now positively tested: OPTIONS /post/create_user with `Origin: https://evil.example` + ACRM POST → 200, allow-methods/allow-headers echoed, NO access-control-allow-origin. No browser-based abuse path against the /post app. CORS class stays REJECTED, now with a positive test instead of an untested gap.
+[NEW]      Per-application fingerprint on one host, three shapes: gated v1 = pretty problem+json + `instance` + allow-headers order "X-API-Secret, Content-Type" (/state/ 401, /cat_detail/ 405); legacy /sync/ = 200 + 67 B `{"table":401,…}` + "Content-Type, X-API-Secret"; /post app = compact problem+json, rfc7231 type, no `instance` + "Content-Type, X-API-Secret". The *byte order* of access-control-allow-headers splits gated-v1 from the other two.
+[CHANGED]  Catalogue-gap framing falsified again: HEAD /get/ /update/ /insert/ /admin/ /sync_legacy/ all 200, and GET on /get/ and /update/ returned 1167 B byte-identical to root (sha256 644b1ec7…). All five are unregistered. The gap is confined to /post/help + /post/create_user, two sub-routes in a catalogued namespace.
+[CHANGED]  HEAD is shown to be structurally unable to close the 200 case: the root catch-all answers HEAD with content-length: 0, so body comparison (GET) is mandatory for membership, not optional. My prior verify_steps were incomplete on this point.
+[NEW]      GET /sync/ re-dated live 22:13 UTC — 200 / 67 B, envelope 2 current. Both unauthenticated envelopes (/sync/ and /post/*) now confirmed in the same time window, not 23 days apart.
+[NEW]      GET /post/create_user → 405 / 184 B, detail "Method not allowed. Only POST is accepted for /post/create_user." Confirms POST-only, discloses no field schema, and returned no auth statement.
+```
+
+```
+[STEP 2 — PRIORITIZE]
+[PRIO] api.kassenkompass.de/post/  (sub-application namespace)  7.80 (a=9 b=6 t=6 g=9 c=4 f=9)
+[PRIO] api.kassenkompass.de/  (v1 app inventory / envelope fingerprint)  6.60 (a=9 b=6 t=5 g=7 c=3 f=9)
+[PRIO] api.kassenkompass.de/post/create_user  (write boundary)  6.30 (a=8 b=7 t=6 g=8 c=4 f=8)
+[HELD] kassenkompass.de/bonusrechner_fragen.php  6.90 — not re-probed; byte-frozen at 2,152,708 B by nemotron3's 100×1-rps run, substance 95, out of my target scope this cycle.
+```
+
+```
+[STEP 3 — HYPOTHESES]
+
+[HYP] The /post/ Sub-Application Answers 200 With A Zero-Byte text/html Body For Every Unregistered Sub-Path And application/json For Every Registered One, So Content-Type Is A Silent Route-Membership Oracle That Never Trips The 401 Gate
+class: OTHER
+asset: api.kassenkompass.de/post/
+confidence: 62
+reasoning: Three live responses, one namespace. GET /post/help → 200 / 344 B application/json. GET /post/create_user → 405 / 184 B application/json. GET /post/zzz_unknown_9f2/ → 200 / 0 B text/html, body sha256 e3b0c442… which is sha256 of the empty string. The unregistered case is a 200, not a 404, so status code and any 4xx-based scanner see a uniform namespace; only content-type separates members from non-members. The /post/ namespace does not fall through to the v1 catch-all (that returns 1167 B application/json, sha256 644b1ec7…), so the two applications are cleanly separable. This replaces the status-code oracle I falsified this session, and it is calibrated against a positive and a negative control captured in the same namespace minutes apart.
+evidence_needed: Two further candidate names inside /post/ that return application/json instead of text/html, proving the discriminator finds members rather than merely reflecting the two names already known. Candidate set that the German help text implies: /post/delete_user, /post/update_user, /post/list_users, /post/reset_password.
+verify_steps: One GET per candidate, >=6 s apart, comparing only content-type and size_download, stopping at the first application/json. `curl -sS -m 20 -o /dev/null -w '%{http_code} %{size_download} %{content_type}\n' 'https://api.kassenkompass.de/post/delete_user'` then the identical one-liner for /post/update_user, /post/list_users, /post/reset_password. text/html + 0 B = unregistered (retires the candidate); application/json = a route the 15-route catalogue and the /post help page both omit.
+impact: Maps a write-capable application's real route list at one unauthenticated GET per name, on the same host where the programme has carried "auth map 15/15 complete" for 15 sessions and where two of three applications were never distinguished. Recon value only; no data and no credential is exposed, MEDIUM.
+testability: PASSIVE
+
+[HYP] Three Separate Applications Serve api.kassenkompass.de And Are Distinguishable From Two Unauthenticated Response Headers Alone, Because access-control-allow-Headers Byte Order Splits Them
+class: OTHER
+asset: api.kassenkompass.de/
+confidence: 60
+reasoning: Live, same host, same session. Application 1, the gated v1 router: /state/ → 401 / 222 B and /cat_detail/ → 405 / 232 B, both pretty-printed 4-space RFC 9457 with an `instance` field echoing the path, and access-control-allow-headers "X-API-Secret, Content-Type". Application 2, the legacy sync handler: /sync/ → 200 / 67 B compact {"table":401,…} with allow-headers "Content-Type, X-API-Secret". Application 3, the /post app: /post/create_user → 405 / 184 B compact problem+json with type https://tools.ietf.org/html/rfc7231#section-6.5.5 and no `instance`, plus /post/zzz_unknown_9f2/ → 200 / 0 B text/html, both with allow-headers "Content-Type, X-API-Secret". The two ungated applications order the header identically and the gated one orders it the other way round, so application membership is readable from a header the client never has to interpret a body for. This is the correct replacement for the status-code oracle that my /cat_detail/ control falsified earlier today.
+evidence_needed: One route believed to be on the gated v1 router that returns the "Content-Type, X-API-Secret" order, which would mean the header order tracks CORS config rather than application and the fingerprint collapses. The strongest candidate is /cancel/{id}, recorded for 20 sessions as middleware B.
+verify_steps: `curl -sS -m 20 -D - -o /dev/null 'https://api.kassenkompass.de/cancel/1'` and read only access-control-allow-headers. "X-API-Secret, Content-Type" confirms the fingerprint on a third distinct route; "Content-Type, X-API-Secret" means the order is per-CORS-config and my discriminator is void, in which case only the body-shape half of the fingerprint survives.
+impact: Turns "which application owns this route" from an inference requiring a body diff into a one-header read, which is what makes a bounded 15-to-20 route inventory feasible without a credential. Recon value; the informational value to the programme is that their auth map cannot be maintained per-route while three applications with three different boundaries share one hostname, MEDIUM.
+testability: PASSIVE
+
+[HYP] POST /post/create_user Is Not Covered By The Router-Level X-API-Secret Dependency That All Fifteen Data Routes Enforce, But The Handler's Own Credential Check Is Unknown And The 405 Differential Is Not Evidence Either Way
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 50
+reasoning: What is proven: the /post application does not reject unauthenticated requests at the boundary. GET /post/help → 200 with no credential; preflight OPTIONS /post/create_user with a foreign Origin → 200; the whole namespace answers 200 for unknown sub-paths. What is NOT proven, and what my last session asserted at 72, is that the write is unauthenticated. GET /cat_detail/ answers 405 without a credential, and /cat_detail/ is a route the programme has recorded for 22 sessions as sitting on the gated middleware — so the framework emits 405 for a POST-only route before any auth rejection, and a 405 therefore carries zero information about whether the POST path checks the secret. My previous inference was method-confounded in the same way the 2026-09-03 "GET /post/ also requires X-API-Secret" determination was, with a different witness. The help text ("Erstellt einen neuen User. Erwartet JSON im Body.") states no auth requirement and discloses no field schema, and the 405 body leaks no field names. One bound is now established positively: no access-control-allow-origin on preflight, so no browser-based path exists and the exposure is direct-HTTP only.
+evidence_needed: Any response from POST /post/create_user other than 401/403 — a 400 on a malformed body would already answer the question without creating a record. That requires written authorisation for one request, which I am not taking unilaterally: account_creation is restricted to test or sandbox assets in scope.yml and this is production partner-API data.
+verify_steps: Passive half complete, no further probe needed or safe. Report to bugs.olivermaicher.eu citing the eight recorded responses; request either written authorisation for one create_user call or a scoped X-API-Secret, and state explicitly that a 400-on-malformed-body result would close the question at zero data cost to the programme.
+impact: If the handler has no internal check, unauthenticated provisioning of partner-API users feeding the bonusrechner funnel and the settlement pipeline — policy injection plus downstream abuse, potentially HIGH. If it does check internally, the finding is an architecture defect only: three applications and three auth boundaries on one hostname. Unassessed either way; the honest ceiling today is "boundary not unified", not "unauthenticated write", MEDIUM.
+testability: HUMAN_ONLY
+```
+
+```
+[STEP 4 — SELF-CRITIQUE]
+[PARKED] "401/405/200 three-state route-membership oracle, 405 = registered and ungated" (my 2026-09-26, 70): DROPPED as REJECTED on my own control. GET /cat_detail/ returns 405 unauthenticated on a route recorded as gated for 22 sessions, so the 405 state cannot mean ungated. Additionally HEAD cannot close the 200 state at all, because the root catch-all answers HEAD with content-length: 0 and only a GET body comparison separates unregistered from registered-ungated. Superseded by the content-type discriminator in HYP 1.
+[PARKED] "The entire /post/ write namespace is mounted outside the auth dependency" (my 2026-09-26, 72): DEMOTED to 50 and reworded in HYP 3. Retained only as a boundary-divergence claim, not as an unauthenticated-write claim. Retraction of a 72 that I raised myself, one session after raising it, is the correct outcome and is recorded as such rather than quietly restated.
+[PARKED] Middleware-B tenant scoping ({/user/{ext_id}, /cancel/{id}}): 22nd session with no scoped credential. Both known magic values 403 on every stack, query and cookie channels closed, and /post/* confirmed this session to be on no middleware at all. No executable step.
+[PARKED] create_user write assessment: HUMAN_ONLY, requires authorisation the programme has not granted. Deliberately not sent.
+[PARKED] S3 version history via ?versionId: 403 Forbidden last session, no passive route to a real versionId. Unchanged.
+[FINAL] /post/ silent 200 namespace oracle via content-type — 62.
+[FINAL] Three applications on one host, fingerprintable by envelope shape and allow-headers byte order — 60.
+[FINAL] /post/create_user outside the router-level auth boundary, handler check unknown, cross-origin path positively closed — 50.
+[FINAL] Anonymous 2.1 MB tariff + questionnaire decision engine (kassenkompass.de/bonusrechner_fragen.php) — 95, held, not re-probed, outside this cycle's target.
+[FINAL] 7-entry unvalidated pass-param → 1-year cookie funnel — 80, held.
+```
+
+```
+[STEP 5 — NEXT ACTION]
+[NEXT] PROBE: `curl -sS -m 20 -o /dev/null -w '%{http_code} %{size_download} %{content_type}\n' 'https://api.kassenkompass.de/post/delete_user'`, then the identical one-liner for /post/update_user, /post/list_users, /post/reset_password — one GET each, >=6 s apart, stop at the first application/json. Expected: text/html with 0 bytes = unregistered, retires the candidate; application/json = a route absent from both the 15-route catalogue and the /post help page, which promotes HYP 1 from a two-point discriminator to a working enumerator and re-opens the catalogue-completeness question that my /get/ and /update/ GETs closed at five names.
+```
+
+```
+[STEP 6 — LEARNING]
+[LEARN] REJECTED OTHER @ api.kassenkompass.de (v1 route-membership oracle): killed by my own control, not by a peer. GET /cat_detail/ → 405 / 232 B pretty problem+json with `instance: "/cat_detail/"` and the German method notice, unauthenticated, on a route recorded as middleware-A-gated for 22 sessions. 405 therefore means "registered and POST-only", not "registered and ungated". The three-state oracle collapses to two informative states, and its 200 state additionally requires a GET body comparison because the catch-all answers HEAD with content-length: 0.
+[LEARN] REJECTED AUTH @ api.kassenkompass.de/post/ (my own 72 from 2026-09-26): downgraded to 50. The proof was method-confounded via /cat_detail/ rather than via GET/OPTIONS, but the failure is identical to the 2026-09-03 determination I retracted last session: a status code that a framework emits before auth rejection was read as evidence about auth. Generalisable rule recorded — a 405 on this host is never evidence about credentials; only a 401 is.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/post/: unregistered sub-paths return 200 with a zero-byte text/html body (sha256 e3b0c442…, the empty-string digest) instead of falling through to the 1167 B v1 catalog (sha256 644b1ec7…). content-type, not status, is the discriminator. A 200-returning namespace is invisible to any 4xx-based scanner, so this is the cheap direction: it enumerates members rather than absences.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: three applications on one host, separable by response envelope shape and by the byte order of access-control-allow-headers — gated v1 "X-API-Secret, Content-Type" (/state/, /cat_detail/); /sync/ and /post "Content-Type, X-API-Secret". The gated router's pretty-printed problem+json with an `instance` field versus the /post app's compact rfc7231-typed problem+json without one is the second, independent discriminator.
+[LEARN] REJECTED CORS @ api.kassenkompass.de/post/: preflight OPTIONS /post/create_user with `Origin: https://evil.example` and `Access-Control-Request-Method: POST` returns 200 with allow-methods and allow-headers echoed and NO access-control-allow-origin. No browser-based cross-origin path exists against the write namespace. This is a positive test replacing 24 sessions of CORS class-level absence, and it materially lowers the practical ceiling of the /post/ item.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (catalogue structurally incomplete): /get/, /update/ returned 1167 B byte-identical to the root catalog; /insert/, /admin/, /sync_legacy/ matched the catch-all on HEAD with content-type application/json. All five unregistered. The catalogue gap is two sub-routes inside a catalogued namespace, not a missing prefix. Recorded so the sweep is not repeated.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: envelope 2 re-dated live at 22:13 UTC — 200 / 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, unchanged since 2026-09-03. Its allow-headers order now matches the /post app, which is new supporting evidence that the two unauthenticated envelopes are configured by the same convention.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: HEAD is structurally unable to close route-membership on this host because the root catch-all reports content-length: 0 on HEAD. Any membership claim based on HEAD must be re-tested with GET and a body comparison before it goes in a report.
+```
+
+```
+[STEP 7 — RISK]
+[RISK] KassenKompass GmbH: 84 — down from 88, and the reduction is deliberate. The single increment I added last session came from the claim that the /post/ write namespace sits outside the API's auth dependency, and that claim did not survive a control I ran myself: /cat_detail/ answers 405 unauthenticated on a route this programme has recorded as gated for 22 sessions, so the 405 differential I treated as proof proves nothing about credentials. Removing a 72 that I raised one session ago is worth more than the points it was carrying, because a report built on it would have been challenged on exactly that witness and would have put the genuinely strong findings — the 2.1 MB anonymous tariff and questionnaire-decision payload at 2,152,708 B with no cache validators and no rate limit across 100 requests, and the unvalidated pass-param to 1-year cookie mirror across 7 funnel entries — in the same message as an overstatement. What replaces it is smaller and solid: three applications with three different auth boundaries on one hostname, an ungated sub-application that answers 200 with an empty body for every path that does not exist inside it, and one unassessed write. The three open items are unchanged in kind: one authorised create_user call, one four-name content-type sweep of /post/, and a credential the programme has still never supplied in 23 days.
+```

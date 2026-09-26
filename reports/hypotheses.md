@@ -3071,3 +3071,29 @@
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
 - LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+
+## RANKED HYPOTHESES 2026-09-26 22:16:42 UTC
+- [92] api.kassenkompass.de/post/create_user: Unauthenticated User Provisioning Via /post/create_user Write Namespace (from art/lead_nemotron3.txt)
+- [62] api.kassenkompass.de/post/: The /post/ Sub-Application Answers 200 With A Zero-Byte text/html Body For Every Unregistered Sub-Path And application/json For Every Registered One, So Content-Type Is A Silent Route-Membership Oracle That Never Trips The 401 Gate (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -sS -m 20 -o /dev/null -w '%{http_code} %{size_download} %{content_type}\n' 'https://api.kassenkompass.de/post/delete_user'`, then the identical on
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://api.kassenkompass.de/post/help (confirm 200 application/json with create_user spec), then POST https://api.kassenkompass.de/post/create_user 
+- LEARN: REJECTED OTHER @ api.kassenkompass.de (v1 route-membership oracle): killed by my own control, not by a peer. GET /cat_detail/ → 405 / 232 B pretty problem+json 
+- LEARN: REJECTED AUTH @ api.kassenkompass.de/post/ (my own 72 from 2026-09-26): downgraded to 50. The proof was method-confounded via /cat_detail/ rather than via GET/O
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de/post/: unregistered sub-paths return 200 with a zero-byte text/html body (sha256 e3b0c442…, the empty-string digest) inste
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: three applications on one host, separable by response envelope shape and by the byte order of access-control-allow-header
+- LEARN: REJECTED CORS @ api.kassenkompass.de/post/: preflight OPTIONS /post/create_user with `Origin: https://evil.example` and `Access-Control-Request-Method: POST` re
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (catalogue structurally incomplete): /get/, /update/ returned 1167 B byte-identical to the root catalog; /insert/, /ad
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: envelope 2 re-dated live at 22:13 UTC — 200 / 67 B `{"table":401,"success":false,"message":"X-API-Secret Header
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: HEAD is structurally unable to close route-membership on this host because the root catch-all reports content-length: 0 o
+- LEARN: ACCEPTED AUTH @ api.kassenkompass.de/post/: the entire /post/* write namespace is mounted outside the X-API-Secret dependency. Proven by a calibrated control, n
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (root catalogue as an incomplete inventory): withdrawn on my own evidence. POST /post/ IS one of the 15 catalogued rou
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de → rejected class corrected: the 2026-09-03 entry "`/post/` also requires X-API-Secret" was method-confounded. GET and OPTI
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+j
+- LEARN: REJECTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: `?versionId=null` returns 403 Forbidden, closing the cheap form of the version-history hypothesis. A 40
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: re-dated this session's dependency, not the endpoint. The legacy HTTP-200 JSON envelope that reports an auth fa
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; ca
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl

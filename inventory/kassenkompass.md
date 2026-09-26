@@ -1098,3 +1098,23 @@ www.kassenkompass.de
 - NEW api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
 - NEW kk-s3-01 `?versionId=null` → 403 Forbidden — cheap version-history read closed; no versionId obtainable passively
 - CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-26 22:16:42 UTC
+- NEW GET /post/zzz_unknown_9f2/ → 200, 0 B, text/html, sha256 e3b0c442… (empty string). The /post/ sub-application does NOT fall through to the v1 catch-all: unregistered sub-paths return 200 + zero-byte t
+- NEW GET /cat_detail/ → 405 / 232 B *pretty-printed* problem+json with `instance: "/cat_detail/"`, detail "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.", CORS allow-headers 
+- CHANGED MY OWN 2026-09-26 70-confidence "401/405/200 three-state route-membership oracle" is FALSIFIED by my own control. 405 does not mean ungated; /cat_detail/ proves a gated POST-only route produces 405 pr
+- CHANGED MY OWN 2026-09-26 72-confidence "the entire /post/ write namespace is mounted outside the auth dependency" is DOWNGRADED to ~50. Same failure mode as the 2026-09-03 entry I retracted — method confound
+- CHANGED Cross-origin bound now positively tested: OPTIONS /post/create_user with `Origin: https://evil.example` + ACRM POST → 200, allow-methods/allow-headers echoed, NO access-control-allow-origin. No browse
+- NEW Per-application fingerprint on one host, three shapes: gated v1 = pretty problem+json + `instance` + allow-headers order "X-API-Secret, Content-Type" (/state/ 401, /cat_detail/ 405); legacy /sync/ = 2
+- CHANGED Catalogue-gap framing falsified again: HEAD /get/ /update/ /insert/ /admin/ /sync_legacy/ all 200, and GET on /get/ and /update/ returned 1167 B byte-identical to root (sha256 644b1ec7…). All five are
+- CHANGED HEAD is shown to be structurally unable to close the 200 case: the root catch-all answers HEAD with content-length: 0, so body comparison (GET) is mandatory for membership, not optional. My prior veri
+- NEW GET /sync/ re-dated live 22:13 UTC — 200 / 67 B, envelope 2 current. Both unauthenticated envelopes (/sync/ and /post/*) now confirmed in the same time window, not 23 days apart.
+- NEW GET /post/create_user → 405 / 184 B, detail "Method not allowed. Only POST is accepted for /post/create_user." Confirms POST-only, discloses no field schema, and returned no auth statement.
+- NEW Three-state route-membership oracle on v1 router: 401 problem+json = registered+gated, 405 problem+json = registered+ungated (POST-only), 200+1167B application/json = unregistered catch-all
+- NEW KB 2026-09-03 "/post/ also requires X-API-Secret" FALSIFIED — method-confounded (GET/OPTIONS cannot separate auth from method mismatch on POST-only route)
+- NEW "Auth map 15/15 complete" VOID — POST /post/ is catalogued route ("API Datenempfang (POST)") and is the ONE catalogued route not auth-gated
+- NEW Sustained 1-rps scraping bonusrechner_fragen.php confirmed at scale: 100 alternating apex/www requests at 1 rps all HTTP 200 / 2,152,708 B — no 429, no WAF, no rate limit
+- NEW S3 bucket kk-s3-01: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates; n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag)
+- NEW api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
+- NEW kk-s3-01 `?versionId=null` → 403 Forbidden — cheap version-history read closed; no versionId obtainable passively
+- CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
