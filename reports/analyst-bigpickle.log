@@ -31485,3 +31485,196 @@ testability: PASSIVE
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.net: the recorded signal set is exactly 6 — root 302, an application path 302, `/api/` 403 dir-listing-denied, `/trace.axd` 200 ASP.NET Trace Error, a non-existent path 302, `/health/` unrecorded — and no file-existence oracle has been demonstrated despite ~80 names being swept; the "name oracle closed" framing was wrong, there was never an oracle to close, and the hypothesis is restated around the WAF ruleset binding rather than an application name.
 [LEARN] REJECTED OTHER @ kassenkompass.net: IIS URL-Rewrite path override is confirmed not honoured on this host — 302 with 0 B where a direct request yields 403/2500 B — so the unproxied origin cannot be used for origin-bypass differential testing in its current state, and the parked kassenkompass.net WAF-bypass risk at 45 stays speculative with zero bypass demonstrated.
 [RISK] KassenKompass GmbH: 85 — the API root discloses its full 15+1 endpoint catalogue without auth and every data route is gated by a single custom `X-API-Secret` with two middleware stacks whose authorization scoping has never been tested because no scoped credential has ever been obtained in 21 sessions; a 2.1 MB anonymous tariff, budget, bonus and questionnaire-decision-engine payload refreshes within 8 days and still ships active internal test rows; the funnel mirrors unvalidated pass-params into 1-year cookies across 7 entry points with divergent alias maps and the abschluss.php self-registration remains lead-gated on an unresolved Account-ID; the sole origin host kassenkompass.net is unproxied and answers a physical path directly, so the Cloudflare layer protecting .de has never been shown to bind to it. Unchanged at 85: this cycle added no new attack surface, and the three open items are a versioned-bucket read, a WAF-binding posture question, and a credential that the project has not supplied.
+===== ANALYST bigpickle 2026-09-26 12:31:13 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-09-26 12:28:15 UTC
+[0m
+[0m$ [0mcurl -sSI --max-time 25 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/60/2.png?versionId=null' 2>&1 | head -40
+HTTP/1.1 403 Forbidden
+x-amz-request-id: TG07BHBF5J9J6206
+x-amz-id-2: 5MZduIB+YJotRIO8Fdii1upRjUPf5EK6o+sntN1XBQ2LW9LDu4ZXfqHdhJAMsa/bvGls5pjhuE+KHSNUFvlMGYGkjTbIRVmB
+Content-Type: application/xml
+Transfer-Encoding: chunked
+Date: Sat, 26 Sep 2026 12:28:15 GMT
+Server: AmazonS3
+[0m
+[0m$ [0msleep 2; curl -sS --max-time 25 -o /tmp/opencode/s3vid.xml -w 'STATUS=%{http_code} SIZE=%{size_download}\n' 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/60/2.png?versionId=null'; echo '---BODY---'; cat /tmp/opencode/s3vid.xml
+STATUS=403 SIZE=263
+---BODY---
+<?xml version="1.0" encoding="UTF-8"?>
+<Error><Code>AccessDenied</Code><Message>Access Denied</Message><RequestId>52AQM1JMMXT97BM4</RequestId><HostId>S2t2gUCCYwO6u4PGlZFAMpF2QIZIdr4YfF0lBA4SI+GYOphYYVuc9cwbRQfDcKaeGNTk3NTQ3Bc+/Ufe0GJ1sPGq81hXL+1H</HostId></Error>
+[0m
+[0m$ [0msleep 3; curl -sSI --max-time 25 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/60/2.png' 2>&1 | egrep -i 'HTTP/|content-length|etag|last-modified|accept-ranges'
+HTTP/1.1 200 OK
+Last-Modified: Mon, 22 Dec 2025 17:24:05 GMT
+ETag: "baa5a9084e056b1c5fdb728488f8a22a"
+Accept-Ranges: bytes
+Content-Length: 1051319
+[0m
+[0m$ [0msleep 3; curl -sS --max-time 25 -o /tmp/opencode/api_root.json -w 'STATUS=%{http_code} LEN=%{size_download}\n' 'https://api.kassenkompass.de/' ; echo '---'; cat /tmp/opencode/api_root.json | python3 -m json.tool 2>/dev/null | head -80
+STATUS=200 LEN=1167
+---
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET /health_insurance/": "API Krankenkassen",
+        "GET /state/": "API Bundesl\u00e4nder",
+        "GET /health/": "API- und Datenbank-Status (Health Check)",
+        "GET /sync/": "API Datensynchronisation",
+        "GET /question_tree/": "API Fragebaum",
+        "GET /detail_comparison/": "API Detailvergleich",
+        "GET /health_insurance_savings/": "API Krankenkasseneinsparungen",
+        "GET /health_insurance_comparison/": "API Krankenkassenvergleich",
+        "POST /post/": "API Datenempfang (POST)",
+        "DELETE /delete/{id}": "API Benutzerdaten l\u00f6schen",
+        "POST /cancel/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET /user/{ext_id}": "Userdaten abrufen",
+        "GET /cat_detail/": "API Detaillierte Kategorien-Informationen",
+        "GET /insurance_info/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET /settlement_report/{year}/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)"
+    }
+}
+[0m
+[0m$ [0msleep 3; for p in '/post/' '/delete/1' '/cancel/1'; do printf '=== GET %s ===\n' "$p"; curl -sS --max-time 25 -o /tmp/opencode/r.txt -D /tmp/opencode/h.txt -w 'STATUS=%{http_code} LEN=%{size_download}\n' "https://api.kassenkompass.de${p}"; egrep -i '^(allow|content-type|x-powered-by)' /tmp/opencode/h.txt; head -c 300 /tmp/opencode/r.txt; echo; sleep 4; done
+=== GET /post/ ===
+STATUS=200 LEN=344
+content-type: application/json; charset=utf-8
+x-powered-by: PHP/8.4.3
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfes
+=== GET /delete/1 ===
+STATUS=401 LEN=182
+content-type: application/problem+json; charset=utf-8
+x-powered-by: PHP/8.4.3
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/delete\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+=== GET /cancel/1 ===
+STATUS=401 LEN=182
+content-type: application/problem+json; charset=utf-8
+x-powered-by: PHP/8.4.3
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/cancel\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+[0m
+[0m$ [0msleep 3; curl -sS --max-time 25 'https://api.kassenkompass.de/post/' | python3 -m json.tool
+{
+    "success": true,
+    "message": "API-Hilfe f\u00fcr /post",
+    "data": {
+        "info": "Dies ist die Hilfeseite f\u00fcr die /post/create_user API.",
+        "usage": {
+            "POST /post/create_user": "Erstellt einen neuen User. Erwartet JSON im Body.",
+            "GET /post/help": "Zeigt diese Hilfeseite an.",
+            "POST /post/help": "Zeigt diese Hilfeseite an (kann sp\u00e4ter erweitert werden)."
+        }
+    }
+}
+[0m
+[0m$ [0msleep 3; for p in '/post/help' '/post/zzz_probe_nonexistent'; do printf '=== GET %s ===\n' "$p"; curl -sS --max-time 25 -o /tmp/opencode/r2.txt -D /tmp/opencode/h2.txt -w 'STATUS=%{http_code} LEN=%{size_download}\n' "https://api.kassenkompass.de${p}"; egrep -i '^(content-type)' /tmp/opencode/h2.txt; head -c 200 /tmp/opencode/r2.txt; echo; sleep 4; done
+=== GET /post/help ===
+STATUS=200 LEN=344
+content-type: application/json; charset=utf-8
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JS
+=== GET /post/zzz_probe_nonexistent ===
+STATUS=200 LEN=0
+content-type: text/html; charset=UTF-8
+[0m
+[0m$ [0msleep 3; for p in '/post/a/b' '/post'; do printf '=== GET %s ===\n' "$p"; curl -sS --max-time 25 -o /tmp/opencode/r3.txt -D /tmp/opencode/h3.txt -w 'STATUS=%{http_code} LEN=%{size_download} REDIR=%{redirect_url}\n' "https://api.kassenkompass.de${p}"; egrep -i '^(location|content-type)' /tmp/opencode/h3.txt; head -c 120 /tmp/opencode/r3.txt; echo; sleep 4; done
+=== GET /post/a/b ===
+STATUS=200 LEN=0 REDIR=
+content-type: text/html; charset=UTF-8
+
+=== GET /post ===
+STATUS=308 LEN=0 REDIR=https://api.kassenkompass.de/post/
+content-type: text/html; charset=UTF-8
+location: /post/
+[0m
+[0m$ [0msleep 4; curl -sS --max-time 40 -o /dev/null -D /tmp/opencode/fr.txt -w 'STATUS=%{http_code} BYTES=%{size_download}\n' 'https://kassenkompass.de/bonusrechner_fragen.php'; egrep -i '^(cache-control|cf-cache-status|etag|last-modified|content-length|content-type)' /tmp/opencode/fr.txt
+STATUS=200 BYTES=2152708
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+cf-cache-status: DYNAMIC
+[0m
+## STEP 1 — DELTA
+
+- [NEW] `GET api.kassenkompass.de/post/` → **200, 344 B, `application/json`, unauthenticated**. Body is a help page: `{"info":"Dies ist die Hilfeseite für die /post/create_user API.","usage":{"POST /post/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET /post/help":…,"POST /post/help":…}}`. The 15-endpoint root catalog documents only `POST /post/` as *"API Datenempfang (POST)"* — `/post/help` and `/post/create_user` appear nowhere in it. Undocumented sub-router with a user-provisioning route, never probed in 21 sessions.
+- [NEW] `/post/*` is a **depth-independent registered prefix**: `/post/zzz_probe_nonexistent` and `/post/a/b` both → 200, **0 B**, `text/html` (not the 1167 B catalog); `/post` → **308** `location: /post/`. This is a fourth distinct response mode on the api after v1-catalog-200, v2 structured router-404, and the middleware-401s.
+- [CHANGED] **"Auth map 15/15 complete" is false.** The map was built by probing the 15 *catalogued* paths only. `/post/help` is unauthenticated 200 and the `/post/*` prefix default is unauthenticated 200/0 B — the real unauthenticated surface is 15 catalogued + ≥3 uncatalogued routes.
+- [CHANGED] `GET /delete/1` and `GET /cancel/1` → 401 `application/problem+json`, middleware B, `"X-API-Secret Header fehlt"`, `instance` echo. The two **destructive** routes (delete user data; FG-Wechsel-Storno) are both on B and both credential-gated. No substance change; the write routes are now behaviour-mapped explicitly rather than inferred.
+- [REJECTED] S3 `?versionId=null` on the public key `/uploads/fraq/60/2.png` → **403 AccessDenied** (263 B XML) while the same key without the parameter → **200, 1,051,319 B, ETag `baa5a908…`, Last-Modified Mon, 22 Dec 2025 17:24:05 GMT, `Accept-Ranges: bytes`**. The policy grants `s3:GetObject` but not `s3:GetObjectVersion`; object history is unreachable even for already-public objects.
+- [NEW] Standing 24 h obligation closed: `fragen.php` 200 / **2,152,708 B** exact, `no-store` + `CF-DYNAMIC`, no ETag/Last-Modified, no `content-length` line (chunked). Byte-frozen 8th consecutive window (09-18→09-26), no caching or rate-limit mitigation regression.
+- [UNCHANGED] root catalog 200 / 1167 B, 15 endpoints, ver 1.0 — no drift.
+
+## STEP 2 — PRIORITIZE
+
+- [PRIO] api.kassenkompass.de/post/create_user, **7.5**, a=8 b=8 t=6 g=9 c=2 f=10 — undocumented user-provisioning route inside a namespace whose help and default both answer 200 with no credential; neighbouring write routes `/delete/1` and `/cancel/1` are both 401, so this one is the outlier.
+- [PRIO] api.kassenkompass.de/, **5.5**, a=6 b=4 t=5 g=10 c=1 f=6 — proven to *omit* ≥3 reachable routes, so the catalogue is an actively misleading inventory and the only gate-free map of the api.
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php, **6.7**, a=6 b=5 t=5 g=10 c=8 f=9 — unchanged standing anchor, re-measured on schedule, no regression to report.
+
+## STEP 3 — HYPOTHESES
+
+[HYP] `POST /post/create_user` May Provision Users Without Any Credential
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 58
+reasoning: Facts only. `GET /post/` and `GET /post/help` both return 200 + 344 B JSON help with no `X-API-Secret` (not 401), and that help names `POST /post/create_user` — *"Erstellt einen neuen User. Erwartet JSON im Body."* `/post/*` is a depth-independent registered prefix: `/post/zzz` and `/post/a/b` both give 200/0 B/`text/html`, and `/post` 308s to `/post/`, so the prefix is real and owned ahead of the v1 catch-all. The root catalog lists neither `help` nor `create_user`. The two comparable write routes in the same catalog, `/delete/1` and `/cancel/1`, both return middleware-B 401 `"X-API-Secret Header fehlt"`, so `/post/` is the only write-capable namespace in the api whose envelope answers with no credential at all. Whether the *write* is gated is unknown and was deliberately not tested.
+evidence_needed: A status on `/post/create_user` that is not 401, obtained without writing; or, with written programme authorisation, a scoped secret showing the endpoint provisions a user for any caller. I will not send the POST.
+verify_steps: Passive part done (5 GETs, all read-only). Next, method-introspection only: `curl -sS -X OPTIONS -i 'https://api.kassenkompass.de/post/create_user'` diffed against `curl -sS -X OPTIONS -i 'https://api.kassenkompass.de/delete/1'`. If create_user answers 200/405 while delete answers 401, the namespace gate is absent. No POST without an explicit scope grant.
+impact: If ungated, unauthenticated mass account creation inside a partner API that feeds the bonusrechner funnel and the settlement pipeline — policy/spam injection and downstream abuse, HIGH. Currently unassessed; the write path is untested by design because it mutates production data the programme excludes.
+testability: HUMAN_ONLY
+
+[HYP] The Root Catalogue Is An Incomplete Inventory Of A Larger Router, So Every "Enumeration Saturated" Claim Is Scoped To The Catalogue
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 66
+reasoning: The 1167 B catalogue lists 15 routes. `/post/help` and `/post/create_user` are both reachable and absent from it, and the `/post/*` default (200/0 B/`text/html`) is provably not the catalogue body, which means a registered prefix the catch-all does not own. The "auth map 15/15 complete" invariant has been carried for 15 consecutive sessions and rests entirely on catalogued paths. Separately, the root `content-length` has oscillated CL:0 → absent → accurate 1167 while the body never changed, so the response metadata is not authoritative either. A second undocumented prefix would show the gap is structural rather than a one-off.
+evidence_needed: One more registered prefix found the same way, i.e. a catalogued read route that answers 0 B/`text/html` instead of middleware-A 401 `problem+json`.
+verify_steps: One GET per candidate, ≥4 s apart, stopping at the first hit. `curl -sS -o /dev/null -w '%{http_code} %{size_download}\n' 'https://api.kassenkompass.de/settlement_report/2026/13'`, then the same for `/question_tree/1`, `/health_insurance/1`, `/state/1`. Any 200-with-0-bytes is an uncatalogued route surface; any 401 `problem+json` confirms that route is catalogued-and-gated. Then stop.
+impact: An attacker who trusts the catalogue underestimates the router, and the programme's own saturation claims are catalogue-scoped, so true route count is unknown. Recon amplification, MEDIUM.
+testability: PASSIVE
+
+[HYP] The Public Blob Replicates The Protected `/question_tree/` Decision Engine, Not Just `/insurance_info/`
+class: MISCONFIG
+asset: api.kassenkompass.de/question_tree/ + kassenkompass.de/bonusrechner_fragen.php
+confidence: 60
+reasoning: The catalogue carries `GET /question_tree/` — *"API Fragebaum"*. The anonymous 2,152,708 B payload carries a `dataant` block of 138 questions, 285 answers and 375 positive/negative category rule edges, with `uid_fra` spanning 5..246, plus `ucatKkData`, `globalbudgetsData` and `kombiboniData`. The programme has only ever recorded the insurance_info ↔ `ucatKkData` replication; the questionnaire mapping has no recorded protected counterpart *identified*, though `/question_tree/` is the obvious candidate. The structural correspondence is inferred from field names only and has not been proven.
+evidence_needed: A top-level key-set correspondence between the public `dataant` block and the `/question_tree/` response — obtainable only with a secret, and obtainable as key names alone.
+verify_steps: `GET /question_tree/` with a scoped secret, capture the top-level key set and the nested field names, diff against the public blob's key set, retain no values and no customer data. Unauthenticated the route must stay 401; if it does not, escalate immediately.
+impact: If the sets correspond, a competitor never needs the API secret to reconstruct the questionnaire decision engine that drives the whole funnel, collapsing the api's remaining value to settlement and customer data. MEDIUM-HIGH commercial confidentiality; no credential or PII asserted.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+
+- [PARKED] S3 versionId history exposure: refuted today, not parked — `s3:GetObjectVersion` is not granted, so there is no retrieval path even for public keys. Removed from the queue entirely.
+- [PARKED] Middleware-B tenant scoping (`/user/{ext_id}`, `/settlement_report/{y}/{m}`): 22nd consecutive session, no scoped credential exists, both magic values 403 on all stacks, query/cookie channels closed. Nothing changed today.
+- [PARKED] WAF ruleset binding on kassenkompass.net: the blanket-302 behaviour and the dead URL-Rewrite override mean no oracle exists there. Unchanged, unprobeable.
+- [FINAL] `POST /post/create_user` may provision users without any credential — 58, new this cycle, HUMAN_ONLY, escalate for scope before any write.
+- [FINAL] Root catalogue omits ≥3 reachable routes; "enumeration saturated" is catalogue-scoped — 66, PASSIVE, cheap to advance.
+- [FINAL] Public blob replicates `/question_tree/` as well as `/insurance_info/` — 60, AUTH_HELPED, unproven correspondence.
+- [FINAL] Anonymous 2.1 MB tariff/budget/bonus/questionnaire payload, byte-frozen 8 windows — 92, PASSIVE, re-measured clean today.
+
+## STEP 5 — NEXT ACTION
+
+[NEXT] PROBE: `curl -sS -o /dev/null -w '%{http_code} %{size_download}\n' 'https://api.kassenkompass.de/settlement_report/2026/13'`, then the identical one-liner for `/question_tree/1`, `/health_insurance/1`, `/state/1` — one request each, ≥4 s apart, stop at the first 200. Expected: 401 + 182 B `problem+json` means catalogued-and-gated; 200 + 0 B means a second uncatalogued prefix and the catalogue gap is structural.
+
+## STEP 6 — LEARNING
+
+- [LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: `?versionId=null` on the confirmed-public key `uploads/fraq/60/2.png` returns 403 AccessDenied (263 B) while the bare key returns 200 / 1,051,319 B / ETag `baa5a908…`. The 403 is policy-driven, not existence-driven — the bucket grants `s3:GetObject` but not `s3:GetObjectVersion`, so prior object versions are unreachable even for keys the bucket already serves publicly. Version-history recovery is not a viable primitive here.
+- [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/post/: `/post/` is a registered sub-router, not the catalogued data-receiver. It serves a 344 B unauthenticated JSON help page that documents `POST /post/create_user` (create user, JSON body), `GET /post/help` and `POST /post/help`, none of which appear in the 15-endpoint root catalogue. Its prefix default is 200/0 B/`text/html` at any depth and `/post` 308s to `/post/`. A fourth response mode on the api, and a namespace that answers with no `X-API-Secret` while the neighbouring write routes `/delete/1` and `/cancel/1` both return middleware-B 401.
+
+## STEP 7 — RISK
+
+[RISK] KassenKompass GmbH: 87 — up from 85. The api carries an undocumented sub-router whose entire namespace answers unauthenticated and whose own help page advertises an uncatalogued user-provisioning endpoint, which breaks the "auth map 15/15" invariant this programme has carried for 15 sessions and means the route inventory was never complete. The write itself remains unassessed because confirming it requires mutating production data the programme excludes, so this is new unassessed boundary rather than new demonstrated impact. Alongside it the 2.1 MB anonymous tariff, budget, bonus and questionnaire-decision payload re-measured byte-exact at 2,152,708 B with no caching or rate-limit mitigation, the funnel still mirrors unvalidated pass-params into 1-year cookies across 7 entry points, and the middleware-B tenant-scoping question stays unanswerable without a credential the programme has never supplied.
