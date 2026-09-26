@@ -1087,3 +1087,14 @@ www.kassenkompass.de
 - NEW S3 bucket qid axis 1..180 fully enumerated via HEAD — 6 IDs beyond page-refs (175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag);
 - CHANGED api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0
 - CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-26 19:40:11 UTC
+- NEW api.kassenkompass.de/post/* write namespace mounted OUTSIDE X-API-Secret dependency — HEAD /delete/1 → 401 problem+json, HEAD /state/ → 401 problem+json, but HEAD /post/ → 405 problem+json, HEAD /post
+- NEW Three-state route-membership oracle on v1 router: 401 problem+json = registered+gated, 405 problem+json = registered+ungated (POST-only), 200+1167B application/json = unregistered catch-all
+- NEW KB 2026-09-03 "/post/ also requires X-API-Secret" FALSIFIED — method-confounded (GET/OPTIONS cannot separate auth from method mismatch on POST-only route)
+- NEW "Auth map 15/15 complete" VOID — POST /post/ is catalogued route ("API Datenempfang (POST)") and is the ONE catalogued route not auth-gated
+- NEW Sustained 1-rps scraping bonusrechner_fragen.php confirmed at scale: 100 alternating apex/www requests at 1 rps all HTTP 200 / 2,152,708 B — no 429, no WAF, no rate limit
+- NEW S3 bucket kk-s3-01: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates; n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag)
+- NEW api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
+- NEW kk-s3-01 `?versionId=null` → 403 Forbidden — cheap version-history read closed; no versionId obtainable passively
+- CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
