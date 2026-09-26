@@ -3010,3 +3010,18 @@
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on every app-handled path (both .php and non-.php) means no existence oracle exists — this corrects, and weakens
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed by manual validation — Host: kassenkompass.de returns the public 36,070 B h
 - LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: first-ever CORS test outside api.kassenkompass.de — no access-control-allow-origin and no allow-cre
+
+## RANKED HYPOTHESES 2026-09-26 07:36:09 UTC
+- [96] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale (from art/lead_nemotron3.txt)
+- [58] kk-s3-01.s3.eu-central-1.amazonaws.com: Duplicate S3 VersionIds May Expose Object History Deleted From The Current Public Key Set (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: `curl -sSI 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/60/2.png?versionId=null'` — one HEAD only, expect 200 with `x-amz-version-id` (ve
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 100 requests at 1 rps; 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: single anonymous GET re-confirmed 200 / 2,152,708 B with no-store+CF-DYNAMIC, no ETag/Last-Modifi
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.net: the recorded signal set is exactly 6 — root 302, an application path 302, `/api/` 403 dir-listing-denied, `/trace.axd` 2
+- LEARN: REJECTED OTHER @ kassenkompass.net: IIS URL-Rewrite path override is confirmed not honoured on this host — 302 with 0 B where a direct request yields 403/2500 B
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 20-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block,
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension e
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length now accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog sub
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl

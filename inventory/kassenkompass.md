@@ -1061,3 +1061,9 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
 - CHANGED Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: added to PRIO list at 5.80 (attack_surface=6, business_value=5, tech_exposure=5, gate_ease=10, cloud_surface=8, freshness=7)
+
+## 2026-09-26 07:36:09 UTC
+- NEW Sustained 1-rps scraping of `bonusrechner_fragen.php` confirmed: 20 alternating apex/www requests at 1 rps all return HTTP 200 / 2,152,708 B — no 429, no WAF block, no rate limit
+- NEW S3 bucket qid axis extends to 180 (6 IDs beyond page-referenced 174), all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n-dimension extends beyond n=1 (qid 60 n=2 returns 1,051,
+- CHANGED api.kassenkompass.de root: content-length header now accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 23rd consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal

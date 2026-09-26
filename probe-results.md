@@ -983,3 +983,11 @@ https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
 https://kassenkompass.de/bonusrechner_fragen.php` -> HTTP 404
+
+## 2026-09-26 07:36:19 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://kassenkompass.de/?id=1%27` -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php'` -> HTTP 404
