@@ -1073,3 +1073,17 @@ www.kassenkompass.de
 - NEW S3 bucket qid axis extends to 180 (6 IDs beyond page-referenced 174), all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n-dimension extends beyond n=1 (qid 60 n=2 returns 1,051,
 - CHANGED api.kassenkompass.de root: content-length header now accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - CHANGED Peer pipeline: 23rd consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-26 16:48:40 UTC
+- NEW api.kassenkompass.de/post/* is a SEPARATE application mounted OUTSIDE the X-API-Secret dependency — proven by calibrated HEAD differential on one host, same method: HEAD /delete/1 → 401 problem+json, 
+- NEW GET /post/help → HTTP/2 200, 344 B, content-type application/json (NOT problem+json), advertises `POST /post/create_user` = "Erstellt einen neuen User. Erwartet JSON im Body.", `GET /post/help`, and `
+- NEW Three-state route-membership oracle on api v1, single HEAD/GET per candidate at ≤1 rps: registered+gated → 401 application/problem+json; registered+POST-only → 405 application/problem+json; unregister
+- CHANGED KB 2026-09-03 20:02:53 "NEW `/post/` also requires X-API-Secret; GET/OPTIONS reveal no bypass" is FALSIFIED. That determination was method-confounded: GET/OPTIONS cannot separate auth-rejection from m
+- CHANGED "Auth map 15/15 complete" invariant is VOID, not merely scoped: `POST /post/` is one of the 15 catalogued routes ("API Datenempfang (POST)") and it is the one catalogued route that is not auth-gated.
+- CHANGED Last cycle's "uncatalogued prefix / structural catalogue gap" framing is WRONG and is withdrawn: the catalogue does list `POST /post/`; only `help` and `create_user` are undocumented, and all three of
+- CHANGED kk-s3-01 `?versionId=null` → 403 Forbidden. The cheap version-history read is closed; no versionId is obtainable passively (ListBucketVersions = AccessDenied). Hypothesis downgraded, not disproven.
+- CHANGED api root 200 / 1167 B with accurate content-length; catalog substance unchanged (15 v1 ver 1.0 + 1 v2 ver 2.0). Cosmetic CL drift class stays resolved.
+- NEW Sustained 1-rps scraping of `bonusrechner_fragen.php` confirmed at scale: 100 alternating apex/www requests at 1 rps all HTTP 200 / 2,152,708 B — no 429, no WAF block, no rate limit; cache-control: no
+- NEW S3 bucket qid axis 1..180 fully enumerated via HEAD — 6 IDs beyond page-refs (175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag);
+- CHANGED api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0
+- CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal

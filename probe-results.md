@@ -1000,3 +1000,11 @@ https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
 https://api.kassenkompass.de/post/create_user'` -> 200 len=?
 https://api.kassenkompass.de/delete/1'` -> HTTP 401
 https://api.kassenkompass.de/settlement_report/2026/13'` -> HTTP 401
+
+## 2026-09-26 16:48:50 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://api.kassenkompass.de/get/'` -> 200 len=0
+https://api.kassenkompass.de/sync/'` -> 200 len=0

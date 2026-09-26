@@ -31678,3 +31678,164 @@ testability: AUTH_HELPED
 ## STEP 7 — RISK
 
 [RISK] KassenKompass GmbH: 87 — up from 85. The api carries an undocumented sub-router whose entire namespace answers unauthenticated and whose own help page advertises an uncatalogued user-provisioning endpoint, which breaks the "auth map 15/15" invariant this programme has carried for 15 sessions and means the route inventory was never complete. The write itself remains unassessed because confirming it requires mutating production data the programme excludes, so this is new unassessed boundary rather than new demonstrated impact. Alongside it the 2.1 MB anonymous tariff, budget, bonus and questionnaire-decision payload re-measured byte-exact at 2,152,708 B with no caching or rate-limit mitigation, the funnel still mirrors unvalidated pass-params into 1-year cookies across 7 entry points, and the middleware-B tenant-scoping question stays unanswerable without a credential the programme has never supplied.
+===== ANALYST bigpickle 2026-09-26 16:48:40 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -o /dev/null -w 'root %{http_code} %{size_download}\n' --max-time 25 'https://api.kassenkompass.de/' ; sleep 4 ; curl -sS -o /dev/null -w 'sr2026/13 %{http_code} %{size_download}\n' --max-time 25 'https://api.kassenkompass.de/settlement_report/2026/13'
+root 200 1167
+sr2026/13 401 242
+[0m
+[0m$ [0msleep 4 ; curl -sS -o /dev/null -w 'question_tree/1 %{http_code} %{size_download} %{content_type}\n' --max-time 25 'https://api.kassenkompass.de/question_tree/1' ; sleep 4 ; curl -sS -o /dev/null -w 'health_insurance/1 %{http_code} %{size_download} %{content_type}\n' --max-time 25 'https://api.kassenkompass.de/health_insurance/1' ; sleep 4 ; curl -sS -o /dev/null -w 'state/1 %{http_code} %{size_download} %{content_type}\n' --max-time 25 'https://api.kassenkompass.de/state/1'
+question_tree/1 401 231 application/problem+json; charset=utf-8
+health_insurance/1 401 234 application/problem+json; charset=utf-8
+state/1 401 223 application/problem+json; charset=utf-8
+[0m
+[0m$ [0mcurl -sS --max-time 25 'https://api.kassenkompass.de/' | python3 -c "import sys,json;d=json.load(sys.stdin);print(json.dumps(d,ensure_ascii=False,indent=1)[:1400])" ; sleep 4 ; curl -sS -o /dev/null -w 'zzz_unknown %{http_code} %{size_download} %{content_type}\n' --max-time 25 'https://api.kassenkompass.de/zzz_unknown_9f2/1' ; sleep 4 ; curl -sS --max-time 25 'https://api.kassenkompass.de/state/1'
+{
+ "api_info": "KK API - REST",
+ "version": "1.0",
+ "authentication": "X-API-Secret header required",
+ "endpoints": {
+  "GET /health_insurance/": "API Krankenkassen",
+  "GET /state/": "API Bundesländer",
+  "GET /health/": "API- und Datenbank-Status (Health Check)",
+  "GET /sync/": "API Datensynchronisation",
+  "GET /question_tree/": "API Fragebaum",
+  "GET /detail_comparison/": "API Detailvergleich",
+  "GET /health_insurance_savings/": "API Krankenkasseneinsparungen",
+  "GET /health_insurance_comparison/": "API Krankenkassenvergleich",
+  "POST /post/": "API Datenempfang (POST)",
+  "DELETE /delete/{id}": "API Benutzerdaten löschen",
+  "POST /cancel/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+  "GET /user/{ext_id}": "Userdaten abrufen",
+  "GET /cat_detail/": "API Detaillierte Kategorien-Informationen",
+  "GET /insurance_info/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+  "GET /settlement_report/{year}/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)"
+ }
+}
+zzz_unknown 200 1167 application/json; charset=utf-8
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/state\/1"
+}
+[0m
+[0m$ [0mcurl -sSI --max-time 25 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/60/2.png?versionId=null' | tr -d '\r' | egrep -i '^(HTTP/|x-amz-version-id|content-length|last-modified|accept-ranges|x-amz-delete-marker|allow)' ; sleep 5 ; curl -sS -I --max-time 25 -o /dev/null -w 'HEAD /post/create_user %{http_code} %{size_download} %{content_type}\n' 'https://api.kassenkompass.de/post/create_user'
+HTTP/1.1 403 Forbidden
+HEAD /post/create_user 405 0 application/problem+json; charset=utf-8
+[0m
+[0m$ [0msleep 4 ; curl -sS -I --max-time 25 -o /dev/null -w 'HEAD /state/            %{http_code} %{content_type}\n' 'https://api.kassenkompass.de/state/' ; sleep 4 ; curl -sS -I --max-time 25 -o /dev/null -w 'HEAD /delete/1          %{http_code} %{content_type}\n' 'https://api.kassenkompass.de/delete/1' ; sleep 4 ; curl -sS -I --max-time 25 -o /dev/null -w 'HEAD /post/             %{http_code} %{content_type}\n' 'https://api.kassenkompass.de/post/'
+HEAD /state/            401 application/problem+json; charset=utf-8
+HEAD /delete/1          401 application/problem+json; charset=utf-8
+HEAD /post/             405 application/problem+json; charset=utf-8
+[0m
+[0m$ [0msleep 4 ; curl -sS -i --max-time 25 'https://api.kassenkompass.de/post/help' | tr -d '\r' | egrep -i '^(HTTP/|content-type|content-length|allow|x-api|www-auth)' ; echo '---BODY---' ; curl -sS --max-time 25 'https://api.kassenkompass.de/post/help'
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 344
+---BODY---
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfeseite an (kann später erweitert werden)."}}}
+[0m
+## STEP 1 — DELTA
+
+```
+[NEW]      api.kassenkompass.de/post/* is a SEPARATE application mounted OUTSIDE the X-API-Secret dependency — proven by calibrated HEAD differential on one host, same method: HEAD /delete/1 → 401 problem+json, HEAD /post/ → 405 problem+json, HEAD /state/ → 401 problem+json.
+[NEW]      GET /post/help → HTTP/2 200, 344 B, content-type application/json (NOT problem+json), advertises `POST /post/create_user` = "Erstellt einen neuen User. Erwartet JSON im Body.", `GET /post/help`, and `POST /post/help` ("kann später erweitert werden") — three methods, two write-capable, none credentialed.
+[NEW]      Three-state route-membership oracle on api v1, single HEAD/GET per candidate at ≤1 rps: registered+gated → 401 application/problem+json; registered+POST-only → 405 application/problem+json; unregistered → 200 + 1167 B catalog (verified /zzz_unknown_9f2/1 → 200 / 1167 B application/json).
+[CHANGED]  KB 2026-09-03 20:02:53 "NEW `/post/` also requires X-API-Secret; GET/OPTIONS reveal no bypass" is FALSIFIED. That determination was method-confounded: GET/OPTIONS cannot separate auth-rejection from method-mismatch, and the 405 control was never run.
+[CHANGED]  "Auth map 15/15 complete" invariant is VOID, not merely scoped: `POST /post/` is one of the 15 catalogued routes ("API Datenempfang (POST)") and it is the one catalogued route that is not auth-gated.
+[CHANGED]  Last cycle's "uncatalogued prefix / structural catalogue gap" framing is WRONG and is withdrawn: the catalogue does list `POST /post/`; only `help` and `create_user` are undocumented, and all three of last cycle's candidate routes (/settlement_report/2026/13 → 401/242 B, /question_tree/1 → 401/231 B, /health_insurance/1 → 401/234 B, /state/1 → 401/223 B) are catalogued and gated.
+[CHANGED]  kk-s3-01 `?versionId=null` → 403 Forbidden. The cheap version-history read is closed; no versionId is obtainable passively (ListBucketVersions = AccessDenied). Hypothesis downgraded, not disproven.
+[CHANGED]  api root 200 / 1167 B with accurate content-length; catalog substance unchanged (15 v1 ver 1.0 + 1 v2 ver 2.0). Cosmetic CL drift class stays resolved.
+NO_DELTA   No new host, no fragen.php payload change, no v2 route, no CORS reflection, no new middleware wording.
+```
+
+## STEP 2 — PRIORITIZE
+
+```
+[PRIO] api.kassenkompass.de/post/create_user   7.60  (a=8 b=7 t=7 g=10 c=4 f=9)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php 6.90 (a=6 b=9 t=3 g=10 c=3 f=9)
+[PRIO] api.kassenkompass.de/  (v1 router)        6.50 (a=8 b=6 t=5 g=7 c=3 f=9)
+```
+
+## STEP 3 — HYPOTHESES
+
+```
+[HYP] The Entire /post/ Write Namespace Is Mounted Outside The API's Auth Dependency, So POST /post/create_user Is Ungated By Routing
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 72
+reasoning: Five read-only probes this session. HEAD /delete/1 → 401 application/problem+json; HEAD /state/ → 401 application/problem+json; HEAD /post/ → 405 application/problem+json; HEAD /post/create_user → 405 application/problem+json; GET /post/help → HTTP/2 200, 344 B, application/json. Identical method, identical host, two answers: the auth dependency rejects on /delete/1 and /state/ but is not reached on /post/*. Because the rejection is per-route and not global (the unregistered-path catch-all also answers 200 unauthenticated), the v1 auth is per-route opt-in and /post/* is mounted without it. The response envelope differs too — problem+json on the gated router, plain application/json on /post/* — which is independent evidence of a second application, not a second route. /post/help names `POST /post/create_user` = "Erstellt einen neuen User. Erwartet JSON im Body." Nothing in the envelope, headers or body requires a credential. Whether the handler performs its own internal check is unknown and unknowable without a write.
+evidence_needed: A response from POST /post/create_user other than 401/403, obtained with written authorisation to create one test record. I will not send it: it mutates production partner-API data that the programme excludes.
+verify_steps: Passive half COMPLETE, no further probe needed. Report to bugs.olivermaicher.eu citing the five recorded responses; request a scoped X-API-Secret or written authorisation for one create_user call to close the write.
+impact: If the handler has no internal check, unauthenticated mass account creation inside a partner API that feeds the bonusrechner funnel and the settlement pipeline — policy and spam injection plus downstream abuse, HIGH. Currently a proven *routing* boundary with an unassessed write; no credential and no customer data is exposed by anything measured.
+testability: HUMAN_ONLY
+```
+
+```
+[HYP] The 401/405/200-Catalog Three-State Differential Is A Working Route-Membership Oracle, So The Catalogue Is Provably Incomplete And Ungated Routes Are Enumerable At One HEAD Per Candidate
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 70
+reasoning: A single HEAD distinguishes three router states with no auth and no body: /state/ → 401 problem+json (registered, gated); /post/ → 405 problem+json (registered, POST-only, ungated); /zzz_unknown_9f2/1 → 200 + 1167 B application/json (unregistered, catch-all). /post/help and /post/create_user are both registered and both absent from the 15-route catalogue, so the catalogue undercounts today. The v1 catch-all is a registered route placed after the data routes and is itself unauthenticated, which is why the 200 state is reachable at all. The programme has recorded the v2 404 oracle for 24 sessions but has never recorded the v1 membership oracle, and the auth map has been carried as "15/15" for 15 sessions on the strength of status codes read from paths the catalogue itself supplied.
+evidence_needed: One candidate name that answers 405 or 200-with-non-catalog-body, proving a second ungated or uncatalogued surface exists outside /post/*.
+verify_steps: One HEAD per candidate, >=4 s apart, stopping at the first 405: `curl -sS -I -o /dev/null -w '%{http_code}\n' 'https://api.kassenkompass.de/get/'`, then `/update/`, `/insert/`, `/user/`, `/admin/`, `/sync_legacy/`. 405 or a non-1167 B 200 is a hit; 401 means catalogued-and-gated; stop.
+impact: The published catalogue cannot be used to bound the router, so every "enumeration saturated" claim in this programme is catalogue-scoped, and the ungated write surface is larger than the one entry found today. Recon amplification plus a cheap path to further ungated writes, MEDIUM-HIGH.
+testability: PASSIVE
+```
+
+```
+[HYP] The API Has No Single Auth Boundary — Two Of Its Three Response Envelopes Are Unauthenticated And Both Are Write-Capable
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 58
+reasoning: Three distinct envelopes on one host. (1) application/problem+json 401/403, RFC 9457, `type: https://httpstatuses.com/401`, `instance` echoing the path — the 15 gated data routes, confirmed live on /state/1, /delete/1, /settlement_report/2026/13, /question_tree/1, /health_insurance/1. (2) HTTP 200 with `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` on /sync/ — a legacy JSON envelope that reports an auth failure inside a 200 status, recorded unchanged since 2026-09-03. (3) plain application/json on /post/*, 200 for help and 405 for method mismatch. Envelopes 2 and 3 are the two that are not auth-rejected at the boundary, and both name write operations: /sync/ is catalogued "API Datensynchronisation" and /post/ is catalogued "API Datenempfang (POST)" and carries create_user plus a write-capable help. The envelope that enforces auth is the one that only reads.
+evidence_needed: Confirmation that /sync/ still answers 200 rather than 401 today, which would put both unauthenticated envelopes on the same host in the same time window rather than at different points in a 23-day history.
+verify_steps: `curl -sS -o /dev/null -w '%{http_code} %{size_download} %{content_type}\n' 'https://api.kassenkompass.de/sync/'` — one GET, no credential. 200 + application/json confirms envelope 2 is current; 401 problem+json retires it and narrows the claim to /post/* alone.
+impact: A partner integration surface where the only credential-checked paths are the read paths, so data ingestion and user creation sit outside the auth boundary by construction rather than by accident. Shapes the fix as one gateway-level check rather than 15 per-route ones. MEDIUM.
+testability: PASSIVE
+```
+
+## STEP 4 — SELF-CRITIQUE
+
+```
+[DROPPED] "POST /post/create_user may provision users without any credential" @ 58 (last cycle) — not dropped for weakness but SUPERSEDED. Its routing premise is now proven at 90 by the 405-vs-401 calibration, so it is no longer a hypothesis; it is promoted to HYP 1 with the write half explicitly unassessed.
+[DROPPED] "The root catalogue is an incomplete inventory of a larger router" @ 66 (last cycle) — evidence contradicts it. POST /post/ IS catalogued, and all four of last cycle's candidate paths are catalogued and gated. The claim is narrowed to HYP 2, which is falsifiable by a single HEAD.
+[DROPPED] "GET /graphql" class coverage — re-tested 2026-09-25, already closed, not re-raised.
+
+[PARKED] S3 version-history read via ?versionId=null: 403 Forbidden this session, and no passive route to a real versionId exists (ListBucketVersions is AccessDenied, and no versionId is exposed in any page or header). The hypothesis has no executable next step, so it is parked rather than carried as open.
+[PARKED] Middleware-B tenant scoping: 21st consecutive session with no scoped credential, both known magic values 403 on all stacks, query and cookie channels closed, and now a second confirmation that /post/* is not on middleware B at all — it is on no middleware.
+[PARKED] Public payload as an enumeration oracle for the KK id space: /health_insurance/ is now identified as the catalogued "API Krankenkassen" master-list route, but it answers 401 like every other data route, so the free enumeration the blob was hoped to provide still requires a secret.
+
+[FINAL] /post/ write namespace mounted outside the API's auth dependency — POST /post/create_user ungated by routing, own help page, separate JSON envelope, 72.
+[FINAL] 401/405/200-catalog three-state route-membership oracle on api v1 — catalogue provably incomplete, ungated routes enumerable at one HEAD each, 70.
+[FINAL] No single auth boundary on api — the two unauthenticated envelopes are precisely the two write-capable ones, 58.
+[FINAL] Anonymous raw tariff + questionnaire decision engine with live test rows (kassenkompass.de/bonusrechner_fragen.php) 95 — unchanged, not re-probed, held.
+[FINAL] WAF ruleset binding on the unproxied origin host (kassenkompass.net) 45 — unchanged.
+```
+
+## STEP 5 — NEXT ACTION
+
+```
+[NEXT] PROBE: `curl -sS -I -o /dev/null -w '%{http_code} %{content_type}\n' 'https://api.kassenkompass.de/get/'`, then the identical one-liner for `/update/`, `/insert/`, `/user/`, `/admin/`, `/sync_legacy/` — one HEAD each, >=4 s apart, stop at the first 405. Expected: 401 problem+json = catalogued-and-gated, closes HYP 2; 405 or a 200 whose body is not the 1167 B catalog = a second ungated namespace and the catalogue gap is structural after all. Then `curl -sS -o /dev/null -w '%{http_code} %{content_type}\n' 'https://api.kassenkompass.de/sync/'` to date envelope 2.
+```
+
+## STEP 6 — LEARNING
+
+```
+[LEARN] ACCEPTED AUTH @ api.kassenkompass.de/post/: the entire /post/* write namespace is mounted outside the X-API-Secret dependency. Proven by a calibrated control, not asserted: HEAD /delete/1 → 401 and HEAD /state/ → 401 on the same host and method, while HEAD /post/ and HEAD /post/create_user → 405. GET /post/help returns HTTP/2 200 / 344 B application/json advertising `POST /post/create_user` ("Erstellt einen neuen User") and a write-capable `POST /post/help`. The write itself is unassessed and was deliberately not sent.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (root catalogue as an incomplete inventory): withdrawn on my own evidence. POST /post/ IS one of the 15 catalogued routes ("API Datenempfang (POST)"), and /settlement_report/2026/13, /question_tree/1, /health_insurance/1 and /state/1 all answered 401 problem+json, i.e. all four are catalogued and gated. The gap is two undocumented sub-routes inside a catalogued namespace, not a missing prefix. Confidence 66 → replaced by the narrower oracle claim at 70.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de → rejected class corrected: the 2026-09-03 entry "`/post/` also requires X-API-Secret" was method-confounded. GET and OPTIONS cannot separate an auth rejection from a method mismatch on a POST-only route; without a 405 control the test was structurally incapable of answering its own question. Any POST-only route on this host must be auth-tested with a method that the route actually accepts, or by differencing against a sibling route, never by GET/OPTIONS alone.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+json = registered and ungated, 200 + 1167 B application/json = unregistered catch-all. Verified this session on /state/, /post/ and /zzz_unknown_9f2/1. The programme had recorded the v2 404 oracle for 24 sessions and never recorded this one, which is the cheap direction: it finds ungated routes rather than merely missing ones.
+[LEARN] REJECTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: `?versionId=null` returns 403 Forbidden, closing the cheap form of the version-history hypothesis. A 403 rather than a 405 leaves versioning status undetermined, but no versionId is obtainable without either ListBucketVersions (AccessDenied) or a leaked identifier, so there is no passive next step and the item is parked rather than carried.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: re-dated this session's dependency, not the endpoint. The legacy HTTP-200 JSON envelope that reports an auth failure inside a 200 status has been unchanged since 2026-09-03 and is the second of three response envelopes on the host; the only envelope that enforces auth at the boundary is the read-only one, which is the structural observation worth carrying to the report.
+```
+
+## STEP 7 — RISK
+
+```
+[RISK] KassenKompass GmbH: 88 — up one from 87. The material change is a proven boundary, not a proven impact: the /post/* write namespace is mounted outside the API's auth dependency, demonstrated by a calibrated control on a single host and method (HEAD /delete/1 and /state/ → 401, HEAD /post/ and /post/create_user → 405), carrying an uncatalogued user-provisioning endpoint whose own help page advertises it, on a partner API that feeds the bonusrechner funnel and the settlement pipeline. Two of the host's three response envelopes are unauthenticated and both are write-capable. This also falsifies a 23-day-old knowledge-base determination that /post/ requires the secret, and voids the "auth map 15/15 complete" invariant, both of which were artefacts of testing POST-only routes with GET and OPTIONS. Held at 88 rather than raised further because the create_user write is unassessed and I declined to send it, and because the 2.1 MB anonymous tariff payload, the 7-entry cookie-stuffing funnel and the unanswerable middleware-B tenant-scoping question are all unchanged. The three open items are now: one authorised create_user call, a five-name HEAD sweep for further ungated namespaces, and a credential the programme has still never supplied.
+```

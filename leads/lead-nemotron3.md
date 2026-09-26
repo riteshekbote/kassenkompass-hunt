@@ -7862,3 +7862,52 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
 [LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
 [RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-09-26 16:46:40 UTC [target] (model nemotron3)
+[NEW] Sustained 1-rps scraping of `bonusrechner_fragen.php` confirmed at scale: 100 alternating apex/www requests at 1 rps all HTTP 200 / 2,152,708 B — no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified
+[NEW] S3 bucket qid axis 1..180 fully enumerated via HEAD — 6 IDs beyond page-refs (175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag); non-image keys all 403
+[CHANGED] api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[CHANGED] Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.00,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] www.kassenkompass.de/bonusrechner_fragen.php,8.75,attack_surface=9,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,7.10,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kassenkompass.de/bonusrechner.php,6.90,attack_surface=8,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=9,freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.20,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=2,cloud_surface=5,freshness=6
+[HYP] Sustained Unauthenticated Tariff Database Scraping At Scale
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 96
+reasoning: 100 alternating apex/www requests at 1 rps all HTTP 200 / 2,152,708 B — no 429, no WAF block, no rate limit; headers: cache-control: no-store, no-cache, must-revalidate; cf-cache-status: DYNAMIC; no ETag/Last-Modified; payload contains ucatKkData (5,209 rows: uid_cat,uid_ucat_q,uid_kk_q,wert,wertart), globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]; sessionData all-null under stuffed cookies proves cookies not read at GET render; kk_id query param not consumed (akt_kk_id=null identical payload); www mirror doubles surface
+evidence_needed: Confirm sustained scraping >1000 requests succeeds; verify payload completeness across multiple requests
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 1000 requests at 1 rps; measure Content-Length, confirm no 429/WAF; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
+impact: Competitive intelligence leak (full GKV/PKV tariff database with resolved references ≤2025-12-22); potential resource exhaustion via unbounded 2.1MB responses; MEDIUM-HIGH
+testability: PASSIVE
+[HYP] S3 Bucket Questionnaire Image Enumeration & Data Reconstruction
+class: MISCONFIG
+asset: kk-s3-01.s3.eu-central-1.amazonaws.com
+confidence: 80
+reasoning: Existence oracle established (200 public read vs 403 AccessDenied); qid axis 1..180 with 6 IDs beyond page-referenced set (174); n-dimension extends beyond n=1 (qid 60 n=2 returns 1,051,319 B, distinct ETag baa5a9... vs 52f04d... for n=1); all objects PNG question images (uploads/fraq/{qid}/{n}.png); bucket listing denied but object-level enumeration possible via qid/n axes; all non-image sensitive keys (.env, .git/config, web.config, backup.sql) return 403; images-only content confirmed by PNG magic bytes
+evidence_needed: Confirm full qid 1..180 enumeration succeeds without rate limit; verify n-axis depth per qid; confirm no non-image objects accessible
+verify_steps: HEAD https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/{1..180}/1.png at 1 rps; for qid 60 test n=1..5; confirm 200/403 pattern; verify PNG magic bytes on all 200 responses
+impact: Full questionnaire image corpus reconstruction (180 questions × variable images); potential PII in question images; MEDIUM
+testability: PASSIVE
+[HYP] v2 Insurance Info Draft Data Exposure Via Greedy Segment
+class: MISCONFIG
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 78
+reasoning: v2 router (ver 2.0) exposes GET /v2/insurance_info/{kk_id} returning draft categories + resolved references — undocumented in 4+ prior recon sessions; greedy segment match confirmed — /v2/insurance_info/1/extra, //1, %31 all reach protected handler (401 middleware A shared with v1 majority); kk_id not validated at routing; enumeration saturated at 42 names (only insurance_info registered); auth source-merge closed (query/cookie X-API-Secret both 401)
+evidence_needed: Obtain valid X-API-Secret to probe authenticated response structure; confirm draft categories differ from v1 published data
+verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1/extra (confirm 401 middleware A); GET https://api.kassenkompass.de/v2/insurance_info/9999 (confirm 401 not 404 — greedy match); with valid secret: GET /v2/insurance_info/{valid_kk_id} → parse draft categories + resolved references; diff against v1 /insurance_info/{kk_id} and bonusrechner_fragen.php ucatKkData
+impact: Unpublished draft tariff/insurance data exposure if credentials obtained; BOLA cross-tenant read value downgraded to unpublished-draft-only since ucatKkData publicly replicates resolved references; MEDIUM
+testability: AUTH_HELPED
+[PARKED] v2 Insurance Info Draft Data Exposure Via Greedy Segment: confidence 78 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 24+ cycles
+[FINAL] 1. Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (confidence 96, PASSIVE)
+[FINAL] 2. S3 Bucket Questionnaire Image Enumeration & Data Reconstruction (confidence 80, PASSIVE)
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 1000 requests at 1 rps; measure Content-Length, confirm no 429/WAF block, extract headers (Cache-Control, ETag, Last-Modified, CF-Cache-Status), parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds from each response
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[RISK] KassenKompass GmbH: 85 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
