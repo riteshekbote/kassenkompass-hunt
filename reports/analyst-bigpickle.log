@@ -30713,3 +30713,731 @@ testability: HUMAN_ONLY
 
 **STEP 7 — RISK**
 `[RISK]` KassenKompass GmbH: 86 (down one from 87) — no new exposure, but one latent bypass removed. The 2.15 MB unauthenticated commercial tariff leak is unchanged and remains the only actionable candidate, with the `www` mirror doubling it. Downward: the path-override class, which would have yielded an unauthenticated read of `/user/{ext_id}` had either edge honored `X-Original-URL`, is now definitively closed on both the Cloudflare-fronted API and the unfiltered IIS origin, and it was the highest-yield untested auth-bypass primitive in the inventory. Upward-pressure offsets that only partially: `kassenkompass.net` remains an in-scope, non-CloudFront, IIS-fronted duplicate origin whose Cloudflare WAF-bypass status is structurally unanswerable by probing — the only distinguishable handlers on it are dir-listing-denied and trace-disabled — so that question has definitively become the program's to answer. API surface remains fully credential-gated and drift-free through 25+ cycles: 15/15 auth map, 42-name v2 saturation, 0 requests spent against protected routes this cycle. Peer pipeline returned stubs or backend errors for a 24th consecutive triage run.
+===== ANALYST bigpickle 2026-09-26 02:04:56 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt 2>/dev/null | head -50
+total 732
+drwxr-xr-x 12 runner runner   4096 Sep 26 02:01 .
+drwxr-xr-x  3 runner runner   4096 Sep 26 02:00 ..
+drwxr-xr-x  7 runner runner   4096 Sep 26 02:01 .git
+drwxr-xr-x  3 runner runner   4096 Sep 26 02:01 .github
+-rw-r--r--  1 runner runner   1767 Sep 26 02:01 README.md
+-rw-r--r--  1 runner runner     32 Sep 26 02:01 analyst-out.txt
+-rw-r--r--  1 runner runner 300196 Sep 26 02:01 analyst-prompt.txt
+-rw-r--r--  1 runner runner 296378 Sep 26 02:01 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 leads
+-rw-r--r--  1 runner runner  49968 Sep 26 02:01 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 reports
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 26 02:01 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 26 02:01 scripts
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 26 02:01 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 26 02:01 triage
+[0m
+[0m$ [0mfind /home/runner/work/kassenkompass-hunt/kassenkompass-hunt -maxdepth 2 -type d 2>/dev/null | head -40
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git/objects
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git/refs
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git/hooks
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git/logs
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.git/info
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.github
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/.github/workflows
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/recon-notes
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scripts
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reposcan-raw
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage
+[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage | tail -60
+-rw-r--r--  1 runner runner   153 Sep 26 02:01 run-2026-09-16-15-01.md
+-rw-r--r--  1 runner runner   268 Sep 26 02:01 run-2026-09-16-18-56.md
+-rw-r--r--  1 runner runner   186 Sep 26 02:01 run-2026-09-16-21-57.md
+-rw-r--r--  1 runner runner   160 Sep 26 02:01 run-2026-09-17-00-14.md
+-rw-r--r--  1 runner runner   150 Sep 26 02:01 run-2026-09-17-04-59.md
+-rw-r--r--  1 runner runner   790 Sep 26 02:01 run-2026-09-17-10-01.md
+-rw-r--r--  1 runner runner   264 Sep 26 02:01 run-2026-09-17-14-46.md
+-rw-r--r--  1 runner runner   241 Sep 26 02:01 run-2026-09-17-18-50.md
+-rw-r--r--  1 runner runner   174 Sep 26 02:01 run-2026-09-17-21-56.md
+-rw-r--r--  1 runner runner   177 Sep 26 02:01 run-2026-09-17-23-59.md
+-rw-r--r--  1 runner runner   239 Sep 26 02:01 run-2026-09-18-04-30.md
+-rw-r--r--  1 runner runner   569 Sep 26 02:01 run-2026-09-18-09-11.md
+-rw-r--r--  1 runner runner   175 Sep 26 02:01 run-2026-09-18-13-39.md
+-rw-r--r--  1 runner runner   352 Sep 26 02:01 run-2026-09-18-17-13.md
+-rw-r--r--  1 runner runner   537 Sep 26 02:01 run-2026-09-18-19-42.md
+-rw-r--r--  1 runner runner   343 Sep 26 02:01 run-2026-09-18-22-21.md
+-rw-r--r--  1 runner runner   184 Sep 26 02:01 run-2026-09-19-00-36.md
+-rw-r--r--  1 runner runner   244 Sep 26 02:01 run-2026-09-19-05-02.md
+-rw-r--r--  1 runner runner   191 Sep 26 02:01 run-2026-09-19-09-35.md
+-rw-r--r--  1 runner runner   227 Sep 26 02:01 run-2026-09-19-13-23.md
+-rw-r--r--  1 runner runner  1114 Sep 26 02:01 run-2026-09-19-16-48.md
+-rw-r--r--  1 runner runner   309 Sep 26 02:01 run-2026-09-19-19-12.md
+-rw-r--r--  1 runner runner   182 Sep 26 02:01 run-2026-09-19-21-29.md
+-rw-r--r--  1 runner runner   201 Sep 26 02:01 run-2026-09-19-23-30.md
+-rw-r--r--  1 runner runner   275 Sep 26 02:01 run-2026-09-20-01-36.md
+-rw-r--r--  1 runner runner  1938 Sep 26 02:01 run-2026-09-20-07-01.md
+-rw-r--r--  1 runner runner   143 Sep 26 02:01 run-2026-09-20-12-13.md
+-rw-r--r--  1 runner runner   228 Sep 26 02:01 run-2026-09-20-16-15.md
+-rw-r--r--  1 runner runner 15412 Sep 26 02:01 run-2026-09-20-18-57.md
+-rw-r--r--  1 runner runner   243 Sep 26 02:01 run-2026-09-20-21-11.md
+-rw-r--r--  1 runner runner   228 Sep 26 02:01 run-2026-09-20-23-17.md
+-rw-r--r--  1 runner runner   154 Sep 26 02:01 run-2026-09-21-01-14.md
+-rw-r--r--  1 runner runner   274 Sep 26 02:01 run-2026-09-21-06-29.md
+-rw-r--r--  1 runner runner   189 Sep 26 02:01 run-2026-09-21-13-19.md
+-rw-r--r--  1 runner runner   237 Sep 26 02:01 run-2026-09-21-18-48.md
+-rw-r--r--  1 runner runner   236 Sep 26 02:01 run-2026-09-21-22-28.md
+-rw-r--r--  1 runner runner   199 Sep 26 02:01 run-2026-09-22-01-08.md
+-rw-r--r--  1 runner runner   196 Sep 26 02:01 run-2026-09-22-06-20.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-22-12-01.md
+-rw-r--r--  1 runner runner   240 Sep 26 02:01 run-2026-09-22-17-03.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-22-20-14.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-22-23-00.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-23-01-32.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-23-06-38.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-23-12-10.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-23-17-12.md
+-rw-r--r--  1 runner runner   186 Sep 26 02:01 run-2026-09-23-20-28.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-23-23-07.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-01-29.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-06-43.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-12-34.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-17-32.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-20-46.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-24-23-46.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-25-03-47.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-25-09-26.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-25-14-43.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-25-19-08.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-25-22-28.md
+-rw-r--r--  1 runner runner   210 Sep 26 02:01 run-2026-09-26-00-51.md
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/; echo "---TRIAGE LATEST---"; cat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/run-2026-09-26-00-51.md
+total 2276
+drwxr-xr-x  2 runner runner    4096 Sep 26 02:01 .
+drwxr-xr-x 12 runner runner    4096 Sep 26 02:01 ..
+-rw-r--r--  1 runner runner  881972 Sep 26 02:01 lead-bigpickle.md
+-rw-r--r--  1 runner runner    7446 Sep 26 02:01 lead-laguna.md
+-rw-r--r--  1 runner runner    7300 Sep 26 02:01 lead-ling3.md
+-rw-r--r--  1 runner runner    7592 Sep 26 02:01 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 26 02:01 lead-mimo.md
+-rw-r--r--  1 runner runner 1376473 Sep 26 02:01 lead-nemotron3.md
+-rw-r--r--  1 runner runner   24654 Sep 26 02:01 reposcan-kassenkompass.md
+---TRIAGE LATEST---
+
+===== TRIAGE 2026-09-26 00:51:49 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_717eee0b"
+  }
+}
+[0m
+[0m$ [0mtail -80 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/probe-results.md
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-23 15:09:48 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-23 19:09:32 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-23 22:27:25 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-24 00:54:08 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-24 06:02:02 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-24 11:40:55 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-24 15:57:06 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-24 19:57:05 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-24 23:10:37 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-25 01:39:49 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-25 06:40:20 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-25 12:27:57 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-09-25 17:22:16 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+
+## 2026-09-25 20:43:15 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+
+## 2026-09-25 23:35:24 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/9999 -> HTTP 401
+https://kassenkompass.de/bonusrechner_fragen.php` -> HTTP 404
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 curl -s -o kk_apex.bin -D kk_apex.hdr -w "STATUS=%{http_code} BYTES=%{size_download} TIME=%{time_total}\n" --compressed -A "Mozilla/5.0 (compatible; research)" "https://kassenkompass.de/bonusrechner_fragen.php" 2>&1 | tail -5
+STATUS=200 BYTES=155517 TIME=5.555998
+[0m
+[0m$ [0mcd /tmp/opencode && cat kk_apex.hdr; echo "=== file size on disk ==="; ls -l kk_apex.bin
+HTTP/2 200 
+date: Sat, 26 Sep 2026 02:01:28 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=znj+e+k6Nh0YySVUgRWu5FHxMYN6GZM4qfyC1A6KgFBAjupVAY2wNF0ybnIAC+CMx88anaAeBlJoY0usXqp/yKiRhlcy8SSoG1T7MLcCUcihk6FiR0acouj7oqd4; Expires=Sat, 03 Oct 2026 02:01:23 GMT; Path=/
+set-cookie: AWSALBCORS=znj+e+k6Nh0YySVUgRWu5FHxMYN6GZM4qfyC1A6KgFBAjupVAY2wNF0ybnIAC+CMx88anaAeBlJoY0usXqp/yKiRhlcy8SSoG1T7MLcCUcihk6FiR0acouj7oqd4; Expires=Sat, 03 Oct 2026 02:01:23 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=2654e7dac8eaacc6ae14671bb40ee676; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=u5k%2FMyta0daQldcSXEyfgtMhQsxSZoS77MtepBWsGVEb1dONblDF%2B9rDK6yhM1C4ZbzepBDL60BbZDtSj5A5LqgO%2BfldILa%2FwOEX4lXn8s7qTEp4dXI5DHZa5rOhz97wYjo%3D"}]}
+content-encoding: br
+cf-ray: a40eae30ee55d6bf-IAD
+
+=== file size on disk ===
+-rw-r--r-- 1 runner runner 2152708 Sep 26 02:01 kk_apex.bin
+[0m
+[0m$ [0mcd /tmp/opencode && sha256sum kk_apex.bin && for f in ucatKkData globalbudgetsData kombiboniData pseudoKkIds sessionData; do printf "%-20s %s\n" "$f" "$(grep -c -o "$f" kk_apex.bin | head -1)"; done; echo "--- max lastchange epoch ---"; grep -o 'lastchange[^,]*' kk_apex.bin | head -3; sleep 3
+ed43516df7f3e72f3b8bea470c89163a2bddf2aaba787262a98771c9aa6dcfd7  kk_apex.bin
+ucatKkData           4
+globalbudgetsData    3
+kombiboniData        3
+pseudoKkIds          2
+sessionData          3
+--- max lastchange epoch ---
+lastchange":"1746314584"
+lastchange":"1746314267"
+lastchange":"1746314460"
+[0m
+[0m$ [0mcd /tmp/opencode && timeout 90 curl -s -o kk_www.bin -D kk_www.hdr -w "STATUS=%{http_code} WIRE=%{size_download} TIME=%{time_total}\n" --compressed -A "Mozilla/5.0 (compatible; research)" "https://www.kassenkompass.de/bonusrechner_fragen.php" 2>&1 | tail -3; ls -l kk_www.bin; sha256sum kk_www.bin; cmp -l kk_apex.bin kk_www.bin 2>/dev/null | wc -l; grep -iE "^(content-length|etag|last-modified|cache-control|cf-cache-status|content-encoding|server):" kk_www.hdr
+STATUS=200 WIRE=155580 TIME=4.177663
+-rw-r--r-- 1 runner runner 2152708 Sep 26 02:01 kk_www.bin
+4c627b235ce16f0ddde6bcb0e3058129090b6d58130d60972da414edbee5c798  kk_www.bin
+3
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+cf-cache-status: DYNAMIC
+content-encoding: br
+[0m
+[0m$ [0mcd /tmp/opencode && cmp -l kk_apex.bin kk_www.bin | head -10; echo "--- context around diffs ---"; python3 - <<'EOF'
+a=open('kk_apex.bin','rb').read(); b=open('kk_www.bin','rb').read()
+d=[i for i in range(min(len(a),len(b))) if a[i]!=b[i]]
+print("diff offsets:",d)
+for i in d:
+    print(i, a[max(0,i-90):i+20][-110:])
+    print('   ->', b[max(0,i-90):i+20][-110:])
+    print()
+EOF
+710  60  61
+    711  70  60
+    712  67  64
+--- context around diffs ---
+diff offsets: [709, 710, 711]
+709 b'kie-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388087"></script>\r\n\r\n<!'
+   -> b'kie-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388104"></script>\r\n\r\n<!'
+
+710 b'ie-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388087"></script>\r\n\r\n<!-'
+   -> b'ie-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388104"></script>\r\n\r\n<!-'
+
+711 b'e-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388087"></script>\r\n\r\n<!--'
+   -> b'e-consent.css?v=v2.6.10">\r\n\r\n<!-- Javascript -->\r\n<script src="/js/standard.js?v=1790388104"></script>\r\n\r\n<!--'
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oE '(src|href)="[^"]+"' kk_apex.bin | sort -u | head -40; echo "=== inline var names ==="; grep -oE 'var [A-Za-z_]{4,30}' kk_apex.bin | sort -u | head -30
+href="/apple-touch-icon.png"
+href="/css/cookie-consent.css?v=v2.6.10"
+href="/css/standard.css?v=v2.6.10"
+href="/favicon-96x96.png"
+href="/favicon.ico"
+href="/favicon.svg"
+href="css/bonusrechner.css?v=v2.6.10"
+href="css/bonusrechner_v.css?v=v2.6.10"
+href="css/index.css?v=v2.6.10"
+href="css/sustainable.css?v=v2.6.10"
+href="css/templatev.css?v=v2.6.10"
+href="https://finanzplatz-hamburg.com/de/ueber-uns/mitglieder.html"
+href="https://innovationsstarter.com/portfolio/"
+href="https://www.abendblatt.de/hamburg/wirtschaft/article408042172/beitrag-gestiegen-wie-man-bei-der-krankenkasse-hunderte-euro-sparen.html"
+href="https://www.ardmediathek.de/video/hamburg-journal/hamburg-morgen-website-hilft-beim-vergleich-von-krankenkassen/ndr/Y3JpZDovL25kci5kZS81ODI1MDdhMy05ZWU3LTRjYjUtYjRjMi1hM2Q4OTlkNDUxMTg"
+href="https://www.faz.net/aktuell/wirtschaft/unternehmen/gruenderin-fiona-jasmut-ich-finde-dass-unsere-generation-bequem-ist-110053706.html"
+href="https://www.handelsblatt.com/technik/medizin/inside-digital-health/versicherungen-so-laesst-sich-bei-der-krankenkassenwahl-besonders-clever-sparen/100101459.html"
+href="index.php"
+src="./bilder/bonusrechner/bnv_logo.svg"
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/js/standard.js?v=1790388087"
+src="bilder/bonusrechner/Ornament 86.svg"
+src="bilder/bonusrechner/Ornament 87.svg"
+src="bilder/bonusrechner/check.svg"
+src="bilder/bonusrechner/gpic.png"
+src="bilder/bonusrechner/gstar.png"
+src="bilder/bonusrechner/people2.png"
+src="bilder/delme/girly.png"
+src="bilder/delme/kompi.png"
+src="bilder/delme/potte.png"
+src="bilder/extlogos/faz.png"
+src="bilder/extlogos/hama.png"
+src="bilder/extlogos/handelbla.png"
+src="bilder/extlogos/hk.png"
+src="bilder/extlogos/ifb.png"
+src="bilder/extlogos/ndr.png"
+src="bilder/stanicons/info-circle.png"
+src="https://load.awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW "
+src="js/ajax.js?v=v2.6.10"
+src="js/drawflow-manager.js?v=v2.6.10"
+=== inline var names ===
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== forms ==="; grep -oE '<form[^>]*>' kk_apex.bin; echo "=== hidden inputs ==="; grep -oE '<input[^>]*type="hidden"[^>]*>' kk_apex.bin | head -20; echo "=== api/secret refs ==="; grep -oiE '[a-z0-9_.-]*(api|secret|token|key)[a-z0-9_.-]*' kk_apex.bin | sort | uniq -c | sort -rn | head -20
+=== forms ===
+<form method="post" class="bnv_mainframe" onkeydown="return preventFormSubmit(event);">
+=== hidden inputs ===
+=== api/secret refs ===
+      6 matchingKey
+      5 key
+      2 similarKeys
+      2 keys
+      2 Phytotherapie
+      2 Object.keys
+      1 u00d6ldispersionsbadetherapie
+      1 onkeydown
+      1 key.toString
+      1 event.keyCode
+      1 event.key
+      1 availableKeys.find
+      1 availableKeys.filter
+      1 availableKeys
+      1 Therapieformen
+      1 Therapieans
+      1 Sondentherapie
+      1 Papierkram
+      1 Kunsttherapie
+      1 Key
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,json
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+for name in ['ucatKkData','globalbudgetsData','kombiboniData','pseudoKkIds','sessionData','availableKeys','matchingKey']:
+    i=b.find(name)
+    print("---",name,"at",i)
+    if i>0: print(b[i:i+220].replace('\r\n',' | '))
+EOF
+--- ucatKkData at 209130
+ucatKkData = [{"0":"1","uid_cat":"1","1":"1","uid_ucat_q":"1","2":"1","uid_kk_q":"1","3":"350","wert":"350","4":"1","wertart":"1","5":null,"wertbezug":null,"6":null,"intervall":null,"7":"1746314584","lastchange":"1746314
+--- globalbudgetsData at 2004085
+globalbudgetsData = {"1":{"66":{"uid_gb":"66","name_gb":"Gesundheitskonto","volumen_gb":300,"beschreibung_gb":"","affected_ucats":[9,81,100]},"70":{"uid_gb":"70","name_gb":"Schwangerschaftsbudget","volumen_gb":300,"besch
+--- kombiboniData at 2032132
+kombiboniData = {"9":{"183":{"uid":"183","name_boni":"60 € Kombibonus für Vorsorge","volumen_boni":60,"bes_boni":"Du gehst zur Zahnvorsorge, zum Gesundheits-Check-up, zur Darmkrebsvorsorge, zur Hautkrebsvorsorge und besu
+--- pseudoKkIds at 2137906
+pseudoKkIds = [99,100,101]; | 		window.pseudoKkIds = pseudoKkIds; | 		 | 		console.log('ucatKkData:', ucatKkData); | 		console.log('globalbudgetsData:', globalbudgetsData); | 		console.log('kombiboniData:', kombiboniData); | 	
+--- sessionData at 203291
+sessionData = {"employ":null,"salary":null,"kk":null,"kk_id":null,"bund":null,"cookies":{"akt_kk_id":null,"available_kk_uids":"[]"}}; | 		const ucatNames = {"7":"Hom\u00f6opathische Behandlungen","8":"Hom\u00f6opathische 
+--- availableKeys at 2147493
+availableKeys = Object.keys(dataant); | 					const matchingKey = availableKeys.find(key => key == frageId); | 					if (matchingKey && matchingKey !== frageId) { | 						console.warn(`Key type mismatch! Looking for: "${frage
+--- matchingKey at 2147543
+matchingKey = availableKeys.find(key => key == frageId); | 					if (matchingKey && matchingKey !== frageId) { | 						console.warn(`Key type mismatch! Looking for: "${frageId}" (${typeof frageId}), Found: "${matchingKey}"
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import re,json
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('ucatKkData = ')+len('ucatKkData = ')
+j=b.find('\n',i)
+raw=b[i:j].strip()
+data=json.loads(raw)
+print("rows:",len(data))
+kks=sorted({int(r['uid_kk_q']) for r in data if r.get('uid_kk_q')})
+print("distinct uid_kk_q:",len(kks))
+print("min",min(kks),"max",max(kks))
+print("first 30:",kks[:30])
+print("last 20:",kks[-20:])
+# gaps in 1..max
+S=set(kks); missing=[x for x in range(1,max(kks)+1) if x not in S]
+print("missing in 1..max:",len(missing), missing[:40])
+cats=sorted({int(r['uid_cat']) for r in data if r.get('uid_cat')})
+print("distinct uid_cat:",len(cats), cats[:20])
+qs=sorted({int(r['uid_ucat_q']) for r in data if r.get('uid_ucat_q')})
+print("distinct uid_ucat_q:",len(qs),"max",max(qs))
+lc=[int(r['lastchange']) for r in data if r.get('lastchange')]
+print("lastchange min",min(lc),"max",max(lc))
+import datetime
+print("max lastchange date:",datetime.datetime.utcfromtimestamp(max(lc)).isoformat(),"UTC")
+# keys present
+print("fields:",sorted({k for r in data[:50] for k in r}))
+EOF
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+  File "/usr/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/json/decoder.py", line 340, in decode
+    raise JSONDecodeError("Extra data", s, end)
+json.decoder.JSONDecodeError: Extra data: line 1 column 1794932 (char 1794931)
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,datetime
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('ucatKkData = ')+len('ucatKkData = ')
+dec=json.JSONDecoder()
+data,end=dec.raw_decode(b[i:])
+print("rows:",len(data),"parsed chars:",end)
+kks=sorted({int(r['uid_kk_q']) for r in data if r.get('uid_kk_q')})
+print("distinct uid_kk_q:",len(kks),"min",min(kks),"max",max(kks))
+print("first 25:",kks[:25]); print("last 15:",kks[-15:])
+S=set(kks); missing=[x for x in range(1,max(kks)+1) if x not in S]
+print("missing in 1..max:",len(missing),missing[:50])
+print(">=1000 (non-public-looking):",[x for x in kks if x>=1000][:40])
+print("high tail:",kks[-40:])
+cats=sorted({int(r['uid_cat']) for r in data if r.get('uid_cat')})
+print("uid_cat count:",len(cats),"max",max(cats))
+qs=sorted({int(r['uid_ucat_q']) for r in data if r.get('uid_ucat_q')})
+print("uid_ucat_q count:",len(qs),"max",max(qs))
+lc=[int(r['lastchange']) for r in data if r.get('lastchange')]
+print("lastchange min",min(lc),datetime.datetime.utcfromtimestamp(min(lc)).isoformat(),
+      "max",max(lc),datetime.datetime.utcfromtimestamp(max(lc)).isoformat())
+from collections import Counter
+c=Counter(int(r['uid_kk_q']) for r in data)
+print("rows per kk: min",min(c.values()),"max",max(c.values()))
+print("top kk by rows:",c.most_common(5), "least:",c.most_common()[-5:])
+EOF
+<stdin>:19: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+<stdin>:20: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+rows: 5211 parsed chars: 1794931
+distinct uid_kk_q: 96 min 1 max 101
+first 25: [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27]
+last 15: [85, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 98, 99, 100, 101]
+missing in 1..max: 5 [5, 12, 53, 89, 97]
+>=1000 (non-public-looking): []
+high tail: [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 98, 99, 100, 101]
+uid_cat count: 5211 max 6288
+uid_ucat_q count: 69 max 153
+lastchange min 1746314267 2025-05-03T23:17:47 max 1789739427 2026-09-18T13:50:27
+rows per kk: min 48 max 59
+top kk by rows: [(42, 59), (9, 59), (58, 58), (1, 57), (91, 57)] least: [(94, 54), (63, 54), (95, 54), (96, 54), (98, 48)]
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,datetime
+from collections import Counter,defaultdict
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('ucatKkData = ')+len('ucatKkData = ')
+data,_=json.JSONDecoder().raw_decode(b[i:])
+f=lambda t: datetime.datetime.fromtimestamp(t,datetime.UTC).isoformat()
+# field fill rates
+keys=['uid_cat','uid_ucat_q','uid_kk_q','wert','wertart','wertbezug','intervall','lastchange']
+for k in keys:
+    n=sum(1 for r in data if r.get(k) not in (None,'',))
+    print(f"{k:12s} non-null {n:5d}/{len(data)}")
+print()
+lc=sorted({int(r['lastchange']) for r in data if r.get('lastchange')})
+print("distinct lastchange values:",len(lc))
+print("oldest",f(min(lc)),"newest",f(max(lc)))
+print("last 8:",[f(x) for x in lc[-8:]])
+recent=[r for r in data if int(r['lastchange'])>1780000000]
+print("rows with lastchange>2026-05-29:",len(recent))
+print("KKs touched by recent rows:",sorted({int(r['uid_kk_q']) for r in recent}))
+print()
+# missing-id neighbours: what cats/qs do neighbours have
+kks=sorted({int(r['uid_kk_q']) for r in data})
+print("present:",kks)
+print("gaps 1..101:",[x for x in range(1,102) if x not in set(kks)])
+# wertart distribution - internal semantics?
+print("wertart values:",Counter(str(r.get('wertart')) for r in data).most_common(12))
+print("intervall values:",Counter(str(r.get('intervall')) for r in data).most_common(8))
+print("wertbezug values:",Counter(str(r.get('wertbezug')) for r in data).most_common(8))
+# numeric 0-8 mirror columns?
+r0=data[0]
+print("sample row:",{k:v for k,v in r0.items()})
+EOF
+uid_cat      non-null  5211/5211
+uid_ucat_q   non-null  5211/5211
+uid_kk_q     non-null  5211/5211
+wert         non-null  5211/5211
+wertart      non-null  5211/5211
+wertbezug    non-null   865/5211
+intervall    non-null  5197/5211
+lastchange   non-null  5211/5211
+
+distinct lastchange values: 5211
+oldest 2025-05-03T23:17:47+00:00 newest 2026-09-18T13:50:27+00:00
+last 8: ['2026-09-18T13:47:03+00:00', '2026-09-18T13:47:44+00:00', '2026-09-18T13:48:06+00:00', '2026-09-18T13:48:34+00:00', '2026-09-18T13:49:02+00:00', '2026-09-18T13:49:32+00:00', '2026-09-18T13:50:10+00:00', '2026-09-18T13:50:27+00:00']
+rows with lastchange>2026-05-29: 1343
+KKs touched by recent rows: [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 98, 99, 100, 101]
+
+present: [1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91, 92, 93, 94, 95, 96, 98, 99, 100, 101]
+gaps 1..101: [5, 12, 53, 89, 97]
+wertart values: [('1', 4472), ('2', 739)]
+intervall values: [('x', 4254), ('999', 487), ('24', 325), ('36', 73), ('12', 24), ('48', 18), ('None', 14), ('120', 12)]
+wertbezug values: [('None', 4346), ('0', 121), ('6', 74), ('5', 65), ('44', 65), ('15', 58), ('3', 43), ('42', 40)]
+sample row: {'0': '1', 'uid_cat': '1', '1': '1', 'uid_ucat_q': '1', '2': '1', 'uid_kk_q': '1', '3': '350', 'wert': '350', '4': '1', 'wertart': '1', '5': None, 'wertbezug': None, '6': None, 'intervall': None, '7': '1746314584', 'lastchange': '1746314584', '8': '0', 'has_age_limit': '0', '9': None, 'min_age': None, '10': None, 'max_age': None, '11': None, 'service': None, '12': None, 'maxcap': None}
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,datetime
+from collections import Counter
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('ucatKkData = ')+len('ucatKkData = ')
+data,_=json.JSONDecoder().raw_decode(b[i:])
+for k in ['has_age_limit','min_age','max_age','service','maxcap','intervall','wertbezug']:
+    vals=[r.get(k) for r in data]
+    nn=[v for v in vals if v not in (None,'')]
+    print(f"{k:14s} non-null {len(nn):5d}/{len(data)}  sample {Counter(map(str,nn)).most_common(5)}")
+print()
+gb_i=b.find('globalbudgetsData = ')+len('globalbudgetsData = ')
+gb,_=json.JSONDecoder().raw_decode(b[gb_i:])
+print("globalbudgets top-level ids:",len(gb), sorted(int(x) for x in gb)[:20],"...")
+tot=0; names=[]
+for k,v in gb.items():
+    for kk,vv in v.items():
+        names.append((int(kk),vv.get('name_gb'),vv.get('volumen_gb'),len(vv.get('affected_ucats',[]))))
+print("budget entries:",len(names))
+for n in sorted(names)[:14]: print("  ",n)
+bo_i=b.find('kombiboniData = ')+len('kombiboniData = ')
+bo,_=json.JSONDecoder().raw_decode(b[bo_i:])
+cnt=0; eur=[]
+for k,v in bo.items():
+    for kk,vv in v.items():
+        cnt+=1; eur.append(vv.get('volumen_boni'))
+print("kombiboni entries:",cnt,"distinct euro:",sorted({e for e in eur if e})[:12])
+EOF
+has_age_limit  non-null  5211/5211  sample [('0', 4514), ('1', 697)]
+min_age        non-null   697/5211  sample [('18', 136), ('35', 134), ('50', 117), ('20', 72), ('0', 71)]
+max_age        non-null   697/5211  sample [('200', 275), ('34', 73), ('49', 62), ('59', 54), ('74', 50)]
+service        non-null    11/5211  sample [('1', 9), ('2', 2)]
+maxcap         non-null   283/5211  sample [('100', 36), ('300', 32), ('250', 28), ('200', 21), ('150', 21)]
+intervall      non-null  5197/5211  sample [('x', 4254), ('999', 487), ('24', 325), ('36', 73), ('12', 24)]
+wertbezug      non-null   865/5211  sample [('0', 121), ('6', 74), ('5', 65), ('44', 65), ('15', 58)]
+
+globalbudgets top-level ids: 70 [1, 3, 4, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23] ...
+budget entries: 129
+   (10, 'Gesamtbonus Sport & Vorsorge', 230, 8)
+   (13, 'Vorteilspaket', 250, 15)
+   (16, 'Schwangerschaft', 300, 4)
+   (17, 'Schwangerschaft', 300, 4)
+   (18, 'Schwangerschaft', 250, 4)
+   (19, 'Testen', 800, 0)
+   (20, 'sdcvfsd', 670, 0)
+   (22, 'Schwangerschaftsbudget', 500, 3)
+   (23, 'Schwangerschaftsbudget', 200, 4)
+   (24, 'Baby+', 600, 6)
+   (25, 'Gesundheitskonto 400', 400, 0)
+   (27, 'Gesundheitskonto für Schwangerschaft', 300, 2)
+   (28, 'Gesundheitskonto für Naturheilverfahren', 150, 2)
+   (29, 'GesundheitExtra', 200, 2)
+kombiboni entries: 139 distinct euro: [20, 30, 36, 50, 60, 70, 72, 75, 90, 100, 110, 120]
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,re
+b=open('kk_apextmp','rb').read() if False else open('kk_apex.bin','rb').read().decode('utf-8','replace')
+for name in ['kkNames','dataant','ucatNames','kk_name','insured','company','anbieter','Anbieter']:
+    i=b.find(name)
+    print("---",name,i)
+    if i>0: print("   ",b[i:i+180].replace('\r\n',' | '))
+EOF
+--- kkNames -1
+--- dataant 91613
+    dataant = {"5":{"uid_fra":"5","name":"sdfvsfds","fra_de":null,"bes_de":null,"img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":null,"antworten":[]},"16":{"uid_fra
+--- ucatNames 203434
+    ucatNames = {"7":"Hom\u00f6opathische Behandlungen","8":"Hom\u00f6opathische Medikamente ","9":"Osteopathie","10":"Leistungen f\u00fcr Chiropraktik","11":"Bonus f\u00fcr Hautarztst
+--- kk_name -1
+--- insured -1
+--- company -1
+--- anbieter -1
+--- Anbieter -1
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('dataant = ')+len('dataant = ')
+d,_=json.JSONDecoder().raw_decode(b[i:])
+print("dataant entries:",len(d))
+ids=sorted(int(k) for k in d)
+print("uid_fra range:",ids[0],"..",ids[-1],"count",len(ids))
+print("gaps in range:",[x for x in range(ids[0],ids[-1]+1) if x not in set(ids)][:30])
+from collections import Counter
+print("akt values:",Counter(str(v.get('akt')) for v in d.values()))
+print("entries with antworten:",sum(1 for v in d.values() if v.get('antworten')))
+testish=[(k,v.get('name')) for k,v in d.items() if v.get('name') and (len(str(v['name']))<4 or any(t in str(v['name']).lower() for t in ['test','sdf','asdf','qwe','xxx','abc','aaaa']))]
+print("test-ish names:",testish[:20],"count",len(testish))
+print("sample entries:")
+for k in ids[:4]:
+    v=d[str(k)]; print("  ",k,{kk:(str(vv)[:60]) for kk,vv in v.items()})
+# nested answer ids
+tot=0; nested=set()
+for v in d.values():
+    for a in (v.get('antworten') or []):
+        tot+=1
+        if isinstance(a,dict): nested.update(a.keys())
+print("total antworten:",tot,"nested keys:",sorted(nested)[:20])
+EOF
+dataant entries: 138
+uid_fra range: 5 .. 246 count 138
+gaps in range: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 21, 22, 23, 24, 25, 26, 27, 28, 29, 32, 35, 36, 37, 38, 40, 41, 42, 44]
+akt values: Counter({'1': 138})
+entries with antworten: 127
+test-ish names: [('5', 'sdfvsfds'), ('83', 'Möchtest du Budget für Ayurveda-Heilmittel haben?'), ('87', 'Möchtest du Budget für Heilmittel der TCM haben?'), ('114', 'Möchtest du Geld zurückbekommen, wenn du keine Behandlungen gebraucht hast?'), ('132', 'Möchtest du lieber von einem Mitarbeiter beraten werden oder online wechseln?'), ('133', 'Was möchtest du gern an deiner Krankenkasse ändern?'), ('134', 'Möchtest du im nächsten Schritt Leistungen abwählen, die du nicht brauchst?'), ('152', 'rc'), ('161', 'frn'), ('164', 'Möchtest du Kinder unter 25 mitversichern?'), ('165', 'Möchtest du für einen Selbstbehalt im Krankenhaus eine Prämie erhalten?'), ('166', 'Möchtest du im Krankenhaus einen Selbstbehalt wählen, um eine jährliche Prämie zu erhalten?'), ('182', 'Möchtest du auf Leistungen für Implantate verzichten, um Geld zu sparen?'), ('184', 'Möchtest du auf Kurleistungen verzichten, um Geld zu sparen?'), ('217', 'Super – du kannst 500 € bekommen. Wie möchtest du weitermachen?'), ('240', 'BARMER Test')] count 16
+sample entries:
+   5 {'uid_fra': '5', 'name': 'sdfvsfds', 'fra_de': 'None', 'bes_de': 'None', 'img': 'None', 'art': 'None', 'kat': 'None', 'akt': '1', 'haeufig_gewaehlt_ant_id': 'None', 'antworten': '[]'}
+   16 {'uid_fra': '16', 'name': 'Hebammenrufbereitschaft', 'fra_de': 'Möchtest du eine Hebamme, die rund um die Geburt für dich er', 'bes_de': 'Die Rufbereitschaft kann dir Sicherheit geben – damit du in ', 'img': 'None', 'art': 'None', 'kat': 'None', 'akt': '1', 'haeufig_gewaehlt_ant_id': '2', 'antworten': "[{'uid_ant': '43', 'ant_de': 'Nein', 'bes_de': '', 'img': 'b"}
+   19 {'uid_fra': '19', 'name': 'Schwangere vlt später erst wechseln', 'fra_de': 'Vielleicht wartest du noch etwas mit dem Krankenkassenwechse', 'bes_de': 'Wir würden wir nicht raten zu wechseln, da dein Wechseldatum', 'img': 'None', 'art': 'None', 'kat': 'None', 'akt': '1', 'haeufig_gewaehlt_ant_id': '0', 'antworten': "[{'uid_ant': '52', 'ant_de': 'Später vergleichen', 'bes_de':"}
+   20 {'uid_fra': '20', 'name': 'Negativfrage', 'fra_de': 'None', 'bes_de': 'None', 'img': 'None', 'art': 'None', 'kat': 'None', 'akt': '1', 'haeufig_gewaehlt_ant_id': 'None', 'antworten': '[]'}
+total antworten: 285 nested keys: ['akt', 'ant_de', 'bes_de', 'img', 'kat', 'negative_kategorien', 'positive_kategorien', 'reihe', 'uid_ant', 'wert']
+[0m
+[0m$ [0mcd /tmp/opencode && python3 - <<'EOF'
+import json,hashlib
+b=open('kk_apex.bin','rb').read().decode('utf-8','replace')
+i=b.find('dataant = ')+len('dataant = ')
+d,_=json.JSONDecoder().raw_decode(b[i:])
+pos=neg=0; withw=0
+for v in d.values():
+    for a in (v.get('antworten') or []):
+        p=a.get('positive_kategorien'); n=a.get('negative_kategorien')
+        pos+=len(p) if p else 0; neg+=len(n) if n else 0
+        if a.get('wert') not in (None,''): withw+=1
+print("rule edges: +kat",pos,"-kat",neg,"answers carrying wert",withw)
+a=[x for v in d.values() for x in (v.get('antworten') or []) if x.get('positive_kategorien')][0]
+print("sample answer rule:",json.dumps(a,ensure_ascii=False)[:300])
+# hashes of the three blobs for report traceability
+for nm,key in [('ucatKkData','ucatKkData = '),('globalbudgetsData','globalbudgetsData = '),('kombiboniData','kombiboniData = '),('dataant','dataant = ')]:
+    k=b.find(key)+len(key)
+    raw,_=json.JSONDecoder().raw_decode(b[k:])
+    h=hashlib.sha256(json.dumps(raw,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    print(f"{nm:20s} sha256(canonical) {h}  bytes {len(json.dumps(raw))}")
+# active test rows
+testrows=[(k,v.get('name'),v.get('akt')) for k,v in d.items() if v.get('name') in ('sdfvsfds','rc','frn','BARMER Test','Negativfrage')]
+print("ACTIVE test rows in dataant:",testrows)
+EOF
+rule edges: +kat 277 -kat 98 answers carrying wert 0
+sample answer rule: {"uid_ant": "44", "ant_de": "Ja", "bes_de": "", "img": "bilder/fraq/16/2.png?v=1757075740", "reihe": "2", "wert": null, "kat": "16", "positive_kategorien": [16], "negative_kategorien": [], "akt": "1"}
+ucatKkData           sha256(canonical) 56d8718b4bef8b412dc6ef358b85374b1d400098dc8bfeb5d5363cad83434cae  bytes 2065902
+globalbudgetsData    sha256(canonical) d71157accd46ce41b9e9ae1e3e9d00d1b8a60ce87521b146a02aff110d69d8eb  bytes 30907
+kombiboniData        sha256(canonical) 164c7b7ac6c8deb9e1c9d8019c9c663d5d84123d903b1771a7da512f113324a8  bytes 116318
+dataant              sha256(canonical) e5ef696fc4636305aa6f424cd31d71f519573d41aa5d5126f3edeeaa4a88bbd6  bytes 121245
+ACTIVE test rows in dataant: [('5', 'sdfvsfds', '1'), ('20', 'Negativfrage', '1'), ('152', 'rc', '1'), ('161', 'frn', '1'), ('240', 'BARMER Test', '1')]
+[0m
+## STEP 1 — DELTA
+
+- [CHANGED] `kassenkompass.de/bonusrechner_fragen.php` 24h window serviced at 02:01:28Z (window opened ≥01:37Z): HTTP/2 200, body **2,152,708 B** (sha256 `ed43516d…`), `cache-control: no-store, no-cache, must-revalidate`, `cf-cache-status: DYNAMIC`, `content-encoding: br`, no ETag/Last-Modified — 8th byte-frozen window; `ucatKkData` now **5,211 rows** (was 5,209).
+- [CHANGED] **Freshness claim corrected.** Max `lastchange` = **1789739427 = 2026-09-18T13:50:27Z (8 days old)**, not the KB's "≤2025-12-22". 1,343/5,211 rows (25.8%) changed after 2026-05-29. Min `lastchange` 2025-05-03T23:17:47Z.
+- [NEW] Full row schema exposed, not the 5 fields on record: `intervall` 5,197/5,211 populated (`x` 4,254, `999` 487, `24` 325, `36` 73, `12` 24, `120` 12), `wertbezug` 865, `has_age_limit`/`min_age`/`max_age` 697, `maxcap` 283 — reimbursement periodicity, cross-category references and underwriting eligibility.
+- [NEW] `dataant` blob (not previously parsed): 138 questions, `uid_fra` 5..246 with 90+ gaps, 285 answer records carrying **`positive_kategorien`/`negative_kategorien`** = **375 rule edges** (277 positive, 98 negative) — the answer→category decision engine, anonymous.
+- [NEW] **Active internal test/QA records shipped to anonymous users**, all `akt:"1"`: `dataant` 5 `sdfvsfds`, 20 `Negativfrage`, 152 `rc`, 161 `frn`, 240 `BARMER Test`; `globalbudgetsData` uid_gb 19 `Testen` (800 €), 20 `sdcvfsd` (670 €).
+- [NEW] `uid_kk_q` = **96 distinct KK primary keys, 1..101, gaps {5,12,53,89,97}**, `pseudoKkIds` 99/100/101 → complete internal KK id space of the credential-gated `/insurance_info/{kk_id}` + `/v2/insurance_info/{kk_id}` is enumerated for free.
+- [NEW] apex vs www bodies differ by **3 bytes only** — `standard.js?v=1790388087` vs `?v=1790388104` cache-buster. Data identical, not nonce drift this cycle.
+
+## STEP 2 — PRIORITIZE
+
+- [PRIO] kassenkompass.de/bonusrechner_fragen.php, **9.4** — a=10 (anon 2.1MB, decision engine), b=9 (pricing/eligibility rules of 96 insurers), t=8 (no GraphQL/OAuth but raw DB-shaped dump), g=10 (zero auth), c=5, f=10 (new schema + test rows). 0.25·10+0.25·9+0.15·8+0.15·10+0.10·5+0.10·10 = **9.4**
+- [PRIO] api.kassenkompass.de/{user,settlement_report,v2/insurance_info}, **6.4** — a=8, b=10 (PII/settlement/draft), t=7, g=1 (secret-gated), c=6, f=7. 0.25·8+0.25·10+0.15·7+0.15·1+0.10·6+0.10·7 = **6.4**
+- [PRIO] kassenkompass.net, **4.0** — a=4, b=6, t=6 (IIS/PHP 8.4.3, no CF), g=7 (no WAF), c=6, f=3 (blanket 302 kills signal). 0.25·4+0.25·6+0.15·6+0.15·7+0.10·6+0.10·3 = **4.7 → capped by untestability, 4.0**
+
+## STEP 3 — HYPOTHESES
+
+[HYP] Anonymous Raw Tariff Decision Engine + Active Test Rows Served In Production
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 93
+reasoning: One anonymous GET (no cookie jar, no query params) → HTTP 200, 2,152,708 B, `no-store`+`CF-DYNAMIC`, no ETag/Last-Modified, no rate limit. Body carries `ucatKkData` 5,211 rows × 13 fields (intervall 99.7%, wertbezug 865, has_age_limit/min_age/max_age 697, maxcap 283, lastchange fresh to 2026-09-18T13:50:27Z), `dataant` 138 questions with 285 answers and 375 `positive_kategorien`/`negative_kategorien` rule edges, `globalbudgetsData` 129 rules, `kombiboniData` 139 rules. Internal test rows are present and flagged active (`akt:"1"`): dataant 5/20/152/161/240, budgets 19/20. Identical on www (3-byte `standard.js?v=` diff only). Canonical sha256 of blobs: ucatKkData `56d8718b…`, dataant `e5ef696f…`, globalbudgets `d71157ac…`, kombiboni `164c7b7a…`.
+evidence_needed: Already met for the leak itself; remaining gap is whether this is a raw production query or a filtered projection — the active `sdfvsfds`/`BARMER Test`/`Testen` rows argue raw.
+verify_steps: `GET https://kassenkompass.de/bonusrechner_fragen.php` (empty jar) → 200; confirm `ucatKkData`,`dataant`,`globalbudgetsData`,`kombiboniData`,`pseudoKkIds`; count `akt=="1"` rows whose name matches /test|sdf|rc$|frn/i; max(`lastchange`) → date.
+impact: Competitor obtains the live reimbursement/eligibility rule set and answer→category decision engine for 96 Krankenkassen, refreshed within 8 days, plus unfiltered QA records; commercial confidentiality loss MEDIUM-HIGH. No credential or PII exposure asserted.
+testability: PASSIVE
+
+[HYP] Public Payload Is a Free Enumeration Oracle For The Credential-Gated KK Id Space
+class: OTHER
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 62
+reasoning: `uid_kk_q` in the anonymous blob yields the exact internal KK primary-key domain: 96 ids in 1..101, absent {5,12,53,89,97}, plus placeholders 99/100/101 — 51 real + 3 pseudo + 42 undetermined splits. `uid_cat` reaches 6288 and `uid_ucat_q` 153, and `dataant.uid_fra` spans 5..246 with 90+ gaps, so category and question id spaces are enumerable the same way. The protected v1/v2 `insurance_info` routes answer 401 for every value (greedy match, no routing validation), so this oracle currently yields no status differential — it converts a blind numeric sweep into a 96-item targeted list for the parked `/user/{ext_id}` and `/settlement_report/{y}/{m}` IDOR work, and the 5 gap ids are the natural draft/withdrawn candidate set.
+evidence_needed: A scoped secret; then `GET /v2/insurance_info/{5,12,53,89,97}` vs `/v2/insurance_info/424242` and `/insurance_info/1` for the same secret — a 200/404 split between gap and non-gap ids would show the gap set is unpublished-but-resolvable.
+verify_steps: Passive part done. Credentialed: status-code-only diff across the 96-id list; do not read or retain payload contents (program excludes customer/financial data).
+impact: Removes the search cost from the only untested authorization boundary on the api target; if scoping is absent, cross-tenant PII/settlement read (HIGH). Currently unassessed.
+testability: AUTH_HELPED
+
+[HYP] Middleware-B Has No Tenant Scoping Claim — Single Secret Spans Partner And Customer Data
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id} + api.kassenkompass.de/settlement_report/{year}/{month}
+confidence: 45
+reasoning: Both routes sit on middleware B (`"Ungültiger X-API-Secret"` / `"Header fehlt"`, instance-first), gated by one `X-API-Secret` with no second identity, tenant or ownership claim ever observed. v1 majority + v2 share middleware A, so B is the kk_webapp-delegation stack `{user, cancel}`. Untestable for 20+ sessions: no valid secret; `KKX3382745` and `X8372` rejected 403 on every stack; query/cookie channels closed. Path-override bypass that could have reached it unauthenticated is dead (302/0 B where direct yields 403/2500 B). The new public id list lowers the work needed once a credential exists, but does not change the boundary itself.
+evidence_needed: Scoped non-production secret, then a status-only differential on an identifier outside that secret's tenant.
+verify_steps: With a scoped test secret: `GET /user/{ext_id}` out-of-tenant vs in-tenant, compare status and field-name set only; repeat status-only on `GET /settlement_report/{year}/{month}`.
+impact: Cross-tenant PII and settlement read, HIGH if the boundary is absent. Unassessed until a credential exists.
+testability: AUTH_HELPED
+
+## STEP 4 — SELF-CRITIQUE
+
+- [PARKED] WAF-bypass via kassenkompass.net hostname swap: no mechanism survives — blanket 302 on every app-handled path and path-override provably un-honored (302/0 B vs direct 403/2500 B). Untestable, not a finding.
+- [PARKED] Automated cookie-stuffing → account-creation chain: already refuted twice; the POST lead gate needs a completed questionnaire (Account-ID), and 4-step GET chains return `"Account-ID nicht gefunden"`. Prior 85/80 consensus overstated executability; do not re-raise without a completed funnel.
+- [PARKED] v1 root catalog disclosure + `/sync/` HTTP-200 auth body + CL:0 header-shape noise: descriptive-class / cosmetic, previously REJECTED in KB. Kept out of the report set.
+- [FINAL] 1. Anonymous raw tariff decision engine + active test rows in production (93, PASSIVE) — verified this cycle, full schema + hashes.
+- [FINAL] 2. Public payload as free KK/category/question id-space oracle for the gated API (62, AUTH_HELPED).
+- [FINAL] 3. Middleware-B single-secret, unscoped → cross-tenant IDOR (45, AUTH_HELPED).
+
+## STEP 5 — NEXT ACTION
+
+- [NEXT] HUMAN: request from bugs.olivermaicher.eu one scoped **non-production** `X-API-Secret` for a test tenant, plus the KK ids in scope for it. This single credential settles FINAL#2 and FINAL#3 (the only untested authorization boundary left on the api target) and cannot be reached by any read-only probe; state that the 96-id list is already extracted and no customer/financial payload will be read or retained — status and field-name set only.
+
+## STEP 6 — LEARNING
+
+- [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: upgraded from "2.1MB tariff values" to **raw decision engine** — 5,211×13 rows (intervall 99.7%, wertbezug 865, age limits 697, maxcap 283), `dataant` 138 questions / 285 answers / 375 category rule edges, 129 budget + 139 bonus rules, all anonymous, all `akt:"1"` including QA rows (dataant 5/20/152/161/240, budgets 19 `Testen` 800 € / 20 `sdcvfsd` 670 €). Body byte-frozen 2,152,708 B across 8 windows; www identical (3-byte `standard.js?v=` diff). Commercial confidentiality MEDIUM-HIGH, PASSIVE-proven.
+- [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: the standing KB claim "per-KK `lastchange` epochs are 2025, data freshness ≤2025-12-22" is **factually wrong** — max `lastchange` = 1789739427 = 2026-09-18T13:50:27Z, and 1,343 rows (25.8%) are newer than 2026-05-29. The earlier "epoch mis-conversion" correction inverted the error; the dataset is current and the leak's business value is higher than recorded.
+- [LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: "payload internals = ucatKkData 5,209 rows {uid_cat,uid_ucat_q,uid_kk_q,wert,wertart}" is incomplete — 8 further fields are populated and a second blob (`dataant`, 121 KB) had never been parsed in 20+ sessions.
+
+## STEP 7 — RISK
+
+- [RISK] KassenKompass: **88** (was 85) — anonymous exposure is no longer just pricing values: it is the live answer→category rule engine, reimbursement periodicity and underwriting age limits for 96 Krankenkassen, refreshed 8 days ago, shipped with active QA rows and no curation. The same payload hands an attacker the exact KK id space for the credential-gated `insurance_info`/`user`/`settlement_report` routes, so the one untested authorization boundary (middleware B, single secret, no scoping claim) is now cheap to attack the moment any credential exists. Offsetting: no GraphQL/OAuth/JWT surface, no alternate auth channel, no customer PII read, no mutation performed this cycle, and `.net` remains unexploitable as a WAF bypass.

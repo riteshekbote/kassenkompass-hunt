@@ -6408,3 +6408,31 @@ evidence_needed: Program confirmation of `kassenkompass.net`'s intended status (
 verify_steps: Not resolvable by probing — the blanket 302 removes the signal and path override is confirmed dead. Requires a human/program answer: is kassenkompass.net a live production mirror, and is it in the WAF's enforcement scope? If a decommission date exists, the surface closes by definition.
 impact: If .net is unfiltered and still serves application paths, the Cloudflare WAF protecting .de is bypassable by hostname swap, which would also unblock the parked IDOR on `/user/{ext_id}` and the v2 draft-data read. Currently speculative — zero bypass demonstrated, and this cycle removed the most likely mechanism.
 testability: HUMAN_ONLY
+## 2026-09-26 02:03:24 UTC [target] (model bigpickle)
+[HYP] Anonymous Raw Tariff Decision Engine + Active Test Rows Served In Production
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 93
+reasoning: One anonymous GET (no cookie jar, no query params) → HTTP 200, 2,152,708 B, `no-store`+`CF-DYNAMIC`, no ETag/Last-Modified, no rate limit. Body carries `ucatKkData` 5,211 rows × 13 fields (intervall 99.7%, wertbezug 865, has_age_limit/min_age/max_age 697, maxcap 283, lastchange fresh to 2026-09-18T13:50:27Z), `dataant` 138 questions with 285 answers and 375 `positive_kategorien`/`negative_kategorien` rule edges, `globalbudgetsData` 129 rules, `kombiboniData` 139 rules. Internal test rows are present and flagged active (`akt:"1"`): dataant 5/20/152/161/240, budgets 19/20. Identical on www (3-byte `standard.js?v=` diff only). Canonical sha256 of blobs: ucatKkData `56d8718b…`, dataant `e5ef696f…`, globalbudgets `d71157ac…`, kombiboni `164c7b7a…`.
+evidence_needed: Already met for the leak itself; remaining gap is whether this is a raw production query or a filtered projection — the active `sdfvsfds`/`BARMER Test`/`Testen` rows argue raw.
+verify_steps: `GET https://kassenkompass.de/bonusrechner_fragen.php` (empty jar) → 200; confirm `ucatKkData`,`dataant`,`globalbudgetsData`,`kombiboniData`,`pseudoKkIds`; count `akt=="1"` rows whose name matches /test|sdf|rc$|frn/i; max(`lastchange`) → date.
+impact: Competitor obtains the live reimbursement/eligibility rule set and answer→category decision engine for 96 Krankenkassen, refreshed within 8 days, plus unfiltered QA records; commercial confidentiality loss MEDIUM-HIGH. No credential or PII exposure asserted.
+testability: PASSIVE
+[HYP] Public Payload Is a Free Enumeration Oracle For The Credential-Gated KK Id Space
+class: OTHER
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 62
+reasoning: `uid_kk_q` in the anonymous blob yields the exact internal KK primary-key domain: 96 ids in 1..101, absent {5,12,53,89,97}, plus placeholders 99/100/101 — 51 real + 3 pseudo + 42 undetermined splits. `uid_cat` reaches 6288 and `uid_ucat_q` 153, and `dataant.uid_fra` spans 5..246 with 90+ gaps, so category and question id spaces are enumerable the same way. The protected v1/v2 `insurance_info` routes answer 401 for every value (greedy match, no routing validation), so this oracle currently yields no status differential — it converts a blind numeric sweep into a 96-item targeted list for the parked `/user/{ext_id}` and `/settlement_report/{y}/{m}` IDOR work, and the 5 gap ids are the natural draft/withdrawn candidate set.
+evidence_needed: A scoped secret; then `GET /v2/insurance_info/{5,12,53,89,97}` vs `/v2/insurance_info/424242` and `/insurance_info/1` for the same secret — a 200/404 split between gap and non-gap ids would show the gap set is unpublished-but-resolvable.
+verify_steps: Passive part done. Credentialed: status-code-only diff across the 96-id list; do not read or retain payload contents (program excludes customer/financial data).
+impact: Removes the search cost from the only untested authorization boundary on the api target; if scoping is absent, cross-tenant PII/settlement read (HIGH). Currently unassessed.
+testability: AUTH_HELPED
+[HYP] Middleware-B Has No Tenant Scoping Claim — Single Secret Spans Partner And Customer Data
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id} + api.kassenkompass.de/settlement_report/{year}/{month}
+confidence: 45
+reasoning: Both routes sit on middleware B (`"Ungültiger X-API-Secret"` / `"Header fehlt"`, instance-first), gated by one `X-API-Secret` with no second identity, tenant or ownership claim ever observed. v1 majority + v2 share middleware A, so B is the kk_webapp-delegation stack `{user, cancel}`. Untestable for 20+ sessions: no valid secret; `KKX3382745` and `X8372` rejected 403 on every stack; query/cookie channels closed. Path-override bypass that could have reached it unauthenticated is dead (302/0 B where direct yields 403/2500 B). The new public id list lowers the work needed once a credential exists, but does not change the boundary itself.
+evidence_needed: Scoped non-production secret, then a status-only differential on an identifier outside that secret's tenant.
+verify_steps: With a scoped test secret: `GET /user/{ext_id}` out-of-tenant vs in-tenant, compare status and field-name set only; repeat status-only on `GET /settlement_report/{year}/{month}`.
+impact: Cross-tenant PII and settlement read, HIGH if the boundary is absent. Unassessed until a credential exists.
+testability: AUTH_HELPED

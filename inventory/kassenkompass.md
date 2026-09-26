@@ -1037,3 +1037,27 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de: root header-shape drift class confirmed cosmetic (CL:0→absent→accurate 1167 B), catalog substance unchanged through 24+ cycles; auth map 15/15 drift-free
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
 - CHANGED Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-26 02:04:56 UTC
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 24h smoke 01:37 09-25 — apex+www both 200 / 2,152,708 B exact, 1-byte cfemail-nonce diff @712; byte-frozen 7+ consecutive windows (09-18→09-25); no-store+CF-D
+- CHANGED api.kassenkompass.de: root 200 / content-length 1167 == body 1167 at 01:37 09-25 (accurate-CL variant of persistent cosmetic drift class CL:0→absent→accurate); 15+1 catalog substance unchanged; auth m
+- CHANGED api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+- CHANGED kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; le
+- CHANGED kassenkompass pipeline: 22nd+ consecutive triage cycle consumed header-only/stub peer leads — observability gap persists, zero new signal; no new attack surface anywhere
+- NEW Tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3% — drift-on-refresh model confirmed stable
+- NEW API root header-shape drift class confirmed cosmetic: CL:0→absent→accurate 1167 B, catalog substance unchanged through 24+ cycles
+- NEW All auth maps (15/15), v2 enumeration (42 names saturated), 7 funnel entry points, stuffing mirrors — zero drift since 2026-09-07
+- NEW Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED NEXT probe windows: nemotron3 alternating 20×1-rps GET on apex+www fragen.php; bigpickle single GET at ≥2026-09-26 01:37 UTC
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis extends to 1..180 (6 IDs beyond page-referenced set), all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n-dimension extends beyo
+- NEW kassenkompass.net: blanket 302 on every app-handled path (both .php and non-.php) → no existence oracle; cannot be used for origin-bypass differential testing
+- CHANGED api.kassenkompass.de: root header-shape drift class confirmed cosmetic (CL:0→absent→accurate 1167 B), catalog substance unchanged through 24+ cycles; auth map 15/15 drift-free
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis extends to 1..180 (6 IDs beyond page-referenced set), all byte-identical duplicates (ETag 52f04d11..., 747,082 B, 2025-10-28); n-dimension extends beyo
+- NEW kassenkompass.net: blanket 302 on every app-handled path (both .php and non-.php) → no existence oracle; cannot be used for origin-bypass differential testing
+- CHANGED api.kassenkompass.de: root header-shape drift class confirmed cosmetic (CL:0→absent→accurate 1167 B), catalog substance unchanged through 24+ cycles; auth map 15/15 drift-free
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED Peer pipeline: 22+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: added to PRIO list at 5.80 (attack_surface=6, business_value=5, tech_exposure=5, gate_ease=10, cloud_surface=8, freshness=7)
