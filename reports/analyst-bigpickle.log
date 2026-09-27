@@ -36170,3 +36170,289 @@ testability: PASSIVE
 **STEP 7 — RISK**
 
 [RISK] KassenKompass GmbH: **85** — down 1. Every result this cycle was a narrowing, and narrowing lowers a risk score honestly rather than flattering it. The v1 method defect no longer generalises to v2: the only audited v2 cell is contract-accurate, so the contract finding is a v1-router defect with a shared copied assertion, not a host-wide property — the headline item is smaller than "6 of 15" implied. Two of my own supporting claims are dead: the per-application header-order fingerprint is falsified by two same-router routes disagreeing, and "`/post/` closed at 2 members" is a bound over 30 swept names, not a proof. Up, on new evidence: prefix matching is host-wide across three v1 routes rather than a v2 curiosity, and the single cell concealing `PUT`+`DELETE` is one of them, so the destructive-verb question now carries a routing-hygiene dimension it did not have — the target of a destructive verb is unconstrained at the layer where a WAF or path-scoped control would have to bind. Unchanged and untestable without authorization: the auth state of `POST /post/create_user`, the authorisation scope of the concealed `PUT`/`DELETE`, and the three privileged portals. No rate limiting or WAF block across 14 requests at 0.5 rps. The honest report says: contract falsification is fact but v1-scoped, destructive verbs are registered on an unbounded path and remain unverified, and exactly one endpoint on this host has an unknown authorization state.
+===== ANALYST bigpickle 2026-09-27 23:11:01 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start by surveying the workspace state and then run disciplined read-only probes.
+[0m$ [0mdate -u; echo "---"; cat scope.yml 2>/dev/null | head -40
+Sun Sep 27 23:08:43 UTC 2026
+---
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+[0m
+[0m$ [0mls -la; echo "---LEADS---"; ls -la art/ 2>/dev/null | head -40
+total 872
+drwxr-xr-x 12 runner runner   4096 Sep 27 23:08 .
+drwxr-xr-x  3 runner runner   4096 Sep 27 23:08 ..
+drwxr-xr-x  7 runner runner   4096 Sep 27 23:08 .git
+drwxr-xr-x  3 runner runner   4096 Sep 27 23:08 .github
+-rw-r--r--  1 runner runner   1767 Sep 27 23:08 README.md
+-rw-r--r--  1 runner runner    119 Sep 27 23:08 analyst-out.txt
+-rw-r--r--  1 runner runner 370037 Sep 27 23:08 analyst-prompt.txt
+-rw-r--r--  1 runner runner 366219 Sep 27 23:08 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 leads
+-rw-r--r--  1 runner runner  54605 Sep 27 23:08 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 reports
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 27 23:08 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 27 23:08 scripts
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 27 23:08 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 27 23:08 triage
+---LEADS---
+[0m
+[0m$ [0mls -la leads/ triage/ 2>/dev/null | head -60; echo "===TAIL PROBE==="; tail -60 probe-results.md
+leads/:
+total 2568
+drwxr-xr-x  2 runner runner    4096 Sep 27 23:08 .
+drwxr-xr-x 12 runner runner    4096 Sep 27 23:08 ..
+-rw-r--r--  1 runner runner 1006260 Sep 27 23:08 lead-bigpickle.md
+-rw-r--r--  1 runner runner    8007 Sep 27 23:08 lead-laguna.md
+-rw-r--r--  1 runner runner    7850 Sep 27 23:08 lead-ling3.md
+-rw-r--r--  1 runner runner    8164 Sep 27 23:08 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 27 23:08 lead-mimo.md
+-rw-r--r--  1 runner runner 1552574 Sep 27 23:08 lead-nemotron3.md
+-rw-r--r--  1 runner runner   25886 Sep 27 23:08 reposcan-kassenkompass.md
+
+triage/:
+total 804
+drwxr-xr-x  2 runner runner 12288 Sep 27 23:08 .
+drwxr-xr-x 12 runner runner  4096 Sep 27 23:08 ..
+-rw-r--r--  1 runner runner     0 Sep 27 23:08 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep 27 23:08 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep 27 23:08 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep 27 23:08 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep 27 23:08 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep 27 23:08 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep 27 23:08 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep 27 23:08 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep 27 23:08 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep 27 23:08 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep 27 23:08 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep 27 23:08 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep 27 23:08 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep 27 23:08 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep 27 23:08 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep 27 23:08 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep 27 23:08 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Sep 27 23:08 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Sep 27 23:08 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Sep 27 23:08 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Sep 27 23:08 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Sep 27 23:08 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Sep 27 23:08 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Sep 27 23:08 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Sep 27 23:08 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Sep 27 23:08 run-2026-09-05-22-41.md
+-rw-r--r--  1 runner runner   888 Sep 27 23:08 run-2026-09-06-00-38.md
+-rw-r--r--  1 runner runner 15500 Sep 27 23:08 run-2026-09-06-05-06.md
+-rw-r--r--  1 runner runner   219 Sep 27 23:08 run-2026-09-06-09-30.md
+-rw-r--r--  1 runner runner   310 Sep 27 23:08 run-2026-09-06-13-06.md
+-rw-r--r--  1 runner runner   237 Sep 27 23:08 run-2026-09-06-16-20.md
+-rw-r--r--  1 runner runner   208 Sep 27 23:08 run-2026-09-06-18-25.md
+-rw-r--r--  1 runner runner   149 Sep 27 23:08 run-2026-09-06-20-48.md
+-rw-r--r--  1 runner runner   232 Sep 27 23:08 run-2026-09-06-22-44.md
+-rw-r--r--  1 runner runner  1088 Sep 27 23:08 run-2026-09-07-00-43.md
+-rw-r--r--  1 runner runner   172 Sep 27 23:08 run-2026-09-07-05-44.md
+-rw-r--r--  1 runner runner   189 Sep 27 23:08 run-2026-09-07-11-45.md
+-rw-r--r--  1 runner runner   229 Sep 27 23:08 run-2026-09-07-17-23.md
+-rw-r--r--  1 runner runner   221 Sep 27 23:08 run-2026-09-07-20-46.md
+-rw-r--r--  1 runner runner 11019 Sep 27 23:08 run-2026-09-07-23-19.md
+-rw-r--r--  1 runner runner   162 Sep 27 23:08 run-2026-09-08-01-15.md
+-rw-r--r--  1 runner runner  1005 Sep 27 23:08 run-2026-09-08-06-01.md
+-rw-r--r--  1 runner runner   218 Sep 27 23:08 run-2026-09-08-11-27.md
+-rw-r--r--  1 runner runner   155 Sep 27 23:08 run-2026-09-08-15-18.md
+===TAIL PROBE===
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-26 22:16:53 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/post/delete_user'` -> 200 len=?
+https://api.kassenkompass.de/cancel/1'` -> HTTP 401
+
+## 2026-09-27 00:48:03 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/'` -> 200 len=0
+https://api.kassenkompass.de/health/'` -> 200 len=0
+https://api.kassenkompass.de/delete/1'` -> HTTP 401
+https://api.kassenkompass.de/post/zzz_unknown_9f2/'` -> 200 len=?
+https://api.kassenkompass.de/post/create_user'` -> 200 len=?
+https://api.kassenkompass.de/user/1'` -> HTTP 401
+
+## 2026-09-27 06:35:36 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-27 12:31:10 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/'` -> 200 len=0
+https://api.kassenkompass.de/health_insurance_savings/` -> HTTP 401
+https://api.kassenkompass.de/detail_comparison/` -> HTTP 401
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+
+## 2026-09-27 17:24:19 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+https://api.kassenkompass.de/health/` -> 200 len=0
+https://api.kassenkompass.de/sync/` -> 200 len=0
+https://api.kassenkompass.de/cat_detail/` -> HTTP 401
+https://api.kassenkompass.de/state/` -> HTTP 401
+https://api.kassenkompass.de/zzz_unknown_9f2/` -> 200 len=0
+https://api.kassenkompass.de/post/zzz_unknown_9f2/` -> 200 len=?
+
+## 2026-09-27 20:18:16 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/health_insurance/` -> HTTP 401
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+https://api.kassenkompass.de/question_tree/` -> HTTP 405
+[0m
+[0m$ [0mfor f in leads/*; do echo "=== $f ($(wc -c <"$f") B) ==="; tail -12 "$f"; done 2>/dev/null | head -150
+=== leads/lead-bigpickle.md (1006260 B) ===
+[PARKED] "Catalogue path templates are falsified because `/health_insurance/` is documented without `{id}`" — dropped at the drafting stage, before emission. Falsified by my own probe 40 seconds after the hypothesis: `/health_insurance/` **is** a registered route (401 + `instance` + PUT/DELETE allow-list). A clean negative, recorded so the sweep is not repeated.
+[PARKED] "Three applications on one host, separable by the byte order of access-control-allow-headers" — REJECTED on evidence this session. `/question_tree/` and `/state/` are both middleware-A gated v1 routes on one router and emit opposite byte orders. It was already downgraded from hypothesis to "supporting evidence"; it is now dead.
+[PARKED] "Unauthenticated user provisioning via /post/create_user" (nemotron3, reprinting a 92) — stays parked. `405` is never evidence about credentials on this host, and the v2 cell audited this session shows the server *does* distinguish auth from method correctly in the one place it declares a single route.
+[FINAL] 1) three-of-fifteen routes are unbounded prefix routes and the destructive-verb cell is one of them, MISCONFIG 72, PASSIVE, complete. 2) `POST /post/create_user` unassessed and simple-request reachable, AUTH 60, HUMAN_ONLY, one request away. 3) both enumeration primitives non-injective, three closure claims downgraded to bounds, OTHER 75, PASSIVE, complete.
+[NEXT] HUMAN: request one-word written authorization for exactly one request — `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'`, empty body, no credentials — and send it only on approval. The application documents this route as `POST /post/help: "Zeigt diese Hilfeseite an."`, so it is a read by its own contract and creates nothing. It is now the only remaining route to the programme's largest open question, because the override-header control proved no passive method reaches the POST branch. Outstanding for a second cycle.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "the published contract's path templates are wrong because `/health_insurance/` carries no `{id}`". Falsified on probe — the bare path is a registered route, not the catch-all. Route membership was decided by the presence of an `instance` field in `application/problem+json`, which the 1167 B catch-all never emits.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "three applications on one host separable by the byte order of `access-control-allow-headers`". Killed by route-level variation on a single router — `/question_tree/` (`Content-Type, X-API-Secret`) versus `/state/` (`X-API-Secret, Content-Type`), both middleware A, both pretty `problem+json` with `instance`. The discriminator that does survive is envelope shape plus the `instance` field, not header order.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/v2/insurance_info/{kk_id}: the one audited v2 cell is contract-**accurate** (`GET, OPTIONS`, documented GET) and gated on middleware A. The v1 method defect is therefore scoped to the v1 router, and the `"authentication"` claim is a constant copied verbatim into a second catalog rather than a per-router assertion — a shared-constant remediation, not 16 independent corrections.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/health_insurance/ + /state/ + /question_tree/: greedy prefix matching is a **v1** property present on three catalogued routes, and it composes with the parked destructive-verb item — the sole `PUT`+`DELETE` cell is also a cell whose target is unvalidated at the routing layer. Reachability proven with a discriminating control; authorisation not asserted.
+[LEARN] ACCEPTED OTHER @ method: a closure claim needs an **injective** discriminator. Both of this host's cheap discriminators are many-to-one — status+type collides on `/cat_detail/`, content-type+length collides on any bodyless 200 — so a sweep yields a bound, not a proof. This is now the third self-correction in the programme (alongside the 405 and the Host-header false positive) and all three share one cause: reading a two-valued test as a three-valued or exhaustive one.
+[LEARN] ACCEPTED OTHER @ pipeline: peer signal remains zero for a 25th cycle, yet this cycle closed three items and falsified one of my own claims from 14 read-only GETs. Single-writer depth continues to beat five-way sweeps, now for the fourth consecutive session.
+[RISK] KassenKompass GmbH: **85** — down 1. Every result this cycle was a narrowing, and narrowing lowers a risk score honestly rather than flattering it. The v1 method defect no longer generalises to v2: the only audited v2 cell is contract-accurate, so the contract finding is a v1-router defect with a shared copied assertion, not a host-wide property — the headline item is smaller than "6 of 15" implied. Two of my own supporting claims are dead: the per-application header-order fingerprint is falsified by two same-router routes disagreeing, and "`/post/` closed at 2 members" is a bound over 30 swept names, not a proof. Up, on new evidence: prefix matching is host-wide across three v1 routes rather than a v2 curiosity, and the single cell concealing `PUT`+`DELETE` is one of them, so the destructive-verb question now carries a routing-hygiene dimension it did not have — the target of a destructive verb is unconstrained at the layer where a WAF or path-scoped control would have to bind. Unchanged and untestable without authorization: the auth state of `POST /post/create_user`, the authorisation scope of the concealed `PUT`/`DELETE`, and the three privileged portals. No rate limiting or WAF block across 14 requests at 0.5 rps. The honest report says: contract falsification is fact but v1-scoped, destructive verbs are registered on an unbounded path and remain unverified, and exactly one endpoint on this host has an unknown authorization state.
+=== leads/lead-laguna.md (8007 B) ===
+## 2026-09-25 23:33:25 UTC [target] (model laguna)
+## 2026-09-26 02:01:55 UTC [target] (model laguna)
+## 2026-09-26 07:33:14 UTC [target] (model laguna)
+## 2026-09-26 12:28:15 UTC [target] (model laguna)
+## 2026-09-26 16:45:29 UTC [target] (model laguna)
+## 2026-09-26 19:38:51 UTC [target] (model laguna)
+## 2026-09-26 22:12:40 UTC [target] (model laguna)
+## 2026-09-27 00:42:33 UTC [target] (model laguna)
+## 2026-09-27 06:27:49 UTC [target] (model laguna)
+## 2026-09-27 12:26:40 UTC [target] (model laguna)
+## 2026-09-27 17:17:09 UTC [target] (model laguna)
+## 2026-09-27 20:14:25 UTC [target] (model laguna)
+=== leads/lead-ling3.md (7850 B) ===
+## 2026-09-25 23:33:06 UTC [target] (model ling3)
+## 2026-09-26 02:01:22 UTC [target] (model ling3)
+## 2026-09-26 07:33:11 UTC [target] (model ling3)
+## 2026-09-26 12:28:37 UTC [target] (model ling3)
+## 2026-09-26 16:45:30 UTC [target] (model ling3)
+## 2026-09-26 19:38:52 UTC [target] (model ling3)
+## 2026-09-26 22:12:42 UTC [target] (model ling3)
+## 2026-09-27 00:43:13 UTC [target] (model ling3)
+## 2026-09-27 06:27:48 UTC [target] (model ling3)
+## 2026-09-27 12:26:40 UTC [target] (model ling3)
+## 2026-09-27 17:17:11 UTC [target] (model ling3)
+## 2026-09-27 20:14:30 UTC [target] (model ling3)
+=== leads/lead-longcat.md (8164 B) ===
+## 2026-09-25 23:33:11 UTC [target] (model longcat)
+## 2026-09-26 02:01:36 UTC [target] (model longcat)
+## 2026-09-26 07:33:02 UTC [target] (model longcat)
+## 2026-09-26 12:28:32 UTC [target] (model longcat)
+## 2026-09-26 16:46:38 UTC [target] (model longcat)
+## 2026-09-26 19:38:49 UTC [target] (model longcat)
+## 2026-09-26 22:12:40 UTC [target] (model longcat)
+## 2026-09-27 00:42:35 UTC [target] (model longcat)
+## 2026-09-27 06:27:51 UTC [target] (model longcat)
+## 2026-09-27 12:26:40 UTC [target] (model longcat)
+## 2026-09-27 17:17:09 UTC [target] (model longcat)
+## 2026-09-27 20:14:25 UTC [target] (model longcat)
+=== leads/lead-mimo.md (18 B) ===
+# Lead log (seed)
+=== leads/lead-nemotron3.md (1552574 B) ===
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: /post/ is a separately mounted application, cleanly discriminable from the v1 catch-all at two path depths, 344 B json at the prefix, `text/html` + CORS pair on children. 12 other plausible prefixes are all catch-all. This is a cheap, reusable discriminator: 14 requests replaced hundreds of status-code probes.
+[LEARN] REJECTED CORS @ api.kassenkompass.de/post/: no ACAO for any Origin. The pre-advertised `X-API-Secret` allow-header is fingerprinting, not a finding.
+[LEARN] ACCEPTED OTHER @ pipeline: 4 of 5 peer leads are empty or timestamps only. The loop is effectively single-writer; per-session budget is better spent on 2-3 decisive artifacts than on sweeps.
+[LEARN] ACCEPTED OTHER @ method: the strongest result this cycle came from reading already-delivered static JS, not from touching the API. Offline analysis of fetched public files is where the remaining leverage is.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: the `/post/` write namespace is closed at one endpoint (`help`, `create_user`); 30 candidate sub-names all return the unregistered `200 / 0 B / text/html` state. "Namespace" framing superseded by "one write route" on evidence.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: 15/15 verb+auth matrix complete, and `access-control-allow-methods` — not the status code — is the authority: 4 catalogued-GET routes exclude GET entirely, 2 conceal PUT+DELETE, `/health/` registers POST while unauthenticated.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: "a method-override header can reach the POST branch" — killed by its own control. `X-HTTP-Method-Override: DELETE` on `GET /post/help` returned the byte-identical baseline 200/344 B, so the app reads `REQUEST_METHOD` directly. The auth question is HUMAN_ONLY by necessity, not by budget.
+[LEARN] ACCEPTED OTHER @ method: absent `access-control-allow-origin` is not a defence against a cross-origin **write**. A form-encoded POST is a simple request and is transmitted with no preflight. Any future "no ACAO ⇒ no browser path" claim in this programme must be re-read against the Fetch simple-request definition before it is repeated.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de/health/: no information-disclosure depth. `?verbose=1`, `?detail=1&full=1` and `/health/db` all return the identical 22 B body; the 22 B constant is the whole surface.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: four response-envelope fingerprints, and the only group emitting no `access-control-allow-headers` is the only group with no auth — auth and CORS are declared in the same per-route place, and anything omitted from that declaration is unauthenticated and CORS-silent by default.
+[LEARN] ACCEPTED OTHER @ kassenkompass pipeline: peer signal remains zero for a 25th cycle (mimo 18 B, three header-only, one reprint), yet this cycle produced three exact closures from 57 read-only GETs. Single-writer depth beats five-way sweeps, now for the third consecutive session.
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+=== leads/reposcan-kassenkompass.md (25886 B) ===
+## REPOSCAN 2026-09-27 00:40:42 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-27 06:11:42 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-27 12:10:19 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-27 17:02:20 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-27 20:12:49 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+## REPOSCAN 2026-09-27 23:06:56 UTC
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+[0m
+[93m[1m! [0mpermission requested: external_directory (/tmp/opencode/*, /tmp/*); auto-rejecting
+[0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp; curl -sS -m 20 -o /dev/null -w "net_ok http=%{http_code} time=%{time_total}\n" https://api.kassenkompass.de/health/ 2>&1 | tail -3 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
+Peer signal is zero again (26th cycle). Let me verify network reachability, then run a tightly-scoped GET-only probe set on a genuinely untested axis: **path-form variants of known route names** (the prior sweeps tested distinct *names*, never malformed *variants* of a known member).

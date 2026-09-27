@@ -1208,3 +1208,5 @@ www.kassenkompass.de
 - CHANGED `kassenkompass.net`: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED Host-header probe on `api.kassenkompass.de`: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, 
 - CHANGED CORS test on `kassenkompass.net` + `kassenkompass.de` funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+
+## 2026-09-27 23:11:01 UTC
