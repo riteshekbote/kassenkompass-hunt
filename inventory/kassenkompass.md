@@ -1158,3 +1158,27 @@ www.kassenkompass.de
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED Host-header probe on api.kassenkompass.de: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, no
 - CHANGED CORS test on kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+
+## 2026-09-27 17:24:01 UTC
+- NEW Verb+auth matrix completed **15/15** from `access-control-allow-methods` (the route table, not status codes): 4 catalogued-GET routes **exclude GET entirely** — `/sync/`, `/health_insurance_savings/`,
+- NEW `/health/` is the only fully unauthenticated v1 route, registers `GET, POST, OPTIONS` while documented as `GET /health/`, and is the **only response group on the host that emits no `access-control-all
+- NEW `/post/` namespace **closed at exactly 2 members**: `help` (200/344 B) and `create_user` (405 POST-only). 30 candidate names (delete_user, update_user, get_user, list_users, user, users, sync, data, p
+- NEW `X-HTTP-Method-Override` is **ignored** by the `/post/` app: `GET /post/help` with `X-HTTP-Method-Override: DELETE` returns byte-identical `200 / 344 B` to the baseline (control proves non-honouring),
+- NEW 4 response-envelope fingerprints reproduced in one time window: `/health/` (json, **no** allow-headers) · `/sync/` (json, allow-headers `Content-Type, X-API-Secret`) · v1-gated (pretty problem+json, `
+- CHANGED `/delete/{id}` joins middleware B: `401 / 182 B` "X-API-Secret Header fehlt", allow `DELETE, OPTIONS` → **B = {user/{ext_id}, delete/{id}, cancel/{id}}**, the three user-lifecycle routes (was recorded
+- CHANGED Auth map final: 8 routes middleware A ("ist erforderlich für den Zugriff auf diese API"), 3 middleware B ("Header fehlt"), 1 method-checked-first (`/cat_detail/` 405), **3 with no credential check at 
+- CHANGED `/health/` is depth-invariant: `?verbose=1`, `?detail=1&full=1`, `/health/db` all return the identical 22 B `{"status":"ok"}`; `/health` (no slash) 307s to `/health/`. No env/version/db leak growth.
+- CHANGED Peer leads still single-writer: mimo 18 B, laguna/ling3/longcat header-only, nemotron3 reprints "unauthenticated user provisioning likely" — refuted on its own terms (STEP 4).
+- CHANGED 57 read-only GETs at ~1.5 s spacing this session — no 429, no WAF block, ≤1 rps maintained.
+- CHANGED /post/create_user unauthenticated provisioning hypothesis REJECTED: /cat_detail/ (middleware-A gated, POST-only) returns 405 with instance field, falsifying "405 = ungated" oracle; three-state oracle 
+- CHANGED api.kassenkompass.de root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console — 7 global functions plus pseudoKkIds, full rating engine shipped as three unminified files with 0 net
+- CHANGED Server-side cookie-spoofing chain on fragen funnel materially weakened: GET /bonusrechner_fragen.php is static page with entire answer/rating engine executing client-side; live-calculation.js:642 has 
+- CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED Blanket CORS on /post/* is app-level: emits allow-methods POST,GET,OPTIONS and allow-headers Content-Type,X-API-Secret for known and unknown sub-paths; no ACAO for any Origin
+- CHANGED dataant block in fragen.php contains 138 questions (ids 5..246), 11 active stubs with no content (5,20,33,34,83,87,102,117,137,165,239); question 5 is developer fixture "sdfvsdf"
+- CHANGED 100-request 1-rps sustained scraping of bonusrechner_fragen.php confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/
+- CHANGED S3 bucket kk-s3-01: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, distinc
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED Host-header probe on api.kassenkompass.de: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, no
+- CHANGED CORS test on kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
