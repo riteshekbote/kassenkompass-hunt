@@ -1143,3 +1143,18 @@ www.kassenkompass.de
 - CHANGED `/cat_detail/` falsifies the "405 = ungated" oracle — gated POST-only routes return 405 on wrong method with instance field; the three-state oracle collapses to two informative states on v1; `/post/*`
 - CHANGED `api.kassenkompass.de` root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-27 12:30:57 UTC
+- NEW api.kassenkompass.de/post/create_user: Unauthenticated write namespace confirmed — HEAD /delete/1 → 401, HEAD /state/ → 401 (both gated v1), HEAD /post/ → 405, HEAD /post/create_user → 405 (both /post
+- NEW /cat_detail/ falsifies "405 = ungated" oracle — gated POST-only route returns 405 with instance field; three-state oracle collapses to two informative states on v1
+- NEW api.kassenkompass.de root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- NEW kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console — 7 global functions plus pseudoKkIds, full rating engine shipped as three unminified files with 0 net
+- NEW Server-side cookie-spoofing chain on fragen funnel materially weakened: GET /bonusrechner_fragen.php is static page with entire answer/rating engine executing client-side; live-calculation.js:642 has 
+- CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED Blanket CORS on /post/* is app-level: emits allow-methods POST,GET,OPTIONS and allow-headers Content-Type,X-API-Secret for known and unknown sub-paths; no ACAO for any Origin
+- CHANGED dataant block in fragen.php contains 138 questions (ids 5..246), 11 active stubs with no content (5,20,33,34,83,87,102,117,137,165,239); question 5 is developer fixture "sdfvsdf"
+- CHANGED 100-request 1-rps sustained scraping of bonusrechner_fragen.php confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/
+- CHANGED S3 bucket kk-s3-01: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, distinc
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED Host-header probe on api.kassenkompass.de: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, no
+- CHANGED CORS test on kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
