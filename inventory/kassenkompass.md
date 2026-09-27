@@ -1130,3 +1130,16 @@ www.kassenkompass.de
 - NEW GET /post/create_user → 405/184B "Method not allowed. Only POST is accepted for /post/create_user." — confirms POST-only, discloses no field schema, no auth statement
 - CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED All major surfaces stable since 2026-09-07: api catalog (15+1, accurate CL 1167), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-f
+
+## 2026-09-27 06:35:28 UTC
+- NEW (2026-09-27, this agent) Server-side cookie-spoofing chain on the fragen funnel is materially weakened: `GET /bonusrechner_fragen.php` is a static page whose entire answer/rating engine executes clien
+- NEW Production code contains an explicit, dated decision to keep the display value out of the trust path: `live-calculation.js:642` is a commented-out `// this.setCookie('data_sparsum', Math.round(totalSa
+- NEW Unconditional global debug surface on the same anonymous page: 7 callable `window.*` functions (`debugDrawflow`, `debugUndoHistory`, `testUndoSystem`, `manualUndo(nodeId)`, `checkNode(nodeId)`, `testL
+- NEW A working and cheap route-ownership discriminator exists on this host, in two forms depending on path depth. One segment + slash: `GET /post/` returns 200 / 344 B / `application/json`, while any unreg
+- CHANGED The blanket CORS pair is app-level, not route-level. `/post/*` emits `access-control-allow-methods: POST, GET, OPTIONS` and `access-control-allow-headers: Content-Type, X-API-Secret` for known and unk
+- CHANGED `dataant` contains 138 questions, ids `5..246`, of which 11 are active stubs with no answers or content (5, 20, 33, 34, 83, 87, 102, 117, 137, 165, 239); question 5 is a developer fixture named `sdfvs
+- CHANGED `state_bigpickle.json` and `state_nemotron3.json` are both `{"phase": "POC", "target": "api"}`. Four peer leads (`laguna`, `ling3`, `longcat`, `mimo`) contain only timestamp headers, one of them 18 by
+- NEW Live verification: `/post/help` returns 200 application/json advertising `POST /post/create_user` ("Erstellt einen neuen User. Erwartet JSON im Body."); `/post/` and `/post/create_user` return 405 pro
+- CHANGED `/cat_detail/` falsifies the "405 = ungated" oracle — gated POST-only routes return 405 on wrong method with instance field; the three-state oracle collapses to two informative states on v1; `/post/*`
+- CHANGED `api.kassenkompass.de` root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
