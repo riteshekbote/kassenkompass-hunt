@@ -1182,3 +1182,29 @@ www.kassenkompass.de
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED Host-header probe on api.kassenkompass.de: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, no
 - CHANGED CORS test on kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+
+## 2026-09-27 20:18:05 UTC
+- NEW `GET /v2/insurance_info/1` audited for the first time ever: `401 / 236 B` `application/problem+json`, `instance: "/v2/insurance_info/1"`, `access-control-allow-methods: GET, OPTIONS`, `access-control-
+- NEW `GET /v2/` catalog body read in full (331 B): `"authentication": "X-API-Secret header required"` is duplicated **verbatim** from the v1 catalog alongside a single, correctly-declared route — the false
+- NEW v1 **prefix/greedy route matching is host-wide, not a v2 quirk**: `/health_insurance/` and `/health_insurance/1` both return `401` with identical `access-control-allow-methods: GET, POST, PUT, DELETE,
+- NEW The destructive-verb route and the unbounded-path property are **the same route**: `/health_insurance/` is the only cell on the host concealing `PUT`+`DELETE`, and its target is unconstrained at the r
+- CHANGED **`/question_tree/` returns `access-control-allow-headers: Content-Type, X-API-Secret` while `/state/`, `/health_insurance/`, `/detail_comparison/` and `/v2/insurance_info/1` return `X-API-Secret, Con
+- CHANGED `/post/` and `/post/help` are byte-identical (`200 / 344 B`); `/post/zzz_unknown_9f2/` returns `200 / 0 B` with `content-type: text/html; charset=UTF-8` (uppercase UTF-8) vs `application/json; charset
+- CHANGED No drift on any standing cell: root `200 / 1167 B` with accurate `content-length`, 15 routes, ver 1.0; `/health/` `200 / 22 B` `GET, POST, OPTIONS`, still the only group with no `access-control-allow-
+- CHANGED 14 read-only GETs at ~0.5 rps plus 1 HEAD on a second host. No 429, no WAF block, discipline held.
+- NEW Production debug API on `kassenkompass.de/bonusrechner_fragen.php`: 7 global `window.*` functions (`debugDrawflow`, `debugUndoHistory`, `testUndoSystem`, `manualUndo`, `checkNode`, `testLoop`, `export
+- NEW Server-side cookie-spoofing chain on fragen funnel materially weakened: `GET /bonusrechner_fragen.php` is static page; entire answer/rating engine executes client-side; `live-calculation.js:642` has c
+- NEW `/post/` write namespace closed at exactly 2 members: `help` (200/344 B application/json) and `create_user` (405 POST-only); 30 candidate sub-names (delete_user, update_user, get_user, list_users, use
+- NEW Verb+auth matrix completed 15/15 from `access-control-allow-methods` (route table, not status codes): 4 catalogued-GET routes exclude GET entirely (`/sync/`, `/health_insurance_savings/`, `/delete/{id
+- NEW `X-HTTP-Method-Override: DELETE` on `GET /post/help` returns byte-identical 200/344 B — app reads `REQUEST_METHOD` directly; method-override ignored
+- NEW Four response-envelope fingerprints reproduced in one time window: `/health/` (json, no allow-headers) · `/sync/` (json, allow-headers `Content-Type, X-API-Secret`) · v1-gated (pretty problem+json, `i
+- NEW `/delete/{id}` joins middleware B: 401/182 B "X-API-Secret Header fehlt", allow `DELETE, OPTIONS` → B = {user/{ext_id}, delete/{id}, cancel/{id}} (three user-lifecycle routes)
+- NEW Auth map final: 8 routes middleware A ("ist erforderlich für den Zugriff auf diese API"), 3 middleware B ("Header fehlt"), 1 method-checked-first (`/cat_detail/` 405), 3 with no credential check at bo
+- CHANGED `api.kassenkompass.de` root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php`: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: 
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php`: tariff payload byte-frozen 7+ consecutive rotation windows (09-18→09-25) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED S3 bucket `kk-s3-01`: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, disti
+- CHANGED `kassenkompass.net`: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED Host-header probe on `api.kassenkompass.de`: FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, 
+- CHANGED CORS test on `kassenkompass.net` + `kassenkompass.de` funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel

@@ -35751,3 +35751,422 @@ testability: PASSIVE
 **STEP 7 — RISK**
 
 [RISK] KassenKompass GmbH: **86** — down 1. The composition moved down more than up this cycle. Down, on evidence: the programme's top-ranked finding shrank from a "write namespace" to **one write route** after a 30-name enumeration, the credential-free surface is now a fixed list of 5 endpoints of which exactly 3 accept POST, and the 15/15 contract table is complete and provable in 3 unauthenticated read-only requests — the first artefact in a week needing no credential. Up: the cross-origin correction raises the *plausible* worst case of the still-unproven `POST /post/create_user` from "requires a partner client" to "reachable by any web page via a simple request", and the fail-open correlation across four envelope groups means the defect is architectural rather than incidental. Unchanged and untestable-without-authorization: the auth state of `/post/create_user`, the authorisation scope of the concealed PUT/DELETE verbs, and the three privileged portals. No rate limiting or WAF block observed across 57 requests at 1 rps. The honest report says: contract falsification is fact, destructive verbs are registered-but-unverified, and exactly one endpoint on this host has an unknown authorization state.
+===== ANALYST bigpickle 2026-09-27 20:18:05 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mmkdir -p /tmp/opencode/kk && UA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36' && B=https://api.kassenkompass.de && for u in / /v2/ /v2/insurance_info/1 /health/ /sync/ /post/ /post/help /post/create_user /post/zzz_unknown_9f2/; do printf '\n########## GET %s ##########\n' "$u"; curl -sS -m 25 -A "$UA" -i "$B$u" 2>&1; printf '\n[bytes] '; printf '%s' "$(curl -sS -m 25 -A "$UA" "$B$u" 2>/dev/null | wc -c)"; sleep 2; done; printf '\n########## HEAD apex fragen (liveness only) ##########\n'; curl -sS -m 25 -A "$UA" -I 'https://kassenkompass.de/bonusrechner_fragen.php' 2>&1
+########## GET / ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:29 GMT
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=OaIQ3ywTT6Zdh5Mx2qTvuuVUTa5Cml%2FakOyRGtERfjXyyYUVqRNbAP%2FFLTOsNaN7LeCiuqeULHltyYg8bHT9BsOPVCdgpJO8bKVFuwpCiGkkpFgty7wk%2BiMqIbCkltWPODciB81G"}]}
+cf-ray: a41d2e40dfa530be-SEA
+
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[bytes] 1167
+########## GET /v2/ ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:32 GMT
+content-type: application/json; charset=utf-8
+content-length: 331
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=seTEruyEfpUnd98o4yWNTyvuYjrjDRgPxk8DmqqbSJORHxrhvtgQ8VO0WqLfra7fjmRXKK5Q0pQbteO01eJKOC%2F90l7cpJ1QgpEFaU3Rltwt4EbWTjT3V7jYwmum7GkDdKSejZuu"}]}
+cf-ray: a41d2e520ea5760c-SEA
+
+{
+    "api_info": "KK API v2 - REST (breite Variante)",
+    "version": "2.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/v2\/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse (breite Variante: inkl. Entwurfs-Kategorien und aufgelöster Referenzen)"
+    }
+}
+[bytes] 331
+########## GET /v2/insurance_info/1 ##########
+HTTP/2 401 
+date: Sun, 27 Sep 2026 20:15:36 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 236
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Ok6cukwQEO1lk5QsASFwXk%2BR5Bj5yPggzjRSS4Opw8B11UR1ZcbGlEzQrEWUMq3DqnuqT0WPEAKXq%2F2hubdi2%2BwX%2F10ZLVVcfNKjC4Skf8WHUoqwX1t%2BTc9%2F6%2BNgmed2y636zC4Z"}]}
+cf-ray: a41d2e6788032c7a-SEA
+
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/v2\/insurance_info\/1"
+}
+[bytes] 236
+########## GET /health/ ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:39 GMT
+content-type: application/json; charset=utf-8
+content-length: 22
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: GET, POST, OPTIONS
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=Sup4DQb8MqBJQa14zYIN3woRkNe0r85qTR79FWshiR8U4qJtQ5fuaaEOAc1UvRyJwlUxk1daXbSx7QHzhM3AuLY2Pe6ZHXwMSk336ho5JWwTxYlcTtpVET2B7WBOo%2BYBrURP1KYH"}]}
+cf-ray: a41d2e7f596d760c-SEA
+
+{
+    "status": "ok"
+}
+[bytes] 22
+########## GET /sync/ ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:43 GMT
+content-type: application/json; charset=utf-8
+content-length: 67
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=YApl4D409Hf73f1H%2B%2B9pTKU%2Fb2H3heqt%2FLl%2F1KKuf7W9AYYluuoDZG1UrCqZdTmUyGHNZ1%2FK4eZ0UtV%2BxaZOwbJeQFPQquYTXggd7WuT59v%2FUyxSoeruUocTE1uWCsShiu8xrIkm"}]}
+cf-ray: a41d2e923adfb5ed-SEA
+
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+[bytes] 67
+########## GET /post/ ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:46 GMT
+content-type: application/json; charset=utf-8
+content-length: 344
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=u%2FoqV6mreI%2FIDlupTqDa458R5RD%2B4%2BzDPmE0tZACUSCe7zP4VsN2GcSbANtL0rnKqNKa%2BNYdnYVLtkm2y%2F8dcwhSLtdCNiCyLQIiYLW0rFbSVO%2BqOkxuJZudOo4n6Mlxei0sFBR9"}]}
+cf-ray: a41d2ea7faf030be-SEA
+
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfeseite an (kann später erweitert werden)."}}}
+[bytes] 344
+########## GET /post/help ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:50 GMT
+content-type: application/json; charset=utf-8
+content-length: 344
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=lESudZx792vY4PRu0segIfAq5rq3DIqJmLCQa%2BmmLRgY%2F62VC20znolu8bEXdXRJLmGxg9jVZ7%2BAYyUxvgU5XiMDnFh5oXUdIowtC%2FEwfnvql7j1oU43Meq64bUHTpVujCccwwSt"}]}
+cf-ray: a41d2ebda95c760c-SEA
+
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfeseite an (kann später erweitert werden)."}}}
+[bytes] 344
+########## GET /post/create_user ##########
+HTTP/2 405 
+date: Sun, 27 Sep 2026 20:15:53 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 184
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=SDbVs1aSYD81%2Fmo9VBgsE%2B%2B8zQquD%2FiMUCkybzbl2PNZbYIeZc%2BHHvWW5AcIC%2BjmfVnP7YCjtxchO58sL4TdLeyjLklzqhCoPaFlBV6xeInFnMPEsTxcpWxVCxQIIOPWpqVbL9g2"}]}
+cf-ray: a41d2ed329fb9b78-SEA
+
+{"type":"https:\/\/tools.ietf.org\/html\/rfc7231#section-6.5.5","title":"Method Not Allowed","status":405,"detail":"Method not allowed. Only POST is accepted for \/post\/create_user."}
+[bytes] 184
+########## GET /post/zzz_unknown_9f2/ ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:15:57 GMT
+content-type: text/html; charset=UTF-8
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=hdzDLO3aniv8WoTKR%2FimBDaZljqCpjxBY11aH5Qce%2BpjgRxM6FfVLcl5o1cwnkHs%2FuFpzCdXLYRhsQc31hJ5GT5qbZDdyo5K%2BF2%2FP%2F5L2b642oHZjH0XoAiUyNjpYCXBLFvqWpnN"}]}
+cf-ray: a41d2eeaccb65719-SEA
+
+
+[bytes] 0
+########## HEAD apex fragen (liveness only) ##########
+HTTP/2 200 
+date: Sun, 27 Sep 2026 20:16:01 GMT
+content-type: text/html; charset=UTF-8
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+set-cookie: AWSALB=BqbGGcGmqyer1eq8C1NxGljvftHFTupHmSjXqftbupZz0o/FLr2jRp6N2a2LB7ACRrrV+2rphaPVPO4Pw6cGOmCWq/UFPEDRxG8xnbTxb1nCu5cIF1QRsONJvJvk; Expires=Sun, 04 Oct 2026 20:16:00 GMT; Path=/
+set-cookie: AWSALBCORS=BqbGGcGmqyer1eq8C1NxGljvftHFTupHmSjXqftbupZz0o/FLr2jRp6N2a2LB7ACRrrV+2rphaPVPO4Pw6cGOmCWq/UFPEDRxG8xnbTxb1nCu5cIF1QRsONJvJvk; Expires=Sun, 04 Oct 2026 20:16:00 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=9950d898cdedb650ffb2d2e5122aa7e2; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=w27yup6jvSKzm5w4SFFymxdvp7H5%2B9%2Ff6FEjy0Oe2C72HWObDh1TNB7PUrjkQhDs%2BOB8Kq9Q8qCF7DcLzPk3Tq4bLJyecIsmqkdIuxI6wk%2Fw0P5pqngZjC4KU6GLfJkx3cc%3D"}]}
+cf-ray: a41d2f012b427654-SEA
+[0m
+[0m$ [0mUA='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36' && B=https://api.kassenkompass.de && for u in /health_insurance/ /health_insurance/1 /state/ /state/1 /question_tree/ /question_tree/1 /detail_comparison/; do printf '\n########## GET %s ##########\n' "$u"; curl -sS -m 25 -A "$UA" -o /tmp/opencode/kk/b -D - "$B$u" 2>&1 | sed -n '1p;/^content-type/p;/^content-length/p;/^access-control/p'; printf '[body %s B] ' "$(wc -c < /tmp/opencode/kk/b)"; printf '%s' "$(head -c 240 /tmp/opencode/kk/b)"; printf '\n'; sleep 2; done
+########## GET /health_insurance/ ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 233
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[body 233 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance\/"
+}
+
+########## GET /health_insurance/1 ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 234
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[body 234 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance\/1"
+}
+
+########## GET /state/ ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 222
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[body 222 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/state\/"
+}
+
+########## GET /state/1 ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 223
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[body 223 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/state\/1"
+}
+
+########## GET /question_tree/ ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 230
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+[body 230 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/question_tree\/"
+}
+
+########## GET /question_tree/1 ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 231
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+[body 231 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/question_tree\/1"
+}
+
+########## GET /detail_comparison/ ##########
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 234
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[body 234 B] {
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/detail_comparison\/"
+}
+[0m
+**STEP 1 — DELTA**
+
+[NEW] `GET /v2/insurance_info/1` audited for the first time ever: `401 / 236 B` `application/problem+json`, `instance: "/v2/insurance_info/1"`, `access-control-allow-methods: GET, OPTIONS`, `access-control-allow-headers: X-API-Secret, Content-Type` — middleware A, and the **only cell in the 16-route published contract that is method-accurate**. The v1 method defects (6/15) do not generalise to v2.
+[NEW] `GET /v2/` catalog body read in full (331 B): `"authentication": "X-API-Secret header required"` is duplicated **verbatim** from the v1 catalog alongside a single, correctly-declared route — the false auth assertion is a copied constant, not a per-router truth.
+[NEW] v1 **prefix/greedy route matching is host-wide, not a v2 quirk**: `/health_insurance/` and `/health_insurance/1` both return `401` with identical `access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS`; same for `/state/`+`/state/1` and `/question_tree/`+`/question_tree/1`. Three catalogued routes match bare **and** an arbitrary trailing segment; the `{id}` is not a bound parameter. The 24-session "v2 greedy segment" note was recorded as a versioned-router curiosity — it is a v1 property too.
+[NEW] The destructive-verb route and the unbounded-path property are **the same route**: `/health_insurance/` is the only cell on the host concealing `PUT`+`DELETE`, and its target is unconstrained at the routing layer.
+[CHANGED] **`/question_tree/` returns `access-control-allow-headers: Content-Type, X-API-Secret` while `/state/`, `/health_insurance/`, `/detail_comparison/` and `/v2/insurance_info/1` return `X-API-Secret, Content-Type`** — two gated v1 routes disagree on header byte order. My parked "three applications separable by allow-header order" claim is falsified by route-level variation on a single router.
+[CHANGED] `/post/` and `/post/help` are byte-identical (`200 / 344 B`); `/post/zzz_unknown_9f2/` returns `200 / 0 B` with `content-type: text/html; charset=UTF-8` (uppercase UTF-8) vs `application/json; charset=utf-8` (lowercase) on members, and **no `content-length` line at all** — every other header is identical to the members. The unregistered-state discriminator is therefore content-type+length only, and is not injective.
+[CHANGED] No drift on any standing cell: root `200 / 1167 B` with accurate `content-length`, 15 routes, ver 1.0; `/health/` `200 / 22 B` `GET, POST, OPTIONS`, still the only group with no `access-control-allow-headers`; `/sync/` `200 / 67 B` `POST, OPTIONS`; `/post/create_user` `405 / 184 B` rfc7231 problem+json, no `instance`. `HEAD kassenkompass.de/bonusrechner_fragen.php` → `200`, `no-store`, `PHPSESSID`, AWSALB — liveness only; body-size rotation remains nemotron3's window.
+[CHANGED] 14 read-only GETs at ~0.5 rps plus 1 HEAD on a second host. No 429, no WAF block, discipline held.
+
+**STEP 2 — PRIORITIZE**
+
+[PRIO] api.kassenkompass.de/ (v1 published contract, 15 routes),**7.25**,a8/b7/t7/g7/c5/f9
+[PRIO] api.kassenkompass.de/post/create_user,**7.10**,a6/b8/t7/g9/c4/f8
+[PRIO] api.kassenkompass.de/health_insurance/{id} (PUT+DELETE, unbounded path),**6.50**,a7/b8/t7/g2/c5/f9
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},**6.35**,a7/b8/t6/g2/c5/f9
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,**6.65**,a5/b6/t6/g10/c7/f8
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,**4.75**,a3/b3/t3/g8/c9/f7
+
+**STEP 3 — HYPOTHESES**
+
+[HYP] Three of the fifteen published routes are prefix routes, not parameterised routes, and the one that conceals PUT and DELETE is among them — so no id-scoped control on this host can be relied upon
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/ + /state/ + /question_tree/
+confidence: 72
+reasoning: `GET /health_insurance/` and `GET /health_insurance/1` are both registered and both gated, both emitting the identical `access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS` and both echoing a distinct `instance` value. Same pattern for `/state/`+`/state/1` (`GET, OPTIONS`) and `/question_tree/`+`/question_tree/1` (`GET, OPTIONS`). The v1 catch-all cannot produce these responses — it returns the 1167 B `application/json` catalogue with no `instance` — so these are real route matches, proven by a discriminating control. The catalogue declares per-route path parameters (`DELETE /delete/{id}`, `GET /settlement_report/{year}/{month}`) and omits them here entirely, so the published surface is 15 fixed paths while the reachable surface is a prefix tree. `/health_insurance/` is the sole cell concealing `PUT`+`DELETE`, and it is also the cell whose target is unconstrained at the routing layer.
+evidence_needed: Nothing further for the routing fact. Whether the `PUT`/`DELETE` verbs are authorised for a read-scoped partner secret is a separate question and is not asserted here.
+verify_steps: 4 requests, no auth, no mutation: `curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/health_insurance/` and `.../health_insurance/1` (both `401`, identical `allow-methods` with PUT+DELETE); `.../state/` vs `.../state/1`; `.../question_tree/` vs `.../question_tree/1`. Control for the catch-all: `.../zzz_unknown_9f2/1` returns the 1167 B catalogue, not `problem+json`.
+impact: MEDIUM as a control-effectiveness finding, LOW as an exploit. Any WAF rule, per-tenant path policy or log parser keyed on the exact shape `/health_insurance/{id}` does not bind, because the same handler answers `/health_insurance/<arbitrary>`. Ceiling is deliberately capped: reachability is proven, authorisation of the destructive verbs is not, and no mass-assignment or destruction is claimed.
+testability: PASSIVE
+
+[HYP] The single unassessed credential boundary on the host remains POST /post/create_user, and the "/post/ is closed at two members" claim that framed it is now bounded rather than closed
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 60
+reasoning: `/post/` and `/post/help` return the byte-identical 344 B help body, which advertises three verb/route pairs: `POST /post/create_user` ("Erstellt einen neuen User. Erwartet JSON im Body."), `GET /post/help`, and `POST /post/help` ("kann später erweitert werden"). `GET /post/create_user` answers `405 / 184 B` rfc7231 problem+json with no `instance` field and no auth statement. `X-HTTP-Method-Override` is ignored (prior control), so no passive method reaches the POST branch. The app-level CORS pair (`allow-methods: POST, GET, OPTIONS`, `allow-headers: Content-Type, X-API-Secret`) is emitted identically for known and unknown sub-paths, so it discriminates nothing. Unregistered sub-paths answer `200 / 0 B / text/html; charset=UTF-8`; a registered route that returned 200 with an empty HTML body would be indistinguishable from that state, so a 30-name negative sweep bounds membership, it does not close it. Per Fetch, a form-encoded or bodyless POST is a **simple request** transmitted with no preflight, so the absent `access-control-allow-origin` does not prevent sending.
+evidence_needed: The POST branch's auth decision. No passive or read-only method can supply it.
+verify_steps: Passive half re-confirmed above, 3 requests, no auth. Only under written authorization, and first: `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'` — empty body, no credentials; the application documents this route as "Zeigt diese Hilfeseite an", so it creates nothing. Read the status only. `POST /post/create_user` requires separate explicit approval and is not requested.
+impact: If the POST branch is ungated, HIGH and drive-by — any web page can provision users on a partner API by luring a visitor, and no CORS defence is required to send the request. If gated, the item closes permanently and the contract finding stands alone. Unassessed today; the report states it as unproven.
+testability: HUMAN_ONLY
+
+[HYP] The programme's two cheap route-enumeration primitives on this host are both non-injective, and one of them is falsified, so three claims of closure published over the last three sessions must be re-stated as bounds
+class: OTHER
+asset: api.kassenkompass.de/
+confidence: 75
+reasoning: The v1 discriminator (status + content type) is not injective because `/cat_detail/` is a gated, POST-only route that returns `405 problem+json` — the same state the programme used to read as "registered and ungated". The `/post/` discriminator (unregistered = `200 / 0 B / text/html`) cannot exclude a registered bodyless GET route, and the only header that differs between members and non-members is `content-type` (plus a `charset` case difference), since the CORS pair is app-level and identical throughout. The proposed per-application fingerprint by `access-control-allow-headers` byte order is dead: `/question_tree/` emits `Content-Type, X-API-Secret` on the same middleware-A, same-envelope v1 router as `/state/`, which emits `X-API-Secret, Content-Type`. What does survive is the envelope shape itself: pretty-printed `problem+json` with `instance` for gated v1, compact rfc7231 `problem+json` without `instance` for `/post/`, plain json for `/sync/` and `/health/`.
+evidence_needed: Nothing further. Every element is status, content type, charset case and header order from the target itself, captured in one 20-minute window.
+verify_steps: 3 requests, no auth: `curl -sS -m 25 -D - -o /dev/null https://api.kassenkompass.de/question_tree/` and `.../state/` (compare `access-control-allow-headers` order on two same-router gated routes); `.../post/zzz_unknown_9f2/` (charset UTF-8 vs utf-8 on `.../post/help`).
+impact: LOW as a vulnerability, HIGH as programme value: it prevents a wrong structural claim ("three applications on one host, fingerprintable by header order") from entering a report, and it converts "the /post/ write surface is closed at one endpoint" into the honest "30 names swept, membership bounded". The cost of the residual uncertainty is one endpoint, not a namespace.
+testability: PASSIVE
+
+**STEP 4 — SELF-CRITIQUE**
+
+[PARKED] "Catalogue path templates are falsified because `/health_insurance/` is documented without `{id}`" — dropped at the drafting stage, before emission. Falsified by my own probe 40 seconds after the hypothesis: `/health_insurance/` **is** a registered route (401 + `instance` + PUT/DELETE allow-list). A clean negative, recorded so the sweep is not repeated.
+[PARKED] "Three applications on one host, separable by the byte order of access-control-allow-headers" — REJECTED on evidence this session. `/question_tree/` and `/state/` are both middleware-A gated v1 routes on one router and emit opposite byte orders. It was already downgraded from hypothesis to "supporting evidence"; it is now dead.
+[PARKED] "Unauthenticated user provisioning via /post/create_user" (nemotron3, reprinting a 92) — stays parked. `405` is never evidence about credentials on this host, and the v2 cell audited this session shows the server *does* distinguish auth from method correctly in the one place it declares a single route.
+[FINAL] 1) three-of-fifteen routes are unbounded prefix routes and the destructive-verb cell is one of them, MISCONFIG 72, PASSIVE, complete. 2) `POST /post/create_user` unassessed and simple-request reachable, AUTH 60, HUMAN_ONLY, one request away. 3) both enumeration primitives non-injective, three closure claims downgraded to bounds, OTHER 75, PASSIVE, complete.
+
+**STEP 5 — NEXT ACTION**
+
+[NEXT] HUMAN: request one-word written authorization for exactly one request — `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'`, empty body, no credentials — and send it only on approval. The application documents this route as `POST /post/help: "Zeigt diese Hilfeseite an."`, so it is a read by its own contract and creates nothing. It is now the only remaining route to the programme's largest open question, because the override-header control proved no passive method reaches the POST branch. Outstanding for a second cycle.
+
+**STEP 6 — LEARNING**
+
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "the published contract's path templates are wrong because `/health_insurance/` carries no `{id}`". Falsified on probe — the bare path is a registered route, not the catch-all. Route membership was decided by the presence of an `instance` field in `application/problem+json`, which the 1167 B catch-all never emits.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "three applications on one host separable by the byte order of `access-control-allow-headers`". Killed by route-level variation on a single router — `/question_tree/` (`Content-Type, X-API-Secret`) versus `/state/` (`X-API-Secret, Content-Type`), both middleware A, both pretty `problem+json` with `instance`. The discriminator that does survive is envelope shape plus the `instance` field, not header order.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/v2/insurance_info/{kk_id}: the one audited v2 cell is contract-**accurate** (`GET, OPTIONS`, documented GET) and gated on middleware A. The v1 method defect is therefore scoped to the v1 router, and the `"authentication"` claim is a constant copied verbatim into a second catalog rather than a per-router assertion — a shared-constant remediation, not 16 independent corrections.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de/health_insurance/ + /state/ + /question_tree/: greedy prefix matching is a **v1** property present on three catalogued routes, and it composes with the parked destructive-verb item — the sole `PUT`+`DELETE` cell is also a cell whose target is unvalidated at the routing layer. Reachability proven with a discriminating control; authorisation not asserted.
+[LEARN] ACCEPTED OTHER @ method: a closure claim needs an **injective** discriminator. Both of this host's cheap discriminators are many-to-one — status+type collides on `/cat_detail/`, content-type+length collides on any bodyless 200 — so a sweep yields a bound, not a proof. This is now the third self-correction in the programme (alongside the 405 and the Host-header false positive) and all three share one cause: reading a two-valued test as a three-valued or exhaustive one.
+[LEARN] ACCEPTED OTHER @ pipeline: peer signal remains zero for a 25th cycle, yet this cycle closed three items and falsified one of my own claims from 14 read-only GETs. Single-writer depth continues to beat five-way sweeps, now for the fourth consecutive session.
+
+**STEP 7 — RISK**
+
+[RISK] KassenKompass GmbH: **85** — down 1. Every result this cycle was a narrowing, and narrowing lowers a risk score honestly rather than flattering it. The v1 method defect no longer generalises to v2: the only audited v2 cell is contract-accurate, so the contract finding is a v1-router defect with a shared copied assertion, not a host-wide property — the headline item is smaller than "6 of 15" implied. Two of my own supporting claims are dead: the per-application header-order fingerprint is falsified by two same-router routes disagreeing, and "`/post/` closed at 2 members" is a bound over 30 swept names, not a proof. Up, on new evidence: prefix matching is host-wide across three v1 routes rather than a v2 curiosity, and the single cell concealing `PUT`+`DELETE` is one of them, so the destructive-verb question now carries a routing-hygiene dimension it did not have — the target of a destructive verb is unconstrained at the layer where a WAF or path-scoped control would have to bind. Unchanged and untestable without authorization: the auth state of `POST /post/create_user`, the authorisation scope of the concealed `PUT`/`DELETE`, and the three privileged portals. No rate limiting or WAF block across 14 requests at 0.5 rps. The honest report says: contract falsification is fact but v1-scoped, destructive verbs are registered on an unbounded path and remain unverified, and exactly one endpoint on this host has an unknown authorization state.

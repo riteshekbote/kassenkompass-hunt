@@ -3213,3 +3213,46 @@
 - LEARN: REJECTED CORS @ api.kassenkompass.de/post/: no ACAO for any Origin. The pre-advertised `X-API-Secret` allow-header is fingerprinting, not a finding.
 - LEARN: ACCEPTED OTHER @ pipeline: 4 of 5 peer leads are empty or timestamps only. The loop is effectively single-writer; per-session budget is better spent on 2-3 deci
 - LEARN: ACCEPTED OTHER @ method: the strongest result this cycle came from reading already-delivered static JS, not from touching the API. Offline analysis of fetched p
+
+## RANKED HYPOTHESES 2026-09-27 20:18:05 UTC
+- [96] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale (from art/lead_nemotron3.txt)
+- [72] api.kassenkompass.de/health_insurance/: Three of the fifteen published routes are prefix routes, not parameterised routes, and the one that conceals PUT and DELETE is among them — so no id-scoped control on this host can be relied upon (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: request one-word written authorization for exactly one request — `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'`, empty body, no c
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 1000 requests at 1 rps;
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "the published contract's path templates are wrong because `/health_insurance/` carries no `{id}`". Falsified on probe — 
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "three applications on one host separable by the byte order of `access-control-allow-headers`". Killed by route-level var
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de/v2/insurance_info/{kk_id}: the one audited v2 cell is contract-**accurate** (`GET, OPTIONS`, documented GET) and gated on 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de/health_insurance/ + /state/ + /question_tree/: greedy prefix matching is a **v1** property present on three catalogued rou
+- LEARN: ACCEPTED OTHER @ method: a closure claim needs an **injective** discriminator. Both of this host's cheap discriminators are many-to-one — status+type collides o
+- LEARN: ACCEPTED OTHER @ pipeline: peer signal remains zero for a 25th cycle, yet this cycle closed three items and falsified one of my own claims from 14 read-only GET
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning", as published in the nemotron3 RISK line. 405 is method-confounded by gated POST-only
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: /post/ is a separately mounted application, cleanly discriminable from the v1 catch-all at two path depths, 344 B json at
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console, 7 global functions plus `pseudoKkIds`, a
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server-side cookie-spoofing chain on this funnel. Stuffed cookies change 3 cache-buster bytes onl
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; ca
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+j
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning", as published in the nemotron3 RISK line. 405 is method-confounded by gated POST-only
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server-side cookie-spoofing chain on this funnel. Stuffed cookies change 3 cache-buster bytes onl
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console, 7 global functions plus `pseudoKkIds`, a
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; ca
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: /post/ is a separately mounted application, cleanly discriminable from the v1 catch-all at two path depths, 344 B json at
+- LEARN: REJECTED CORS @ api.kassenkompass.de/post/: no ACAO for any Origin. The pre-advertised `X-API-Secret` allow-header is fingerprinting, not a finding.
+- LEARN: ACCEPTED OTHER @ pipeline: 4 of 5 peer leads are empty or timestamps only. The loop is effectively single-writer; per-session budget is better spent on 2-3 deci
+- LEARN: ACCEPTED OTHER @ method: the strongest result this cycle came from reading already-delivered static JS, not from touching the API. Offline analysis of fetched p
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: the `/post/` write namespace is closed at one endpoint (`help`, `create_user`); 30 candidate sub-names all return the unr
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: 15/15 verb+auth matrix complete, and `access-control-allow-methods` — not the status code — is the authority: 4 catal
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: "a method-override header can reach the POST branch" — killed by its own control. `X-HTTP-Method-Override: DELETE` 
+- LEARN: ACCEPTED OTHER @ method: absent `access-control-allow-origin` is not a defence against a cross-origin **write**. A form-encoded POST is a simple request and is 
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de/health/: no information-disclosure depth. `?verbose=1`, `?detail=1&full=1` and `/health/db` all return the identical 2
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: four response-envelope fingerprints, and the only group emitting no `access-control-allow-headers` is the only group with
+- LEARN: ACCEPTED OTHER @ kassenkompass pipeline: peer signal remains zero for a 25th cycle (mimo 18 B, three header-only, one reprint), yet this cycle produced three ex
