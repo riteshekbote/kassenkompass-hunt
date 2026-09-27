@@ -1118,3 +1118,15 @@ www.kassenkompass.de
 - NEW api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged
 - NEW kk-s3-01 `?versionId=null` → 403 Forbidden — cheap version-history read closed; no versionId obtainable passively
 - CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-27 00:47:46 UTC
+- NEW Three-state route-membership oracle on v1 router FALSIFIED by own control: 405 does not mean ungated — /cat_detail/ (middleware-A gated, POST-only) returns 405 problem+json with instance field, provin
+- NEW /post/ write namespace auth-bypass hypothesis downgraded from 72 to ~50 — same method-confound as 2026-09-03 retracted entry; GET/OPTIONS cannot separate auth from method mismatch on POST-only route
+- NEW /post/ sub-application fingerprint: unregistered sub-paths return 200/0B/text/html (empty string digest) instead of falling through to v1 1167B application/json catch-all — content-type is silent rout
+- NEW OPTIONS /post/create_user with Origin: https://evil.example + ACRM: POST returns 200 with allow-methods/headers echoed, NO access-control-allow-origin — cross-origin write path positively CLOSED
+- NEW Catalogue-gap framing withdrawn again: HEAD /get/ /update/ /insert/ /admin/ /sync_legacy/ all 200; GET /get/ /update/ return 1167B byte-identical to root — all five unregistered, gap is sub-routes ins
+- NEW HEAD structurally unable to close membership on this host: root catch-all answers HEAD with content-length: 0 — body comparison (GET) mandatory
+- NEW GET /sync/ re-dated live 22:13 UTC — 200/67B envelope 2 current; both unauthenticated envelopes (/sync/ and /post/*) confirmed same time window
+- NEW GET /post/create_user → 405/184B "Method not allowed. Only POST is accepted for /post/create_user." — confirms POST-only, discloses no field schema, no auth statement
+- CHANGED Peer pipeline: 24th consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED All major surfaces stable since 2026-09-07: api catalog (15+1, accurate CL 1167), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-f

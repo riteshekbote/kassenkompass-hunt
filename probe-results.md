@@ -1022,3 +1022,15 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/post/delete_user'` -> 200 len=?
 https://api.kassenkompass.de/cancel/1'` -> HTTP 401
+
+## 2026-09-27 00:48:03 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/'` -> 200 len=0
+https://api.kassenkompass.de/health/'` -> 200 len=0
+https://api.kassenkompass.de/delete/1'` -> HTTP 401
+https://api.kassenkompass.de/post/zzz_unknown_9f2/'` -> 200 len=?
+https://api.kassenkompass.de/post/create_user'` -> 200 len=?
+https://api.kassenkompass.de/user/1'` -> HTTP 401
