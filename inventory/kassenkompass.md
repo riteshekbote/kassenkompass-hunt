@@ -1250,3 +1250,17 @@ www.kassenkompass.de
 - CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 
 ## 2026-09-28 17:03:15 UTC
+
+## 2026-09-28 22:33:30 UTC
+- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+- NEW kassenkompass.de — live frontend, Cloudf
+- NEW api.kassenkompass.de routes on the **percent-decoded** path: `/%68ealth_insurance/1`, `/health%5Finsurance/1`, `/%64elete/1`, `/%73tate/1` all return the **byte-identical** 401 of their lowercase form
+- NEW Route matching is **case-sensitive** (negative control): `/HEALTH_INSURANCE/1` and `/Delete/1` → 200 / 1167 B / sha256 644b1ec74036ec90 = the hashed catch-all. Bounds the finding to percent-encoding o
+- NEW Decode is exactly one level: `/%2568ealth_insurance/1` → **404, text/html, 1245 B, sha256 dc1d54dab6ec8c00** — a fourth envelope served by the static handler, and the first evidence that the API origi
+- CHANGED Control-space for the host's only DELETE-registering route is now shown to be **non-enumerable by any literal-path rule**: unbounded trailing absorption (measured 2026-09-28 08:36) **composes** with p
+- CHANGED Correction in the target's favour — probe-results 2026-09-28 17:03 "GET /post/help -> HTTP 405" is a **harness artifact**, not drift. Direct measurement: 200 / 344 B / `application/json` / sha256 **b5
+- NEW api.kassenkompass.de/health_insurance_comparison/ verb table read for first time — 401, allow-methods POST,OPTIONS, GET excluded; 15/15 verb+auth matrix now complete
+- NEW /cat_detail/ auth state moves from INFERRED to OBSERVED — HEAD /cat_detail/ → 401 problem+json (route is auth-gated); GET /cat_detail/ → 405 method mismatch
+- CHANGED api.kassenkompass.de root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF, no rate limit
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
