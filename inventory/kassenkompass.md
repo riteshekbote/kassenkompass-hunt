@@ -1248,3 +1248,5 @@ www.kassenkompass.de
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-28 17:03:15 UTC

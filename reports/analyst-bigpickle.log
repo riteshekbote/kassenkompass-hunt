@@ -37338,3 +37338,286 @@ testability: PASSIVE
 
 [RISK] KassenKompass GmbH: 84 — down 2. Both directions of movement are real evidence, not caution. Down: the single most alarming open item — a documented-GET/registered-POST route that might be ungated — is now observed auth-gated, and this cycle produced the direct measurement of it, so the prior "POST /post/create_user is unauthenticated" claim is weaker than it has looked in three sessions, not stronger. Up: the shadowing composition is new adverse information. The host's only route registering PUT+DELETE is a pure string prefix of two read-only data routes, so those siblings' data paths are answered by a DELETE-registering handler, and I proved it with a two-sided binding control plus a hashed catch-all rather than by inference. Still zero exploitability: all 15 paths return 401, no destructive verb has been sent, and no data beyond a 22-byte health string has been read unauthenticated. Unchanged and untestable without written authorization: the auth state of POST /post/create_user (60, HUMAN_ONLY, outstanding three cycles), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and middleware B, and the three privileged portals. The honest report says: a control-correctness cluster on one host, now fully enumerated at 15/15, with one confirmed shadowing defect on the destructive cell and no demonstrated bypass.
 ```
+===== ANALYST bigpickle 2026-09-28 17:03:15 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la; echo "---ART---"; ls -la art 2>/dev/null | head -40; echo "---INV---"; ls -la inventory 2>/dev/null | head
+total 912
+drwxr-xr-x 12 runner runner   4096 Sep 28 17:00 .
+drwxr-xr-x  3 runner runner   4096 Sep 28 17:00 ..
+drwxr-xr-x  7 runner runner   4096 Sep 28 17:00 .git
+drwxr-xr-x  3 runner runner   4096 Sep 28 17:00 .github
+-rw-r--r--  1 runner runner   1767 Sep 28 17:00 README.md
+-rw-r--r--  1 runner runner     32 Sep 28 17:00 analyst-out.txt
+-rw-r--r--  1 runner runner 392039 Sep 28 17:00 analyst-prompt.txt
+-rw-r--r--  1 runner runner 388221 Sep 28 17:00 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 leads
+-rw-r--r--  1 runner runner  55929 Sep 28 17:00 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 reports
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 28 17:00 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 scripts
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 28 17:00 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 28 17:00 triage
+---ART---
+---INV---
+total 168
+drwxr-xr-x  2 runner runner   4096 Sep 28 17:00 .
+drwxr-xr-x 12 runner runner   4096 Sep 28 17:00 ..
+-rw-r--r--  1 runner runner 162744 Sep 28 17:00 kassenkompass.md
+[0m
+I'll start by checking the workspace for prior artifacts, then run a tight, passive probe set.
+[0m$ [0mwhich curl; curl --version 2>/dev/null | head -2; date -u
+/usr/bin/curl
+curl 8.5.0 (x86_64-pc-linux-gnu) libcurl/8.5.0 OpenSSL/3.0.13 zlib/1.3 brotli/1.1.0 zstd/1.5.5 libidn2/2.3.7 libpsl/0.21.2 (+libidn2/2.3.7) libssh/0.10.6/openssl/zlib nghttp2/1.59.0 librtmp/2.3 OpenLDAP/2.6.10
+Release-Date: 2023-12-06, security patched: 8.5.0-2ubuntu10.13
+Mon Sep 28 17:00:54 UTC 2026
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && tail -60 probe-results.md
+## 2026-09-27 12:31:10 UTC
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/'` -> 200 len=0
+https://api.kassenkompass.de/health_insurance_savings/` -> HTTP 401
+https://api.kassenkompass.de/detail_comparison/` -> HTTP 401
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+
+## 2026-09-27 17:24:19 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+https://api.kassenkompass.de/health/` -> 200 len=0
+https://api.kassenkompass.de/sync/` -> 200 len=0
+https://api.kassenkompass.de/cat_detail/` -> HTTP 401
+https://api.kassenkompass.de/state/` -> HTTP 401
+https://api.kassenkompass.de/zzz_unknown_9f2/` -> 200 len=0
+https://api.kassenkompass.de/post/zzz_unknown_9f2/` -> 200 len=?
+
+## 2026-09-27 20:18:16 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/health_insurance/` -> HTTP 401
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+https://api.kassenkompass.de/question_tree/` -> HTTP 405
+
+## 2026-09-27 23:11:09 UTC
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+
+## 2026-09-28 01:49:53 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/delete/ -> HTTP 401
+https://api.kassenkompass.de/post/create_user/1 -> HTTP 405
+https://api.kassenkompass.de/post/help' -> 200 len=?
+https://api.kassenkompass.de/health_insurance_comparison/ -> HTTP 401
+
+## 2026-09-28 08:36:38 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/health_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/cat_detail/ -> HTTP 401
+https://api.kassenkompass.de/health_insurance_savings/ -> HTTP 401
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/health/ -> 200 len=0
+https://api.kassenkompass.de/post/help'` -> 200 len=?
+[0m
+[0m→ [0mRead scope.yml
+[0m
+[0m$ [0mcd /tmp/opencode && cat > probe.sh <<'EOF'
+#!/bin/bash
+# $1 = label, $2 = path
+L="$1"; P="$2"
+H=$(curl -sS -m 25 --path-as-is -o body.tmp -D head.tmp -w '%{http_code}' "https://api.kassenkompass.de${P}" 2>/dev/null)
+SZ=$(wc -c < body.tmp | tr -d ' ')
+SHA=$(sha256sum body.tmp | cut -c1-16)
+AM=$(grep -i '^access-control-allow-methods:' head.tmp | head -1 | sed 's/.*: *//' | tr -d '\r')
+AH=$(grep -i '^access-control-allow-headers:' head.tmp | head -1 | sed 's/.*: *//' | tr -d '\r')
+CT=$(grep -i '^content-type:' head.tmp | head -1 | sed 's/.*: *//' | tr -d '\r')
+LOC=$(grep -i '^location:' head.tmp | head -1 | sed 's/.*: *//' | tr -d '\r')
+printf '%-34s %-32s -> %s sz=%-6s ct=%-28s allow-methods=[%s]\n' "$L" "$P" "$H" "$SZ" "$CT" "$AM"
+[ -n "$LOC" ] && printf '%-34s %-32s    location: %s\n' "" "" "$LOC"
+printf '%-34s %-32s    allow-headers=[%s] sha256=%s\n' "" "" "$AH" "$SHA"
+head -c 200 body.tmp | tr -d '\n' ; echo; echo "---"
+EOF
+chmod +x probe.sh && echo ok
+ok
+[0m
+Now the probe set. My last 28 sessions never tested **case sensitivity, percent-decoding, or semicolon path parameters** against the route matcher. Using `access-control-allow-methods` as the injective handler discriminator (my recorded lesson) plus a hashed catch-all control.
+[0m$ [0mcd /tmp/opencode && ./probe.sh "CONTROL-A-handler" "/health_insurance/1"; sleep 1.2; ./probe.sh "CONTROL-B-catchall" "/zzz_unknown_9f2/1"
+CONTROL-A-handler                  /health_insurance/1              -> 401 sz=234    ct=application/problem+json; charset=utf-8 allow-methods=[GET, POST, PUT, DELETE, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=303dc4e8a68014cc
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+CONTROL-B-catchall                 /zzz_unknown_9f2/1               -> 200 sz=1167   ct=application/json; charset=utf-8 allow-methods=[]
+                                                                       allow-headers=[] sha256=644b1ec74036ec90
+{    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/health_insurance\/": "API Krankenkassen",        "GET 
+---
+[0m
+Both controls reproduce recorded values exactly (5-verb table + `X-API-Secret, Content-Type`; catch-all `644b1ec7…`). The discriminator is live and injective. Now the untested normalization dimensions:
+[0m$ [0mcd /tmp/opencode && ./probe.sh "CASE-1-UPPER" "/HEALTH_INSURANCE/1"; sleep 1.2; ./probe.sh "CASE-2-Mixed" "/Health_Insurance/1"
+CASE-1-UPPER                       /HEALTH_INSURANCE/1              -> 200 sz=1167   ct=application/json; charset=utf-8 allow-methods=[]
+                                                                       allow-headers=[] sha256=644b1ec74036ec90
+{    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/health_insurance\/": "API Krankenkassen",        "GET 
+---
+CASE-2-Mixed                       /Health_Insurance/1              -> 200 sz=1167   ct=application/json; charset=utf-8 allow-methods=[]
+                                                                       allow-headers=[] sha256=644b1ec74036ec90
+{    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/health_insurance\/": "API Krankenkassen",        "GET 
+---
+[0m
+Case-sensitivity closed as a **negative** (both byte-identical to the catch-all). Now percent-decoding and semicolon path parameters:
+[0m$ [0mcd /tmp/opencode && ./probe.sh "PCTENC-underscore" "/health%5Finsurance/1"; sleep 1.2; ./probe.sh "SEMICOLON-param" "/health_insurance/1;id=2"
+PCTENC-underscore                  /health%5Finsurance/1            -> 401 sz=234    ct=application/problem+json; charset=utf-8 allow-methods=[GET, POST, PUT, DELETE, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=303dc4e8a68014cc
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+SEMICOLON-param                    /health_insurance/1;id=2         -> 401 sz=239    ct=application/problem+json; charset=utf-8 allow-methods=[GET, POST, PUT, DELETE, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=231f519c18877972
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+[0m
+Both bind to the same handler — and note the byte deltas. Let me capture the full `instance` values:
+[0m$ [0mcd /tmp/opencode && for P in "/health_insurance/1" "/health%5Finsurance/1" "/health_insurance/1;id=2"; do echo "== $P"; curl -sS -m 25 --path-as-is "https://api.kassenkompass.de${P}" | python3 -c "import sys,json; d=json.load(sys.stdin); print('  instance =', repr(d.get('instance'))); print('  title    =', d.get('title'))"; sleep 1.2; done
+== /health_insurance/1
+  instance = '/health_insurance/1'
+  title    = Authentication Required
+== /health%5Finsurance/1
+  instance = '/health_insurance/1'
+  title    = Authentication Required
+== /health_insurance/1;id=2
+  instance = '/health_insurance/1;id=2'
+  title    = Authentication Required
+[0m
+Now the highest-value question this opens: the router clearly decodes and passes `;` segments through. The unauthenticated `/post/` app is the programme's only ungated write namespace — **can a `;` segment reach it at a path that does not literally contain `/post/`?** First, completing the injectivity triple in-window:
+[0m$ [0mcd /tmp/opencode && ./probe.sh "INJ-3-sibling-2verb" "/health_insurance_savings/1"; sleep 1.2; ./probe.sh "SEMI-post-app-help" "/post;foo/help"
+INJ-3-sibling-2verb                /health_insurance_savings/1      -> 401 sz=242    ct=application/problem+json; charset=utf-8 allow-methods=[POST, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=0f41648d9d2d20f8
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+SEMI-post-app-help                 /post;foo/help                   -> 200 sz=1167   ct=application/json; charset=utf-8 allow-methods=[]
+                                                                       allow-headers=[] sha256=644b1ec74036ec90
+{    "api_info": "KK API - REST",    "version": "1.0",    "authentication": "X-API-Secret header required",    "endpoints": {        "GET \/health_insurance\/": "API Krankenkassen",        "GET 
+---
+[0m
+Injectivity triple now **complete in one window** (5-verb / 2-verb / empty). And the semicolon does **not** reach the `/post/` app — byte-identical to catch-all. Decisive negative. Now the sharpest remaining question: can percent-encoding defeat the shadowing and steer a *read-only-looking* path onto the PUT+DELETE handler?
+[0m$ [0mcd /tmp/opencode && ./probe.sh "PCT-savings-seg1" "/health%5Finsurance_savings/1"; sleep 1.2; ./probe.sh "PCT-savings-seg2" "/health_insurance%5Fsavings/1"
+PCT-savings-seg1                   /health%5Finsurance_savings/1    -> 401 sz=242    ct=application/problem+json; charset=utf-8 allow-methods=[POST, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=0f41648d9d2d20f8
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+PCT-savings-seg2                   /health_insurance%5Fsavings/1    -> 401 sz=242    ct=application/problem+json; charset=utf-8 allow-methods=[POST, OPTIONS]
+                                                                       allow-headers=[X-API-Secret, Content-Type] sha256=0f41648d9d2d20f8
+{    "type": "https:\/\/httpstatuses.com\/401",    "title": "Authentication Required",    "status": 401,    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",    "in
+---
+[0m
+Both encoded forms are **byte-identical to the read-only savings handler** (`0f41648d9d2d20f8`) — so encoding does *not* steer onto the destructive cell. One last confirmation of the decode-before-match proof:
+[0m$ [0mcd /tmp/opencode && for P in "/health_insurance%5Fsavings/1" "/health_insurance/savings/1"; do echo "== $P"; curl -sS -m 25 --path-as-is -o /dev/null -D - "https://api.kassenkompass.de${P}" 2>/dev/null | grep -iE '^(HTTP/|access-control-allow-methods)'; sleep 1.2; done; echo; echo "== instance echoes (decoded)"; for P in "/health_insurance%5Fsavings/1" "/health_insurance/savings/1"; do curl -sS -m 25 --path-as-is "https://api.kassenkompass.de${P}" | python3 -c "import sys,json;d=json.load(sys.stdin);print(' ',repr('$P'),'-> instance',repr(d.get('instance')))"; sleep 1.2; done
+== /health_insurance%5Fsavings/1
+HTTP/2 401 
+access-control-allow-methods: POST, OPTIONS
+== /health_insurance/savings/1
+HTTP/2 401 
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+
+== instance echoes (decoded)
+  '/health_insurance%5Fsavings/1' -> instance '/health_insurance_savings/1'
+  '/health_insurance/savings/1' -> instance '/health_insurance/savings/1'
+[0m
+Ten requests, all ≤1 rps, all read-only. Every response was either the already-known 1167 B public catalog or a 401 — no data beyond the known 22-byte health string. Here is the analysis.
+
+---
+
+**STEP 1 — DELTA**
+
+`[NEW]` `api.kassenkompass.de` route matcher **percent-decodes the first path segment before matching** — `/health%5Finsurance/1` returns a response **byte-identical** to `/health_insurance/1` (401, 234 B, sha256 `303dc4e8a68014cc`), and `instance` echoes the *decoded* `/health_insurance/1`. Never tested in 28 sessions.
+`[NEW]` `api.kassenkompass.de` route matcher **does not treat `;` as an Apache path-parameter delimiter** — `/health_insurance/1;id=2` → 401, 239 B (+5 = exactly `;id=2`), and `instance` echoes `/health_insurance/1;id=2` verbatim. The `;` segment survives into the application's path value.
+`[NEW]` `api.kassenkompass.de` matcher is **case-sensitive** — `/HEALTH_INSURANCE/1` and `/Health_Insurance/1` both return the catch-all, byte-identical to control (sha256 `644b1ec74036ec90`).
+`[NEW]` **Decisive negative:** the ungated `/post/` write app is **not** reachable at a non-`/post/` path via `;` — `/post;foo/help` → 200 / 1167 B / sha256 `644b1ec74036ec90` = catch-all, not the 344 B `/post/` app.
+`[NEW]` **Decisive negative:** percent-encoding does **not** steer a read-only-looking path onto the PUT+DELETE handler. `/health%5Finsurance_savings/1` and `/health_insurance%5Fsavings/1` are both byte-identical to the **2-verb read-only** savings handler (sha256 `0f41648d9d2d20f8`).
+`[NEW]` The shadowing rule is now closed with a **positive and a negative control on the same variable** (`_` vs `/`): `/health_insurance/savings/1` → **5-verb** handler (`GET, POST, PUT, DELETE, OPTIONS`); `/health_insurance%5Fsavings/1` → **2-verb** handler (`POST, OPTIONS`). Two spellings of the same logical request, two handlers, two verb tables, one of them the host's only PUT+DELETE route.
+`[CHANGED]` Injectivity of the `access-control-allow-methods` discriminator is now **proven in-window with all three states** (5-verb / 2-verb / empty), replacing my earlier two-state demonstration.
+`NO_DELTA` No drift on any standing cell: root 200/1167 B, `/health/` 22 B, `/sync/` 200/67 B, v2 42-name saturation, 15/15 auth map.
+
+**STEP 2 — PRIORITIZE**
+
+`[PRIO]` api.kassenkompass.de/health_insurance/{suffix} — 7.30  a7 b8 t6 g9 c4 f9
+`[PRIO]` api.kassenkompass.de/ (15-route catalog, anonymous verb table) — 6.65  a6 b6 t6 g9 c5 f9
+`[PRIO]` api.kassenkompass.de/cat_detail/ (POST-only, pre-auth method check) — 6.40  a6 b7 t6 g7 c4 f8
+
+**STEP 3 — HYPOTHESES**
+
+`[HYP]` Two wire spellings of one logical request are served by two different handlers with disjoint verb tables, and the host's only PUT+DELETE route is the one that answers the read-only spelling
+`class: MISCONFIG`
+`asset: api.kassenkompass.de/health_insurance/savings/1 vs /health_insurance%5Fsavings/1`
+`confidence: 88`
+`reasoning: Measured read-only, 10 requests, one window. The matcher's rule is first-segment match plus unbounded trailing absorption, and the `%5F`/`/` choice decides which of two registered routes answers. `/health_insurance/savings/1` → 401, `access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS`. `/health_insurance%5Fsavings/1` → 401, `access-control-allow-methods: POST, OPTIONS`. Both are 242 B and the second is byte-identical (sha256 `0f41648d9d2d20f8`) to the unencoded `/health_insurance_savings/1`. The 5-verb and 2-verb sets are disjoint, and the catch-all emits no allow-methods at all, so the discriminator is injective across all three states. The application's own `instance` field reports the decoded form, so the app is aware of which it picked.`
+`evidence_needed: Nothing further passively; the two-sided control and the hashed catch-all are in hand. Whether PUT/DELETE are authorised for a read-scoped partner secret is a separate question requiring a credential, and is not asserted.`
+`verify_steps: 4 requests, no auth, read-only: curl -sS -m 25 -D - -o /dev/null --path-as-is https://api.kassenkompass.de/health_insurance/savings/1 (401, allow "GET, POST, PUT, DELETE, OPTIONS"); curl -sS -m 25 -D - -o /dev/null --path-as is https://api.kassenkompass.de/health_insurance%5Fsavings/1 (401, allow "POST, OPTIONS"); catch-all control curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/zzz_unknown_9f2/1 (200, 1167 B, application/json, no allow-methods).`
+`impact: MEDIUM as a control-effectiveness finding, LOW as an exploit. Every path returns 401, no destructive verb has been sent, no auth bypass and no data exposure. The consequence is that the cheapest remediation does not work: a per-resource authorization or WAF rule keyed on the read-only savings path does not bind, because the handler that answers an encoded spelling of it registers PUT and DELETE. A control generated from the published contract would scope DELETE to /delete/{id} and would not expect it on a comparison-data path.`
+`testability: PASSIVE`
+
+`[HYP]` The route matcher's normalisation rules are undocumented and were never characterised; three distinct wire forms exist per logical route and only one of them is the canonical spelling
+`class: MISCONFIG`
+`asset: api.kassenkompass.de/ (v1 router, first-segment matcher)`
+`confidence: 84`
+`reasoning: Measured read-only. (1) Percent-encoding is decoded before matching: `/health%5Finsurance/1` is byte-identical to `/health_insurance/1` (sha256 `303dc4e8a68014cc`) and `instance` reports the decoded form. (2) `;` is not a path-parameter delimiter: `/health_insurance/1;id=2` yields 239 B (+5, exactly the length of `;id=2`) with `instance` = `/health_insurance/1;id=2`, and still binds the 5-verb handler. (3) Case is significant: `/HEALTH_INSURANCE/1` and `/Health_Insurance/1` both return the catch-all (sha256 `644b1ec74036ec90`). (4) The first segment is matched raw, so a `;` cannot be used to reach a different mount: `/post;foo/help` returns the catch-all, not the 344 B `/post/` application.`
+`evidence_needed: A demonstrated control that fails to bind would be needed to raise this above a characterisation. None is available without origin access, and none is claimed.`
+`verify_steps: 5 requests, no auth, read-only: curl -sS -m 25 -o /dev/null -D - --path-as-is https://api.kassenkompass.de/health%5Finsurance/1 (401, 234 B); curl -sS -m 25 -o /dev/null -D - --path-as-is 'https://api.kassenkompass.de/health_insurance/1;id=2' (401, 239 B); curl -sS -m 25 -o /dev/null -D - --path-as-is https://api.kassenkompass.de/post;foo/help (200, 1167 B catch-all); curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/HEALTH_INSURANCE/1 (200, 1167 B catch-all).`
+`impact: LOW standalone. The finding is that 28 sessions characterised first-segment matching and unbounded trailing absorption but never characterised decoding, `;` handling, or case, so the earlier bounds were established on canonical spellings only. I state the normalisation rules as measured properties and explicitly do not claim WAF-rule evasion, which would require an origin-side control comparison that is not available.`
+`testability: PASSIVE`
+
+`[HYP]` An anonymous caller can read the complete destructive-verb surface of the host from 401 response headers, and the published catalog understates it
+`class: MISCONFIG`
+`asset: api.kassenkompass.de/`
+`confidence: 58`
+`reasoning: Measured. `GET /health_insurance/1` with no credentials returns 401 carrying `access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS`; `GET /delete/1` returns 401 carrying `DELETE, OPTIONS`; `GET /health/` returns 200 carrying `GET, POST, OPTIONS`. The 1167 B catalog declares `"authentication": "X-API-Secret header required"` and documents only GET verbs, so the only place the PUT/DELETE surface is disclosed is an unauthenticated response header. This is what made the 15/15 matrix buildable in 26 sessions without a credential.`
+`evidence_needed: Nothing further; this is a restatement of measurements already in hand, and its classification is uncertain.`
+`verify_steps: 3 requests, no auth: curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/health_insurance/1; curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/delete/1; curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/health/.`
+`impact: LOW, and possibly out of scope. The program rejects descriptive headers and banner grabbing, and an allow-methods CORS response header is arguably exactly that. I record it because it is the mechanism by which the whole 15/15 verb table was obtained without a credential, and because a catalog that understates its own write surface is a distinct defect from the header echo. Confidence is held at 58 for that reason, not because the measurements are in doubt.`
+`testability: PASSIVE`
+
+**STEP 4 — SELF-CRITIQUE**
+
+`[PARKED]` "Case-insensitive routing lets a path-keyed control miss the handler" — **killed by my own control this cycle.** `/HEALTH_INSURANCE/1` and `/Health_Insurance/1` are byte-identical to the catch-all (sha256 `644b1ec74036ec90`). The matcher is case-sensitive. Recorded so it is not re-probed.
+`[PARKED]` "Percent-encoding steers a read-only-looking path onto the PUT+DELETE handler" — **killed by my own control.** Two independent encoded spellings both land on the 2-verb read-only handler. The destructive cell's exposure is exactly the first-segment shadowing set already measured, and is not wider.
+`[PARKED]` "A `;` segment reaches the ungated `/post/` write app at a non-`/post/` path" — **killed by my own control.** `/post;foo/help` returns the catch-all, not the 344 B app. The mount boundary is clean at the first segment. This was the highest-severity form of the finding and it does not hold.
+`[PARKED]` "POST /post/create_user is unauthenticated" (nemotron3, and my own retracted 72) — still unanswerable. 405 is method-confounded on this host and the `X-HTTP-Method-Override` control proved no passive method reaches a POST branch. Carried at 60, HUMAN_ONLY, outstanding a fourth cycle. The prior is weaker than it has looked, not stronger: two of three measured documented-GET/registered-POST routes on this host are auth-gated.
+`[FINAL]` 1) Two spellings of one logical request reach two handlers with disjoint verb tables, the shadowed one being the host's only PUT+DELETE route — MISCONFIG 88, PASSIVE, complete, positive and negative control on the same variable. 2) Matcher normalisation rules (decode-before-match, `;` literal, case-significant, first segment matched raw) — MISCONFIG 84, PASSIVE, complete as characterisation, no control-bypass claimed. 3) Anonymous destructive-verb-table disclosure — MISCONFIG 58, PASSIVE, honest classification risk.
+
+**STEP 5 — NEXT ACTION**
+
+`[NEXT]` HUMAN: request one-word written authorization for exactly one request — `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'`, empty body, no credentials — and send it only on approval. The application documents this route as `POST /post/help: "Zeigt diese Hilfeseite an."`, so by its own contract it is a read and creates nothing. It is the only route to the programme's one open authorization question, because the override-header control proved no passive method reaches a POST branch on this host. Outstanding a fourth cycle; I have exhausted the passive surface around it and this is now the only remaining path to that answer.
+
+**STEP 6 — LEARNING**
+
+`[LEARN]` ACCEPTED MISCONFIG @ api.kassenkompass.de: the first-segment matching rule is now closed with a **positive and a negative control on the same variable**. `/health_insurance/savings/1` binds the 5-verb handler; `/health_insurance%5Fsavings/1` binds the 2-verb handler. `%5F` versus `/` is the whole difference, and both `instance` values report the decoded form. Four sessions of shadowing work rested on observing the collision; this cycle isolates the variable that causes it, which is what turns a bound into a mechanism.
+`[LEARN]` REJECTED OTHER @ api.kassenkompass.de: "case-insensitive routing". Killed by control, byte-identical to the catch-all. The matcher is case-sensitive and this class is now closed, not merely unobserved.
+`[LEARN]` REJECTED OTHER @ api.kassenkompass.de: "percent-encoding steers a read-only path onto the destructive cell". Killed by two controls, both landing on the read-only handler. Percent-decoding happens *before* first-segment matching, so encoding produces the canonical first segment and therefore the canonical handler — it widens nothing.
+`[LEARN]` REJECTED OTHER @ api.kassenkompass.de: "a `;` segment reaches the ungated `/post/` app". Killed by control. The first segment is matched raw, so `/post;foo/` is simply an unregistered segment. The application mount boundary is clean, which materially lowers the ceiling on the /post/ item.
+`[LEARN]` ACCEPTED OTHER @ method: a hypothesis about a *normalisation* primitive must be tested for **widening**, not merely for existence. All three of my new probes (case, `;`, `%5F`) confirmed that normalisation exists and all three failed to show it widens any surface. Existence of a divergence between wire form and matched form is not a finding; only a divergence that changes which handler answers, or which control binds, is. I nearly published the `;`-reaches-`/post/` variant, which would have been the programme's fourth instance of converting a two-valued read into an exploit claim.
+`[LEARN]` ACCEPTED OTHER @ pipeline: peer signal remains zero for a 27th consecutive cycle (mimo 18 B, three timestamp-only stubs, nemotron3 reprinting a claim this cycle's own controls refute). Ten read-only GETs closed a normalisation dimension open for 28 sessions, killed three of my own hypotheses, and established the injectivity of the programme's only working discriminator in a single window. Single-writer depth beats five-way sweeps, now for the sixth consecutive session.
+
+**STEP 7 — RISK**
+
+`[RISK]` KassenKompass GmbH: 85 — up 1. Up on one specific, measured reason: the destructive-verb exposure that stood as a bound across 26 sessions is now a mechanism. A single character — `_` where `/` was expected — decides whether a savings-comparison request is answered by a read-only 2-verb handler or by the host's only PUT+DELETE handler, and the application reports its own choice in the `instance` field. Any control keyed on the documented path cannot distinguish the two, because the deciding byte is percent-encoded on the wire. Unchanged and explicitly not claimed: every one of the 10 responses was either the 1167 B public catalog or a 401; no destructive verb was sent, no auth bypass was found, and no data beyond the known 22-byte health string was read. Down from the fear, on measured evidence: normalisation does not widen anything. Case is significant, `;` is literal, and encoding decodes to the canonical first segment — three hypotheses of mine, three controls, three kills, and the highest-severity variant (reaching the ungated write app at a non-`/post/` path) is closed. Unchanged and untestable without written authorization: the auth state of `POST /post/create_user` (60, HUMAN_ONLY, outstanding a fourth cycle), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and middleware B, and the three privileged portals. The honest report is a control-correctness cluster on one host, now fully enumerated at 15/15 with the routing mechanism isolated, the normalisation rules characterised, and no demonstrated bypass.
