@@ -1226,3 +1226,25 @@ www.kassenkompass.de
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-28 08:36:20 UTC
+- NEW api.kassenkompass.de/health_insurance_comparison/ verb table read for the first time in 26 sessions — 401, access-control-allow-methods "POST, OPTIONS", GET excluded. The 15/15 matrix is now genuinely
+- NEW /health_insurance/savings/1 → 401 with allow "GET, POST, PUT, DELETE, OPTIONS"; /health_insurance/comparison/1 → 401 with the same 5-verb table. Both bind to the /health_insurance/ route, NOT to the s
+- CHANGED /cat_detail/ auth state moves from INFERRED (22 sessions, "method-checked-first") to OBSERVED — HEAD /cat_detail/ → 401 problem+json. The route is auth-gated. The prior framing was an artifact of GET 
+- CHANGED GET /cat_detail/ → 405 "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST." while HEAD /cat_detail/ → 401, same route, both verbs unregistered. New observable: the GET and HE
+- CHANGED Documented-GET routes that exclude GET: 3 → 4 (/sync/, /health_insurance_savings/, /cat_detail/, /health_insurance_comparison/). All four now positively observed auth-gated.
+- CHANGED /cancel/{id} and /delete/{id} confirmed auth-first on GET and HEAD (401, no allow-GET) — the pre-auth method check is a single-route outlier at 1-in-15, not a host pattern.
+- NEW api.kassenkompass.de: Verb+auth matrix 15/15 completed via access-control-allow-methods — 4 catalogued-GET routes exclude GET entirely (/sync/, /health_insurance_savings/, /delete/{id}, /cancel/{id}),
+- NEW api.kassenkompass.de: /post/ write namespace closed at exactly 2 members — help (200/344B application/json) and create_user (405 POST-only); 30 candidate sub-names all return 200/0B text/html; X-HTTP-
+- NEW api.kassenkompass.de: Four response-envelope fingerprints reproduced in one window — /health/ (json, no allow-headers), /sync/ (json, allow-headers Content-Type,X-API-Secret), v1-gated (pretty problem
+- NEW api.kassenkompass.de: /delete/{id} joins middleware B (401 "X-API-Secret Header fehlt", allow DELETE,OPTIONS) — B stack = {user/{ext_id}, delete/{id}, cancel/{id}} (three user-lifecycle routes)
+- NEW api.kassenkompass.de: Auth map final — 8 routes middleware A ("ist erforderlich"), 3 routes middleware B ("Header fehlt"), 1 method-checked-first (/cat_detail/ 405), 3 with no credential check (/healt
+- NEW api.kassenkompass.de/v2/insurance_info/1: First-ever audit — 401 middleware A, allow-methods GET,OPTIONS, allow-headers X-API-Secret,Content-Type; v2 catalog duplicates "X-API-Secret header required" 
+- NEW api.kassenkompass.de: v1 greedy prefix matching host-wide — /health_insurance/ and /health_insurance/1 both 401 with identical allow-methods GET,POST,PUT,DELETE,OPTIONS; only cell concealing PUT+DELET
+- NEW kassenkompass.de/bonusrechner_fragen.php: Production debug API confirmed — 7 global window.* functions (debugDrawflow, debugUndoHistory, testUndoSystem, manualUndo, checkNode, testLoop, exportFlow), p
+- NEW kassenkompass.de/bonusrechner_fragen.php: Server-side cookie-spoofing chain materially weakened — GET is static page, entire answer/rating engine executes client-side; live-calculation.js:642 has comm
+- CHANGED api.kassenkompass.de root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DY
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED Peer pipeline: 24th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal

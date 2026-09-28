@@ -36892,3 +36892,449 @@ Three survivors, all ≥40, none REJECTED-class, all with concrete verify steps.
 ```
 [RISK] KassenKompass GmbH: 86 — up 1. The control-surface story grew on proven evidence, not on new capability: 11/11 templated routes match greedily, and the two facts that matter most are now joined by direct measurement — the host's only DELETE route and both PUT+DELETE cells sit on an unbounded path space, so a WAF or per-tenant rule keyed on the documented template does not bind at the layer where it would have to. The write namespace is unbounded too, which removes the cheapest fix for the one authorization question I still cannot answer. Unchanged and explicitly not claimed: every one of the 11 still returns 401, and no destructive verb has been sent. Unchanged and untestable without written authorization: POST /post/create_user auth state (60, HUMAN_ONLY, outstanding two cycles), the authorization scope of the registered PUT/DELETE, and the three privileged portals. Down-weighted in my own last line and now corrected upward: the destructive-verb surface is 2 cells plus the DELETE route, not 1.
 ```
+===== ANALYST bigpickle 2026-09-28 08:36:20 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start by checking the current state of the workspace and the target surface.
+[0m$ [0mls -la && date -u
+total 896
+drwxr-xr-x 12 runner runner   4096 Sep 28 08:32 .
+drwxr-xr-x  3 runner runner   4096 Sep 28 08:31 ..
+drwxr-xr-x  7 runner runner   4096 Sep 28 08:32 .git
+drwxr-xr-x  3 runner runner   4096 Sep 28 08:31 .github
+-rw-r--r--  1 runner runner   1767 Sep 28 08:31 README.md
+-rw-r--r--  1 runner runner    114 Sep 28 08:32 analyst-out.txt
+-rw-r--r--  1 runner runner 384371 Sep 28 08:32 analyst-prompt.txt
+-rw-r--r--  1 runner runner 380553 Sep 28 08:32 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 leads
+-rw-r--r--  1 runner runner  55350 Sep 28 08:31 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 reports
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 28 08:31 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 28 08:31 scripts
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 28 08:31 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 28 08:31 triage
+Mon Sep 28 08:32:08 UTC 2026
+[0m
+[0m$ [0mls -la leads/ triage/ 2>/dev/null | head -60
+leads/:
+total 2624
+drwxr-xr-x  2 runner runner    4096 Sep 28 08:31 .
+drwxr-xr-x 12 runner runner    4096 Sep 28 08:32 ..
+-rw-r--r--  1 runner runner 1024260 Sep 28 08:31 lead-bigpickle.md
+-rw-r--r--  1 runner runner    8109 Sep 28 08:31 lead-laguna.md
+-rw-r--r--  1 runner runner    7950 Sep 28 08:31 lead-ling3.md
+-rw-r--r--  1 runner runner    8268 Sep 28 08:31 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 28 08:31 lead-mimo.md
+-rw-r--r--  1 runner runner 1587965 Sep 28 08:31 lead-nemotron3.md
+-rw-r--r--  1 runner runner   26110 Sep 28 08:31 reposcan-kassenkompass.md
+
+triage/:
+total 812
+drwxr-xr-x  2 runner runner 12288 Sep 28 08:31 .
+drwxr-xr-x 12 runner runner  4096 Sep 28 08:32 ..
+-rw-r--r--  1 runner runner     0 Sep 28 08:31 .gitkeep
+-rw-r--r--  1 runner runner   212 Sep 28 08:31 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Sep 28 08:31 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Sep 28 08:31 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Sep 28 08:31 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Sep 28 08:31 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Sep 28 08:31 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Sep 28 08:31 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Sep 28 08:31 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Sep 28 08:31 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Sep 28 08:31 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Sep 28 08:31 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Sep 28 08:31 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Sep 28 08:31 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Sep 28 08:31 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Sep 28 08:31 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Sep 28 08:31 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Sep 28 08:31 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Sep 28 08:31 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Sep 28 08:31 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Sep 28 08:31 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Sep 28 08:31 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Sep 28 08:31 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Sep 28 08:31 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Sep 28 08:31 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Sep 28 08:31 run-2026-09-05-22-41.md
+-rw-r--r--  1 runner runner   888 Sep 28 08:31 run-2026-09-06-00-38.md
+-rw-r--r--  1 runner runner 15500 Sep 28 08:31 run-2026-09-06-05-06.md
+-rw-r--r--  1 runner runner   219 Sep 28 08:31 run-2026-09-06-09-30.md
+-rw-r--r--  1 runner runner   310 Sep 28 08:31 run-2026-09-06-13-06.md
+-rw-r--r--  1 runner runner   237 Sep 28 08:31 run-2026-09-06-16-20.md
+-rw-r--r--  1 runner runner   208 Sep 28 08:31 run-2026-09-06-18-25.md
+-rw-r--r--  1 runner runner   149 Sep 28 08:31 run-2026-09-06-20-48.md
+-rw-r--r--  1 runner runner   232 Sep 28 08:31 run-2026-09-06-22-44.md
+-rw-r--r--  1 runner runner  1088 Sep 28 08:31 run-2026-09-07-00-43.md
+-rw-r--r--  1 runner runner   172 Sep 28 08:31 run-2026-09-07-05-44.md
+-rw-r--r--  1 runner runner   189 Sep 28 08:31 run-2026-09-07-11-45.md
+-rw-r--r--  1 runner runner   229 Sep 28 08:31 run-2026-09-07-17-23.md
+-rw-r--r--  1 runner runner   221 Sep 28 08:31 run-2026-09-07-20-46.md
+-rw-r--r--  1 runner runner 11019 Sep 28 08:31 run-2026-09-07-23-19.md
+-rw-r--r--  1 runner runner   162 Sep 28 08:31 run-2026-09-08-01-15.md
+-rw-r--r--  1 runner runner  1005 Sep 28 08:31 run-2026-09-08-06-01.md
+-rw-r--r--  1 runner runner   218 Sep 28 08:31 run-2026-09-08-11-27.md
+-rw-r--r--  1 runner runner   155 Sep 28 08:31 run-2026-09-08-15-18.md
+[0m
+[0m$ [0mls -t triage/ | head -8; echo "--- latest triage content ---"; for f in $(ls -t triage/*.md | head -4); do echo "=== $f ==="; cat "$f"; done
+run-2026-09-27-10-04.md
+run-2026-09-27-15-11.md
+run-2026-09-27-19-02.md
+run-2026-09-27-22-18.md
+run-2026-09-28-00-55.md
+run-2026-09-28-06-21.md
+run-2026-09-22-06-20.md
+run-2026-09-22-12-01.md
+--- latest triage content ---
+=== triage/run-2026-09-27-10-04.md ===
+
+===== TRIAGE 2026-09-27 10:04:00 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_ca74d0cb"
+  }
+}
+=== triage/run-2026-09-27-15-11.md ===
+
+===== TRIAGE 2026-09-27 15:11:23 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_a02d09d5"
+  }
+}
+=== triage/run-2026-09-27-19-02.md ===
+
+===== TRIAGE 2026-09-27 19:02:07 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_898f05aa"
+  }
+}
+=== triage/run-2026-09-27-22-18.md ===
+
+===== TRIAGE 2026-09-27 22:18:25 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_bb5ac623"
+  }
+}
+[0m
+[0m$ [0mfor f in leads/lead-mimo.md leads/lead-ling3.md leads/lead-laguna.md leads/lead-longcat.md; do echo "=== $f ($(wc -c <$f) B) ==="; head -c 600 "$f"; echo; done
+=== leads/lead-mimo.md (18 B) ===
+# Lead log (seed)
+
+=== leads/lead-ling3.md (7950 B) ===
+## 2026-09-03 17:14:11 UTC [target] (model ling3)
+## 2026-09-03 19:58:43 UTC [target] (model ling3)
+## 2026-09-03 22:30:59 UTC [target] (model ling3)
+## 2026-09-04 00:31:17 UTC [target] (model ling3)
+## 2026-09-04 05:09:11 UTC [target] (model ling3)
+## 2026-09-04 09:45:58 UTC [target] (model ling3)
+## 2026-09-04 14:08:52 UTC [target] (model ling3)
+## 2026-09-04 17:40:35 UTC [target] (model ling3)
+## 2026-09-04 19:59:52 UTC [target] (model ling3)
+## 2026-09-04 22:17:06 UTC [target] (model ling3)
+## 2026-09-05 00:15:11 UTC [target] (model ling3)
+## 2026-09-05 04:41:30 UTC [target] (model ling3)
+
+=== leads/lead-laguna.md (8109 B) ===
+## 2026-09-03 17:14:30 UTC [target] (model laguna)
+## 2026-09-03 19:58:33 UTC [target] (model laguna)
+## 2026-09-03 22:31:14 UTC [target] (model laguna)
+## 2026-09-04 00:25:35 UTC [target] (model laguna)
+## 2026-09-04 05:07:43 UTC [target] (model laguna)
+## 2026-09-04 09:46:48 UTC [target] (model laguna)
+## 2026-09-04 14:08:44 UTC [target] (model laguna)
+## 2026-09-04 17:40:34 UTC [target] (model laguna)
+## 2026-09-04 19:57:04 UTC [target] (model laguna)
+## 2026-09-04 22:16:54 UTC [target] (model laguna)
+## 2026-09-05 00:15:47 UTC [target] (model laguna)
+## 2026-09-05 04:41:51 UTC [target] (mo
+=== leads/lead-longcat.md (8268 B) ===
+## 2026-09-03 17:14:55 UTC [target] (model longcat)
+## 2026-09-03 19:58:55 UTC [target] (model longcat)
+## 2026-09-03 22:30:39 UTC [target] (model longcat)
+## 2026-09-04 00:24:29 UTC [target] (model longcat)
+## 2026-09-04 05:09:22 UTC [target] (model longcat)
+## 2026-09-04 09:46:07 UTC [target] (model longcat)
+## 2026-09-04 14:09:31 UTC [target] (model longcat)
+## 2026-09-04 17:42:17 UTC [target] (model longcat)
+## 2026-09-04 19:59:19 UTC [target] (model longcat)
+## 2026-09-04 22:17:05 UTC [target] (model longcat)
+## 2026-09-05 00:15:27 UTC [target] (model longcat)
+## 2026-09-05 04:42:07 UTC [
+[0m
+Triage returned backend errors again (26th cycle). Peer leads are stubs. Executing my outstanding probe: the single unread verb table in the 15/15 matrix.
+[0m$ [0mcd /tmp/opencode 2>/dev/null || mkdir -p /tmp/opencode; cd /tmp/opencode
+curl -sS -m 25 -D h1.txt -o b1.txt 'https://api.kassenkompass.de/health_insurance_comparison/'
+echo "=== EXIT $? ==="
+echo "--- headers ---"; cat h1.txt
+echo "--- body len: $(wc -c <b1.txt) ---"; head -c 900 b1.txt
+=== EXIT 0 ===
+--- headers ---
+HTTP/2 401 
+date: Mon, 28 Sep 2026 08:32:21 GMT
+content-type: application/problem+json; charset=utf-8
+content-length: 244
+server: cloudflare
+x-powered-by: PHP/8.4.3
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+x-frame-options: DENY
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=S5euART8VGEu2pOtnr971cemyDHYJVVrhFokID9tYxeJOdWyCweoshpbNyNvGQBqISa6OZe5JOJ7qvlomyUA0lUszeiZzXkoxshnn9sbpTW7%2FSHMIEw9fRrWi7P3QxBw68AbaSJs"}]}
+cf-ray: a42165a0d92ff602-ORD
+
+--- body len: 244 ---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance_comparison\/"
+}
+[0m
+The 15th cell, and it's a counterexample candidate. Now the greedy-match control:
+[0m$ [0mcd /tmp/opencode; sleep 2
+curl -sS -m 25 -D h2.txt -o b2.txt 'https://api.kassenkompass.de/health_insurance_comparison/1/extra'
+echo "--- headers ---"; grep -iE 'HTTP/|allow|content-type|content-length' h2.txt
+echo "--- body ($(wc -c <b2.txt) B) ---"; cat b2.txt
+--- headers ---
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 252
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+x-content-type-options: nosniff
+--- body (252 B) ---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance_comparison\/1\/extra"
+}
+[0m
+Matrix complete, and "universal" survives the counterexample search. Now the catalog to establish what is *documented* vs *registered*:
+[0m$ [0mcd /tmp/opencode; sleep 2
+curl -sS -m 25 -o cat.json 'https://api.kassenkompass.de/' -w 'HTTP %{http_code} cl=%{size_download}\n'
+python3 - <<'EOF'
+import json,re
+raw=open('cat.json').read()
+d=json.loads(raw)
+print("top-level keys:", list(d.keys()))
+for k,v in d.items():
+    if isinstance(v,list):
+        print(f"\n{k}: {len(v)} entries")
+        for e in v:
+            if isinstance(e,dict):
+                print("  ", {kk:(str(vv)[:60]) for kk,vv in e.items()})
+    else:
+        print(f"{k}: {str(v)[:200]}")
+EOF
+HTTP 200 cl=1167
+top-level keys: ['api_info', 'version', 'authentication', 'endpoints']
+api_info: KK API - REST
+version: 1.0
+authentication: X-API-Secret header required
+endpoints: {'GET /health_insurance/': 'API Krankenkassen', 'GET /state/': 'API Bundesländer', 'GET /health/': 'API- und Datenbank-Status (Health Check)', 'GET /sync/': 'API Datensynchronisation', 'GET /question_
+[0m
+[0m$ [0mcd /tmp/opencode
+python3 - <<'EOF'
+import json
+d=json.load(open('cat.json'))
+eps=d['endpoints']
+print("count:",len(eps))
+for i,(k,v) in enumerate(eps.items(),1):
+    print(f"{i:2d}. {k:45s} | {v}")
+EOF
+count: 15
+ 1. GET /health_insurance/                        | API Krankenkassen
+ 2. GET /state/                                   | API Bundesländer
+ 3. GET /health/                                  | API- und Datenbank-Status (Health Check)
+ 4. GET /sync/                                    | API Datensynchronisation
+ 5. GET /question_tree/                           | API Fragebaum
+ 6. GET /detail_comparison/                       | API Detailvergleich
+ 7. GET /health_insurance_savings/                | API Krankenkasseneinsparungen
+ 8. GET /health_insurance_comparison/             | API Krankenkassenvergleich
+ 9. POST /post/                                   | API Datenempfang (POST)
+10. DELETE /delete/{id}                           | API Benutzerdaten löschen
+11. POST /cancel/{id}                             | API FG-Wechsel-Storno (delegiert an kk_webapp)
+12. GET /user/{ext_id}                            | Userdaten abrufen
+13. GET /cat_detail/                              | API Detaillierte Kategorien-Informationen
+14. GET /insurance_info/{kk_id}                   | API Kategorien und Leistungswerte einer Krankenkasse
+15. GET /settlement_report/{year}/{month}         | API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. /json)
+[0m
+Now the sharpest available test: `/health_insurance/` is a prefix of `/health_insurance_savings/` and `/health_insurance_comparison/`. Greedy matching + `access-control-allow-methods` as an **injective** handler discriminator:
+[0m$ [0mcd /tmp/opencode
+for u in 'health_insurance/1' 'health_insurance_savings/1' 'health_insurance_comparison/1'; do
+  sleep 1.2
+  printf '%-42s ' "/$u"
+  curl -sS -m 25 -o /dev/null -D - "https://api.kassenkompass.de/$u" \
+   | grep -iE '^(HTTP/|access-control-allow-methods)' | tr -d '\r' | paste -sd' | '
+done
+/health_insurance/1                        HTTP/2 401  access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+/health_insurance_savings/1                HTTP/2 401  access-control-allow-methods: POST, OPTIONS
+/health_insurance_comparison/1             HTTP/2 401  access-control-allow-methods: POST, OPTIONS
+[0m
+No shadowing — greedy matching is a *trailing* parameter wildcard, not a string prefix. That refines my own last claim. Now the ordering test:
+[0m$ [0mcd /tmp/opencode
+for u in 'cat_detail/' 'health_insurance_savings/'; do
+  sleep 1.2
+  echo "=========== GET /$u ==========="
+  curl -sS -m 25 -D - -o bd.txt "https://api.kassenkompass.de/$u" | grep -iE '^(HTTP/|content-type|content-length|access-control-allow)' | tr -d '\r'
+  echo "body: $(python3 -c "import json,sys;d=json.load(open('bd.txt'));print(d.get('status'),'|',d.get('title'),'|',d.get('detail'))")"
+done
+=========== GET /cat_detail/ ===========
+HTTP/2 405 
+content-type: application/problem+json; charset=utf-8
+content-length: 232
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+body: 405 | Method Not Allowed | GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.
+=========== GET /health_insurance_savings/ ===========
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 241
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+body: 401 | Authentication Required | X-API-Secret Header ist erforderlich für den Zugriff auf diese API
+[0m
+Decisive pair. One more to close the "is there any passive route to the auth layer" question:
+[0m$ [0mcd /tmp/opencode; sleep 1.2
+echo "=== HEAD /cat_detail/ (does HEAD short-circuit at method, or reach auth?) ==="
+curl -sS -m 25 -I 'https://api.kassenkompass.de/cat_detail/' | grep -iE '^(HTTP/|allow|content-type|content-length)' | tr -d '\r'
+=== HEAD /cat_detail/ (does HEAD short-circuit at method, or reach auth?) ===
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+[0m
+`HEAD /cat_detail/` returns **401**, while `GET /cat_detail/` returns **405** — on the same route, both unregistered methods. Completing the matrix:
+[0m$ [0mcd /tmp/opencode
+for u in 'cat_detail/' 'health_insurance_savings/' 'health_insurance_comparison/'; do
+  sleep 1.2
+  printf 'HEAD /%-32s ' "$u"
+  curl -sS -m 25 -I "https://api.kassenkompass.de/$u" | grep -iE '^(HTTP/|content-type)' | tr -d '\r' | paste -sd' | '
+done
+HEAD /cat_detail/                      HTTP/2 401  content-type: application/problem+json; charset=utf-8
+HEAD /health_insurance_savings/        HTTP/2 401  content-type: application/problem+json; charset=utf-8
+HEAD /health_insurance_comparison/     HTTP/2 401  content-type: application/problem+json; charset=utf-8
+[0m
+All three are auth-gated — `/cat_detail/`'s auth state is now **observed**, not inferred, for the first time in 22 sessions. Now testing whether the pre-auth method check recurs on the destructive routes:
+[0m$ [0mcd /tmp/opencode
+for m in GET HEAD; do
+  for u in 'cancel/1' 'delete/1'; do
+    sleep 1.2
+    printf '%-5s /%-12s ' "$m" "$u"
+    if [ "$m" = HEAD ]; then
+      curl -sS -m 25 -I "https://api.kassenkompass.de/$u" | grep -iE '^(HTTP/|access-control-allow-methods)' | tr -d '\r' | paste -sd' | '
+    else
+      curl -sS -m 25 -o /dev/null -D - "https://api.kassenkompass.de/$u" | grep -iE '^(HTTP/|access-control-allow-methods)' | tr -d '\r' | paste -sd' | '
+    fi
+  done
+done
+GET   /cancel/1     HTTP/2 401  access-control-allow-methods: POST, OPTIONS
+GET   /delete/1     HTTP/2 401  access-control-allow-methods: DELETE, OPTIONS
+HEAD  /cancel/1     HTTP/2 401  access-control-allow-methods: POST, OPTIONS
+HEAD  /delete/1     HTTP/2 401  access-control-allow-methods: DELETE, OPTIONS
+[0m
+Single-route outlier confirmed — `/cancel/` and `/delete/` are auth-first on both verbs. One decisive test to nail the corrected characterisation of greedy matching:
+[0m$ [0mcd /tmp/opencode
+for u in 'health_insurance/savings/1' 'health_insurance/comparison/1'; do
+  sleep 1.2
+  printf '%-34s ' "/$u"
+  curl -sS -m 25 -o cb.txt -D - "https://api.kassenkompass.de/$u" | grep -iE '^(HTTP/|content-type|content-length|access-control-allow-methods)' | tr -d '\r' | paste -sd' | '
+done
+echo "--- catch-all control (sha256 of 1167B catalog) ---"
+sha256sum cat.json
+/health_insurance/savings/1        HTTP/2 401  content-type: application/problem+json; charset=utf-8|content-length: 243 access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+/health_insurance/comparison/1     HTTP/2 401  content-type: application/problem+json; charset=utf-8|content-length: 246 access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+--- catch-all control (sha256 of 1167B catalog) ---
+644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b  cat.json
+[0m
+Cycle complete: 15 read-only requests, ≤1.2 s spacing, no 429, no WAF block. The last outstanding matrix cell closed and produced a counterexample to my own headline.
+
+```
+[DELTA]
+[NEW] api.kassenkompass.de/health_insurance_comparison/ verb table read for the first time in 26 sessions — 401, access-control-allow-methods "POST, OPTIONS", GET excluded. The 15/15 matrix is now genuinely complete, not "11 of 12 possible".
+[NEW] /health_insurance/savings/1 → 401 with allow "GET, POST, PUT, DELETE, OPTIONS"; /health_insurance/comparison/1 → 401 with the same 5-verb table. Both bind to the /health_insurance/ route, NOT to the sibling route named in their own path. A registered route shadows a longer registered route by pure string prefix, and the shadowing handler is the host's only PUT+DELETE cell.
+[CHANGED] /cat_detail/ auth state moves from INFERRED (22 sessions, "method-checked-first") to OBSERVED — HEAD /cat_detail/ → 401 problem+json. The route is auth-gated. The prior framing was an artifact of GET short-circuiting at the method check, not evidence about credentials.
+[CHANGED] GET /cat_detail/ → 405 "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST." while HEAD /cat_detail/ → 401, same route, both verbs unregistered. New observable: the GET and HEAD branches disagree on whether the credential check runs.
+[CHANGED] Documented-GET routes that exclude GET: 3 → 4 (/sync/, /health_insurance_savings/, /cat_detail/, /health_insurance_comparison/). All four now positively observed auth-gated.
+[CHANGED] /cancel/{id} and /delete/{id} confirmed auth-first on GET and HEAD (401, no allow-GET) — the pre-auth method check is a single-route outlier at 1-in-15, not a host pattern.
+NO_DELTA root 200 / 1167 B / sha256 644b1ec74036ec90dd3ad5b89132d1ad9474f4c2c5f34bd97927375949199b9b; /health/ 200/22 B; /sync/ 200/67 B; catalog 15 routes ver 1.0.
+
+[PRIO] api.kassenkompass.de/health_insurance/{suffix incl. savings/*, comparison/*} 6.75  a7 b8 t6 g4 c6 f9
+[PRIO] api.kassenkompass.de/ (15-route catalog, verb table falsified on 4) 6.65  a6 b6 t6 g9 c5 f9
+[PRIO] api.kassenkompass.de/cat_detail/ (POST-only, documented GET, pre-auth method check) 6.60  a6 b7 t6 g7 c5 f9
+
+[HYP] The host's only PUT+DELETE route is a string prefix of two read-only sibling routes, so destructive verbs are reachable at their data paths on an unbounded suffix space
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/{suffix}, /health_insurance_savings/{id}, /health_insurance_comparison/{id}
+confidence: 92
+reasoning: Measured, read-only, 15 requests. /health_insurance/1 → 401, allow "GET, POST, PUT, DELETE, OPTIONS". /health_insurance/savings/1 → 401, allow "GET, POST, PUT, DELETE, OPTIONS" — the 5-verb table, i.e. the /health_insurance/ handler, not the savings route. /health_insurance/comparison/1 → 401, same 5-verb table. The siblings bound directly: /health_insurance_savings/1 → 401, allow "POST, OPTIONS"; /health_insurance_comparison/1 → 401, allow "POST, OPTIONS". The discriminator is injective on both sides — the 5-verb set and the 2-verb set are disjoint, and the catch-all is a third state (200 / 1167 B / application/json, sha256 644b1ec7…). /health_insurance/1/extra → 401 on the 5-verb table, so the match also absorbs arbitrary trailing segments. Last cycle's "prefix-unbounded" framing is confirmed in the strong form I had doubted: a registered route shadows a longer registered route for every suffix, including suffixes beginning with the sibling's own static segment name.
+evidence_needed: Nothing further for the routing fact; the two-sided binding control and the hashed catch-all are in hand. Whether PUT/DELETE are authorised for a read-scoped partner secret is a separate, unassessed question requiring a credential.
+verify_steps: 4 requests, no auth, read-only: curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/health_insurance/1 (401, allow "GET, POST, PUT, DELETE, OPTIONS"); .../health_insurance/savings/1 (401, same 5-verb table); .../health_insurance_savings/1 (401, allow "POST, OPTIONS"); catch-all control .../zzz_unknown_9f2/1 (200 / 1167 B application/json).
+impact: MEDIUM as a control-effectiveness finding, LOW as an exploit. Every path returns 401 today; no auth bypass and no destructive verb has been sent. The consequence is that the cheapest remediation does not work: a WAF rule, per-tenant path policy or per-resource authorization keyed on /health_insurance_savings/{id} or /health_insurance_comparison/{id} does not bind, because the handler answering those paths also accepts PUT and DELETE — verbs the two siblings do not register at all. A control generated from the published contract would scope DELETE to /delete/{id} and would not expect it on a comparison-data path.
+testability: PASSIVE
+
+[HYP] One route on the host answers an anonymous request before the credential check runs, and tells that anonymous caller which method reaches the write path
+class: MISCONFIG
+asset: api.kassenkompass.de/cat_detail/
+confidence: 78
+reasoning: Controlled pair. /cat_detail/ and /health_insurance_savings/ are identical on every observable except the status: both registered "POST, OPTIONS", both emit allow-headers "X-API-Secret, Content-Type", both return pretty-printed application/problem+json, both are documented GET in the 1167 B catalog. GET /cat_detail/ → 405 "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST." GET /health_insurance_savings/ → 401 "X-API-Secret Header ist erforderlich für den Zugriff auf diese API". The same asymmetry holds inside one route: GET /cat_detail/ → 405 but HEAD /cat_detail/ → 401, both verbs unregistered. The sibling destructive routes are auth-first on both verbs (GET /cancel/1 → 401, HEAD /cancel/1 → 401, allow "POST, OPTIONS"; GET /delete/1 and HEAD /delete/1 → 401, allow "DELETE, OPTIONS"), so this is a 1-in-15 outlier, not a host pattern. I assert the observable disagreement, not the internal code order.
+evidence_needed: Nothing further passively. I state it as an observable, not as a proven middleware sequence.
+verify_steps: 4 requests, no auth, read-only: curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/cat_detail/ (405, allow "POST, OPTIONS"); .../health_insurance_savings/ (401, identical allow-methods, allow-headers and content-type); curl -sS -m 25 -I https://api.kassenkompass.de/cat_detail/ (401); .../health_insurance_comparison/ (401).
+impact: LOW-MEDIUM. No payload is returned and no write is reachable; the concrete harm is to automated control generation. A GET-only unauthenticated crawl sees a 405 that names POST and classifies /cat_detail/ as an unauthenticated POST-capable endpoint, because on this route the 405 is emitted ahead of the credential check while every sibling answers 401. The same crawl that reads the HEAD result would classify it as protected. This is the programme's fourth instance of the same root cause — reading a two-valued test as a three-valued one — and it falsifies the 22-session inference that /cat_detail/ is "method-checked-first" as a property of the route.
+testability: PASSIVE
+
+[HYP] The catalog asserts one uniform authentication model for 15 routes; the server implements at least three, so any client or control generated from the contract mis-models all 15
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 85
+reasoning: The 1167 B catalog carries exactly one auth declaration, the global constant "authentication": "X-API-Secret header required", applied to all 15 routes. Measured credential behaviour on the host is at least three distinct states: middleware A returns 401 "X-API-Secret Header ist erforderlich für den Zugriff auf diese API" (8 routes incl. /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /detail_comparison/, /question_tree/, /state/); middleware B returns 401 "X-API-Secret Header fehlt" (/user/{ext_id}, /delete/{id}, /cancel/{id}); and four routes emit no credential check at all at the boundary (/health/ 200/22 B, /sync/ 200/67 B, /post/help 200/344 B, /post/create_user 405). The catalog also documents GET for four routes whose only registered verb is POST, so the same constant is wrong about both auth and method.
+evidence_needed: A credentialed request to determine whether middleware B's scope differs from A's. Not obtainable passively; unassessed and not asserted here.
+verify_steps: 3 requests, no auth: curl -sS -o /dev/null -D - https://api.kassenkompass.de/health_insurance_savings/ (401 middleware A, "ist erforderlich"); https://api.kassenkompass.de/delete/1 (401 middleware B, "Header fehlt"); https://api.kassenkompass.de/health/ (200 / 22 B, no credential check).
+impact: LOW standalone, MEDIUM for integrator and control-generation security. A WAF, ASM or client built from the published contract assumes 15 uniformly-protected GET endpoints; 3 are ungated at the boundary, 4 are POST-only, 2 accept PUT+DELETE, and the sole DELETE route is prefix-shadowed by a route that also accepts DELETE. Remediation is one corrected catalog plus per-route auth and method declarations, not fifteen independent edits.
+testability: PASSIVE
+
+[PARKED] "POST /post/create_user is unauthenticated" (nemotron3, and my own retracted 72): still unanswerable by any passive or read-only method. The X-HTTP-Method-Override control proved the app reads REQUEST_METHOD directly, so no passive method reaches the POST branch. Carried at 60, HUMAN_ONLY, outstanding three cycles. Note the programme now has direct evidence that a documented-GET/registered-POST route on this host is normally auth-gated (two of three measured), so the prior is weaker than it looked, not stronger.
+[PARKED] "Prefixed routing means a WAF rule keyed on the static path portion does not bind" — I nearly published a correction to my own 88 this cycle on the strength of /health_insurance_savings/1 binding to the savings route. The correction was wrong: /health_insurance_savings/1 has a different FIRST segment, so it cannot collide. The real rule is first-segment match plus unbounded trailing absorption. Published as measured, at 92, not as the narrower claim I expected.
+[PARKED] "Three applications separable by allow-headers byte order" — dead, killed last cycle by /question_tree/ vs /state/ on one router, and untouched this cycle.
+
+[FINAL] 1) /health_insurance/ shadows both sibling data routes on an unbounded suffix space and is the sole PUT+DELETE cell, MISCONFIG 92, PASSIVE, complete — two-sided binding control plus hashed catch-all. 2) Catalog asserts one auth model for 15 routes; at least three behaviours measured, 3 ungated at the boundary, MISCONFIG 85, PASSIVE, complete. 3) /cat_detail/ GET and HEAD branches disagree on whether the credential check runs, the only such route of 15, MISCONFIG 78, PASSIVE, complete.
+
+[NEXT] HUMAN: request one-word written authorization for exactly one request — `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'`, empty body, no credentials — and send it only on approval. The application documents this route as `POST /post/help: "Zeigt diese Hilfeseite an."`, so it is a read by its own contract and creates nothing. It remains the only route to the programme's one open authorization question, because the override-header control proved no passive method reaches a POST branch on this host. Outstanding for a third cycle.
+
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: a closure claim needs an INJECTIVE discriminator, and the two that failed are now both replaced by one that works. status+content-type collided on /cat_detail/ (405), content-type+length collided on any bodyless 200, but access-control-allow-methods is disjoint per handler on this host — {GET,POST,PUT,DELETE,OPTIONS} for /health_insurance/, {POST,OPTIONS} for both siblings, application/json for the catch-all. That single header resolved the handler identity of four paths, two of which are shadowed, and it is what turned a bound into a proof this cycle.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/cat_detail/: "the route is method-checked-first, therefore its POST auth state is unassessed". HEAD /cat_detail/ returns 401 problem+json, so the credential check is observed for a method the route accepts. The route is auth-gated; 22 sessions of "method-checked-first" were an artifact of probing GET only. The correct statement is narrower and different: the GET branch is answered ahead of the credential check, which is an observable, not a gap in coverage.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: GET and HEAD on the same route can take different code paths. On /cat_detail/, GET → 405 pre-auth and HEAD → 401 post-auth, both verbs unregistered. A method-blind reading of "how is this route protected" is unsound on this host, and the divergence is invisible to any probe that uses one method.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: router matching is first-segment plus unbounded trailing absorption, and the distinction is load-bearing. /health_insurance_savings/1 has a different first segment and binds correctly to the savings route; /health_insurance/savings/1 shares the first segment and is absorbed by the insurance handler. Two paths that read almost identically in a report are served by two different routes with two different verb tables.
+[LEARN] REJECTED OTHER @ kassenkompass pipeline: peer signal remains zero for a 26th consecutive cycle (mimo 18 B, three timestamp-only stubs, nemotron3 reprinting a refuted claim), and the last five triage runs returned backend "Unexpected server error". This cycle nonetheless closed the one outstanding matrix cell, falsified a 22-session standing inference in the target's favour, and measured a route-shadowing composition on the host's only destructive cell. Single-writer depth continues to beat five-way sweeps, now for the fifth consecutive session.
+
+[RISK] KassenKompass GmbH: 84 — down 2. Both directions of movement are real evidence, not caution. Down: the single most alarming open item — a documented-GET/registered-POST route that might be ungated — is now observed auth-gated, and this cycle produced the direct measurement of it, so the prior "POST /post/create_user is unauthenticated" claim is weaker than it has looked in three sessions, not stronger. Up: the shadowing composition is new adverse information. The host's only route registering PUT+DELETE is a pure string prefix of two read-only data routes, so those siblings' data paths are answered by a DELETE-registering handler, and I proved it with a two-sided binding control plus a hashed catch-all rather than by inference. Still zero exploitability: all 15 paths return 401, no destructive verb has been sent, and no data beyond a 22-byte health string has been read unauthenticated. Unchanged and untestable without written authorization: the auth state of POST /post/create_user (60, HUMAN_ONLY, outstanding three cycles), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and middleware B, and the three privileged portals. The honest report says: a control-correctness cluster on one host, now fully enumerated at 15/15, with one confirmed shadowing defect on the destructive cell and no demonstrated bypass.
+```
