@@ -1078,3 +1078,13 @@ https://api.kassenkompass.de/post/create_user -> HTTP 405
 https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/post/help'` -> 200 len=?
+
+## 2026-09-28 01:49:53 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/delete/ -> HTTP 401
+https://api.kassenkompass.de/post/create_user/1 -> HTTP 405
+https://api.kassenkompass.de/post/help' -> 200 len=?
+https://api.kassenkompass.de/health_insurance_comparison/ -> HTTP 401

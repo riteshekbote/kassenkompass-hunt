@@ -36456,3 +36456,439 @@ TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
 [0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp; curl -sS -m 20 -o /dev/null -w "net_ok http=%{http_code} time=%{time_total}\n" https://api.kassenkompass.de/health/ 2>&1 | tail -3 failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
 Peer signal is zero again (26th cycle). Let me verify network reachability, then run a tightly-scoped GET-only probe set on a genuinely untested axis: **path-form variants of known route names** (the prior sweeps tested distinct *names*, never malformed *variants* of a known member).
+===== ANALYST bigpickle 2026-09-28 01:49:39 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run a focused, passive probe batch: complete the prefix-match matrix on the parameterized v1 routes — especially the one that registers `DELETE` — since that composition has never been tested. GET only, no credentials, ~1.5 rps.
+[0m$ [0mmkdir -p /tmp/opencode/kk && cd /tmp/opencode/kk && UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for p in "/" "/zzz_unknown_9f2/1" "/delete/" "/delete/1/extra" "/cancel/" "/cancel/1/extra" "/settlement_report/" "/settlement_report/2026/13/extra" "/insurance_info/" "/insurance_info/1/extra" "/health_insurance_savings/1/extra" "/cat_detail/1" "/detail_comparison/1/extra" "/user/1/extra" "/question_tree/1/extra"; do
+  echo "=== PATH: $p"
+  code=$(curl -sS -m 25 -A "$UA" -o b.bin -D h.txt -w '%{http_code}' "https://api.kassenkompass.de$p")
+  size=$(stat -c%s b.bin)
+  echo "HTTP=$code  BODY_BYTES=$size"
+  grep -iE '^(content-type|content-length|access-control-allow-methods|access-control-allow-headers):' h.txt | tr -d '\r'
+  echo "--- body(400):"
+  head -c 400 b.bin; echo; echo
+  sleep 1.5
+done
+=== PATH: /
+HTTP=200  BODY_BYTES=1167
+content-type: application/json; charset=utf-8
+content-length: 1167
+--- body(400):
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Frageba
+
+=== PATH: /zzz_unknown_9f2/1
+HTTP=200  BODY_BYTES=1167
+content-type: application/json; charset=utf-8
+content-length: 1167
+--- body(400):
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Frageba
+
+=== PATH: /delete/
+HTTP=401  BODY_BYTES=181
+content-type: application/problem+json; charset=utf-8
+content-length: 181
+access-control-allow-methods: DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/delete\/",
+    "detail": "X-API-Secret Header fehlt"
+}
+
+=== PATH: /delete/1/extra
+HTTP=401  BODY_BYTES=189
+content-type: application/problem+json; charset=utf-8
+content-length: 189
+access-control-allow-methods: DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/delete\/1\/extra",
+    "detail": "X-API-Secret Header fehlt"
+}
+
+=== PATH: /cancel/
+HTTP=401  BODY_BYTES=181
+content-type: application/problem+json; charset=utf-8
+content-length: 181
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/cancel\/",
+    "detail": "X-API-Secret Header fehlt"
+}
+
+=== PATH: /cancel/1/extra
+HTTP=401  BODY_BYTES=189
+content-type: application/problem+json; charset=utf-8
+content-length: 189
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/cancel\/1\/extra",
+    "detail": "X-API-Secret Header fehlt"
+}
+
+=== PATH: /settlement_report/
+HTTP=401  BODY_BYTES=234
+content-type: application/problem+json; charset=utf-8
+content-length: 234
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/settlement_report\/"
+}
+
+=== PATH: /settlement_report/2026/13/extra
+HTTP=401  BODY_BYTES=249
+content-type: application/problem+json; charset=utf-8
+content-length: 249
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/settlement_report\/2026\/13\/extra"
+}
+
+=== PATH: /insurance_info/
+HTTP=401  BODY_BYTES=231
+content-type: application/problem+json; charset=utf-8
+content-length: 231
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/"
+}
+
+=== PATH: /insurance_info/1/extra
+HTTP=401  BODY_BYTES=239
+content-type: application/problem+json; charset=utf-8
+content-length: 239
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/insurance_info\/1\/extra"
+}
+
+=== PATH: /health_insurance_savings/1/extra
+HTTP=401  BODY_BYTES=249
+content-type: application/problem+json; charset=utf-8
+content-length: 249
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance_savings\/1\/extra"
+}
+
+=== PATH: /cat_detail/1
+HTTP=405  BODY_BYTES=233
+content-type: application/problem+json; charset=utf-8
+content-length: 233
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/405",
+    "title": "Method Not Allowed",
+    "status": 405,
+    "detail": "GET-Methode ist für diesen Endpunkt nicht erlaubt. Bitte verwenden Sie POST.",
+    "instance": "\/cat_detail\/1"
+}
+
+=== PATH: /detail_comparison/1/extra
+HTTP=401  BODY_BYTES=242
+content-type: application/problem+json; charset=utf-8
+content-length: 242
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/detail_comparison\/1\/extra"
+}
+
+=== PATH: /user/1/extra
+HTTP=401  BODY_BYTES=187
+content-type: application/problem+json; charset=utf-8
+content-length: 187
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/user\/1\/extra",
+    "detail": "X-API-Secret Header fehlt"
+}
+
+=== PATH: /question_tree/1/extra
+HTTP=401  BODY_BYTES=238
+content-type: application/problem+json; charset=utf-8
+content-length: 238
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+--- body(400):
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/question_tree\/1\/extra"
+}
+[0m
+Decisive result — and it falsifies one of my own prior claims. Three follow-ups: the full catalog body, plus deep-path checks on the two `PUT`+`DELETE` cells and the `GET`-excluding `/sync/`.
+[0m$ [0mcd /tmp/opencode/kk && UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+echo "=== FULL CATALOG BODY"
+curl -sS -m 25 -A "$UA" "https://api.kassenkompass.de/" | tr -d '\r'
+echo; echo
+for p in "/health_insurance/1/extra" "/sync/1/extra" "/v2/insurance_info/1/extra"; do
+  echo "=== PATH: $p"
+  code=$(curl -sS -m 25 -A "$UA" -o b.bin -D h.txt -w '%{http_code}' "https://api.kassenkompass.de$p")
+  echo "HTTP=$code  BODY_BYTES=$(stat -c%s b.bin)"
+  grep -iE '^(content-type|content-length|access-control-allow-methods|access-control-allow-headers):' h.txt | tr -d '\r'
+  head -c 320 b.bin; echo; echo
+  sleep 1.5
+done
+=== FULL CATALOG BODY
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+
+=== PATH: /health_insurance/1/extra
+HTTP=401  BODY_BYTES=241
+content-type: application/problem+json; charset=utf-8
+content-length: 241
+access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/health_insurance\/1\/extra"
+}
+
+=== PATH: /sync/1/extra
+HTTP=200  BODY_BYTES=67
+content-type: application/json; charset=utf-8
+content-length: 67
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+
+=== PATH: /v2/insurance_info/1/extra
+HTTP=401  BODY_BYTES=243
+content-type: application/problem+json; charset=utf-8
+content-length: 243
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/v2\/insurance_info\/1\/extra"
+}
+[0m
+One more composition, cheap and unrecorded: is the **`/post/` write route** — the programme's one HUMAN_ONLY auth unknown — also prefix-unbounded?
+[0m$ [0mcd /tmp/opencode/kk && UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for p in "/post/create_user/1" "/post/help/1/extra" "/post/zzz_unknown_9f2/extra"; do
+  echo "=== PATH: $p"
+  code=$(curl -sS -m 25 -A "$UA" -o b.bin -D h.txt -w '%{http_code}' "https://api.kassenkompass.de$p")
+  echo "HTTP=$code  BODY_BYTES=$(stat -c%s b.bin)"
+  grep -iE '^(content-type|content-length|access-control-allow-methods|access-control-allow-headers):' h.txt | tr -d '\r'
+  head -c 300 b.bin; echo; echo
+  sleep 1.5
+done
+=== PATH: /post/create_user/1
+HTTP=405  BODY_BYTES=184
+content-type: application/problem+json; charset=utf-8
+content-length: 184
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+{"type":"https:\/\/tools.ietf.org\/html\/rfc7231#section-6.5.5","title":"Method Not Allowed","status":405,"detail":"Method not allowed. Only POST is accepted for \/post\/create_user."}
+
+=== PATH: /post/help/1/extra
+HTTP=200  BODY_BYTES=344
+content-type: application/json; charset=utf-8
+content-length: 344
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfes
+
+=== PATH: /post/zzz_unknown_9f2/extra
+HTTP=200  BODY_BYTES=0
+content-type: text/html; charset=UTF-8
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+[0m
+## 2026-09-28 — ANALYSIS (target: api)
+
+**STEP 1 — DELTA**
+
+- **[NEW]** Prefix/greedy path matching on the v1 router is **universal, not a 3-route curiosity**: 11/11 catalogued templated routes I probed this session accept an arbitrary extra segment and reach the *identical* protected handler with the *identical* `access-control-allow-methods`. Zero fell through to the 1167 B catch-all (`/zzz_unknown_9f2/1` control = 200/1167 B).
+- **[NEW]** `/delete/{id}` — the only user-data-deletion route on the host and the only route registering `DELETE` — is **prefix-unbounded**: `/delete/` (0 segments) and `/delete/1/extra` (3 segments) both return 401 middleware-B, `allow: DELETE, OPTIONS`, `instance` echoing the full path. Its identifier is unconstrained at the routing layer.
+- **[NEW]** `/post/create_user` is **prefix-unbounded**: `/post/create_user/1` → 405 `Only POST is accepted for /post/create_user` (route match), while the depth-matched control `/post/zzz_unknown_9f2/extra` stays `200 / 0 B / text/html; charset=UTF-8` (unregistered). The discriminator is injective here — status, content-type and body all differ. Consequence: a path-scoped control on the exact path cannot contain the write route.
+- **[NEW]** `/settlement_report/{year}/{month}` template unenforced at both ends: bare `/settlement_report/` (0 segments) and `/settlement_report/2026/13/extra` (4) both reach the handler. `year`/`month` unvalidated at routing.
+- **[NEW]** `/sync/` legacy HTTP-200 envelope is also prefix-unbounded: `/sync/1/extra` → 200 / 67 B `{"table":401,"success":false,…}`.
+- **[NEW]** Full 1167 B v1 catalog read verbatim for the first time. 7 of the 14 routes whose `allow-methods` I have read contradict the published verb table: `/sync/`, `/health_insurance_savings/`, `/cat_detail/` document GET but exclude it; `/health_insurance/`, `/detail_comparison/` document GET but register POST+PUT+DELETE; `/post/` documents POST but registers GET; `/health/` documents GET but registers POST.
+- **[CHANGED] — my own claim FALSIFIED.** My 2026-09-27 20:18 lead stating `/health_insurance/` was "the only cell concealing PUT+DELETE" is wrong. `/detail_comparison/` emits the identical `GET, POST, PUT, DELETE, OPTIONS`. There are **2** such cells, not 1. The "sole destructive-verb cell" framing in my last risk line was an over-claim.
+- **[CHANGED]** `/cat_detail/1` → 405, confirming the route is greedy *and* that its method check fires before its auth check — the 2026-09-26 self-correction re-confirmed.
+- **[CHANGED]** `/health_insurance_comparison/` is the one catalogued route still without a read verb table. My "universal" claim is therefore **11 of 11 probed, 11 of 12 possible** — not yet exhaustive, and I am not calling it universal until it is.
+
+**STEP 2 — PRIORITIZE**
+
+```
+[PRIO] api.kassenkompass.de/post/create_user 6.95  a7 b7 t7 g6 c6 f9
+[PRIO] api.kassenkompass.de/{delete,health_insurance,detail_comparison,settlement_report,user,cancel,insurance_info,cat_detail,sync}  6.85  a8 b8 t6 g3 c6 f9
+[PRIO] api.kassenkompass.de/ 6.55  a6 b5 t6 g10 c5 f9
+```
+
+**STEP 3 — HYPOTHESES**
+
+```
+[HYP] Every templated route on api.kassenkompass.de matches its prefix greedily, including the sole DELETE route and both PUT+DELETE cells, so no path-scoped control binds
+class: MISCONFIG
+asset: api.kassenkompass.de/delete/{id}, /health_insurance/, /detail_comparison/, /settlement_report/{year}/{month}
+confidence: 88
+reasoning: 11/11 templated routes probed accepted an arbitrary extra segment and reached the identical protected handler with the identical access-control-allow-methods, none falling through to the 1167 B catch-all control. /delete/ (0 seg) and /delete/1/extra (3 seg) both 401 middleware-B with allow "DELETE, OPTIONS". /health_insurance/1/extra and /detail_comparison/1/extra both 401 with allow "GET, POST, PUT, DELETE, OPTIONS". /settlement_report/ (0 seg) and /settlement_report/2026/13/extra (4 seg) both 401. /user/1/extra, /insurance_info/1/extra, /cancel/1/extra, /question_tree/1/extra, /v2/insurance_info/1/extra all 401. /cat_detail/1 returns 405 with instance "/cat_detail/1". /sync/1/extra returns 200/67B legacy envelope.
+evidence_needed: Nothing further for the routing fact; the discriminating control is in place. Whether the registered PUT/DELETE verbs are authorised for a read-scoped partner secret is a separate, unassessed question.
+verify_steps: 4 requests, no auth, no mutation: curl -sS -m 25 -o /dev/null -D - https://api.kassenkompass.de/delete/ and .../delete/1/extra (both 401, allow "DELETE, OPTIONS"); .../health_insurance/1/extra and .../detail_comparison/1/extra (both 401, allow "GET, POST, PUT, DELETE, OPTIONS"). Catch-all control: .../zzz_unknown_9f2/1 returns 200/1167 B application/json, never problem+json.
+impact: MEDIUM as a control-effectiveness finding, LOW as an exploit. Any WAF rule, per-tenant path policy, log parser or per-resource authorisation keyed on the documented template does not bind, because the same handler answers an unbounded path space — and the target of the host's only DELETE route is among them. No auth bypass is claimed; all 11 still return 401.
+testability: PASSIVE
+```
+
+```
+[HYP] The one unassessed write route on this host cannot be contained by any path-scoped control, because its path space is unbounded
+class: MISCONFIG
+asset: api.kassenkompass.de/post/create_user
+confidence: 78
+reasoning: GET /post/create_user/1 returns 405 problem+json with detail naming "/post/create_user", i.e. a route match on a suffixed path, while GET /post/zzz_unknown_9f2/extra at the same depth returns 200/0 B/text/html, i.e. unregistered. The two states differ in status, content-type and body, so membership is decided injectively — the rule I recorded last cycle after the /cat_detail/ collapse. GET /post/help/1/extra returns the byte-identical 344 B help body, so the read sibling is unbounded too. Per Fetch, a form-encoded or bodyless POST is a simple request sent with no preflight, so absent ACAO does not prevent sending.
+evidence_needed: The POST branch's auth decision. No passive or read-only method can supply it; the X-HTTP-Method-Override control proved the app reads REQUEST_METHOD directly.
+verify_steps: 3 requests, no auth: curl -sS -m 25 -D - -o /dev/null https://api.kassenkompass.de/post/create_user/1 (expect 405 problem+json naming the route); .../post/help/1/extra (expect 200/344 B application/json); control .../post/zzz_unknown_9f2/extra (expect 200/0 B text/html). Under separate written authorization only: curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help', empty body, read the status only.
+impact: MEDIUM. It does not change whether create_user is gated, but it removes the cheapest remediation: adding a path rule for /post/create_user would not cover /post/create_user/1. That raises the value of resolving the authorization question rather than lowering it.
+testability: PASSIVE
+```
+
+```
+[HYP] The published API catalog falsifies the server's own verb table on 7 of the 14 routes whose allow-methods have been read, and its path templates are unenforced on all 11 that carry one
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 80
+reasoning: The 1167 B catalog declares 15 routes. Three documented-GET routes exclude GET from their allow-methods (/sync/, /health_insurance_savings/, /cat_detail/). Two documented-GET routes register POST+PUT+DELETE in addition (/health_insurance/, /detail_comparison/). /post/ documents POST but registers GET. /health/ documents GET but registers POST. Separately, /health_insurance_comparison/ is the only route whose verb table has never been read, so 11 of 12 possible are probed, not 12 of 12.
+evidence_needed: The allow-methods of /health_insurance_comparison/ (bare and suffixed), which is the only outstanding cell and the test of whether the path-template finding is exhaustive or has a counterexample.
+verify_steps: 2 requests, no auth: curl -sS -m 25 -D - -o /dev/null https://api.kassenkompass.de/health_insurance_comparison/ and .../health_insurance_comparison/1/extra. Read access-control-allow-methods and whether the suffixed path returns 401 problem+json with an instance field (matched) or 200/1167 B application/json (catch-all).
+impact: LOW standalone, MEDIUM for integrator security. A client that gates on the published contract under-calls three read routes and is never told that three routes accept destructive verbs on an unbounded path. Shared remediation: one corrected contract plus routing validation, not fifteen independent edits.
+testability: PASSIVE
+```
+
+**STEP 4 — SELF-CRITIQUE**
+
+Three survivors, all ≥40, none REJECTED-class, all with concrete verify steps.
+
+```
+[PARKED] "POST /post/create_user is unauthenticated" (nemotron3, and my own retracted 72): 405 is method-confounded on this host, and the /cat_detail/ control proved it. Authorization state is unassessed and only a written-authorized POST can answer it. Carried forward unchanged at 60, HUMAN_ONLY.
+[PARKED] "Three applications separable by allow-headers byte order": dead, killed by /question_tree/ (Content-Type, X-API-Secret) vs /state/ (X-API-Secret, Content-Type) on one router.
+[FINAL] 1) Prefix-unbounded routing on 11/11 templated routes incl. the sole DELETE route and both PUT+DELETE cells, MISCONFIG 88, PASSIVE, complete. 2) /post/create_user path space unbounded, MISCONFIG 78, PASSIVE, complete. 3) Catalog verb table falsified on 7/14 read routes, MISCONFIG 80, PASSIVE, one cell outstanding.
+```
+
+**STEP 5 — NEXT ACTION**
+
+```
+[NEXT] PROBE: curl -sS -m 25 -D - -o /dev/null https://api.kassenkompass.de/health_insurance_comparison/ then .../health_insurance_comparison/1/extra — the single unread verb table, and the test of whether "universal" survives a counterexample search. I have twice this programme converted a two-valued read into an exhaustive claim (the 405 oracle, then the sole-PUT/DELETE-cell framing); this cell is the honest guard against repeating it a third time.
+```
+
+**STEP 6 — LEARNING**
+
+- **[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de:** prefix matching is universal on the v1 router, measured 11/11 with a live catch-all control and identical allow-methods as the same-handler witness — not a 3-route curiosity as three prior sessions framed it.
+- **[LEARN] REJECTED OTHER @ api.kassenkompass.de:** my own 2026-09-27 claim that `/health_insurance/` is "the only cell concealing PUT+DELETE". Falsified — `/detail_comparison/` emits the identical `GET, POST, PUT, DELETE, OPTIONS`. Two cells, not one. The destructive-verb control surface was understated in my own risk line, so the correction raises the score rather than lowering it.
+- **[LEARN] ACCEPTED OTHER @ method:** last cycle's rule — a closure claim needs an injective discriminator — paid out immediately. Inside the `/post/` namespace the registered (405 problem+json) and unregistered (200/0 B/text/html) states differ on three axes at once, so the same rule that *closed* membership for me also *expanded* it this cycle, from one write path to an unbounded path space. The rule is not only a brake.
+- **[LEARN] ACCEPTED OTHER @ pipeline:** peer signal remains zero for a 26th cycle, yet this cycle produced three exact closures and one self-falsification from 22 read-only GETs. Single-writer depth beats five-way sweeps for the fifth consecutive session. No 429, no WAF block at ~0.7 rps.
+
+**STEP 7 — RISK**
+
+```
+[RISK] KassenKompass GmbH: 86 — up 1. The control-surface story grew on proven evidence, not on new capability: 11/11 templated routes match greedily, and the two facts that matter most are now joined by direct measurement — the host's only DELETE route and both PUT+DELETE cells sit on an unbounded path space, so a WAF or per-tenant rule keyed on the documented template does not bind at the layer where it would have to. The write namespace is unbounded too, which removes the cheapest fix for the one authorization question I still cannot answer. Unchanged and explicitly not claimed: every one of the 11 still returns 401, and no destructive verb has been sent. Unchanged and untestable without written authorization: POST /post/create_user auth state (60, HUMAN_ONLY, outstanding two cycles), the authorization scope of the registered PUT/DELETE, and the three privileged portals. Down-weighted in my own last line and now corrected upward: the destructive-verb surface is 2 cells plus the DELETE route, not 1.
+```
