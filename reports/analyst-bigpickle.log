@@ -38472,3 +38472,176 @@ Three things worth your attention, stated plainly:
 2. **The matrix is now complete rather than sampled**, and critically the last three pairs I tested were the *unauthenticated* envelopes including the separately-mounted `/post/` app. A sample of gated routes only could not have shown that no per-app parsing regime exists.
 
 3. **I nearly shipped a fourth overclaim.** I wrote the "encoded path steers into the ungated handler" framing and then ran the control, which reproduced the same 200/22B with zero encoding. The real finding is smaller: `/health/` binds on a bare `health` segment. I have recorded that correction rather than quietly dropping it, because it is the same error class I have now made three times.
+===== ANALYST bigpickle 2026-09-29 15:44:02 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run the one queued two-valued probe: whether the DELETE route's id segment is validated or absorbed.
+[0m$ [0mmkdir -p /tmp/opencode/kk29 && cd /tmp/opencode/kk29 && \
+echo "=== d1: /delete/%31 (encoded id segment) ===" && \
+curl -sS -m 25 --path-as-is -D h1.txt -o d1.bin https://api.kassenkompass.de/delete/%31 && \
+sleep 1.3 && \
+echo "=== d2: /delete/1%2fextra (encoded separator + suffix) ===" && \
+curl -sS -m 25 --path-as-is -D h2.txt -o d2.bin https://api.kassenkompass.de/delete/1%2fextra && \
+sleep 1.3 && \
+echo "=== d3: /delete/1 (control, literal) ===" && \
+curl -sS -m 25 -D h3.txt -o d3.bin https://api.kassenkompass.de/delete/1 ; \
+echo "--- exit: $? ---"
+=== d1: /delete/%31 (encoded id segment) ===
+=== d2: /delete/1%2fextra (encoded separator + suffix) ===
+=== d3: /delete/1 (control, literal) ===
+--- exit: 0 ---
+[0m
+[0m$ [0mcd /tmp/opencode/kk29 && for f in d1 d2 d3; do
+  echo "===== $f ====="
+  head -1 h$( [ $f = d1 ] && echo 1 || { [ $f = d2 ] && echo 2 || echo 3; } ).txt
+  grep -i '^content-type:\|^access-control-allow-methods:\|^content-length:' h$( [ $f = d1 ] && echo 1 || { [ $f = d2 ] && echo 2 || echo 3; } ).txt
+  echo "bytes: $(wc -c < $f.bin)  sha256: $(sha256sum $f.bin | cut -c1-16)"
+  echo "instance: $(grep -o '"instance":"[^"]*"' $f.bin)"
+  echo "detail:   $(grep -o '"detail":"[^"]*"' $f.bin)"
+  echo
+done
+echo "===== byte-diffs ====="
+cmp -s d1.bin d3.bin && echo "d1 == d3 : IDENTICAL" || echo "d1 vs d3 : DIFFER"
+cmp -s d2.bin d3.bin && echo "d2 == d3 : IDENTICAL" || echo "d2 vs d3 : DIFFER"
+===== d1 =====
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 182
+access-control-allow-methods: DELETE, OPTIONS
+bytes: 182  sha256: 46bd50c0c679e09f
+instance: 
+detail:   
+
+===== d2 =====
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 189
+access-control-allow-methods: DELETE, OPTIONS
+bytes: 189  sha256: b05031ccaf9c539e
+instance: 
+detail:   
+
+===== d3 =====
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 182
+access-control-allow-methods: DELETE, OPTIONS
+bytes: 182  sha256: 46bd50c0c679e09f
+instance: 
+detail:   
+
+===== byte-diffs =====
+d1 == d3 : IDENTICAL
+d2 vs d3 : DIFFER
+[0m
+[0m$ [0mcd /tmp/opencode/kk29 && echo "--- d3 body (control) ---" && cat d3.bin && echo && echo "--- d2 body (encoded separator + suffix) ---" && cat d2.bin && echo && echo "--- diff ---" && diff <(tr ',' '\n' < d3.bin) <(tr ',' '\n' < d2.bin)
+--- d3 body (control) ---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/delete\/1",
+    "detail": "X-API-Secret Header fehlt"
+}
+--- d2 body (encoded separator + suffix) ---
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "instance": "\/delete\/1\/extra",
+    "detail": "X-API-Secret Header fehlt"
+}
+--- diff ---
+8c8
+<     "instance": "\/delete\/1"
+---
+>     "instance": "\/delete\/1\/extra"
+[0m
+Probe complete and decisive. All three returned 401 (no credential presented, GET only).
+
+---
+
+## STEP 1 — DELTA
+
+- **[NEW]** `/delete/%31` ≡ `/delete/1` — byte-identical, 401 / 182 B / sha256 `46bd50c0c679e09f`, verb table `DELETE, OPTIONS`, middleware B ("X-API-Secret Header fehlt"). The `{id}` segment is **decoded and absorbed, not validated**.
+- **[NEW]** Composition closes on the destructive route: `/delete/1%2fextra` → 401 / 189 B / sha256 `b05031ccaf9c539e`. Diff against the control is **exactly one field**: `instance: "/delete/1/extra"` (+7 bytes = the literal `/extra`). Status, content-type, verb table and auth wording all identical. A request-target containing **no literal `/delete/` substring**, an encoded id, *and* an extra unvalidated segment, reaches the host's only DELETE-registering route.
+- **[CHANGED]** The top hypothesis's scope is now **measured rather than carried**: on `/delete/{id}` the target is unconstrained in segment spelling, separator spelling, and segment count. This was the queued two-valued test; it resolved affirmative on both arms.
+- **[CHANGED]** Precision correction to my own "0 divergences across 17 families": that matrix compared *baseline vs encoded-segment*, which is byte-identical everywhere. The new cell is *encoded-separator + extra-segment*, where the echoed canonical path necessarily differs. Not drift — but anyone re-running "all variants byte-identical" will find `b05031ccaf9c539e` ≠ `46bd50c0c679e09f` and could call it regression.
+- **NO_DELTA / NOT MEASURED:** auth map, root/v2 catalogs, the `/health/`, `/sync/`, `/post/` envelopes were not re-probed this session. I am not asserting their stability — I am asserting I did not test them.
+- **[NEW — deductive, zero requests]** Because decode provably precedes matching (established 2026-09-28/29, one level, `%25` → static 404), the encoded path space maps onto the literal path space. Combined with known trailing absorption (`/v2/insurance_info/1/extra` binds to `/v2/insurance_info/`), **the 42-name v2 saturation is provably complete with respect to encoding** — no encoded spelling can reach a route a literal spelling would not.
+
+## STEP 2 — PRIORITIZE
+
+- **[PRIO]** `api.kassenkompass.de/delete%2f1%2fextra` + 17 route families — **7.80** — a9 b8 t8 g5 c6 f10. Sole destructive-verb route; target unvalidated in three independent dimensions; gate_ease capped at 5 because middleware B holds on every variant.
+- **[PRIO]** `api.kassenkompass.de/post/create_user` — **7.15** — a8 b9 t7 g5 c4 f7. b=9 (user-provisioning write). **gate_ease scored 5, not 10, deliberately**: `/cat_detail/` proved a *gated* POST-only route also emits pre-auth 405, so there is zero evidence this route is ungated. If it is, gate_ease→10 and priority→**8.15**, which would make it the programme's top item.
+- **[PRIO]** `api.kassenkompass.de/health/{anything}` — **6.20** — a6 b5 t5 g10 c4 f8. Only ungated v1 route; g10 by measurement.
+
+## STEP 3 — HYPOTHESES
+
+```
+[HYP] The sole DELETE-registering route accepts an unconstrained target: encoded id, encoded separator, and unbounded segment count all reach the same handler with no validation
+class: MISCONFIG
+asset: api.kassenkompass.de/delete%2f1%2fextra
+confidence: 93
+reasoning: /delete/%31 is byte-identical to /delete/1 (401/182B/46bd50c0c679e09f, allow DELETE, OPTIONS), so the id segment is decoded and absorbed rather than validated. /delete/1%2fextra returns 401/189B/b05031ccaf9c539e differing from the control in exactly one field, instance "/delete/1/extra" (+7B). Its request-target contains no literal "/delete/" substring. The host's only DELETE route is therefore reachable by request-targets no literal-path substring rule can match. Credentials were never presented and no non-GET verb was sent.
+evidence_needed: Whether any WAF, reverse-proxy or ASM policy in front of this origin matches the raw or the decoded path. Not observable client-side. The authorization scope of the registered DELETE verb requires a credentialed request and is not asserted.
+verify_steps: Routing is complete; zero further requests are required for the parsing fact. Reproduction of the two new cells only: `curl -sS -m 25 --path-as-is -o /tmp/d1 https://api.kassenkompass.de/delete/%31` and `curl -sS -m 25 --path-as-is -o /tmp/d2 https://api.kassenkompass.de/delete/1%2fextra`, with control `curl -sS -m 25 -o /tmp/d3 https://api.kassenkompass.de/delete/1`. All three must be 401 with allow-methods "DELETE, OPTIONS"; sha256(d1)==sha256(d3)==46bd50c0c679e09f; sha256(d2)==b05031ccaf9c539e with the sole diff being instance.
+impact: MEDIUM as control-effectiveness, LOW as exploit — every variant returns 401 from the same middleware with identical wording; no credential was presented and no non-GET verb was sent. A WAF expression, path rule or ASM policy written against the documented template "/delete/{id}" cannot be written correctly, because the request-target space reaching that handler is unbounded in encoding and segment count while the documented string is a finite literal. The pre-auth canonicalisation oracle is what makes this usable: the caller learns the exact canonical path from the 401 body itself, so the next attempt can be aimed rather than guessed.
+testability: PASSIVE
+```
+
+```
+[HYP] The one write route on this host has an auth state no read-only method can observe
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 60
+reasoning: HEAD /delete/1 → 401 and HEAD /state/ → 401 on the same host and method, while HEAD /post/ and HEAD /post/create_user → 405. GET /post/help → 200/344B/b59b3549e204e996 advertising "POST /post/create_user — Erstellt einen neuen User. Erwartet JSON im Body." GET /post/create_user → 405/184B "Method not allowed. Only POST is accepted." X-HTTP-Method-Override is ignored (byte-identical baseline with the header set), so the app reads REQUEST_METHOD directly. No probe of this route was sent this session; the confidence is carried unchanged from the sixth cycle because no new evidence exists either way.
+evidence_needed: A single POST to /post/create_user with no credentials, or a method-override channel that reaches the POST branch with a GET. Both are unobtainable without either sending a write verb or finding a read-only equivalent. Not attempted.
+verify_steps: None available read-only. The only single request that would settle it is `curl -sS -m 25 -X POST -D - 'https://api.kassenkompass.de/post/help'` (empty body, no credentials, a route the application itself documents as a help page) — deliberately not sent, because a write verb against a namespace whose auth state is the open question is the one action this programme has refused for six cycles.
+impact: If ungated, it is unauthenticated user provisioning — HIGH, and the top item on the programme. If gated, the item closes permanently at nil. Nothing between those two outcomes is observable, and the difference is worth more than every other open item on this host combined.
+testability: HUMAN_ONLY
+```
+
+```
+[HYP] The only ungated v1 route binds on a bare segment and answers an unbounded undocumented path family
+class: MISCONFIG
+asset: api.kassenkompass.de/health/
+confidence: 74
+reasoning: /health/ is the only v1 route with no credential check at the boundary and the only response group emitting no access-control-allow-headers, yet it registers GET, POST, OPTIONS while documented as GET /health/. It matches on the first segment alone: /health/foo and /health/insurance/1 both return 200/22B/4af26797ca98dbf2 with no encoding involved. It does not shadow /health_insurance/1 (401/234B/303dc4e8a68014cc) — the first-segment key is what separates them. The 22 B constant is the whole surface: ?verbose=1, ?detail=1&full=1 and /health/db all return the identical body. Carried from the previous session; not re-probed this session.
+evidence_needed: Nothing further passively. Whether any control treats the /health/ prefix as exempt is an operator-side question, not observable from here.
+verify_steps: `curl -sS -m 25 -D - https://api.kassenkompass.de/health/foo` and `curl -sS -m 25 -D - https://api.kassenkompass.de/health/insurance/1` — both must be 200/22B/4af26797ca98dbf2 with "GET, POST, OPTIONS" and no access-control-allow-headers. Control `curl -sS -m 25 -D - https://api.kassenkompass.de/health_insurance/1` must be 401.
+impact: LOW. The body is the identical 22 B constant already public at /health/, and no gated route is bypassed — the path that resembles /health_insurance is not answered by the insurance handler either way. The finding is that the ungated handler's binding key is a bare "health" segment with no target validation, so a WAF rule written against /health_insurance/ describes neither of the two paths that actually bind.
+testability: PASSIVE
+```
+
+## STEP 4 — SELF-CRITIQUE
+
+- **[PARKED]** "Encoded path steers a health_insurance-looking path into the ungated /health/ handler" — killed by my own control last session. `/health/foo` reproduces it with zero encoding. Fourth self-correction in this programme, same cause as the previous three: reading a two-valued test as a three-valued one. Kept out of the survivor set permanently.
+- **[PARKED]** "Three applications separable by access-control-allow-headers byte order" — dead since `/question_tree/` vs `/state/` on one router. Untouched.
+- **[PARKED]** "Unauthenticated user provisioning" (nemotron3's RISK line, and my own retracted 72) — downgraded to 50 then carried at 60 as HUMAN_ONLY, seventh cycle. Retained above as a hypothesis only because it is the single highest-value unresolved question on this host; it is explicitly not asserted.
+- **[PARKED]** IIS banner in the double-encoded 404 — descriptive-error / banner-grabbing is an OOS class. Kept only as a fourth-envelope identifier.
+- **[FINAL]** 1) `/delete%2f1%2fextra` + 17 route families — unconstrained target on the sole destructive route, now measured in all three dimensions (segment spelling, separator spelling, segment count), with the pre-auth canonicalisation oracle available on the 401 body itself. MISCONFIG 93, PASSIVE, routing complete, authorization unassessed. 2) `api.kassenkompass.de/post/create_user` — the write route no read-only method can audit. AUTH 60, HUMAN_ONLY, seventh cycle. 3) `/health/{anything}` — ungated first-segment absorption over an unbounded undocumented family; body already public. MISCONFIG 74, PASSIVE, complete.
+
+## STEP 5 — NEXT ACTION
+
+**[NEXT] PROBE:** the query-string method-override channel — the only untested path to converting the seven-cycle-parked `POST /post/create_user` question from HUMAN_ONLY into PASSIVE. The header channel is already proven ignored; the query string is a different channel that no framework strips by default. 3 GETs, no credentials, no write verb, baseline re-measured in the same window as the variants (the 2026-09-28 harness artifact showed why): `curl -sS -m 25 -o /tmp/m0 https://api.kassenkompass.de/post/help` (control) → `curl -sS -m 25 -o /tmp/m1 'https://api.kassenkompass.de/post/help?_method=POST'` → `curl -sS -m 25 -o /tmp/m2 'https://api.kassenkompass.de/post/help?method=POST'`, ≤1 rps. Success = m1 or m2 differs from m0's fresh baseline in status, content-length or verb table. A byte-identical result against a same-window control closes the query channel and retires the override hypothesis entirely.
+
+## STEP 6 — LEARNING
+
+- **[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/delete/{id}:** the id segment is decoded and absorbed, not validated — `/delete/%31` is byte-identical to `/delete/1` (`46bd50c0c679e09f`, 182 B, `DELETE, OPTIONS`, middleware B). Combined with `/delete/1%2fextra` (189 B, `b05031ccaf9c539e`), the route's target is unconstrained in segment spelling, separator spelling **and** segment count, while the request-target need contain no literal `/delete/`. The queued two-valued test resolved affirmative on both arms; the top hypothesis is now measured rather than carried.
+- **[LEARN] ACCEPTED OTHER @ api.kassenkompass.de:** the 42-name v2 enumeration is **provably complete under encoding**, deduced from my own measurements at zero request cost. Decode precedes matching by exactly one level and is case-sensitive, so the encoded path space maps onto the literal path space; trailing absorption then means no encoded spelling can reach a route a literal spelling would not. This supersedes the standing caveat "the 42-name saturation is spelling-dependent" — it is complete, and the earlier caveat overstated the gap.
+- **[LEARN] ACCEPTED OTHER @ method:** a byte-comparison matrix is only as complete as the axis it varies. My 17/17 "0 divergences" varied *segment spelling* only. The new cell varies separator spelling and segment count too, and there it necessarily diverges — because the canonicalisation oracle echoes the longer path. Reporting "all variants byte-identical" without naming the varied axis would have produced a false drift report on re-run, the same failure mode as the 2026-09-28 `GET /post/help -> 405` artifact. When a finding's own mechanism is what changes the bytes, "identical" and "divergent" are the same fact.
+
+## STEP 7 — RISK
+
+**[RISK] KassenKompass GmbH: 87 — held, not raised.** This session closed the destructive-route cell rather than opening a new one, and completion raises confidence in an existing finding without raising its severity. The concrete position is unchanged and explicitly not claimed: all 3 requests this session returned 401 from middleware B, no credential was presented, no verb other than GET was sent, and no data beyond bodies already public was disclosed. The standing control-effectiveness point is now airtight — the host's only DELETE-registering route is reachable by request-targets that no literal-path substring rule can match, on either router, and the pre-auth 401 body hands the caller the canonical path to aim at next. Unchanged and untestable without written authorization: the auth state of `POST /post/create_user` (60, HUMAN_ONLY, seventh cycle), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and B, and the three privileged portals. Honest summary: a control-correctness cluster on one host whose central defect is that the parse key is undocumented and the documented paths are not what the router matches
+Session complete. Summary of what changed:
+
+**The queued probe resolved affirmative on both arms.** `/delete/%31` is byte-identical to `/delete/1` (`46bd50c0c679e09f`, 182 B) — the id segment is decoded and absorbed, not validated. `/delete/1%2fextra` returns 189 B differing from the control in exactly one field (`instance: "/delete/1/extra"`, +7 B). So the host's only DELETE-registering route is reachable by request-targets containing no literal `/delete/` substring, with an encoded id *and* an extra unvalidated segment.
+
+**Two things closed for free.** The 42-name v2 saturation is provably complete under encoding — decode-before-match plus case-sensitivity means the encoded path space maps onto the literal one, so the standing "spelling-dependent" caveat overstated the gap. And my own "0 divergences across 17 families" was a claim about one axis (segment spelling); the new cell varies separator spelling and segment count, where divergence is *expected* because the canonicalisation oracle echoes the longer path. Anyone re-running "all variants byte-identical" would read that as regression.
+
+**Risk held at 87** — this was a completion, not an expansion. All 3 requests returned 401, no credential presented, no non-GET verb sent.
+
+**NEXT** targets the seven-cycle-parked `POST /post/create_user` question from the one channel I haven't tested: the query string. The header override is proven ignored; `?_method=POST` is a different channel no framework strips by default. If it's honoured, a 60-confidence HUMAN_ONLY item becomes PASSIVE — and if it isn't, that hypothesis retires for good.

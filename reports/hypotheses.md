@@ -3546,3 +3546,21 @@
 - LEARN: REJECTED MISCONFIG @ api.kassenkompass.de/health/: no information-disclosure depth. ?verbose=1, ?detail=1&full=1 and /health/db all return the identical 22 B bo
 - LEARN: ACCEPTED OTHER @ api.kassenkompass.de: four response-envelope fingerprints, and the only group emitting no access-control-allow-headers is the only group with n
 - LEARN: ACCEPTED OTHER @ kassenkompass pipeline: peer signal remains zero for a 25th cycle (mimo 18 B, three header-only, one reprint), yet this cycle produced three ex
+
+## RANKED HYPOTHESES 2026-09-29 15:44:02 UTC
+- [96] kassenkompass.de/bonusrechner_fragen.php: Sustained Unauthenticated Tariff Database Scraping At Scale — 2.1MB Competitive Intelligence Leak (from art/lead_nemotron3.txt)
+- [93] api.kassenkompass.de/delete%2f1%2fextra: The sole DELETE-registering route accepts an unconstrained target: encoded id, encoded separator, and unbounded segment count all reach the same handler with no validation (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 1000 requests at 1 rps;
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console, 7 global functions plus pseudoKkIds, and
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server-side cookie-spoofing chain on this funnel. Stuffed cookies change 3 cache-buster bytes onl
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; ca
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+j
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning", as published in the nemotron3 RISK line. 405 is method-confounded by gated POST-only
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: percent-decode-before-match is a host-wide, two-router property — `/v2/%69nsurance_info/1` returns byte-identical 401 of 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: encoded separators decode, so the router's match key excludes `/` itself. `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, by
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: the pre-auth canonicalisation oracle is not one branch but three — 401 `instance`, 405 `instance` (`/%63at_detail/` → 405
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing.
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl

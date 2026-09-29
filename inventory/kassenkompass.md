@@ -1285,3 +1285,11 @@ www.kassenkompass.de
 - NEW The pre-auth canonicalisation oracle is not confined to the 401 branch: the 405 branch also emits the decoded path (`/%63at_detail/` → 405, `instance: "/cat_detail/"`). Three distinct pre-auth branche
 - CHANGED `/health/` matches on the first segment alone and absorbs any trailing path: `/health/foo` and `/health/insurance/1` → 200/22B/`4af26797ca98dbf2` with no encoding involved. It does NOT shadow `/health
 - CHANGED Falsified before write-up, by my own control one request after the observation: "encoded path steers health_insurance into the ungated handler". `/health/foo` reproduces it with zero encoding, so enco
+
+## 2026-09-29 15:44:02 UTC
+- CHANGED api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: percent-decode-before-match confirmed host-wide (v1+v2), encoded separators decode (`/delete%2f1` → 401), case-sensitive matching proven (`/HEALTH_INSURANCE/1` → catch-all), stat
+- CHANGED api.kassenkompass.de: three pre-auth canonicalisation oracles — 401 `instance`, 405 `instance` (`/%63at_detail/`), v2 404 `detail` — available on every error shape
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
