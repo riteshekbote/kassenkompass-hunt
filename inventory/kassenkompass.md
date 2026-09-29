@@ -1277,3 +1277,11 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF, no rate limit; debug API (7 window.* functions) + full client-sid
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 beyond page-refs), all duplicates at n=1; n-dimension extends (qid 60 n=2 = 1,051,319 B); non-image keys all 403
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-29 08:48:14 UTC
+- NEW Normalisation matrix COMPLETE, not sampled: 17 route families, baseline+encoded pair each, 0 divergences. This session closed the 9 unmeasured ones — settlement_report `9726c27ebceccb50`, cat_detail `
+- NEW The three previously-untested UNAUTHENTICATED envelopes also normalise: `/%68ealth/` ≡ `/health/` (200/22B), `/%73ync/` ≡ `/sync/` (200/67B), and critically `/%70ost/` ≡ `/post/` (200/344B) — the sepa
+- NEW Encoded SEPARATORS decode, not just encoded segment bytes: `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`. A request-
+- NEW The pre-auth canonicalisation oracle is not confined to the 401 branch: the 405 branch also emits the decoded path (`/%63at_detail/` → 405, `instance: "/cat_detail/"`). Three distinct pre-auth branche
+- CHANGED `/health/` matches on the first segment alone and absorbs any trailing path: `/health/foo` and `/health/insurance/1` → 200/22B/`4af26797ca98dbf2` with no encoding involved. It does NOT shadow `/health
+- CHANGED Falsified before write-up, by my own control one request after the observation: "encoded path steers health_insurance into the ungated handler". `/health/foo` reproduces it with zero encoding, so enco
