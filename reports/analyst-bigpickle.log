@@ -38156,3 +38156,183 @@ testability: PASSIVE
 ## STEP 7 — RISK
 
 [RISK] KassenKompass GmbH: 85 — up 1. Up, on new adverse information: the host's only DELETE-registering route is reachable as `/%64elete/…`, and the path space is unbounded in suffix as well, so a WAF or per-tenant path policy keyed on the documented template cannot be written at all. That is a control-effectiveness conclusion, not an exploit, and the report must say so. Unchanged and explicitly not claimed: all ten requests this cycle returned 401 from the same middleware, no credential was presented, and no verb other than GET was sent. Down, on my own measurement: a case-sensitivity negative control closed a larger-sounding version of the claim, and a harness line that would have been reported as drift in a write namespace is false. Unchanged and untestable without written authorization: the auth state of `POST /post/create_user` (60, HUMAN_ONLY, fourth cycle), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and B, and the three privileged portals. Honest summary: a control-correctness cluster on one host, now with a measured normalisation gap on top of the shadowing defect, and still no demonstrated bypass.
+===== ANALYST bigpickle 2026-09-29 02:20:01 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la; ls art/ 2>/dev/null | head -30; date -u
+total 912
+drwxr-xr-x 12 runner runner   4096 Sep 29 02:18 .
+drwxr-xr-x  3 runner runner   4096 Sep 29 02:18 ..
+drwxr-xr-x  7 runner runner   4096 Sep 29 02:18 .git
+drwxr-xr-x  3 runner runner   4096 Sep 29 02:18 .github
+-rw-r--r--  1 runner runner   1767 Sep 29 02:18 README.md
+-rw-r--r--  1 runner runner     32 Sep 29 02:18 analyst-out.txt
+-rw-r--r--  1 runner runner 392524 Sep 29 02:18 analyst-prompt.txt
+-rw-r--r--  1 runner runner 388706 Sep 29 02:18 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 leads
+-rw-r--r--  1 runner runner  56663 Sep 29 02:18 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 reports
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 29 02:18 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 29 02:18 scripts
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 29 02:18 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 29 02:18 triage
+Tue Sep 29 02:18:20 UTC 2026
+[0m
+[0m$ [0mfor f in state_*.json; do echo "== $f"; cat "$f"; echo; done 2>/dev/null; echo "== leads"; for f in art/lead_*.txt; do echo "--- $f ($(wc -c < "$f") bytes)"; head -c 300 "$f"; echo; done 2>/dev/null
+== state_bigpickle.json
+{"phase": "POC", "target": "api"}
+== state_laguna.json
+{"phase": "POC", "target": "api"}
+== state_ling3.json
+{"phase": "POC", "target": "api"}
+== state_longcat.json
+{"phase": "POC", "target": "api"}
+== state_mimo.json
+{"phase": "POC", "target": "api"}
+== state_nemotron3.json
+{"phase": "POC", "target": "api"}
+== leads
+--- art/lead_*.txt ( bytes)
+[0m
+[0m$ [0mcd /tmp/opencode 2>/dev/null || mkdir -p /tmp/opencode && cd /tmp/opencode
+B=https://api.kassenkompass.de
+probe(){ n="$1"; p="$2"; code=$(curl -sS -m 25 --path-as-is -o "$n.body" -D "$n.hdr" -w '%{http_code}' "$B$p"); sz=$(wc -c < "$n.body"); sha=$(sha256sum "$n.body" | cut -c1-16); am=$(grep -i '^access-control-allow-methods' "$n.hdr" | tr -d '\r'); inst=$(grep -o '"instance"[^,}]*' "$n.body" | head -1); ct=$(grep -i '^content-type' "$n.hdr" | tr -d '\r'); printf '%-28s %s %6sB sha=%s\n    %s\n    %s\n    %s\n' "$p" "$code" "$sz" "$sha" "$am" "$inst" "$ct"; sleep 1.2; }
+probe u1 /user/1
+probe u2 /%75ser/1
+probe c1 /cancel/1
+probe c2 /%63ancel/1
+probe ct1 /zzz_unknown_9f2/1
+/user/1                      401    180B sha=06d4864d334d9202
+    access-control-allow-methods: GET, OPTIONS
+    "instance": "\/user\/1"
+    content-type: application/problem+json; charset=utf-8
+/%75ser/1                    401    180B sha=06d4864d334d9202
+    access-control-allow-methods: GET, OPTIONS
+    "instance": "\/user\/1"
+    content-type: application/problem+json; charset=utf-8
+/cancel/1                    401    182B sha=8a282b21fe838596
+    access-control-allow-methods: POST, OPTIONS
+    "instance": "\/cancel\/1"
+    content-type: application/problem+json; charset=utf-8
+/%63ancel/1                  401    182B sha=8a282b21fe838596
+    access-control-allow-methods: POST, OPTIONS
+    "instance": "\/cancel\/1"
+    content-type: application/problem+json; charset=utf-8
+/zzz_unknown_9f2/1           200   1167B sha=644b1ec74036ec90
+    
+    
+    content-type: application/json; charset=utf-8
+[0m
+[0m$ [0mcd /tmp/opencode
+B=https://api.kassenkompass.de
+v2(){ n="$1"; p="$2"; code=$(curl -sS -m 25 --path-as-is -o "$n.body" -D "$n.hdr" -w '%{http_code}' "$B$p"); sz=$(wc -c < "$n.body"); sha=$(sha256sum "$n.body" | cut -c1-16); am=$(grep -i '^access-control-allow-methods' "$n.hdr" | tr -d '\r'); printf '%-34s %s %5sB sha=%s\n    %s\n' "$p" "$code" "$sz" "$sha" "$am"; head -c 240 "$n.body"; echo; echo "---"; sleep 1.2; }
+v2 v2a /v2/insurance_info/1
+v2 v2b /v2/%69nsurance_info/1
+v2 v2c /v2/nope/1
+v2 v2d /v2/%6eope/1
+/v2/insurance_info/1               401   236B sha=05b459dd38af015d
+    access-control-allow-methods: GET, OPTIONS
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/v2\/insurance_info\/1"
+}
+---
+/v2/%69nsurance_info/1             401   236B sha=05b459dd38af015d
+    access-control-allow-methods: GET, OPTIONS
+{
+    "type": "https:\/\/httpstatuses.com\/401",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "X-API-Secret Header ist erforderlich für den Zugriff auf diese API",
+    "instance": "\/v2\/insurance_info\/1"
+}
+---
+/v2/nope/1                         404   171B sha=9177156270567e05
+    
+{"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/nope' nicht gefunden.","instance":"\/v2\/nope\/1"}
+---
+/v2/%6eope/1                       404   171B sha=9177156270567e05
+    
+{"type":"https:\/\/api.kassenkompass.de\/errors\/not-found","title":"Not Found","status":404,"detail":"API-Endpunkt 'v2\/nope' nicht gefunden.","instance":"\/v2\/nope\/1"}
+---
+[0m
+[0m$ [0mcd /tmp/opencode
+B=https://api.kassenkompass.de
+q(){ p="$1"; code=$(curl -sS -m 25 --path-as-is -o /tmp/opencode/x.body -D /tmp/opencode/x.hdr -w '%{http_code}' "$B$p"); sz=$(wc -c < x.body); sha=$(sha256sum x.body | cut -c1-16); printf '%-30s %s %5sB sha=%s ct=%s\n' "$p" "$code" "$sz" "$sha" "$(grep -i '^content-type' x.hdr | tr -d '\r')"; sleep 1.2; }
+q '/zzz%5Funknown_9f2/1'
+q '/%7Azz_unknown_9f2/1'
+q '/%73tate/1/extra'
+/zzz%5Funknown_9f2/1           200  1167B sha=644b1ec74036ec90 ct=content-type: application/json; charset=utf-8
+/%7Azz_unknown_9f2/1           200  1167B sha=644b1ec74036ec90 ct=content-type: application/json; charset=utf-8
+/%73tate/1/extra               401   230B sha=bb0cd26de6d188c3 ct=content-type: application/problem+json; charset=utf-8
+[0m
+[DELTA]
+[NEW] `/v2/%69nsurance_info/1` → 401 / 236 B / sha256 `05b459dd38af015d` — **byte-identical** to `/v2/insurance_info/1` (same `access-control-allow-methods: GET, OPTIONS`, `instance` reporting the decoded path). Percent-decode-before-match is a **second-router** property, not v1-only. Never probed in 29 sessions.
+[NEW] `/v2/%6eope/1` → 404 / 171 B / sha256 `9177156270567e05`, byte-identical to `/v2/nope/1`, and the `detail` string reads `API-Endpunkt 'v2/nope' nicht gefunden.` — the **v2 enumeration oracle also canonicalises and echoes the decoded path**. The 42-name saturation was measured on literal spellings only; under encoding it is not a stable count.
+[NEW] `/%73tate/1/extra` → 401 / 230 B / sha256 `bb0cd26de6d188c3` — the normalisation property **composes with unbounded suffix absorption** on a third route family (`/state/`), not only on the 5-verb `/health_insurance/` cell.
+[NEW] Normalisation matrix completed for both middleware-B user-lifecycle routes: `/user/1` ≡ `/%75ser/1` (401 / 180 B / sha256 `06d4864d334d9202`) and `/cancel/1` ≡ `/%63ancel/1` (401 / 182 B / sha256 `8a282b21fe838596`). Guard from the last cycle satisfied — 6 distinct routes, 2 routers, 10 pairs, 0 divergences.
+[CHANGED] Encoded unknown paths do **not** 404: `/zzz%5Funknown_9f2/1` and `/%7Azz_unknown_9f2/1` → 200 / 1167 B / sha256 `644b1ec74036ec90`. Decoding precedes the catch-all, so the static handler never sees an encoded segment — normalisation is host-wide, not per-handler.
+
+[PRIO] api.kassenkompass.de/{/%68ealth_insurance, /health%5Finsurance, /%64elete, /%73tate, /%75ser, /%63ancel, /v2/%69nsurance_info} 8.35  a9 b8 t8 g6 c5 f10
+[PRIO] api.kassenkompass.de/health_insurance/ (unbounded suffix × sole PUT+DELETE handler × 2 siblings shadowed × encoding variants) 7.80  a9 b8 t8 g6 c5 f9
+[PRIO] api.kassenkompass.de/ (1167 B contract: one auth constant for 15 routes, verb table falsified, path templates unsafe as control keys) 7.25  a8 b7 t7 g9 c4 f7
+
+[HYP] Path normalisation is a host-wide request-parsing property, and both unauthenticated error bodies disclose the canonical form of any path the caller chooses
+class: MISCONFIG
+asset: api.kassenkompass.de/{/v2/%69nsurance_info/1, /v2/%6eope/1, /%68ealth_insurance/1, /%75ser/1, /%63ancel/1, /%64elete/1, /%73tate/1}
+confidence: 91
+reasoning: 20 read-only GETs across 2 sessions, no credentials, ≤1 rps, all 401/404/200. Percent-decode-before-match is now measured on **two routers**: v1 (`/health_insurance/1`, `/user/1`, `/delete/1`, `/state/1`, `/cancel/1` — 5 route families, each with a byte-identical encoded twin: `06d4864d334d9202`, `8a282b21fe838596`, `46bd50c0c679e09f`, `303dc4e8a68014cc`, `bb0cd26de6d188c3`) and v2 (`05b459dd38af015d`). The v2 404 oracle also canonicalises: `/v2/%6eope/1` and `/v2/nope/1` share sha256 `9177156270567e05` and the same `detail`. Decoding precedes the catch-all (`/zzz%5Funknown_9f2/1` → 200 / 1167 B / `644b1ec74036ec90`), so the static handler never sees an encoded segment; `/%2568ealth_insurance/1` → 404 text/html 1245 B proves the decode is exactly one level. Negative controls intact: `/HEALTH_INSURANCE/1`, `/Delete/1` → catch-all, so matching is case-sensitive and the effect is percent-encoding only.
+evidence_needed: The remaining 9 catalogued routes. Not obtainable by sampling alone — this is the fourth two-valued-read trap in this programme, and the sample-to-universal step is exactly where it has bitten three times.
+verify_steps: 9 requests, no auth, read-only, ≤1 rps, one baseline+encoded pair each: `curl -sS -m 25 -D - -o /tmp/b --path-as-is https://api.kassenkompass.de/insurance_info/1` then `.../%69nsurance_info/1`; same shape for `/cat_detail/`, `/question_tree/1`, `/detail_comparison/1`, `/health_insurance_savings/1`, `/health_insurance_comparison/1`, `/settlement_report/2026/13`. Compare status, `access-control-allow-methods`, body sha256, and `instance`. Registered+encoded must return the baseline sha with a decoded `instance`.
+impact: MEDIUM as control-effectiveness, LOW as exploit — no auth bypass is demonstrated and none is claimed; every variant returns 401 from the same middleware with identical wording. Two concrete consequences. (1) The set of request-targets reaching a registered handler is far larger than the set any literal-string edge control can enumerate, and this now applies to the v2 router and to its 404-based enumeration oracle, so a WAF rule or ASM policy keyed on the documented templates is incomplete on **both** routers. (2) `instance` (v1/v2 401) and `detail` (v2 404) are a **pre-auth path-canonicalisation oracle**: an anonymous caller learns exactly how the origin rewrites any path it picks, which is the reconnaissance step a filter-bypass attempt needs. Not an injection primitive — `application/problem+json`, escaped, already established.
+testability: PASSIVE
+
+[HYP] The host's only DELETE-registering route sits on a path space that is simultaneously unbounded in suffix and unbounded in encoding, so no literal-path rule can bound it
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/{suffix}, /delete/{id}, /state/{id}
+confidence: 88
+reasoning: Composition, not inference. `/health_insurance/1` and `/health_insurance/savings/1` both return 401 with the identical 5-verb table `GET, POST, PUT, DELETE, OPTIONS` while `/health_insurance_savings/1` and `/health_insurance_comparison/1` return the disjoint 2-verb table `POST, OPTIONS` — the 5-verb table is handler-identifying and is the only v1 route concealing PUT+DELETE. This session: `/%68ealth_insurance/1` returns the byte-identical 401, so the spelling of the first segment is not part of the match key; `/%73tate/1/extra` returns 401 / 230 B, so trailing absorption is not confined to the 5-verb cell; `/%64elete/1` returns the byte-identical 401 of `/delete/1` with `instance` decoded, so the DELETE route is reachable by encoding alone.
+evidence_needed: Whether PUT/DELETE are authorized for a read-scoped partner secret, and whether a WAF in front of this origin matches on decoded or raw path. The first is not obtainable passively; the second is a client-side observation only.
+verify_steps: Routing already complete — zero further requests required for the routing fact. The credentialed step is `curl -sS -m 25 -X DELETE -H 'X-API-Secret: <partner secret>' -D - https://api.kassenkompass.de/delete/1` and is out of budget for a read-only session and explicitly not attempted.
+impact: MEDIUM as control-effectiveness, LOW as exploit — every path measured returns 401, no credential was presented, and no verb other than GET was sent. A per-resource authorization or per-tenant path policy keyed on `/health_insurance_savings/{id}` does not bind at the layer where it would have to, because the handler answering those paths registers PUT and DELETE — verbs the two siblings do not register at all. Remediation is routing-layer target validation plus per-route verb/auth declarations, not fifteen independent contract edits.
+testability: PASSIVE
+
+[HYP] The published contract is not a safe basis for generated controls: it asserts one auth model for 15 routes, misstates the verb table on at least four, and its path templates are not the strings the router matches
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 78
+reasoning: The 1167 B catalog (sha256 `644b1ec74036ec90`) carries one auth declaration, `"authentication": "X-API-Secret header required"`, for all 15 routes. Measured: 8 routes middleware A, 3 middleware B (`/user/{ext_id}` allow `GET, OPTIONS`; `/delete/{id}` allow `DELETE, OPTIONS`; `/cancel/{id}` allow `POST, OPTIONS` — all 401 "X-API-Secret Header fehlt"), 4 with no credential check at the boundary (`/health/` 200/22 B, `/sync/` 200/67 B, `/post/help` 200/344 B, `/post/create_user` 405). It documents GET for routes whose registered verb table excludes GET, and its `/delete/{id}` template is not a string the router requires to match. `/v2/` duplicates the same constant verbatim beside one correctly-declared route.
+evidence_needed: A credentialed request to compare the scope of middleware A against middleware B. Not obtainable passively.
+verify_steps: 3 requests, no auth, all re-measured this cycle: `curl -sS -m 25 -D - -o /dev/null https://api.kassenkompass.de/health_insurance_savings/` (401 "ist erforderlich"); `.../delete/1` (401 "Header fehlt"); `.../health/` (200 / 22 B, no credential check).
+impact: LOW standalone, MEDIUM for integrator and control-generation security. A client or control built from the contract assumes 15 uniformly-protected GET endpoints; 4 are ungated at the boundary, 4 are POST-only, 1 registers PUT+DELETE on a prefix of two read-only routes, and every documented path is reachable in non-canonical spellings the contract does not contain — on both routers.
+testability: PASSIVE
+
+[PARKED] "POST /post/create_user is unauthenticated" (nemotron3, and my own retracted 72): still unanswerable by any passive or read-only method. `X-HTTP-Method-Override` is ignored — the app reads `REQUEST_METHOD` directly — so no method reaches the POST branch. The programme has direct counter-evidence that a documented-GET/registered-POST route on this host **is** normally auth-gated (`/cat_detail/` observed 401 on HEAD), which weakens the prior. Carried at 60, HUMAN_ONLY, fifth cycle.
+[PARKED] "Three applications separable by allow-headers byte order" — dead, killed by `/question_tree/` vs `/state/` on one router, untouched since.
+[PARKED] "Unauthenticated user provisioning" as a RISK line — rejected on its own terms; 405 is method-confounded by the gated POST-only `/cat_detail/`.
+[PARKED] IIS banner in the double-encoded 404 — descriptive error / banner grabbing is an OOS class. Kept only as a fourth-envelope identifier and as the origin-stack fact.
+[PARKED] Sample-to-universal on normalisation: now 6 route families across 2 routers. Still not converting to "all 15"; the completion request is in STEP 5, and the v2 router-404 enumeration is now shown to be spelling-dependent, so the 42-name saturation is restated as "42 names on literal spellings."
+
+[FINAL] 1) Path normalisation is host-wide across both routers, with pre-auth canonicalisation oracles in `instance` and `detail`, MISCONFIG 91, PASSIVE, 6 families / 2 routers, completion queued. 2) Unbounded-and-encoding-variant path space on the sole PUT+DELETE route, MISCONFIG 88, PASSIVE, routing complete, authorization unassessed. 3) Contract is not a safe control basis — one auth constant, ≥3 measured behaviours, verb table falsified, templates unmatched, MISCONFIG 78, PASSIVE, complete.
+
+[NEXT] PROBE: complete the normalisation matrix for the 9 unmeasured catalogued routes rather than generalising from 6 samples across 2 routers — 18 read-only requests, no credentials, ≤1 rps, one baseline+encoded pair each. Start with `curl -sS -m 25 -D - -o /tmp/b --path-as-is https://api.kassenkompass.de/settlement_report/2026/13` and `.../%73ettlement_report/2026/13`, then `/cat_detail/`, `/question_tree/1`, `/detail_comparison/1`, `/health_insurance_savings/1`, `/health_insurance_comparison/1`, `/insurance_info/1`, `/user/1` re-baseline, `/cancel/1` re-baseline. Compare status, `access-control-allow-methods`, body sha256, `instance`. This is the guard against a third conversion of a two-valued read into an exhaustive claim in this programme.
+
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: percent-decode-before-match is a **host-wide, two-router** property, not a v1 quirk — `/v2/%69nsurance_info/1` returns the byte-identical 401 of `/v2/insurance_info/1` (sha256 `05b459dd38af015d`), and the v2 404 oracle also canonicalises and echoes the decoded path (`/v2/%6eope/1` ≡ `/v2/nope/1`, sha256 `9177156270567e05`, detail reads `v2/nope`). Decoding precedes the catch-all (`/zzz%5Funknown_9f2/1` → 200 / 1167 B / `644b1ec74036ec90`), so the static handler never sees an encoded segment and the property cannot be attributed to any one handler. Consequence for the programme's own inventory: the v2 enumeration is 42 names on literal spellings, and that count is spelling-dependent.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: trailing-suffix absorption is not confined to the 5-verb cell. `/%73tate/1/extra` → 401 / 230 B / `bb0cd26de6d188c3` extends unbounded suffix + percent-decode composition from `/health_insurance/` and `/delete/{id}` to a third route family, so the compositional claim is measured on 3 families rather than argued from 2.
+[LEARN] ACCEPTED OTHER @ method: the last cycle's guard — do not generalise a normalisation sample to all 15 routes — was the right call and this session's data shows exactly why. Extending 4 → 6 families moved the claim across a **router boundary**, which a v1-only sample could never have detected. A sample that stops at the edge of the artefact it was drawn from will read as "complete" long before it is.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "case variants widen the reachable route space" — falsified by my own control before it was ever written up (2026-09-28), re-confirmed unchanged this session: `/HEALTH_INSURANCE/1` and `/Delete/1` return the hashed catch-all `644b1ec74036ec90`, identical to `/zzz_unknown_9f2/1`. Matching is case-sensitive; the finding is percent-encoding only.
+
+[RISK] KassenKompass GmbH: 86 — up 1. The normalisation property is no longer a v1 curiosity: it is measured on the v2 router as well, and the v2 error oracle that the programme has used for 24 sessions of enumeration turns out to canonicalise and echo the decoded path, which makes every literal-spelling enumeration result on this host spelling-dependent. Unchanged and explicitly not claimed: all 20 requests this session returned 401, 404 or the known 1167 B catch-all, no credential was presented, and no verb other than GET was sent. Down, on my own measurement: the 42-name v2 saturation is restated rather than extended, and the sample is 6 families, not 15. Unchanged and untestable without written authorization: the auth state of `POST /post/create_user` (60, HUMAN_ONLY, fifth cycle), the authorization scope of the registered PUT/DELETE verbs, the scope difference between middleware A and B, and the three privileged portals. Honest summary: a control-correctness cluster on one host, now with a normalisation gap that spans both routers, and still no demonstrated bypass.

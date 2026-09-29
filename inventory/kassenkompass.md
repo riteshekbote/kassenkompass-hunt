@@ -1264,3 +1264,16 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF, no rate limit
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-09-29 02:20:01 UTC
+- NEW `/v2/%69nsurance_info/1` → 401 / 236 B / sha256 `05b459dd38af015d` — **byte-identical** to `/v2/insurance_info/1` (same `access-control-allow-methods: GET, OPTIONS`, `instance` reporting the decoded p
+- NEW `/v2/%6eope/1` → 404 / 171 B / sha256 `9177156270567e05`, byte-identical to `/v2/nope/1`, and the `detail` string reads `API-Endpunkt 'v2/nope' nicht gefunden.` — the **v2 enumeration oracle also cano
+- NEW `/%73tate/1/extra` → 401 / 230 B / sha256 `bb0cd26de6d188c3` — the normalisation property **composes with unbounded suffix absorption** on a third route family (`/state/`), not only on the 5-verb `/he
+- NEW Normalisation matrix completed for both middleware-B user-lifecycle routes: `/user/1` ≡ `/%75ser/1` (401 / 180 B / sha256 `06d4864d334d9202`) and `/cancel/1` ≡ `/%63ancel/1` (401 / 182 B / sha256 `8a2
+- CHANGED Encoded unknown paths do **not** 404: `/zzz%5Funknown_9f2/1` and `/%7Azz_unknown_9f2/1` → 200 / 1167 B / sha256 `644b1ec74036ec90`. Decoding precedes the catch-all, so the static handler never sees an
+- CHANGED api.kassenkompass.de: Route matching confirmed on percent-decoded path (single-level decode); case-sensitive matching proven via negative controls (/HEALTH_INSURANCE/1 → catch-all); static handler 404
+- CHANGED api.kassenkompass.de: Verb+auth matrix 15/15 completed via access-control-allow-methods — 4 catalogued-GET routes exclude GET entirely, /health/ only unauthenticated route, /post/ namespace closed at 
+- CHANGED api.kassenkompass.de: /cat_detail/ auth state OBSERVED (HEAD → 401) not INFERRED; GET/HEAD divergence proven (GET 405 pre-auth, HEAD 401 post-auth)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF, no rate limit; debug API (7 window.* functions) + full client-sid
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 beyond page-refs), all duplicates at n=1; n-dimension extends (qid 60 n=2 = 1,051,319 B); non-image keys all 403
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
