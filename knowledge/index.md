@@ -913,3 +913,12 @@
 - 2026-09-30 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
 - 2026-09-30 ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - 2026-09-30 REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+- 2026-09-30 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: /js/whitelabel_live.js?v=v2.6.10 public, 11,359 B, absent from inventory
+- 2026-09-30 ACCEPTED MISCONFIG @ /js/whitelabel_live.js: zero origin validation — event.origin, .origin, origin ===, isTrusted, sameOrigin all no matches; sole "origin" occurrence is comment line 17
+- 2026-09-30 ACCEPTED MISCONFIG @ /js/whitelabel_live.js: handler force-adds wl-active (line 229), measured 0 wl-active occurrences in served bonusrechner.php (body class="bn_bodystan")
+- 2026-09-30 ACCEPTED MISCONFIG @ /js/whitelabel_live.js: NOT XSS — textContent write at line 231, not innerHTML; isHex ^#[0-9a-f]{3}([0-9a-f]{3})?$, pickEnum enums, RADIUS_MAP fixed values, sanitizeFont strips to [a-zA-Z0-9 _\-,']
+- 2026-09-30 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_vergleich2.php: reflection class closed 7/7, only daten/fragen/abschluss/vergleich2 ever reflect a cookie
+- 2026-09-30 ACCEPTED MISCONFIG @ kassenkompass.de/htmlincludes/: GET /htmlincludes/whitelabel/whitelabel_styles.php -> 200, 0 B, text/html; GET /htmlincludes/ and /htmlincludes/whitelabel/ -> 403, 1,233 B IIS-style Access is denied
+- 2026-09-30 ACCEPTED OTHER @ kassenkompass.de: http sink path -> 301 HTTPS, 167 B, zero Set-Cookie; HSTS max-age=31536000 includeSubDomains
+- 2026-09-30 REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite — non-sensitive data, HSTS blocks plaintext
+- 2026-09-30 ACCEPTED OTHER @ kassenkompass.de: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin gives a frame-ready timing oracle

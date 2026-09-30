@@ -1326,3 +1326,35 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+
+## 2026-09-30 16:56:44 UTC
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- CHANGED api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- CHANGED api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+- NEW kassenkompass.de — live frontend, Cloudflare-fronted, insurance comparison platform with customer/partner/insurer logins
+- NEW www.kassenkompass.de — mirrors kassenkompass.de
+- CHANGED Inventory Live HTTP count: 0 → 3 (all three hosts serve HTTP)
+- NEW kassenkompass.de/js/whitelabel_live.js — 11,359 B public whitelabel live-preview postMessage receiver, absent from inventory, only on bonusrechner.php
+- NEW kassenkompass.de/htmlincludes/ — server-side include directory is web-addressable by filename; listing denied 403
+- NEW 403 error body is IIS-style "Access is denied" behind Cloudflare + ALB — origin is likely Windows/IIS
+- CHANGED reflection class closed 7/7 — bonusrechner.php, bonusrechner_suche.php, termin.php measured, zero cookie->script reflections on all three
+- CHANGED whitelabel_live.js: zero origin validation, only "origin" occurrence is the comment claiming the control
+- CHANGED whitelabel_live.js: handler force-adds wl-active to body, defeating the tenant CSS gate
+- CHANGED whitelabel_live.js: NOT XSS — textContent write + full value allowlisting, integrity-only finding
+- CHANGED whitelabel_live.js: empty brand {} still emits the unconditional ~20-selector trust/legal/footer display:none block
+- CHANGED whitelabel_live.js: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin leaks frame-ready timing cross-origin
+- CHANGED http sink path 301 -> HTTPS, 167 B, zero Set-Cookie — plain-HTTP delivery route closed a second time
+- CHANGED bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite, rejected as non-sensitive + HSTS includeSubDomains
+- CHANGED bonusrechner.php: 27,803 B of inline script, 42,990 B total
+- CHANGED whitelabel_styles.php returns 200/0 B — the mirrored PHP renderer executes when called directly
+- CHANGED peer pipeline 26th consecutive header-only/stub cycle, zero new peer signal
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- CHANGED api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- CHANGED api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (

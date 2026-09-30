@@ -40610,3 +40610,867 @@ drwxr-xr-x  2 runner runner  12288 Sep 30 11:13 triage
 [0m✗ [0mcd /tmp/opencode 2>/dev/null || cd /tmp; for f in /tmp/base /tmp/ourl1 /tmp/ourl2 /tmp/ourl3 /tmp/ourl4; do rm -f $f.json $f.hdr; done; echo clean failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
 I'll run a small, low-rate read-only delta check plus one genuinely unmeasured routing-header question, then produce the structured blocks.
+===== ANALYST bigpickle 2026-09-30 16:56:44 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt 2>/dev/null | head -40
+total 980
+drwxr-xr-x 12 runner runner   4096 Sep 30 16:51 .
+drwxr-xr-x  3 runner runner   4096 Sep 30 16:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 30 16:51 .git
+drwxr-xr-x  3 runner runner   4096 Sep 30 16:51 .github
+-rw-r--r--  1 runner runner   1767 Sep 30 16:51 README.md
+-rw-r--r--  1 runner runner     32 Sep 30 16:51 analyst-out.txt
+-rw-r--r--  1 runner runner 423085 Sep 30 16:51 analyst-prompt.txt
+-rw-r--r--  1 runner runner 419267 Sep 30 16:51 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 leads
+-rw-r--r--  1 runner runner  60763 Sep 30 16:51 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 reports
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Sep 30 16:51 scope.yml
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 scripts
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_laguna.json
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_ling3.json
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_longcat.json
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_mimo.json
+-rw-r--r--  1 runner runner     33 Sep 30 16:51 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Sep 30 16:51 triage
+[0m
+[0m✱ [0mGlob "**/lead_*.txt"[90m 0 matches[0m
+[0m
+[0m$ [0mls -la leads/ | head -30; echo "---INVENTORY---"; ls -la inventory/; echo "---REPORTS---"; ls -la reports/; echo "---RECON---"; ls -la recon-notes/ | head
+total 2888
+drwxr-xr-x  2 runner runner    4096 Sep 30 16:51 .
+drwxr-xr-x 12 runner runner    4096 Sep 30 16:51 ..
+-rw-r--r--  1 runner runner 1139904 Sep 30 16:51 lead-bigpickle.md
+-rw-r--r--  1 runner runner    8619 Sep 30 16:51 lead-laguna.md
+-rw-r--r--  1 runner runner    8450 Sep 30 16:51 lead-ling3.md
+-rw-r--r--  1 runner runner    8788 Sep 30 16:51 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Sep 30 16:51 lead-mimo.md
+-rw-r--r--  1 runner runner 1733861 Sep 30 16:51 lead-nemotron3.md
+-rw-r--r--  1 runner runner   27230 Sep 30 16:51 reposcan-kassenkompass.md
+---INVENTORY---
+total 180
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 .
+drwxr-xr-x 12 runner runner   4096 Sep 30 16:51 ..
+-rw-r--r--  1 runner runner 174124 Sep 30 16:51 kassenkompass.md
+---REPORTS---
+total 6196
+drwxr-xr-x  2 runner runner    4096 Sep 30 16:51 .
+drwxr-xr-x 12 runner runner    4096 Sep 30 16:51 ..
+-rw-r--r--  1 runner runner 3250382 Sep 30 16:51 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   36673 Sep 30 16:51 analyst-laguna.log
+-rw-r--r--  1 runner runner   36504 Sep 30 16:51 analyst-ling3.log
+-rw-r--r--  1 runner runner   36842 Sep 30 16:51 analyst-longcat.log
+-rw-r--r--  1 runner runner 2444738 Sep 30 16:51 analyst-nemotron3.log
+-rw-r--r--  1 runner runner      54 Sep 30 16:51 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Sep 30 16:51 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Sep 30 16:51 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Sep 30 16:51 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   11358 Sep 30 16:51 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  568488 Sep 30 16:51 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Sep 30 16:51 valid-bugs.md
+---RECON---
+total 12
+drwxr-xr-x  2 runner runner 4096 Sep 30 16:51 .
+drwxr-xr-x 12 runner runner 4096 Sep 30 16:51 ..
+-rw-r--r--  1 runner runner  828 Sep 30 16:51 DEDICATED-DEEP.md
+[0m
+[0m$ [0mls -t triage/ | head -12
+run-2026-09-25-22-28.md
+run-2026-09-26-00-51.md
+run-2026-09-26-05-54.md
+run-2026-09-26-10-55.md
+run-2026-09-26-14-54.md
+run-2026-09-26-18-23.md
+run-2026-09-26-21-32.md
+run-2026-09-26-23-51.md
+run-2026-09-27-04-03.md
+run-2026-09-27-10-04.md
+run-2026-09-27-15-11.md
+run-2026-09-27-19-02.md
+[0m
+[0m$ [0mls -t triage/ | head -6; echo "=== newest triage ==="; tail -60 "triage/$(ls -t triage/ | head -1)"
+run-2026-09-25-22-28.md
+run-2026-09-26-00-51.md
+run-2026-09-26-05-54.md
+run-2026-09-26-10-55.md
+run-2026-09-26-14-54.md
+run-2026-09-26-18-23.md
+=== newest triage ===
+
+===== TRIAGE 2026-09-25 22:28:40 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_cf74e589"
+  }
+}
+[0m
+[0m$ [0mfor f in reports/hypotheses-laguna.txt reports/hypotheses-ling3.txt reports/hypotheses-longcat.txt leads/lead-mimo.md; do echo "=== $f ==="; cat "$f"; done; echo "=== nemotron3 hypotheses (head 60) ==="; head -60 reports/hypotheses-nemotron3.txt
+=== reports/hypotheses-laguna.txt ===
+## 2026-09-30 11:13:54 UTC [target] (model laguna)
+=== reports/hypotheses-ling3.txt ===
+## 2026-09-30 11:13:56 UTC [target] (model ling3)
+=== reports/hypotheses-longcat.txt ===
+## 2026-09-30 11:13:58 UTC [target] (model longcat)
+=== leads/lead-mimo.md ===
+# Lead log (seed)
+=== nemotron3 hypotheses (head 60) ===
+## 2026-09-30 11:18:44 UTC [target] (model nemotron3)
+[CHANGED] api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+[CHANGED] api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[CHANGED] api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[CHANGED] api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[CHANGED] Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+[CHANGED] No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+[PRIO] api.kassenkompass.de/,9.20,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.95,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/post/,7.80,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=3
+[PRIO] api.kassenkompass.de/delete/,7.45,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=1,cloud_surface=6,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,6.70,attack_surface=6,business_value=8,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.20,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] API Root Catalog Disclosure Enables Targeted Attack Planning Against All 16 Auth-Gated Endpoints
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 95
+reasoning: Root returns HTTP 200 with full 15-endpoint v1 catalog (ver 1.0) + 1-endpoint v2 catalog (ver 2.0) without authentication; violates least privilege; enables recon for /user/{ext_id}, /delete/{id}, /cancel/{id}, /settlement_report/, /insurance_info/{kk_id}, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /question_tree/, /detail_comparison/, /state/, /cat_detail/, /sync/, /post/, /health/; two distinct 403 error messages confirm separate auth middleware stacks (A: 8 endpoints, B: 3 user-lifecycle endpoints); /sync/ returns HTTP 200 with auth error body instead of 401; percent-decode-before-match host-wide; trailing suffix absorption on 3+ route families
+evidence_needed: None — catalog disclosure confirmed across 26+ sessions; auth map 15/15 complete via access-control-allow-methods
+verify_steps: GET https://api.kassenkompass.de/ (passive, already done); GET https://api.kassenkompass.de/v2/ (passive, already done)
+impact: Targeted attack planning against sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; reconnaissance amplifier for credentialed attacks; MEDIUM
+testability: PASSIVE
+[HYP] Client-Side Rating Engine Full Offline Replication & Settlement Value Manipulation via Debug API
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: Production debug API exposed — 7 global window.* functions (debugDrawflow, debugUndoHistory, testUndoSystem, manualUndo, checkNode, testLoop, exportFlow), pseudoKkIds array, full rating engine shipped as three unminified files (live-calculation.js, standard.js, param_passthrough.js) with 0 network calls; live-calculation.js:642 has commented `// this.setCookie('data_sparsum', Math.round(totalSavings))` — explicit decision to keep display value out of trust path; server-side cookie-spoofing chain materially weakened (GET is static page, stuffed cookies change only 3 cache-buster bytes); 2.1MB tariff data (ucatKkData 1.79MB, globalbudgetsData, kombiboniData, dataant 138 questions) served unauthenticated, no rate limit, no caching mitigation
+evidence_needed: Map debug API functions to settlement calculation logic; verify server accepts/validates client-calculated values in abschluss.php POST
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php → save three JS files; open DevTools console; invoke each window.debug* function with crafted parameters; inspect pseudoKkIds usage in inline JS; search for data_sparsum references in all JS; compare client-calculated vs server-accepted values if credentialed flow ever reached
+impact: Full offline replication of proprietary GKV/PKV comparison logic; debug API enables runtime manipulation of calculation state; potential for crafted settlement values if server trusts client output; HIGH (business logic integrity)
+testability: PASSIVE
+[HYP] Sole DELETE-Registered Route Accepts Unconstrained Target Via Encoded Separators & Unbounded Suffix Composition
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 88
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide — `/delete%2f1` → 401 byte-identical to `/delete/1` with `instance: "/delete/1"`; trailing suffix absorption composes: `/delete/1/extra`, `/delete/1/extra/more` all reach same handler; encoded separator bypasses any literal-path WAF rule; target validation absent at routing layer; composes with v1 greedy prefix matching (host-wide property)
+evidence_needed: Confirm server-side authorization on resolved id after routing; test if encoded separator + suffix reaches business logic
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; MEDIUM
+testability: PASSIVE
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+[PARKED] v2 Insurance Info BOLA Cross-Tenant Read: confidence 60 — v2 insurance_info returns draft categories + resolved references but ucatKkData on bonusrechner_fragen.php publicly replicates this domain; value downgraded to unpublished-draft-only; no credentialed access to confirm cross-tenant isolation
+[FINAL] 1. api.kassenkompass.de/: API Root Catalog Disclosure Enables Targeted Attack Planning Against All 16 Auth-Gated Endpoints (confidence 95, PASSIVE)
+[FINAL] 2. kassenkompass.de/bonusrechner_fragen.php: Client-Side Rating Engine Full Offline Replication & Settlement Value Manipulation via Debug API (confidence 92, PASSIVE)
+[FINAL] 3. api.kassenkompass.de/delete/: Sole DELETE-Registered Route Accepts Unconstrained Target Via Encoded Separators & Unbounded Suffix Composition (confidence 88, PASSIVE)
+[NEXT] PROBE: GET https://api.kassenkompass.de/delete%2f1 and GET https://api.kassenkompass.de/delete%2f1%2fextra at ≤1 rps; compare 401 response `instance` field and `access-control-allow-methods` header against baseline `/delete/1` to confirm encoded separator + suffix composition reaches same handler
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[0m
+Peer signal is zero again (26th cycle — three header-only stubs, mimo at 18 B). Running my own cycle. Four read-only requests, ≥2 s apart, all GET.
+[0m$ [0mcd /tmp/opencode && rm -f bp_*.html
+# R1: queued delivery precondition — plain HTTP on the sink path
+curl -sS -m 25 -D h_plain.txt -o b_plain.html 'http://kassenkompass.de/bonusrechner_vergleich2.php' 2>&1
+echo "--- R1 plain-HTTP headers ---"; cat h_plain.txt
+echo "body bytes: $(wc -c < b_plain.html)"
+sleep 2
+# R2: entry page baseline — the page that takes ?lizenz= and is the one place a URL-deliverable sink would live
+curl -sS -m 25 -D h_bp.txt -o bp_bonusrechner.html 'https://kassenkompass.de/bonusrechner.php'
+echo "--- R2 bonusrechner.php ---"; grep -iE '^(HTTP|set-cookie|strict-transport|content-security)' h_bp.txt
+echo "bytes: $(wc -c < bp_bonusrechner.html)"
+--- R1 plain-HTTP headers ---
+HTTP/1.1 301 Moved Permanently
+Date: Wed, 30 Sep 2026 16:52:45 GMT
+Content-Type: text/html; charset=UTF-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+Location: https://kassenkompass.de/bonusrechner_vergleich2.php
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=tolfEjbiBxcEruWFAO8T7nRgNJWNw3HoVdUgNRHqYXYWXg%2BHrOkowFtlp8GVyjk2HZ%2Bnr42Oiw6uSD0Wq2xfKaG2h3YebdCvoRAjkOODojQfm57go%2FZ9EGiAmzcKyCEPm3I%3D"}]}
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Server: cloudflare
+CF-RAY: a434bd6a4d9c4c93-MSP
+
+body bytes: 167
+--- R2 bonusrechner.php ---
+HTTP/2 200 
+set-cookie: AWSALB=uRLycuTLCLjD5gLEd2mtlJD8NLkqO22KmZXhOA+V0ZmndHRfzbQwT2e+NuUPZN0WYoKHqdklraYJxjM4HdnuDUai7ySvzUu3mA/Vc5FfB4JsFIH2M+KUL73hkiDI; Expires=Wed, 07 Oct 2026 16:52:48 GMT; Path=/
+set-cookie: AWSALBCORS=uRLycuTLCLjD5gLEd2mtlJD8NLkqO22KmZXhOA+V0ZmndHRfzbQwT2e+NuUPZN0WYoKHqdklraYJxjM4HdnuDUai7ySvzUu3mA/Vc5FfB4JsFIH2M+KUL73hkiDI; Expires=Wed, 07 Oct 2026 16:52:48 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=d8f3ee46df09f0a51c8904ec3cfee96a; path=/; secure; HttpOnly; SameSite=Lax
+strict-transport-security: max-age=31536000; includeSubDomains
+bytes: 42990
+[0m
+[0m$ [0mcd /tmp/opencode
+python3 - <<'PY'
+import re
+h=open('bp_bonusrechner.html',encoding='utf-8',errors='replace').read()
+# 1) every inline script block
+scripts=re.findall(r'<script\b[^>]*>(.*?)</script>',h,re.S|re.I)
+inline=[s for s in scripts if s.strip()]
+print("inline script blocks:",len(inline),"| total inline bytes:",sum(len(s) for s in inline))
+# 2) script *src* list
+print("external srcs:",re.findall(r'<script[^>]+src=["\']([^"\']+)',h,re.I))
+# 3) cookie-ish tokens anywhere in doc
+for tok in ['AFILCODE','afilcode','lizenz','LIZENZ','AFIL','agenturnummer','AGENTURNUMMER',
+            'kundennummer','KundenID','positive_','Kategorie','positiv','poolpartnernummer',
+            'employeenumber','advisorid','connectionnumber','catoint','device_id']:
+    n=h.count(tok)
+    if n: print(f"  doc count {tok}: {n}")
+# 4) which cookie-ish tokens appear INSIDE inline script
+for tok in ['AFILCODE','afilcode','lizenz','agenturnummer','kundennummer','positive_','catoint','device_id']:
+    hits=[i for i,s in enumerate(inline) if tok in s]
+    if hits: print(f"  INLINE-SCRIPT {tok}: blocks {hits}")
+PY
+inline script blocks: 2 | total inline bytes: 27803
+external srcs: ['/js/standard.js?v=1790787168', '//js-eu1.hs-scripts.com/146866466.js', 'js/whitelabel_live.js?v=v2.6.10']
+[0m
+[0m$ [0mcd /tmp/opencode
+# R3 + R4: the two remaining never-grepped funnel pages (suche, termin)
+curl -sS -m 25 -o bp_suche.html 'https://kassenkompass.de/bonusrechner_suche.php'
+echo "suche: $(wc -c < bp_suche.html)"
+sleep 2
+curl -sS -m 25 -o bp_termin.html 'https://kassenkompass.de/termin.php'
+echo "termin: $(wc -c < bp_termin.html)"
+suche: 8043
+termin: 8697
+[0m
+[0m$ [0mcd /tmp/opencode
+python3 - <<'PY'
+import re
+TOK=['AFILCODE','afilcode','lizenz','agenturnummer','poolpartnernummer','kundennummer',
+     'positive_','positiveKategorie','catoint','device_id','employeenumber','advisorid',
+     'connectionnumber','SESSION','uid_kk','akt_kk','sessionData','famsel']
+for f in ['bp_suche.html','bp_termin.html','bp_bonusrechner.html']:
+    h=open(f,encoding='utf-8',errors='replace').read()
+    scripts=re.findall(r'<script\b[^>]*>(.*?)</script>',h,re.S|re.I)
+    inline=[s for s in scripts if s.strip()]
+    print(f"=== {f}  bytes={len(h)}  inline_blocks={len(inline)} inline_bytes={sum(len(s) for s in inline)}")
+    print("   srcs:",re.findall(r'<script[^>]+src=["\']([^"\']+)',h,re.I))
+    for tok in TOK:
+        d=h.count(tok)
+        if d:
+            inl=sum(s.count(tok) for s in inline)
+            print(f"   {tok}: doc={d} inline={inl}")
+PY
+=== bp_suche.html  bytes=7870  inline_blocks=1 inline_bytes=2211
+   srcs: ['/js/standard.js?v=1790787177', '//js-eu1.hs-scripts.com/146866466.js', 'https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js', 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js']
+=== bp_termin.html  bytes=8482  inline_blocks=0 inline_bytes=0
+   srcs: ['/js/standard.js?v=1790787180', '//js-eu1.hs-scripts.com/146866466.js', '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js']
+=== bp_bonusrechner.html  bytes=42348  inline_blocks=2 inline_bytes=27803
+   srcs: ['/js/standard.js?v=1790787168', '//js-eu1.hs-scripts.com/146866466.js', 'js/whitelabel_live.js?v=v2.6.10']
+[0m
+Both never-grepped funnel pages reflect **zero** cookie tokens. One more passive read: `bonusrechner.php` ships a script not in my recorded asset list.
+[0m$ [0mcd /tmp/opencode
+curl -sS -m 25 -D h_wl.txt -o whitelabel_live.js 'https://kassenkompass.de/js/whitelabel_live.js?v=v2.6.10'
+grep -iE '^(HTTP|content-type|content-length)' h_wl.txt
+echo "bytes: $(wc -c < whitelabel_live.js)"
+echo "--- cookie reads / sinks ---"
+grep -oE "document\.cookie[^;]{0,80}" whitelabel_live.js | head -20
+echo "--- sink calls ---"
+grep -noE "innerHTML|outerHTML|insertAdjacentHTML|document\.write|eval\(|new Function|setTimeout\(['\"\`]" whitelabel_live.js | head -20
+echo "--- tenant/whitelabel identifiers ---"
+grep -noE "whitelabel|tenant|partner_code|afil|lizenz|mandant|kunde|domain|host" whitelabel_live.js | sort -t: -k2 | uniq -c -f0 | head -25
+HTTP/2 200 
+content-type: application/javascript
+content-length: 11359
+bytes: 11359
+--- cookie reads / sinks ---
+--- sink calls ---
+--- tenant/whitelabel identifiers ---
+      1 100:whitelabel
+      1 77:whitelabel
+      2 9:whitelabel
+[0m
+[0m$ [0mcd /tmp/opencode
+head -c 700 whitelabel_live.js; echo; echo "...";
+grep -noE "(src|href|url|endpoint|api)[^,;]{0,60}" whitelabel_live.js | head -12
+/**
+ * Whitelabel Live-Preview Receiver
+ *
+ * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+ * die vom Server gerenderten CSS-Variablen + Hooks in einem dedizierten
+ * <style id="wl-vars-live">-Block.
+ *
+ * WICHTIG: Die hier abgebildete CSS-Build-Logik ist ein 1:1-JS-Spiegel von
+ *   htmlincludes/whitelabel/whitelabel_styles.php
+ * Jede neue Style-Hook-Regel muss auch hier ergänzt werden, sonst greift
+ * sie zwar nach dem Speichern, aber nicht im Live-Editor.
+ *
+ * Erwartete Message:
+ *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+ *
+ * Sicherheit:
+ * - same-origin Voraussetzung (Editor + Funnel laufe
+...
+[0m
+[0m$ [0mcd /tmp/opencode
+sed -n '1,60p' whitelabel_live.js
+/**
+ * Whitelabel Live-Preview Receiver
+ *
+ * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+ * die vom Server gerenderten CSS-Variablen + Hooks in einem dedizierten
+ * <style id="wl-vars-live">-Block.
+ *
+ * WICHTIG: Die hier abgebildete CSS-Build-Logik ist ein 1:1-JS-Spiegel von
+ *   htmlincludes/whitelabel/whitelabel_styles.php
+ * Jede neue Style-Hook-Regel muss auch hier ergänzt werden, sonst greift
+ * sie zwar nach dem Speichern, aber nicht im Live-Editor.
+ *
+ * Erwartete Message:
+ *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+ *
+ * Sicherheit:
+ * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+ * - postMessage erlaubt zwar Cross-Origin, aber wir validieren strikt
+ *   den Message-Typ + Whitelisten die Brand-Keys + Sanitize jeden Wert
+ */
+(function () {
+	'use strict';
+
+	const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
+	const isHex = v => typeof v === 'string' && HEX.test(v);
+	const pickEnum = (v, allowed) => allowed.indexOf(v) !== -1 ? v : null;
+	const sanitizeFont = v => (typeof v === 'string') ? v.replace(/[^a-zA-Z0-9 _\-,']/g, '') : '';
+
+	const RADIUS_MAP = { leicht: '4px', mittel: '10px', stark: '20px' };
+
+	const BTN_SELECTORS =
+		'body.wl-active button, body.wl-active input[type="submit"], ' +
+		'body.wl-active .bn_searchbut, body.wl-active .bnv_button, ' +
+		'body.wl-active .ad_changebut';
+
+	const BTN_TEXT_SELECTORS =
+		'body.bn_bodystan.wl-active button, body.bn_bodystan.wl-active button *, ' +
+		'body.bn_bodystan.wl-active input[type="submit"], ' +
+		'body.bn_bodystan.wl-active .bn_searchbut, body.bn_bodystan.wl-active .bn_searchbut *, ' +
+		'body.bn_bodystan.wl-active .bnv_button, body.bn_bodystan.wl-active .bnv_button *, ' +
+		'body.bn_bodystan.wl-active .ad_changebut, body.bn_bodystan.wl-active .ad_changebut *';
+
+	const BTN_SVG_SELECTORS =
+		'body.bn_bodystan.wl-active button svg path, ' +
+		'body.bn_bodystan.wl-active input[type="submit"] svg path, ' +
+		'body.bn_bodystan.wl-active .bn_searchbut svg path, ' +
+		'body.bn_bodystan.wl-active .bnv_button svg path, ' +
+		'body.bn_bodystan.wl-active .ad_changebut svg path';
+
+	function buildCss(brand) {
+		const col_primary     = isHex(brand.color_primary)         ? brand.color_primary         : null;
+		const col_secondary   = isHex(brand.color_secondary)       ? brand.color_secondary       : null;
+		const col_background  = isHex(brand.color_background)      ? brand.color_background      : null;
+		const col_text        = isHex(brand.color_text)            ? brand.color_text            : null;
+		const col_button      = isHex(brand.color_button)          ? brand.color_button          : null;
+		const col_button_text = isHex(brand.color_button_text)     ? brand.color_button_text     : null;
+		const col_card_bg     = isHex(brand.color_card_background) ? brand.color_card_background : null;
+		const col_card_border = isHex(brand.color_card_border)     ? brand.color_card_border     : null;
+		const col_highlight   = isHex(brand.color_highlight)       ? brand.color_highlight       : null;
+[0m
+`whitelabel_live.js` is a **postMessage receiver** whose own comment asserts a "same-origin Voraussetzung". Reading the actual handler:
+## Objective
+- Continue the KassenKompass `POC` phase targeting `api`, identify actionable deltas, and return only the required 8-step structured analysis.
+- Focus on high-value logic flaws while avoiding repetition of closed or method-confounded probes.
+
+## Important Details
+- Final output must contain `[DELTA]`, up to three strict `[HYP]` blocks, `[PARKED]`/`[FINAL]`, exactly one `[NEXT]`, `[LEARN]`, and `[RISK]`.
+- Priority formula: `priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f`.
+- Live verification is passive-first, `≤1 rps`, and limited to GET/HEAD/OPTIONS; no credentials, mutations, customer data, or DoS testing.
+- Top finding: `kassenkompass.de/bonusrechner_vergleich2.php` injects keys from the unsigned `positive_kategorien_counts` cookie into `const positiveKategorienIds = ...`; payloads such as `{"1,alert(1),2":1}` execute without interaction.
+- Latest context already reports plain HTTP returns `301` with zero body and no `Set-Cookie`; fixed URL parameters and `awv`/`load.awv` cookie-write paths are also closed. Do not repeat the older queued HTTP probe or call this one-click.
+- `POST /post/create_user` auth remains `HUMAN_ONLY`; `405` responses are method-confounded and do not prove an unauthenticated write.
+- API normalization is saturated across 17 route families; do not repeat percent-encoding or canonicalization sweeps.
+- S3 qid `1..180` and multi-image keys are mapped; non-image/sensitive keys return `403`. A valid-prefix/wrong-extension HEAD comparison remains potentially informative.
+- Hash any secret before disclosure; do not expose authentication, customer, employee, or financial data.
+
+## Work State
+### Completed
+- Listed `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt`; confirmed `scope.yml`, `inventory/`, `knowledge/`, `leads/`, `triage/`, `probe-results.md`, reports, and state files exist.
+- Ran glob `**/lead_*.txt`; result: `No files found`.
+- Reviewed the supplied state and identified the `positive_kategorien_counts` XSS as the strongest surviving hypothesis.
+- Recognized that the older plain-HTTP `[NEXT]` probe is superseded by the newer 95-confidence lead.
+- No files were changed and no live probes were run in this continuation.
+
+### Active
+- Inspect `leads/` and `triage/` manually because the glob found no conventionally named lead files.
+- Consider one new passive S3 control comparing a known PNG with a wrong-extension key under the same allowed-looking prefix.
+- Prepare the final 8-step blocks without repeating saturated API or stale XSS-delivery probes.
+
+### Blocked
+- No attacker-controlled cookie-name write primitive is proven for the XSS sink.
+- `POST /post/create_user` cannot be settled with allowed read-only methods.
+- Local lead discovery is incomplete: `leads/` and `triage/` contents have not yet been listed.
+
+## Next Move
+1. Run `ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage` and inspect the newest files.
+2. If no newer lead supersedes it, compare `curl -sS -m 25 -I 'https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/1/1.png'` with the same command using `/uploads/fraq/1/1.txt`, spaced `≥2s`, then emit the structured blocks.
+
+## Relevant Files
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/scope.yml`: authoritative scope and testing constraints.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/inventory/kassenkompass.md`: asset inventory and confirmed hosts.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge/`: knowledge base and prior accepted/rejected findings.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/`: peer and current analyst lead files.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/`: recent pipeline triage artifacts.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/probe-results.md`: latest measured HTTP evidence.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-prompt.txt`: current analyst instructions and context.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/ctx.txt`: supplied consolidated context.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_bigpickle.json`: current state `{"phase":"POC","target":"api"}`.
+- `/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt`: expected final structured output destination.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode
+echo "=== origin checks ==="
+grep -noE "event\.origin|\.origin\b|origin ===|isTrusted|sameOrigin|MESSAGE_SOURCE" whitelabel_live.js || echo "  (none)"
+echo
+echo "=== addEventListener / handler wiring ==="
+grep -nE "addEventListener|addEventListener\(|onmessage|function (on|handle|receive)" whitelabel_live.js
+echo
+echo "=== DOM write of the style block ==="
+grep -nE "wl-vars-live|textContent|innerHTML|outerHTML|insertAdjacentHTML|createElement|appendChild|\.style\.|setProperty" whitelabel_live.js
+=== origin checks ===
+  (none)
+
+=== addEventListener / handler wiring ===
+226:	window.addEventListener('message', function (event) {
+
+=== DOM write of the style block ===
+6: * <style id="wl-vars-live">-Block.
+217:		let el = document.getElementById('wl-vars-live');
+219:			el = document.createElement('style');
+220:			el.id = 'wl-vars-live';
+221:			document.head.appendChild(el);
+231:		ensureLiveStyle().textContent = buildCss(data.brand);
+[0m
+[0m$ [0mcd /tmp/opencode
+sed -n '60,215p' whitelabel_live.js
+const button_style = pickEnum(brand.button_style, ['clean', 'solid', 'outline']);
+		const border_radius = pickEnum(brand.border_radius, ['leicht', 'mittel', 'stark']);
+		const card_style = pickEnum(brand.card_style, ['minimal', 'modern', 'elevated']);
+		const font_family = sanitizeFont(brand.font_family);
+
+		// Dekorations-Toggles (Default = sichtbar; explizit 0 → ausblenden)
+		const asBool = v => (v === 1 || v === '1' || v === true) ? 1 : (v === 0 || v === '0' || v === false ? 0 : 1);
+		const show_ornaments      = asBool(brand.show_ornaments);
+		const show_stars          = asBool(brand.show_stars);
+		const show_deco_pattern   = asBool(brand.show_deco_pattern);
+		const show_side_structure = asBool(brand.show_side_structure);
+
+		const btn_text_color = col_button_text || '#ffffff';
+
+		const out = [];
+
+		// Auto-Hide (Spiegel von whitelabel_styles.php)
+		out.push(
+			'body.wl-active .bnv_inputframe.bnve_kk_card.assup_con,' +
+			'body.wl-active .assup_con,' +
+			'body.wl-active .bnv_trustwrapper,' +
+			'body.wl-active .bnv_logowrapper,' +
+			'body.wl-active .bnv_trustratebox,' +
+			'body.wl-active .bnv2_trust_wrapper,' +
+			'body.wl-active .bnv2_trust_badge_text,' +
+			'body.wl-active .bnv2_trust_badge,' +
+			'body.wl-active .bnv_trustraterate,' +
+			'body.wl-active .bn_ver_faq,' +
+			'body.wl-active #faqcon,' +
+			'body.wl-active .bn_ver_faqheader,' +
+			'body.wl-active .bn_ver_faqmorewrapper,' +
+			'body.wl-active .bn_det_toggleaccord#faqcon,' +
+			'body.wl-active .bnve_faqwrapper,' +
+			'body.wl-active .bnve_support,' +
+			'body.wl-active .bnv_footer,' +
+			'body.wl-active .bnv_footer2,' +
+			'body.wl-active .bnv_legalmenu { display: none !important; }'
+		);
+
+		// Gegenstück zum Legal-Menü-Hide: rechtes Header-Ornament bei WL wieder zeigen (Spiegel von whitelabel_styles.php;
+		// Ornament ist visibility:hidden-Platzhalter im Flex-Flow — nur Sichtbarkeit zurückdrehen, kein display)
+		out.push('body.wl-active .bnv_legalmenu_ornamentfallback { visibility: visible !important; }');
+
+		// Dekorations-Toggles — nur Hide-Regel ausgeben, wenn explizit deaktiviert
+		if (show_ornaments === 0) {
+			out.push('body.wl-active .bnv_onl, body.wl-active .bnv_onr { display: none !important; }');
+		}
+		if (show_stars === 0) {
+			out.push('body.wl-active .bnve_headstarsleft, body.wl-active .bnve_headstarsright { display: none !important; }');
+		}
+		if (show_deco_pattern === 0) {
+			out.push('body.wl-active .ind_decopicture_left, body.wl-active .ind_decopicture_right { display: none !important; }');
+		}
+		if (show_side_structure === 0) {
+			out.push('body.wl-active .bnv2_sidestructureleft, body.wl-active .bnv2_sidestructureright { display: none !important; }');
+		}
+
+		// F5: Padding-Bottom-Bug-Fix nach Trust-Wrapper-Hide
+		out.push('body.wl-active .bnv_inputframe { padding-bottom: 100px !important; }');
+
+		// F7: Gender-Quest-Wrapper auf Brand-Farben (nur Farben, kein Layout)
+		if (col_card_bg) {
+			out.push('body.wl-active .bnv_genderquestwrapper { background-color: ' + col_card_bg + ' !important; }');
+		}
+		if (col_card_border) {
+			out.push('body.wl-active .bnv_genderquestwrapper { border-color: ' + col_card_border + ' !important; }');
+		}
+		if (col_text) {
+			out.push('body.wl-active .bnv_genderquestwrapper { color: ' + col_text + ' !important; }');
+		}
+
+		// Background / Text
+		if (col_background) {
+			out.push('body.wl-active, body.wl-active .bn_bodystan { background-color: ' + col_background + ' !important; }');
+		}
+		if (col_text) {
+			out.push('body.wl-active, body.wl-active p, body.wl-active label, body.wl-active span:not(.wl_status_badge) { color: ' + col_text + ' !important; }');
+		}
+
+		// Primärfarbe (nur Überschriften)
+		if (col_primary) {
+			out.push('body.wl-active h1, body.wl-active h2, body.wl-active .bnv_mainheader, body.wl-active .bnv_inputheader { color: ' + col_primary + ' !important; }');
+		}
+
+		// Karte
+		if (col_card_bg) {
+			out.push('body.wl-active .bnv_inputframe { background-color: ' + col_card_bg + ' !important; }');
+		}
+		if (col_card_border) {
+			out.push('body.wl-active .bnv_inputframe { border: 2px solid ' + col_card_border + ' !important; }');
+		}
+
+		// Highlight (Vorschlags-Dropdown)
+		if (col_highlight) {
+			out.push('body.wl-active .in_sec1_vorschlag:hover, body.wl-active .in_sec1_vorschlag.highlighted { background-color: ' + col_highlight + ' !important; }');
+		}
+
+		// Sekundärfarbe — Info-Box (lila Info-Marker = Text + inline-SVG-Icon)
+		if (col_secondary) {
+			out.push('body.wl-active .bnv_infochecktext, body.wl-active .bnv_infocheck { color: ' + col_secondary + ' !important; }');
+		}
+
+		// Sekundärbutton (.bnve_detailbutton): Rahmen + Schrift Primärfarbe, BG Kartenhintergrund
+		// Bewusst unabhängig vom button_style-Setting.
+		if (col_primary) {
+			let secBtn = 'body.wl-active .bnve_detailbutton { border: 2px solid ' + col_primary + ' !important; color: ' + col_primary + ' !important;';
+			if (col_card_bg) secBtn += ' background-color: ' + col_card_bg + ' !important;';
+			secBtn += ' }';
+			out.push(secBtn);
+			out.push('body.wl-active .bnve_detailbutton .bnve_detailbuttext, body.wl-active .bnve_detailbutton p, body.wl-active .bnve_detailbutton span { color: ' + col_primary + ' !important; }');
+			out.push('body.wl-active .bnve_detailbutton svg path { stroke: ' + col_primary + ' !important; }');
+		}
+
+		// Button-Hintergrund + Text
+		if (col_button) {
+			out.push(BTN_SELECTORS + ' { background: ' + col_button + ' !important; background-image: none !important; border-color: ' + col_button + ' !important; }');
+			out.push(BTN_TEXT_SELECTORS + ' { color: ' + btn_text_color + ' !important; }');
+		}
+
+		// Button-SVG-Stroke
+		if (col_button || col_button_text) {
+			out.push(BTN_SVG_SELECTORS + ' { stroke: ' + btn_text_color + ' !important; }');
+		}
+
+		// Buttonstil
+		if (button_style === 'clean') {
+			out.push(BTN_SELECTORS + ' { border: none !important; box-shadow: none !important; }');
+		} else if (button_style === 'outline' && col_button) {
+			out.push(BTN_SELECTORS + ' { background: transparent !important; background-image: none !important; border: 2px solid ' + col_button + ' !important; }');
+			out.push(BTN_TEXT_SELECTORS + ' { color: ' + col_button + ' !important; }');
+			out.push(BTN_SVG_SELECTORS + ' { stroke: ' + col_button + ' !important; }');
+		}
+
+		// Border-Radius (Buttons + Karte + Sekundärbutton)
+		if (border_radius && RADIUS_MAP[border_radius]) {
+			out.push(BTN_SELECTORS + ', body.wl-active .bnve_detailbutton, body.wl-active .bnv_inputframe { border-radius: ' + RADIUS_MAP[border_radius] + ' !important; }');
+		}
+
+		// Kartenstil
+		if (card_style === 'minimal') {
+			out.push('body.wl-active .bnv_inputframe { border: none !important; box-shadow: none !important; }');
+		} else if (card_style === 'modern') {
+			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }');
+		} else if (card_style === 'elevated') {
+			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important; transform: translateY(-2px); }');
+		}
+
+		// Schriftart
+		if (font_family) {
+			out.push("body.wl-active, body.wl-active * { font-family: '" + font_family + "', Arial, sans-serif !important; }");
+		}
+
+		return out.join('\n');
+	}
+[0m
+No `event.origin` check anywhere; write is `.textContent` (no HTML breakout). So the whole trust boundary rests on `buildCss` validation. Reading it in full:
+[0m$ [0mcd /tmp/opencode
+sed -n '215,245p' whitelabel_live.js
+echo "=== does the public funnel gate on wl-active? ==="
+grep -oE "wl-active" bp_bonusrechner.html | wc -l
+grep -noE "class=\"[^\"]*wl-active[^\"]*\"|body class=\"[^\"]*\"" bp_bonusrechner.html | head -5
+echo "=== which pages load the receiver? ==="
+for f in bp_bonusrechner.html bp_suche.html bp_termin.html; do printf "%-24s %s\n" "$f" "$(grep -c whitelabel_live $f)"; done
+function ensureLiveStyle() {
+		let el = document.getElementById('wl-vars-live');
+		if (!el) {
+			el = document.createElement('style');
+			el.id = 'wl-vars-live';
+			document.head.appendChild(el);
+		}
+		return el;
+	}
+
+	window.addEventListener('message', function (event) {
+		const data = event.data;
+		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+		// wl-active sicherstellen (Live-Preview funktioniert auch wenn WL noch nicht aktiv ist)
+		document.body.classList.add('wl-active');
+		ensureLiveStyle().textContent = buildCss(data.brand);
+	});
+
+	// Editor mitteilen, dass wir bereit sind (für initialen Push nach iframe-Load)
+	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+})();
+=== does the public funnel gate on wl-active? ===
+0
+69:body class="bn_bodystan"
+=== which pages load the receiver? ===
+bp_bonusrechner.html     1
+bp_suche.html            0
+bp_termin.html           0
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== every occurrence of 'origin' in the file ==="
+grep -noE ".{0,45}origin.{0,45}" whitelabel_live.js || echo "  (zero occurrences)"
+echo
+echo "=== is the trust-hide rule unconditional? (lines before any brand gate) ==="
+grep -nE "out\.push\(" whitelabel_live.js | head -3
+echo
+echo "=== count of !important rules emitted unconditionally ==="
+sed -n '76,100p' whitelabel_live.js | grep -c "display: none"
+echo "=== payload shape: empty brand still emits the hide block ==="
+sed -n '53,80p' whitelabel_live.js | grep -nE "col_|if \(" | head -4
+=== every occurrence of 'origin' in the file ===
+17: * - same-origin Voraussetzung (Editor + Funnel laufen auf gl
+
+=== is the trust-hide rule unconditional? (lines before any brand gate) ===
+78:		out.push(
+102:		out.push('body.wl-active .bnv_legalmenu_ornamentfallback { visibility: visible !important; }');
+106:			out.push('body.wl-active .bnv_onl, body.wl-active .bnv_onr { display: none !important; }');
+
+=== count of !important rules emitted unconditionally ===
+1
+=== payload shape: empty brand still emits the hide block ===
+1:		const col_background  = isHex(brand.color_background)      ? brand.color_background      : null;
+2:		const col_text        = isHex(brand.color_text)            ? brand.color_text            : null;
+3:		const col_button      = isHex(brand.color_button)          ? brand.color_button          : null;
+4:		const col_button_text = isHex(brand.color_button_text)     ? brand.color_button_text     : null;
+[0m
+Decisive. Final confirmation on the origin check and the unconditional rules:
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+echo "=== analyst-out.txt ==="; cat analyst-out.txt 2>/dev/null | head -20; echo "(bytes: $(wc -c < analyst-out.txt 2>/dev/null || echo MISSING))"
+echo; echo "=== KB XSS filename ==="; ls knowledge/ | grep -iE "xss|whitelabel" 
+echo; echo "=== inventory whitelabel/js lines ==="; grep -niE "whitelabel|js/standard|js/" inventory/kassenkompass.md | head -12
+=== analyst-out.txt ===
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt 2>/dev/null | head -40
+total 980
+drwxr-xr-x 12 runner runner   4096 Sep 30 16:51 .
+drwxr-xr-x  3 runner runner   4096 Sep 30 16:51 ..
+drwxr-xr-x  7 runner runner   4096 Sep 30 16:51 .git
+drwxr-xr-x  3 runner runner   4096 Sep 30 16:51 .github
+-rw-r--r--  1 runner runner   1767 Sep 30 16:51 README.md
+-rw-r--r--  1 runner runner     32 Sep 30 16:51 analyst-out.txt
+-rw-r--r--  1 runner runner 423085 Sep 30 16:51 analyst-prompt.txt
+-rw-r--r--  1 runner runner 419267 Sep 30 16:51 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 inventory
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 knowledge
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 leads
+-rw-r--r--  1 runner runner  60763 Sep 30 16:51 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 recon-notes
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 reports
+drwxr-xr-x  2 runner runner   4096 Sep 30 16:51 reposcan-raw
+(bytes: 43342)
+
+=== KB XSS filename ===
+
+=== inventory whitelabel/js lines ===
+[0m
+Confirmed: the sole occurrence of "origin" in 11,359 bytes is the *comment* asserting the control. Zero implementation. Recording the finding.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+ls knowledge/ | head -30
+echo "--- count ---"; ls knowledge/ | wc -l
+echo "--- my current hypotheses file ---"; cat reports/hypotheses-bigpickle.txt
+echo "--- head of lead-bigpickle.md ---"; head -12 leads/lead-bigpickle.md
+index.md
+--- count ---
+1
+--- my current hypotheses file ---
+## 2026-09-30 11:14:25 UTC [target] (model bigpickle)
+--- head of lead-bigpickle.md ---
+## 2026-09-03 17:18:57 UTC [target] (model bigpickle)
+[NEW] api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+[NEW] kassenkompass.de — live frontend, Cloudflare-fronted, insurance comparison platform with customer/partner/insurer logins
+[NEW] www.kassenkompass.de — mirrors kassenkompass.de
+[CHANGED] Inventory Live HTTP count: 0 → 3 (all three hosts serve HTTP)
+[PRIO] api.kassenkompass.de,8.85,attack_surface=9 business_value=10 tech_exposure=10 cloud_surface=4 gate_ease=8 freshness=9
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[PRIO] www.kassenkompass.de,5.15,attack_surface=5 business_value=6 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[HYP] IDOR on /user/{ext_id} - cross-user PII access
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+[0m
+`analyst-out.txt` is just a session capture, and `reports/hypotheses-bigpickle.txt` is my per-cycle output (header only). Checking KB naming convention before writing:
+[0m$ [0mcd /tmp/opencode
+echo "=== whitelabel refs in bonusrechner.php inline script ==="
+grep -noE ".{0,60}whitelabel.{0,60}" bp_bonusrechner.html | head -20
+echo
+echo "=== all internal paths mentioned in the public JS ==="
+grep -noE "['\"][a-zA-Z0-9_./-]+\.(php|js|html)['\"]" whitelabel_live.js | sort -u
+echo
+echo "=== any wl-config / editor / admin reference ==="
+grep -noE "wl-[a-z_]+|config|editor|admin|iframe" whitelabel_live.js | sort -u -t: -k2 | head
+=== whitelabel refs in bonusrechner.php inline script ===
+592:	<script src="js/whitelabel_live.js?v=v2.6.10"></script>
+
+=== all internal paths mentioned in the public JS ===
+
+=== any wl-config / editor / admin reference ===
+234:iframe
+32:wl-active
+14:wl-preview
+6:wl-vars
+[0m
+`whitelabel_live.js` leaks its own mirror source path: `htmlincludes/whitelabel/whitelabel_styles.php`. That's a server-side PHP include path disclosed in a public asset. Checking offline first, then one passive probe:
+[0m$ [0mcd /tmp/opencode
+curl -sS -m 25 -D h_wlphp.txt -o wlphp.out 'https://kassenkompass.de/htmlincludes/whitelabel/whitelabel_styles.php'
+grep -iE '^(HTTP|content-type|content-length|location)' h_wlphp.txt
+echo "bytes: $(wc -c < wlphp.out)"; echo "--- body ---"; head -c 400 wlphp.out
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+bytes: 0
+--- body ---
+[0m
+**Live PHP include exposed: `/htmlincludes/whitelabel/whitelabel_styles.php` → HTTP 200.** Web-reachable include directory. Checking for autoindex:
+[0m$ [0mcd /tmp/opencode
+for p in /htmlincludes/ /htmlincludes/whitelabel/; do
+  echo "=== $p ==="
+  curl -sS -m 25 -D - -o "dir$(echo $p | tr '/' '_').out" "https://kassenkompass.de$p" 2>&1 | grep -iE '^(HTTP|content-type|content-length)'
+  echo "bytes: $(wc -c < "dir$(echo $p | tr '/' '_').out")"
+  sleep 2
+done
+echo "--- any autoindex body? ---"
+head -c 500 dir_htmlincludes_.out
+=== /htmlincludes/ ===
+HTTP/2 403 
+content-type: text/html
+bytes: 1233
+=== /htmlincludes/whitelabel/ ===
+HTTP/2 403 
+content-type: text/html
+bytes: 1233
+--- any autoindex body? ---
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<title>403 - Forbidden: Access is denied.</title>
+<style type="text/css">
+<!--
+body{margin:0;font-size:.7em;font-family:Verdana, Arial, Helvetica, sans-serif;background:#EEEEEE;}
+fieldset{padding:0 15px 10px 15px;} 
+h1{font-size:2.4em;margin:0;color:#FFF;}
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+Directory listing denied, but the include file itself executes at 200. I have enough for a full cycle. Writing up results.
+[0m
+[0m← [0mWrite reports/hypotheses-bigpickle.txt
+Wrote file successfully.
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+cat >> leads/lead-bigpickle.md <<'EOF'
+## 2026-09-30 16:52:00 UTC [target] (model bigpickle)
+[NEW] kassenkompass.de/js/whitelabel_live.js — 11,359 B public whitelabel live-preview postMessage receiver, absent from inventory, only on bonusrechner.php
+[NEW] kassenkompass.de/htmlincludes/ — server-side include directory is web-addressable by filename; listing denied 403
+[NEW] 403 error body is IIS-style "Access is denied" behind Cloudflare + ALB — origin is likely Windows/IIS
+[CHANGED] reflection class closed 7/7 — bonusrechner.php, bonusrechner_suche.php, termin.php measured, zero cookie->script reflections on all three
+[CHANGED] whitelabel_live.js: zero origin validation, only "origin" occurrence is the comment claiming the control
+[CHANGED] whitelabel_live.js: handler force-adds wl-active to body, defeating the tenant CSS gate
+[CHANGED] whitelabel_live.js: NOT XSS — textContent write + full value allowlisting, integrity-only finding
+[CHANGED] whitelabel_live.js: empty brand {} still emits the unconditional ~20-selector trust/legal/footer display:none block
+[CHANGED] whitelabel_live.js: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin leaks frame-ready timing cross-origin
+[CHANGED] http sink path 301 -> HTTPS, 167 B, zero Set-Cookie — plain-HTTP delivery route closed a second time
+[CHANGED] bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite, rejected as non-sensitive + HSTS includeSubDomains
+[CHANGED] bonusrechner.php: 27,803 B of inline script, 42,990 B total
+[CHANGED] whitelabel_styles.php returns 200/0 B — the mirrored PHP renderer executes when called directly
+[CHANGED] peer pipeline 26th consecutive header-only/stub cycle, zero new peer signal
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_vergleich2.php,5.75,attack_surface=4,business_value=8,tech_exposure=9,gate_ease=4,cloud_surface=2,freshness=6
+[PRIO] kassenkompass.de/bonusrechner.php,5.60,attack_surface=3,business_value=7,tech_exposure=4,gate_ease=10,cloud_surface=1,freshness=9
+[PRIO] kassenkompass.de/htmlincludes/,4.45,attack_surface=2,business_value=4,tech_exposure=3,gate_ease=10,cloud_surface=1,freshness=9
+[HYP] Cross-Origin postMessage Receiver With No Origin Validation Lets Any Site Strip Trust Signals From the Public Insurance Funnel
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner.php
+confidence: 88
+reasoning: window message listener never inspects event.origin; only mention of origin in 11,359 B is the comment claiming a same-origin precondition. Any page gets a handle via window.open() and posts {type:'wl-preview', brand:{}} — type guard passes, handler force-adds wl-active to body, ensureLiveStyle().textContent overwrites #wl-vars-live. First emitted rule is unconditional and display:none's ~20 trust-badge, trust-rating, legal-menu and footer selectors, so an empty brand removes every trust element. NOT XSS: all values allowlisted, write is textContent
+evidence_needed: Browser confirmation that a cross-origin window.open handle delivers the message — source reachability established, delivery step inferred from postMessage semantics and NOT executed
+verify_steps: from a cross-origin page run `w=window.open('https://kassenkompass.de/bonusrechner.php'); w.postMessage({type:'wl-preview',brand:{}},'*');` and confirm trust badges, legal menu and footer disappear in w. Single page load, no auth, no state
+impact: any third-party site can silently strip all trust ratings, trust badges, legal menu and footer from a health/insurance comparison funnel entry page and restyle it. Trust-signal suppression on a regulated-adjacent health funnel plus competitor defacement. LOW-MEDIUM, presentation integrity only
+testability: PASSIVE
+[HYP] Internal Server-Side Include Paths Disclosed In Public Assets With The Include Directory Directly Web-Addressable
+class: MISCONFIG
+asset: kassenkompass.de/htmlincludes/
+confidence: 72
+reasoning: whitelabel_live.js documents its server-side mirror as htmlincludes/whitelabel/whitelabel_styles.php in a public comment; that path returns 200 with 0-byte body while listing is denied (403 on both directories). Any backup or editor artifact in that tree would be served by filename
+evidence_needed: whether any non-PHP artifact in the tree is retrievable; requires guessing filenames and the one known name is clean, so not spent this cycle
+verify_steps: grep js/standard.js, js/param_passthrough.js, js/live-calculation.js for further htmlincludes/*.php disclosures; test only explicitly disclosed names, never blind-guessed extensions
+impact: exposes the server-side include layout and gives a known-reachable directory for stray artifacts. Information disclosure, not a direct vulnerability today. LOW
+testability: PASSIVE
+[PARKED] Cross-subdomain cookie write for XSS delivery — exhausted a second cycle; 95-confidence mechanism, delivery precondition explicitly unmet
+[PARKED] S3 /uploads/fraq/1/1.txt extension control — NOT INJECTIVE, 403 is the shared signature of absent-key and wrong-extension, dropped
+[PARKED] AWSALB missing Secure/HttpOnly/SameSite — non-sensitive ALB token, HSTS includeSubDomains/31536000 forecloses plaintext, rejected class
+[FINAL] 1. kassenkompass.de/bonusrechner.php: Cross-Origin postMessage Receiver With No Origin Validation Lets Any Site Strip Trust Signals From the Public Insurance Funnel (confidence 88, PASSIVE)
+[FINAL] 2. kassenkompass.de/bonusrechner_vergleich2.php: reflected-cookie XSS class closed 7/7, exactly one raw cookie->script sink, delivery BLOCKED (confidence 95 mechanism)
+[FINAL] 3. kassenkompass.de/htmlincludes/: Internal Server-Side Include Paths Disclosed In Public Assets With The Include Directory Directly Web-Addressable (confidence 72, PASSIVE)
+[NEXT] PROBE: confirm the one unexecuted link — cross-origin window.open of https://kassenkompass.de/bonusrechner.php, postMessage {type:'wl-preview',brand:{}} with targetOrigin '*', check trust badges/legal menu/footer disappear and body gains wl-active. Passive, no auth; fallback is grepping js/standard.js, js/param_passthrough.js, js/live-calculation.js for further htmlincludes/*.php disclosures
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: /js/whitelabel_live.js?v=v2.6.10 public, 11,359 B, absent from inventory
+[LEARN] ACCEPTED MISCONFIG @ /js/whitelabel_live.js: zero origin validation — event.origin, .origin, origin ===, isTrusted, sameOrigin all no matches; sole "origin" occurrence is comment line 17
+[LEARN] ACCEPTED MISCONFIG @ /js/whitelabel_live.js: handler force-adds wl-active (line 229), measured 0 wl-active occurrences in served bonusrechner.php (body class="bn_bodystan")
+[LEARN] ACCEPTED MISCONFIG @ /js/whitelabel_live.js: NOT XSS — textContent write at line 231, not innerHTML; isHex ^#[0-9a-f]{3}([0-9a-f]{3})?$, pickEnum enums, RADIUS_MAP fixed values, sanitizeFont strips to [a-zA-Z0-9 _\-,']
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_vergleich2.php: reflection class closed 7/7, only daten/fragen/abschluss/vergleich2 ever reflect a cookie
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/htmlincludes/: GET /htmlincludes/whitelabel/whitelabel_styles.php -> 200, 0 B, text/html; GET /htmlincludes/ and /htmlincludes/whitelabel/ -> 403, 1,233 B IIS-style Access is denied
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: http sink path -> 301 HTTPS, 167 B, zero Set-Cookie; HSTS max-age=31536000 includeSubDomains
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite — non-sensitive data, HSTS blocks plaintext
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin gives a frame-ready timing oracle
+[RISK] KassenKompass GmbH: 89 — NEW: public postMessage receiver with no origin validation lets any site deface and strip trust/legal elements from the health-insurance funnel entry page, and its own comment documents a same-origin control never implemented. Outstanding: positive_kategorien_counts XSS is a confirmed raw cookie->script sink with NO delivery primitive after two cycles of exhaustion, must not be reported as one-click. /post/* write auth unproven and method-confounded. Client-side rating engine and 2.1 MB tariff corpus fully public. S3 exposes 180-question image corpus. New: web-reachable include directory with internal paths disclosed in public assets.
+EOF
+echo "appended, new size: $(wc -c < leads/lead-bigpickle.md) bytes"
+appended, new size: 1148347 bytes
+[0m
+Cycle complete. Two genuinely new findings this session, plus two questions closed.
+
+**New finding (88, top-ranked):** `/js/whitelabel_live.js` on `kassenkompass.de/bonusrechner.php` — a postMessage receiver with **zero origin validation**. The word "origin" appears exactly once in 11,359 bytes, and it's in a comment *asserting* a same-origin control:
+
+```
+ * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+```
+
+The handler then force-adds `wl-active` to `<body>`, defeating its own tenant gate, and overwrites a style block whose **first rule is unconditional** — it `display:none`s ~20 trust-badge, trust-rating, legal-menu and footer selectors. So `{type:'wl-preview', brand:{}}` from any site strips every trust element from a health-insurance funnel. I explicitly capped it at integrity severity: the write is `textContent`, not `innerHTML`, and all nine colors go through `isHex`, enums through `pickEnum`, font through `sanitizeFont` — so it is **not** XSS. I'd rather under-claim than ship a "critical XSS" that's really defacement.
+
+**Closed the 95-confidence XSS class:** I'd previously checked 4 of 7 funnel pages. I measured the other 3 — `bonusrechner.php`, `bonusrechner_suche.php`, `termin.php` reflect **zero** cookie tokens. So the `positive_kategorien_counts` raw sink is the *only* defect across all 7 pages and all 5 reflected cookies. Delivery stays BLOCKED (plain HTTP re-measured: 301, 167 B, zero Set-Cookie), so it must not be reported as one-click.
+
+**Also dropped a probe as non-injective rather than burning it:** `/uploads/fraq/1/1.txt` returns 403 — but 403 is the *same* signature for "absent key" (already measured) and "wrong extension." One request can't tell those apart.
+
+Written to `reports/hypotheses-bigpickle.txt` and appended to `leads/lead-bigpickle.md`.
+
+One caveat worth your judgment: the postMessage finding's one unexecuted step is the cross-origin *delivery* — I proved reachability from source but did not run a browser, so it sits at 88 rather than higher. If you want it nailed down, the `verify_steps` in the writeup is a two-line console test.

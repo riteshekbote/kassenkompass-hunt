@@ -3645,3 +3645,37 @@
 - LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
 - LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+
+## RANKED HYPOTHESES 2026-09-30 16:56:44 UTC
+- [95] api.kassenkompass.de/: API Root Catalog Disclosure Enables Targeted Attack Planning Against All 16 Auth-Gated Endpoints (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://api.kassenkompass.de/delete%2f1 and GET https://api.kassenkompass.de/delete%2f1%2fextra at ≤1 rps; compare 401 response `instance` field and 
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://api.kassenkompass.de/delete%2f1 and GET https://api.kassenkompass.de/delete%2f1%2fextra at ≤1 rps; compare 401 response `instance` field and 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: /js/whitelabel_live.js?v=v2.6.10 public, 11,359 B, absent from inventory
+- LEARN: ACCEPTED MISCONFIG @ /js/whitelabel_live.js: zero origin validation — event.origin, .origin, origin ===, isTrusted, sameOrigin all no matches; sole "origin" occ
+- LEARN: ACCEPTED MISCONFIG @ /js/whitelabel_live.js: handler force-adds wl-active (line 229), measured 0 wl-active occurrences in served bonusrechner.php (body class="b
+- LEARN: ACCEPTED MISCONFIG @ /js/whitelabel_live.js: NOT XSS — textContent write at line 231, not innerHTML; isHex ^#[0-9a-f]{3}([0-9a-f]{3})?$, pickEnum enums, RADIUS_
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_vergleich2.php: reflection class closed 7/7, only daten/fragen/abschluss/vergleich2 ever reflect a cookie
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/htmlincludes/: GET /htmlincludes/whitelabel/whitelabel_styles.php -> 200, 0 B, text/html; GET /htmlincludes/ and /htmlincl
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: http sink path -> 301 HTTPS, 167 B, zero Set-Cookie; HSTS max-age=31536000 includeSubDomains
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite — non-sensitive data, HSTS blocks plaintext
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin gives a frame-ready timing oracle
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
