@@ -23310,3 +23310,69 @@ testability: PASSIVE
 **STEP 7 — RISK**
 
 [RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+===== ANALYST nemotron3 2026-09-30 05:17:32 UTC =====
+[0m
+> build · nemotron-3-ultra-free
+[0m
+[DELTA] NO_DELTA — All major surfaces stable per 2026-09-29 23:49 aggregation: api catalog (15+1, accurate CL 1167), v2 (insurance_info sole route, 42-name saturation), 7 funnel entries with divergent alias maps, auth map 15/15 drift-free, tariff payload byte-frozen 10+ windows at 2,152,708 B ±0.3%; peer pipeline 25th+ consecutive empty triage cycles; no new attack surface since 2026-09-07
+
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.60,attack_surface=8,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/,7.85,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/delete/,6.40,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=1,cloud_surface=6,freshness=8
+[PRIO] api.kassenkompass.de/post/,6.10,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=3
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,5.95,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,5.80,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+
+[HYP] Client-Side Rating Engine Full Offline Replication & Settlement Value Manipulation
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 92
+reasoning: Production debug API exposed — 7 global window.* functions (debugDrawflow, debugUndoHistory, testUndoSystem, manualUndo, checkNode, testLoop, exportFlow), pseudoKkIds array, full rating engine shipped as three unminified files (live-calculation.js, standard.js, param_passthrough.js) with 0 network calls; live-calculation.js:642 has commented `// this.setCookie('data_sparsum', Math.round(totalSavings))` — explicit decision to keep display value out of trust path; server-side cookie-spoofing chain materially weakened (GET is static page, stuffed cookies change only 3 cache-buster bytes)
+evidence_needed: Map debug API functions to settlement calculation logic; verify server accepts/validates client-calculated values in abschluss.php POST
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php → save three JS files; open DevTools console; invoke each window.debug* function with crafted parameters; inspect pseudoKkIds usage in inline JS; search for data_sparsum references in all JS; compare client-calculated vs server-accepted values if credentialed flow ever reached
+impact: Full offline replication of proprietary GKV/PKV comparison logic; debug API enables runtime manipulation of calculation state; potential for crafted settlement values if server trusts client output; HIGH (business logic integrity)
+testability: PASSIVE
+
+[HYP] API Catalog Disclosure Enables Targeted Attack Planning Against Sensitive Endpoints
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 90
+reasoning: Root endpoint returns HTTP 200 with full 15-endpoint v1 catalog (ver 1.0) + v2 catalog (ver 2.0, sole insurance_info) without authentication — violates least privilege; enables recon for /user/{ext_id}, /delete/{id}, /cancel/{id}, /settlement_report/, /insurance_info/{kk_id}, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /question_tree/, /detail_comparison/, /state/, /cat_detail/, /sync/, /post/, /health/; two distinct 403 error messages confirm separate auth middleware stacks (A: 8 endpoints, B: 3 user-lifecycle endpoints); /sync/ returns HTTP 200 with auth error body instead of 401; percent-decode-before-match is host-wide (both routers); trailing suffix absorption on 3+ route families
+evidence_needed: None — catalog disclosure confirmed across 26+ sessions; auth map 15/15 complete via access-control-allow-methods
+verify_steps: GET https://api.kassenkompass.de/ (passive, already done); GET https://api.kassenkompass.de/v2/ (passive, already done)
+impact: Targeted attack planning against sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; reconnaissance amplifier for credentialed attacks; MEDIUM
+testability: PASSIVE
+
+[HYP] Sole DELETE-Registered Route Accepts Unconstrained Target Via Encoded Separators & Unbounded Suffix
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 88
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide — `/delete%2f1` → 401 byte-identical to `/delete/1` with `instance: "/delete/1"`; trailing suffix absorption composes: `/delete/1/extra`, `/delete/1/extra/more` all reach same handler; encoded separator bypasses any literal-path WAF rule; target validation absent at routing layer
+evidence_needed: Confirm server-side authorization on resolved id after routing; test if encoded separator + suffix reaches business logic
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; MEDIUM
+testability: PASSIVE
+
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+
+[FINAL] 1. kassenkompass.de/bonusrechner_fragen.php: Client-Side Rating Engine Full Offline Replication & Settlement Value Manipulation (confidence 92, PASSIVE)
+[FINAL] 2. api.kassenkompass.de/: API Catalog Disclosure Enables Targeted Attack Planning Against Sensitive Endpoints (confidence 90, PASSIVE)
+[FINAL] 3. api.kassenkompass.de/delete/: Sole DELETE-Registered Route Accepts Unconstrained Target Via Encoded Separators & Unbounded Suffix (confidence 88, PASSIVE)
+
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating for 1000 requests at 1 rps; measure Content-Length, confirm no 429/WAF; parse ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds/dataant from each response
+
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 100-request 1-rps sustained scraping confirmed — all HTTP 200 / 2,152,708 B, no 429, no WAF block, no rate limit; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: production debug API reachable from any visitor console, 7 global functions plus pseudoKkIds, and the full rating engine shipped as three unminified files with 0 network calls. Exposure proven, impact still needs the mapping.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server-side cookie-spoofing chain on this funnel. Stuffed cookies change 3 cache-buster bytes only, the page has no fields to submit, and the engine deliberately stopped writing data_sparsum (Bau-Plan §7c 08/2026). This is the programme's first true negative on the cookie chain and it cuts against my own earlier framing.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic drift class CL:0→absent→accurate resolved; catalog substance unchanged.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: three-state route-membership oracle established on the v1 router — 401 problem+json = registered and gated, 405 problem+json = registered and ungated, 200 + 1167 B application/json = unregistered catch-all. Verified this session on /state/, /post/ and /zzz_unknown_9f2/1.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning", as published in the nemotron3 RISK line. 405 is method-confounded by gated POST-only /cat_detail/. Treat any write claim on this host as unproven until a credentialed request exists.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: percent-decode-before-match is a host-wide, two-router property — `/v2/%69nsurance_info/1` returns byte-identical 401 of `/v2/insurance_info/1`; v2 404 oracle also canonicalises and echoes decoded path; decoding precedes catch-all.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: encoded separators decode, so the router's match key excludes `/` itself. `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1` with `instance: "/delete/1"` and the `DELETE, OPTIONS` table.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: the pre-auth canonicalisation oracle is not one branch but three — 401 `instance`, 405 `instance` (`/%63at_detail/` → 405 with `instance: "/cat_detail/"`), and v2 404 `detail` (`/v2/%6eope/1` ≡ `/v2/nope/1`).
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403.
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig.
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel.
+
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu

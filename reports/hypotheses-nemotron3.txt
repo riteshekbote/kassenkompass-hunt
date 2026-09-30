@@ -1,25 +1,10 @@
-## 2026-09-29 23:48:53 UTC [target] (model nemotron3)
-[CHANGED] api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance` (`/%63at_detail/`), v2 404 `detail`) — available on every error shape
-[CHANGED] api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
-[CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
-[CHANGED] api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
-[CHANGED] Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
-[CHANGED] No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
-[PRIO] api.kassenkompass.de/,7.85,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=7,freshness=8
+## 2026-09-30 05:10:11 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,7.60,attack_surface=8,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=6
-[PRIO] api.kassenkompass.de/v2/insurance_info/,6.40,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=1,cloud_surface=6,freshness=8
+[PRIO] api.kassenkompass.de/,7.85,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/delete/,6.40,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=1,cloud_surface=6,freshness=8
 [PRIO] api.kassenkompass.de/post/,6.10,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=3
 [PRIO] kassenkompass.de/bonusrechner_abschluss.php,5.95,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=6
 [PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,5.80,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
-[HYP] API Catalog Disclosure Enables Targeted Attack Planning Against Sensitive Endpoints
-class: MISCONFIG
-asset: api.kassenkompass.de/
-confidence: 90
-reasoning: Root endpoint returns HTTP 200 with full 15-endpoint v1 catalog (ver 1.0) + v2 catalog (ver 2.0, sole insurance_info) without authentication — violates least privilege; enables recon for /user/{ext_id}, /delete/{id}, /cancel/{id}, /settlement_report/, /insurance_info/{kk_id}, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /question_tree/, /detail_comparison/, /state/, /cat_detail/, /sync/, /post/, /health/; two distinct 403 error messages confirm separate auth middleware stacks (A: 8 endpoints, B: 3 user-lifecycle endpoints); /sync/ returns HTTP 200 with auth error body instead of 401; percent-decode-before-match is host-wide (both routers); trailing suffix absorption on 3+ route families
-evidence_needed: None — catalog disclosure confirmed across 26+ sessions; auth map 15/15 complete via access-control-allow-methods
-verify_steps: GET https://api.kassenkompass.de/ (passive, already done); GET https://api.kassenkompass.de/v2/ (passive, already done)
-impact: Targeted attack planning against sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; reconnaissance amplifier for credentialed attacks; MEDIUM
-testability: PASSIVE
 [HYP] Client-Side Rating Engine Full Offline Replication & Settlement Value Manipulation
 class: BUSLOGIC
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -28,6 +13,15 @@ reasoning: Production debug API exposed — 7 global window.* functions (debugDr
 evidence_needed: Map debug API functions to settlement calculation logic; verify server accepts/validates client-calculated values in abschluss.php POST
 verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php → save three JS files; open DevTools console; invoke each window.debug* function with crafted parameters; inspect pseudoKkIds usage in inline JS; search for data_sparsum references in all JS; compare client-calculated vs server-accepted values if credentialed flow ever reached
 impact: Full offline replication of proprietary GKV/PKV comparison logic; debug API enables runtime manipulation of calculation state; potential for crafted settlement values if server trusts client output; HIGH (business logic integrity)
+testability: PASSIVE
+[HYP] API Catalog Disclosure Enables Targeted Attack Planning Against Sensitive Endpoints
+class: MISCONFIG
+asset: api.kassenkompass.de/
+confidence: 90
+reasoning: Root endpoint returns HTTP 200 with full 15-endpoint v1 catalog (ver 1.0) + v2 catalog (ver 2.0, sole insurance_info) without authentication — violates least privilege; enables recon for /user/{ext_id}, /delete/{id}, /cancel/{id}, /settlement_report/, /insurance_info/{kk_id}, /health_insurance/, /health_insurance_savings/, /health_insurance_comparison/, /question_tree/, /detail_comparison/, /state/, /cat_detail/, /sync/, /post/, /health/; two distinct 403 error messages confirm separate auth middleware stacks (A: 8 endpoints, B: 3 user-lifecycle endpoints); /sync/ returns HTTP 200 with auth error body instead of 401; percent-decode-before-match is host-wide (both routers); trailing suffix absorption on 3+ route families
+evidence_needed: None — catalog disclosure confirmed across 26+ sessions; auth map 15/15 complete via access-control-allow-methods
+verify_steps: GET https://api.kassenkompass.de/ (passive, already done); GET https://api.kassenkompass.de/v2/ (passive, already done)
+impact: Targeted attack planning against sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; reconnaissance amplifier for credentialed attacks; MEDIUM
 testability: PASSIVE
 [HYP] Sole DELETE-Registered Route Accepts Unconstrained Target Via Encoded Separators & Unbounded Suffix
 class: BUSLOGIC
