@@ -7328,3 +7328,4 @@ evidence_needed: A credentialed request to compare middleware A against middlewa
 verify_steps: 3 requests, no auth, ≥1 rps apart: curl -sS -m 25 -o /dev/null -w '%{http_code}\n' 'https://api.kassenkompass.de/health_insurance_savings/' (401), the same for 'https://api.kassenkompass.de/delete/1' (401, allow DELETE, OPTIONS), and 'https://api.kassenkompass.de/health/' (200/22 B, no credential check, no access-control-allow-headers).
 impact: LOW standalone, MEDIUM for integrator and control-generation security. A client or generated control built from the contract assumes 15 uniformly-protected GET endpoints with literal path prefixes; in fact 3 are ungated at the boundary, 4 are POST-only, 1 registers PUT+DELETE, and every documented path is reachable in spellings the contract omits, on both routers, including forms that remove the literal template from the request-target.
 testability: PASSIVE
+## 2026-09-30 11:14:25 UTC [target] (model bigpickle)
