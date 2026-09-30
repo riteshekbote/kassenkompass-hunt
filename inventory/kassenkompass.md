@@ -1358,3 +1358,29 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
 - CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (
+
+## 2026-09-30 21:25:41 UTC
+- NEW api.kassenkompass.de/ — the destructive-verb cell re-read as a *routing* fact, not an auth fact: /health_insurance/ is the only route on the host whose access-control-allow-methods is "GET, POST, PUT,
+- CHANGED kassenkompass.de/bonusrechner.php — whitelabel postMessage impact is now MEASURED, not inferred. Of the 19 unconditional display:none selectors in whitelabel_live.js, exactly 5 exist as real class att
+- CHANGED My own wording "removes every trust element" is WITHDRAWN. Measured suppression is: the whole "Sicher wechseln & sofort sparen" statutory-benefit block, the "4,8 auf Google" rating element, the "Mehr 
+- NEW The one-click variant is CLOSED, negatively. whitelabel_live.js contains zero occurrences of document.cookie, URLSearchParams, location.search, location.hash, fetch(, XMLHttpRequest, getAttribute('dat
+- CHANGED whitelabel_live.js:227-231 — the guard is type-and-shape only. Neither event.origin NOR event.source is read; only data.type !== 'wl-preview' and typeof data.brand. My last lead said "zero origin vali
+- NEW htmlincludes/ evidence closed: across both public JS files (whitelabel_live.js 11,359 B, standard.js 67,969 B) exactly ONE include path is ever disclosed — htmlincludes/whitelabel/whitelabel_styles.ph
+- NEW kassenkompass.de/js/live-calculation.js (36,499 B) — the "reflection class closed 7/7" claim was measured by grepping server HTML and is structurally blind to client-side sinks. This file contains a c
+- NEW live-calculation.js contains 0 sendBeacon / XMLHttpRequest / fetch / Image-src egress primitives — re-confirms the programme's first true negative (no server-side cookie-spoofing chain) with a byte co
+- CHANGED awv.kassenkompass.de root returns 400 to a default-curl UA, not 404 as my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation (li
+- CHANGED The data_sparsum delivery precondition is CLOSED, negatively. param_passthrough.js:29-35 declares the complete forwardable set (PASS_PARAMS = lizenz, utm_source, utm_medium, utm_campaign, utm_content,
+- CHANGED The previously-accepted param-to-cookie mirror finding is now mechanistically explained and materially wider than "the funnel mirrors URL params to cookies". param_passthrough.js harvests 16 attacker-
+- NEW param_passthrough.js is NOT loaded on the funnel entry page (0 occurrences in the 42,990 B bonusrechner.php), which confirms the marketing-site/app split its header documents: the funnel receives thes
+- NEW Two forwardable params, fra and direkt, have NO consumer anywhere in the local corpus. The single "direkt" hit in bonusrechner.php is the insurer name "BIG direkt gesund" and the live.js:845 hit is no
+- NEW Four verified negatives in the rewriter that I specifically tested for injection and did not find: the host check is a strict same-host comparison against window.location.host (line 77); the funnel pa
+- NEW awv.kassenkompass.de root returns 400 to a default-curl UA, not the 404 my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation, n
+- NEW api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- NEW api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- NEW api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+- NEW kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- NEW api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- NEW kassenkompass.de/js/whitelabel_live.js: 11,359 B public whitelabel live-preview postMessage receiver, absent from inventory, only on bonusrechner.php — zero origin validation, handler force-adds wl-ac
+- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable

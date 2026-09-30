@@ -1211,3 +1211,17 @@ https://api.kassenkompass.de/delete/1/extra -> HTTP 401
 https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
 https://kassenkompass.de/bonusrechner.php' -> HTTP 404
 https://kassenkompass.de/bonusrechner.php -> 200 len=?
+
+## 2026-09-30 21:26:03 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/health_insurance/ -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
+https://api.kassenkompass.de/%68ealth_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/%2568ealth_insurance/1 -> HTTP 404
+https://kassenkompass.de/bonusrechner.php' -> HTTP 404

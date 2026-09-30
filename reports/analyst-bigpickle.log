@@ -41474,3 +41474,627 @@ The handler then force-adds `wl-active` to `<body>`, defeating its own tenant ga
 Written to `reports/hypotheses-bigpickle.txt` and appended to `leads/lead-bigpickle.md`.
 
 One caveat worth your judgment: the postMessage finding's one unexecuted step is the cross-origin *delivery* — I proved reachability from source but did not run a browser, so it sits at 88 rather than higher. If you want it nailed down, the `verify_steps` in the writeup is a two-line console test.
+===== ANALYST bigpickle 2026-09-30 21:25:41 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mmkdir -p /tmp/opencode/kk && cd /tmp/opencode/kk && curl -sS -m 45 -o wl.js -w 'wl.js %{http_code} %{size_download}\n' 'https://kassenkompass.de/js/whitelabel_live.js?v=v2.6.10' && sleep 1 && curl -sS -m 45 -o br.html -w 'br.html %{http_code} %{size_download}\n' 'https://kassenkompass.de/bonusrechner.php' && sleep 1 && curl -sS -m 45 -o styles.php -w 'styles.php %{http_code} %{size_download} %{content_type}\n' 'https://kassenkompass.de/htmlincludes/whitelabel/whitelabel_styles.php'
+wl.js 200 11359
+br.html 200 42990
+styles.php 200 0 text/html; charset=UTF-8
+[0m
+[0m$ [0mcd /tmp/opencode/kk && grep -n "display:none\|display: none\|addEventListener('message'\|addEventListener(\"message\"\|postMessage\|wl-active\|type===\|type ===\|ensureLiveStyle\|origin" wl.js | head -60
+4: * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+17: * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+18: * - postMessage erlaubt zwar Cross-Origin, aber wir validieren strikt
+32:		'body.wl-active button, body.wl-active input[type="submit"], ' +
+33:		'body.wl-active .bn_searchbut, body.wl-active .bnv_button, ' +
+34:		'body.wl-active .ad_changebut';
+37:		'body.bn_bodystan.wl-active button, body.bn_bodystan.wl-active button *, ' +
+38:		'body.bn_bodystan.wl-active input[type="submit"], ' +
+39:		'body.bn_bodystan.wl-active .bn_searchbut, body.bn_bodystan.wl-active .bn_searchbut *, ' +
+40:		'body.bn_bodystan.wl-active .bnv_button, body.bn_bodystan.wl-active .bnv_button *, ' +
+41:		'body.bn_bodystan.wl-active .ad_changebut, body.bn_bodystan.wl-active .ad_changebut *';
+44:		'body.bn_bodystan.wl-active button svg path, ' +
+45:		'body.bn_bodystan.wl-active input[type="submit"] svg path, ' +
+46:		'body.bn_bodystan.wl-active .bn_searchbut svg path, ' +
+47:		'body.bn_bodystan.wl-active .bnv_button svg path, ' +
+48:		'body.bn_bodystan.wl-active .ad_changebut svg path';
+79:			'body.wl-active .bnv_inputframe.bnve_kk_card.assup_con,' +
+80:			'body.wl-active .assup_con,' +
+81:			'body.wl-active .bnv_trustwrapper,' +
+82:			'body.wl-active .bnv_logowrapper,' +
+83:			'body.wl-active .bnv_trustratebox,' +
+84:			'body.wl-active .bnv2_trust_wrapper,' +
+85:			'body.wl-active .bnv2_trust_badge_text,' +
+86:			'body.wl-active .bnv2_trust_badge,' +
+87:			'body.wl-active .bnv_trustraterate,' +
+88:			'body.wl-active .bn_ver_faq,' +
+89:			'body.wl-active #faqcon,' +
+90:			'body.wl-active .bn_ver_faqheader,' +
+91:			'body.wl-active .bn_ver_faqmorewrapper,' +
+92:			'body.wl-active .bn_det_toggleaccord#faqcon,' +
+93:			'body.wl-active .bnve_faqwrapper,' +
+94:			'body.wl-active .bnve_support,' +
+95:			'body.wl-active .bnv_footer,' +
+96:			'body.wl-active .bnv_footer2,' +
+97:			'body.wl-active .bnv_legalmenu { display: none !important; }'
+102:		out.push('body.wl-active .bnv_legalmenu_ornamentfallback { visibility: visible !important; }');
+106:			out.push('body.wl-active .bnv_onl, body.wl-active .bnv_onr { display: none !important; }');
+109:			out.push('body.wl-active .bnve_headstarsleft, body.wl-active .bnve_headstarsright { display: none !important; }');
+112:			out.push('body.wl-active .ind_decopicture_left, body.wl-active .ind_decopicture_right { display: none !important; }');
+115:			out.push('body.wl-active .bnv2_sidestructureleft, body.wl-active .bnv2_sidestructureright { display: none !important; }');
+119:		out.push('body.wl-active .bnv_inputframe { padding-bottom: 100px !important; }');
+123:			out.push('body.wl-active .bnv_genderquestwrapper { background-color: ' + col_card_bg + ' !important; }');
+126:			out.push('body.wl-active .bnv_genderquestwrapper { border-color: ' + col_card_border + ' !important; }');
+129:			out.push('body.wl-active .bnv_genderquestwrapper { color: ' + col_text + ' !important; }');
+134:			out.push('body.wl-active, body.wl-active .bn_bodystan { background-color: ' + col_background + ' !important; }');
+137:			out.push('body.wl-active, body.wl-active p, body.wl-active label, body.wl-active span:not(.wl_status_badge) { color: ' + col_text + ' !important; }');
+142:			out.push('body.wl-active h1, body.wl-active h2, body.wl-active .bnv_mainheader, body.wl-active .bnv_inputheader { color: ' + col_primary + ' !important; }');
+147:			out.push('body.wl-active .bnv_inputframe { background-color: ' + col_card_bg + ' !important; }');
+150:			out.push('body.wl-active .bnv_inputframe { border: 2px solid ' + col_card_border + ' !important; }');
+155:			out.push('body.wl-active .in_sec1_vorschlag:hover, body.wl-active .in_sec1_vorschlag.highlighted { background-color: ' + col_highlight + ' !important; }');
+160:			out.push('body.wl-active .bnv_infochecktext, body.wl-active .bnv_infocheck { color: ' + col_secondary + ' !important; }');
+166:			let secBtn = 'body.wl-active .bnve_detailbutton { border: 2px solid ' + col_primary + ' !important; color: ' + col_primary + ' !important;';
+170:			out.push('body.wl-active .bnve_detailbutton .bnve_detailbuttext, body.wl-active .bnve_detailbutton p, body.wl-active .bnve_detailbutton span { color: ' + col_primary + ' !important; }');
+171:			out.push('body.wl-active .bnve_detailbutton svg path { stroke: ' + col_primary + ' !important; }');
+196:			out.push(BTN_SELECTORS + ', body.wl-active .bnve_detailbutton, body.wl-active .bnv_inputframe { border-radius: ' + RADIUS_MAP[border_radius] + ' !important; }');
+201:			out.push('body.wl-active .bnv_inputframe { border: none !important; box-shadow: none !important; }');
+203:			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important; }');
+205:			out.push('body.wl-active .bnv_inputframe { box-shadow: 0 12px 32px rgba(0,0,0,0.18) !important; transform: translateY(-2px); }');
+210:			out.push("body.wl-active, body.wl-active * { font-family: '" + font_family + "', Arial, sans-serif !important; }");
+216:	function ensureLiveStyle() {
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sed -n '60,100p' wl.js && echo '=====HANDLER=====' && sed -n '214,260p' wl.js
+const button_style = pickEnum(brand.button_style, ['clean', 'solid', 'outline']);
+		const border_radius = pickEnum(brand.border_radius, ['leicht', 'mittel', 'stark']);
+		const card_style = pickEnum(brand.card_style, ['minimal', 'modern', 'elevated']);
+		const font_family = sanitizeFont(brand.font_family);
+
+		// Dekorations-Toggles (Default = sichtbar; explizit 0 → ausblenden)
+		const asBool = v => (v === 1 || v === '1' || v === true) ? 1 : (v === 0 || v === '0' || v === false ? 0 : 1);
+		const show_ornaments      = asBool(brand.show_ornaments);
+		const show_stars          = asBool(brand.show_stars);
+		const show_deco_pattern   = asBool(brand.show_deco_pattern);
+		const show_side_structure = asBool(brand.show_side_structure);
+
+		const btn_text_color = col_button_text || '#ffffff';
+
+		const out = [];
+
+		// Auto-Hide (Spiegel von whitelabel_styles.php)
+		out.push(
+			'body.wl-active .bnv_inputframe.bnve_kk_card.assup_con,' +
+			'body.wl-active .assup_con,' +
+			'body.wl-active .bnv_trustwrapper,' +
+			'body.wl-active .bnv_logowrapper,' +
+			'body.wl-active .bnv_trustratebox,' +
+			'body.wl-active .bnv2_trust_wrapper,' +
+			'body.wl-active .bnv2_trust_badge_text,' +
+			'body.wl-active .bnv2_trust_badge,' +
+			'body.wl-active .bnv_trustraterate,' +
+			'body.wl-active .bn_ver_faq,' +
+			'body.wl-active #faqcon,' +
+			'body.wl-active .bn_ver_faqheader,' +
+			'body.wl-active .bn_ver_faqmorewrapper,' +
+			'body.wl-active .bn_det_toggleaccord#faqcon,' +
+			'body.wl-active .bnve_faqwrapper,' +
+			'body.wl-active .bnve_support,' +
+			'body.wl-active .bnv_footer,' +
+			'body.wl-active .bnv_footer2,' +
+			'body.wl-active .bnv_legalmenu { display: none !important; }'
+		);
+
+		// Gegenstück zum Legal-Menü-Hide: rechtes Header-Ornament bei WL wieder zeigen (Spiegel von whitelabel_styles.php;
+=====HANDLER=====
+	}
+
+	function ensureLiveStyle() {
+		let el = document.getElementById('wl-vars-live');
+		if (!el) {
+			el = document.createElement('style');
+			el.id = 'wl-vars-live';
+			document.head.appendChild(el);
+		}
+		return el;
+	}
+
+	window.addEventListener('message', function (event) {
+		const data = event.data;
+		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+		// wl-active sicherstellen (Live-Preview funktioniert auch wenn WL noch nicht aktiv ist)
+		document.body.classList.add('wl-active');
+		ensureLiveStyle().textContent = buildCss(data.brand);
+	});
+
+	// Editor mitteilen, dass wir bereit sind (für initialen Push nach iframe-Load)
+	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+})();
+[0m
+[0m$ [0mcd /tmp/opencode/kk && echo "--- js include / body class ---" && grep -o 'whitelabel_live.js[^"]*' br.html | head -3; grep -o '<body[^>]*>' br.html; echo "--- selector presence in served DOM ---"; for s in bnv_inputframe assup_con bnv_trustwrapper bnv_logowrapper bnv_trustratebox bnv2_trust_wrapper bnv2_trust_badge_text bnv2_trust_badge bnv_trustraterate bn_ver_faq faqcon bn_ver_faqheader bn_ver_faqmorewrapper bn_det_toggleaccord bnve_faqwrapper bnve_support bnv_footer bnv_footer2 bnv_legalmenu; do n=$(grep -o "$s" br.html | wc -l); echo "$n  $s"; done
+--- js include / body class ---
+whitelabel_live.js?v=v2.6.10
+<body class="bn_bodystan">
+--- selector presence in served DOM ---
+1  bnv_inputframe
+0  assup_con
+1  bnv_trustwrapper
+1  bnv_logowrapper
+1  bnv_trustratebox
+0  bnv2_trust_wrapper
+0  bnv2_trust_badge_text
+0  bnv2_trust_badge
+1  bnv_trustraterate
+0  bn_ver_faq
+0  faqcon
+0  bn_ver_faqheader
+0  bn_ver_faqmorewrapper
+0  bn_det_toggleaccord
+0  bnve_faqwrapper
+0  bnve_support
+0  bnv_footer
+0  bnv_footer2
+0  bnv_legalmenu
+[0m
+[0m$ [0mcd /tmp/opencode/kk && for s in bnv_inputframe bnv_trustwrapper bnv_logowrapper bnv_trustratebox bnv_trustraterate; do n=$(grep -oE "class=\"[^\"]*\b$s\b[^\"]*\"" br.html | wc -l); echo "class-attr hits: $n  $s"; done; echo "--- context of trust elements ---"; grep -oE '<div class="bnv_trust[^"]*"[^>]*>' br.html | head -5; grep -oE '<div class="bnv_logowrapper"[^>]*>.{0,120}' br.html | head -2
+class-attr hits: 1  bnv_inputframe
+class-attr hits: 1  bnv_trustwrapper
+class-attr hits: 1  bnv_logowrapper
+class-attr hits: 1  bnv_trustratebox
+class-attr hits: 1  bnv_trustraterate
+--- context of trust elements ---
+<div class="bnv_trustwrapper">
+<div class="bnv_trustcontainer">
+<div class="bnv_trustadvanbox">
+<div class="bnv_trustadvancheckwrapper">
+<div class="bnv_trustadvancheckcon">
+<div class="bnv_logowrapper">
+[0m
+[0m$ [0mcd /tmp/opencode/kk && python3 - <<'EOF'
+import re
+h=open('br.html',encoding='utf-8',errors='replace').read()
+i=h.find('bnv_trustwrapper')
+seg=h[i-200:i+1800]
+seg=re.sub(r'\s+',' ',seg)
+print(seg[:1600])
+EOF
+" stroke-linejoin="round"/> </svg> <p class="bnv_infochecktext">Gesetzliche Annahmepflicht</p> </div> </div> </div> <div class="bnv_stylestripe"></div> </div> <div class="bnv_trustwrapper"> <p class="bnv_trustheader">Sicher wechseln & sofort sparen</p> <div class="bnv_trustcontainer"> <div class="bnv_trustadvanbox"> <p class="bnv_trustadvanheader">Deine Vorteile beim Wechsel</p> <div class="bnv_trustadvancheckwrapper"> <div class="bnv_trustadvancheckcon"> <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt=""> <p class="bnv_trustadvanchecktext">Grundleistungen sind per Gesetz identisch</p> </div> <div class="bnv_trustadvancheckcon"> <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt=""> <p class="bnv_trustadvanchecktext">Absicherung bleibt lückenlos bestehen</p> </div> <div class="bnv_trustadvancheckcon"> <img class="bnv_trustadvancheckimg" src="bilder/bonusrechner/check.svg" alt=""> <p class="bnv_trustadvanchecktext">Wechseln ohne Papierkram</p> </div> </div> </div> <div class="bnv_trustratebox"> <p class="bnv_trustrateheader">Mehr als 10.893 Kunden vertrauen KassenKompass</p> <img class="bnv_trustratepeople" src="bilder/bonusrechner/people2.png" alt=""> <div class="bnv_trustratebotbox"> <p class="bnv_trustraterate">4,8</p> <img class="bnv_trustratestar" src="bilder/bonusrechner/gstar.png" alt=""> <p class="bnv_trustrategoogle">auf Google</p> <img src="bilder/bonusrechner/gpic.png" alt="" class="bnv_trustrategpic"> </div> </div> </div> </div> <div class="bnv_logowrapper"> <div class=
+[0m
+[0m$ [0mcd /tmp/opencode/kk && echo "--- who sends wl-preview? ---"; grep -n "wl-preview" wl.js; echo "--- brand sources in wl.js ---"; grep -nE "document\.cookie|URLSearchParams|location\.(search|hash)|fetch\(|XMLHttpRequest|getAttribute\('data-|dataset\." wl.js | head -20; echo "--- wl params/cookies in served page ---"; grep -oiE "wl[_-]?(config|brand|preview|active|tenant)=|\"wl[a-z_]*\"|name=\"wl[a-z_]*\"" br.html | sort | uniq -c | head -20; echo "--- any other sender script referencing wl-preview ---"; grep -oE 'src="[^"]*\.js[^"]*"' br.html | sort -u
+--- who sends wl-preview? ---
+14: *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+228:		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+235:	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+--- brand sources in wl.js ---
+--- wl params/cookies in served page ---
+--- any other sender script referencing wl-preview ---
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/js/standard.js?v=1790803272"
+src="js/whitelabel_live.js?v=v2.6.10"
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sleep 1 && curl -sS -m 45 -o std.js -w 'std.js %{http_code} %{size_download}\n' 'https://kassenkompass.de/js/standard.js' && echo "--- htmlincludes refs ---" && grep -noiE "htmlincludes/[a-z0-9_./-]+" std.js wl.js | sort -u -t: -k3 | head -20; echo "--- any server-side include/ajax endpoints in std.js ---"; grep -noiE "url:\s*['\"][^'\"]+|fetch\(['\"][^'\"]+" std.js | head -20
+std.js 200 67969
+--- htmlincludes refs ---
+wl.js:9:htmlincludes/whitelabel/whitelabel_styles.php
+--- any server-side include/ajax endpoints in std.js ---
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sleep 1 && curl -sS -m 45 -o live.js -w 'live-calculation.js %{http_code} %{size_download}\n' 'https://kassenkompass.de/js/live-calculation.js' && echo "--- network egress primitives ---" && grep -coiE "sendBeacon|new Image\(|fetch\(|XMLHttpRequest|navigator\.sendBeacon|\.src *=" live.js; grep -noiE "sendBeacon|XMLHttpRequest|fetch\(" live.js | head; echo "--- debug surface ---"; grep -noiE "window\.[a-zA-Z]+ *=" live.js | head -20; echo "--- setCookie still commented? ---"; grep -n "data_sparsum" live.js | head -5
+live-calculation.js 200 36499
+--- network egress primitives ---
+0
+--- debug surface ---
+854:window.LiveCalculationManager =
+--- setCookie still commented? ---
+56:        const cookieValue = this.getCookie('data_sparsum');
+642:        // this.setCookie('data_sparsum', Math.round(totalSavings), 7);
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sed -n '45,70p' live.js && echo '--- consumers of that value ---' && grep -n "data_sparsum\|getSavings\|totalSavings" live.js | head -20
+date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toUTCString();
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+        console.log(`[LiveCalc] Cookie gesetzt: ${name}=${value}`);
+    }
+
+    /**
+     * Get base savings value from cookie (from previous page calculation)
+     */
+    getBaseSavingsValue() {
+        const cookieValue = this.getCookie('data_sparsum');
+        if (cookieValue && cookieValue !== 'null' && cookieValue !== '0') {
+            const parsedValue = parseInt(cookieValue, 10);
+            if (!isNaN(parsedValue) && parsedValue > 0) {
+                console.log(`[LiveCalc] Basis-Sparsummer aus Cookie: ${parsedValue}€`);
+                return parsedValue;
+            }
+        }
+        console.log('[LiveCalc] Kein gültiger Basis-Sparsummer im Cookie, verwende 0€');
+        return 0;
+    }
+
+    /**
+     * Sammle positive Kategorien
+     */
+--- consumers of that value ---
+56:        const cookieValue = this.getCookie('data_sparsum');
+182:    restoreDisplayedSavings(targetSavings) {
+185:            console.log(`[LiveCalc] 🔄 Restauriere Ersparnis-Anzeige: ${targetSavings}€`);
+189:            this.animateValue(resultElement, currentValue, targetSavings, 500);
+624:        const totalSavings = baseValue + savings;        console.log(`[LiveCalc] Aktualisiere UI: Basis ${baseValue}€ + Ersparnis zur besten KK ${savings}€ = Gesamt ${totalSavings}€`);
+639:        this.animateValue(resultElement, currentValue, totalSavings, 1000);
+642:        // this.setCookie('data_sparsum', Math.round(totalSavings), 7);
+643:        console.log(`[LiveCalc] Anzeige aktualisiert auf ${Math.round(totalSavings)}€, aber Cookie bleibt bei ${baseValue}€`);
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sed -n '615,645p' live.js && echo '--- result element lookup ---' && grep -n "resultElement *=" live.js | head -5
+const resultElement = document.getElementById('resulteuro');
+        if (!resultElement) {
+            console.warn('[LiveCalc] Element "resulteuro" nicht gefunden');
+            return;
+        }
+
+        // Get base value from cookie (from previous page calculation)
+        const baseValue = this.getBaseSavingsValue();
+          // Calculate total savings: base value from previous page + new live calculation savings
+        const totalSavings = baseValue + savings;        console.log(`[LiveCalc] Aktualisiere UI: Basis ${baseValue}€ + Ersparnis zur besten KK ${savings}€ = Gesamt ${totalSavings}€`);
+        console.log(`[LiveCalc] Angezeigter Betrag basiert auf EINER spezifischen Ziel-Krankenkasse`);
+        console.log(`[LiveCalc] Cookie wird NICHT aktualisiert - Startwert bleibt erhalten`);
+
+        // Zeige Container an falls versteckt
+        const container = resultElement.closest('.savings-container');
+        if (container) {
+            container.style.display = 'block';
+            container.style.opacity = '0';
+            container.style.transition = 'opacity 0.5s ease-in-out';
+            setTimeout(() => {
+                container.style.opacity = '1';
+            }, 50);
+        }        // Animiere den Wert from current displayed value to total savings
+        const currentValue = parseFloat(resultElement.textContent) || baseValue;
+        this.animateValue(resultElement, currentValue, totalSavings, 1000);
+        
+        // REMOVED: Cookie update - keep original base value intact
+        // this.setCookie('data_sparsum', Math.round(totalSavings), 7);
+        console.log(`[LiveCalc] Anzeige aktualisiert auf ${Math.round(totalSavings)}€, aber Cookie bleibt bei ${baseValue}€`);
+    }
+
+--- result element lookup ---
+171:        const resultElement = document.getElementById('resulteuro');
+183:        const resultElement = document.getElementById('resulteuro');
+615:        const resultElement = document.getElementById('resulteuro');
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sed -n '140,182p' live.js | grep -n "textContent\|innerHTML\|animateValue" ; echo '--- animateValue sink ---'; awk '/animateValue\(/{f=1} f&&/textContent|innerHTML/{print NR": "$0} f&&/^    }/{f=0}' live.js | head -10; echo '--- is resulteuro present in served fragen/vergleich html? (not fetched) ---'; grep -c "resulteuro" live.js
+34:            const currentText = resultElement.textContent || '0';
+--- animateValue sink ---
+665:             element.textContent = formattedValue;
+672:                 element.textContent = finalValue;
+--- is resulteuro present in served fragen/vergleich html? (not fetched) ---
+4
+[0m
+[0m$ [0mcd /tmp/opencode/kk && sleep 1 && curl -sS -m 30 -D awv.h -o /dev/null -w 'awv %{http_code}\n' 'https://awv.kassenkompass.de/' && echo '--- Set-Cookie on awv ---' && grep -i '^set-cookie' awv.h || echo '(no Set-Cookie)'; echo '--- parent-domain cookie scope check ---'; grep -icE 'domain=\.kassenkompass\.de' awv.h
+awv 400
+--- Set-Cookie on awv ---
+(no Set-Cookie)
+--- parent-domain cookie scope check ---
+0
+[0m
+## STEP 1 — DELTA
+
+```
+[NEW] api.kassenkompass.de/ — the destructive-verb cell re-read as a *routing* fact, not an auth fact: /health_insurance/ is the only route on the host whose access-control-allow-methods is "GET, POST, PUT, DELETE, OPTIONS", i.e. it registers two destructive verbs that appear nowhere in the unauthenticated root catalog. Target is unvalidated at the routing layer (unbounded suffix absorption) and the match key is the percent-decoded request-target (/delete%2f1 ≡ /delete/1, instance: "/delete/1"), so the cell is addressable by paths no literal-path rule contains.
+[CHANGED] kassenkompass.de/bonusrechner.php — whitelabel postMessage impact is now MEASURED, not inferred. Of the 19 unconditional display:none selectors in whitelabel_live.js, exactly 5 exist as real class attributes in the served page: bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate. The other 13 (bnv_footer, bnv_footer2, bnv_legalmenu, #faqcon, bnve_support, bnv2_trust_*) are absent from this page.
+[CHANGED] My own wording "removes every trust element" is WITHDRAWN. Measured suppression is: the whole "Sicher wechseln & sofort sparen" statutory-benefit block, the "4,8 auf Google" rating element, the "Mehr als 10.893 Kunden vertrauen KassenKompass" rating box, the logo wrapper and the main input card. Footer/legal menu are not on this page, so "legal menu disappears" was an overclaim carried from the selector list.
+[NEW] The one-click variant is CLOSED, negatively. whitelabel_live.js contains zero occurrences of document.cookie, URLSearchParams, location.search, location.hash, fetch(, XMLHttpRequest, getAttribute('data-, or dataset. bonusrechner.php contains no wl_* cookie, param or data- attribute, and standard.js (67,969 B) references no whitelabel sender at all. The only wl-preview sender is the private editor, so the sole vector is window.open + postMessage — there is no attacker-crafted link.
+[CHANGED] whitelabel_live.js:227-231 — the guard is type-and-shape only. Neither event.origin NOR event.source is read; only data.type !== 'wl-preview' and typeof data.brand. My last lead said "zero origin validation"; the sharper true statement is "no provenance check of any kind".
+[NEW] htmlincludes/ evidence closed: across both public JS files (whitelabel_live.js 11,359 B, standard.js 67,969 B) exactly ONE include path is ever disclosed — htmlincludes/whitelabel/whitelabel_styles.php, which returns 200 / 0 B / text/html. No further names exist to test without guessing, so the item is not fundable.
+[NEW] kassenkompass.de/js/live-calculation.js (36,499 B) — the "reflection class closed 7/7" claim was measured by grepping server HTML and is structurally blind to client-side sinks. This file contains a cookie→display sink the 7/7 grep could never see: getBaseSavingsValue() reads the data_sparsum cookie (line 56), and line 624 computes totalSavings = baseValue + savings and line 639 animates it into #resulteuro. The corresponding write is commented out at line 642. Sink is textContent (lines 665, 672), so NOT XSS.
+[NEW] live-calculation.js contains 0 sendBeacon / XMLHttpRequest / fetch / Image-src egress primitives — re-confirms the programme's first true negative (no server-side cookie-spoofing chain) with a byte count.
+[CHANGED] awv.kassenkompass.de root returns 400 to a default-curl UA, not 404 as my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation (likely UA-dependent), not a drift finding. No Set-Cookie of any kind, and zero cookies scoped to Domain=.kassenkompass.de — the only candidate cross-subdomain delivery primitive for the data_sparsum channel is not present on this host.
+```
+
+## STEP 2 — PRIORITIZE
+
+```
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/bonusrechner.php,6.95,attack_surface=4,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=2,freshness=9
+[PRIO] kassenkompass.de/js/live-calculation.js,6.30,attack_surface=2,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=1,freshness=10
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,6.05,attack_surface=4,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=2,freshness=7
+[PRIO] www.kassenkompass.de,5.20,attack_surface=5,business_value=6,tech_exposure=3,gate_ease=8,cloud_surface=2,freshness=6
+```
+
+## STEP 3 — HYPOTHESES
+
+```
+[HYP] The Host's Only DELETE-Registering Route Has An Unvalidated Target And A Path Space That Defeats Literal-Path Allowlisting
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/
+confidence: 52
+reasoning: access-control-allow-methods on /health_insurance/ is "GET, POST, PUT, DELETE, OPTIONS" — the only cell on the host registering two destructive verbs, and neither appears in the unauthenticated 15-route root catalog. The 401 body is returned pre-auth with instance echoing the path. The target is unconstrained at the routing layer (unbounded trailing absorption, /health_insurance/1/extra reaches the same handler). The match key is the percent-decoded request-target, not the literal path: /delete%2f1 returns a body byte-identical to /delete/1 (same 401, same verb table, instance: "/delete/1"), and decoding is exactly one level (/%2568ealth_insurance/1 → static 404). Case matching is case-sensitive (/HEALTH_INSURANCE/1 → catch-all), so the reachable set is spelled-sensitivity-bound but encoding-inclusive.
+evidence_needed: any credentialed request showing whether PUT/DELETE on this route is authorised per-object or unchecked. Cannot be obtained passively; no credential is in scope or available.
+verify_steps: read-only confirmation of the routing claim only — GET https://api.kassenkompass.de/health_insurance/ , GET https://api.kassenkompass.de/health_insurance/1/extra , GET https://api.kassenkompass.de/%68ealth_insurance/1 and compare status, content-length and access-control-allow-methods; then GET https://api.kassenkompass.de/%2568ealth_insurance/1 to confirm one-level decode. Do not send PUT or DELETE.
+impact: if the eventual authorisation is per-object, this route defeats a literal-path allowlist: a downstream consumer (WAF rule, API gateway, ASR/firewall list) that filters /health_insurance/ does not filter /%68ealth_insurance/1 or /health_insurance/1/extra. That is a control-bypass on the destructive-verb surface, not a proven data or write impact. LOW-MEDIUM as a finding, MEDIUM as a remediation-priority signal.
+testability: PASSIVE
+```
+
+```
+[HYP] Cross-Origin postMessage Receiver With No Provenance Check Removes The Google Rating, The Customer-Count Claim And The Statutory-Benefit Block From The Public Funnel Entry Page
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner.php
+confidence: 85
+reasoning: whitelabel_live.js:227-231 registers a window message listener whose entire guard is data.type === 'wl-preview' and typeof data.brand === 'object'. event.origin and event.source are both unread; the file's only mention of "origin" is the comment at line 17 asserting a same-origin precondition and a strict validation (lines 17-18), which the code does not implement. The handler unconditionally does document.body.classList.add('wl-active') and writes ensureLiveStyle().textContent = buildCss(data.brand). buildCss pushes its first rule with no brand-value dependency, display:none !important on 19 selectors. Measured against the live page, 5 of those 19 are real DOM class attributes: .bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate. Their served content is the "Sicher wechseln & sofort sparen" block, the three statutory-advantage claims, "Mehr als 10.893 Kunden vertrauen KassenKompass", the "4,8 auf Google" element and the logo. Values are allowlisted (isHex, pickEnum enums, RADIUS_MAP, sanitizeFont) and the write is textContent, so this is not XSS and not defacement-by-injection — it is trust-signal removal. Line 235 broadcasts {type:'wl-preview-ready'} to window.parent with targetOrigin '*'.
+evidence_needed: browser confirmation that a cross-origin window.open handle delivers the message and that the five elements actually leave the layout. Source reachability is proven; delivery and visual effect are inferred from postMessage semantics and NOT executed.
+verify_steps: from a cross-origin page run w=window.open('https://kassenkompass.de/bonusrechner.php'); w.postMessage({type:'wl-preview',brand:{}},'*'); then in w assert document.body.classList.contains('wl-active') and getComputedStyle(document.querySelector('.bnv_trustratebox')).display === 'none'. One page load, no auth, no state. Control: postMessage({type:'other',brand:{}}) must be a no-op, which proves the type guard is the only barrier.
+impact: any third-party site can silently strip the customer-count claim, the 4,8 Google rating, the statutory-advantage block, the logo and the input card from a health-insurance comparison entry page, with no link, no click and no server state. Suppression of verified-rating and statutory-advantage messaging on a regulated-adjacent health funnel, plus competitor defacement. Presentation integrity only. LOW-MEDIUM.
+testability: PASSIVE
+```
+
+```
+[HYP] Orphaned Unsigned Cookie Read Inflates The Displayed EUR Savings Figure In The Client-Side Rating Engine
+class: BUSLOGIC
+asset: kassenkompass.de/js/live-calculation.js
+confidence: 55
+reasoning: getBaseSavingsValue() (line 55-67) reads the data_sparsum cookie, parseInt()s it, accepts any value > 0 and returns it as a EUR base. Line 624 computes totalSavings = baseValue + savings; line 639 animates that figure into #resulteuro. The write that used to produce it is commented out at line 642 ("REMOVED: Cookie update - keep original base value intact"), so no code in the funnel creates the cookie — it is a pure input channel into a displayed monetary amount. No HMAC, no server validation, no range check beyond > 0. The sink is textContent (lines 665, 672), so it is a display-forgery primitive and not XSS. The 7-entry funnel param-to-cookie mirror sets a fixed name set (afilcode, customerid, agenturnummer, poolpartnernummer, employeenumber, advisorid, device_id) and does not include data_sparsum, so there is no link-deliverable vector. The one candidate sibling-host setter, awv.kassenkompass.de, emits no Set-Cookie at all today.
+evidence_needed: a delivery primitive — any script, subdomain or parameter that can set data_sparsum for a victim. None is proven; the 7-mirror alias set excludes it and awv sets no cookies. The defect is proven, the delivery is not.
+verify_steps: offline, no new live traffic — GET https://kassenkompass.de/js/live-calculation.js and confirm the read/write asymmetry (getCookie('data_sparsum') present, setCookie('data_sparsum') commented) and the #resulteuro sink. Live confirmation of the forgery itself requires a browser with document.cookie set before load, which is a state-changing client action, not a read-only probe.
+impact: a savings amount in EUR displayed to a consumer is attacker-influenceable client-side with no integrity check. As insurance-funnel pricing/savings messaging this is a trust-surface defect. Business impact is LOW today and rises to MEDIUM if a delivery primitive is found; it must not be reported as exploitable while the precondition is unmet.
+testability: PASSIVE
+```
+
+## STEP 4 — SELF-CRITIQUE
+
+```
+[PARKED] IDOR on /user/{ext_id} — confidence 62 but 26 sessions with zero new evidence, credential-gated on middleware B, and the only route-registration evidence available is pre-auth. Unchanged since 09-05; carrying it again would be a re-print, not a finding.
+[PARKED] htmlincludes/ stray-artifact retrieval — the only disclosed name is whitelabel_styles.php and it returns 200 / 0 B. standard.js discloses none. Reaching anything else requires blind filename guessing, which is out of bounds; the hypothesis has no verify_steps that do not violate the guessing rule.
+[PARKED] awv.kassenkompass.de root 400-vs-404 — two-valued observation without the browser-UA control; not a claim, a pending discriminator.
+[FINAL] 1. kassenkompass.de/bonusrechner.php: Cross-Origin postMessage Receiver With No Provenance Check Removes The Google Rating, Customer-Count Claim And Statutory-Benefit Block (confidence 85, PASSIVE) — upgraded in evidence quality this session (impact measured against the live DOM instead of read off a selector list), downgraded in scope (5 elements, not 19; no legal menu on this page), and the no-link variant is positively closed.
+[FINAL] 2. api.kassenkompass.de/health_insurance/: Only DELETE-Registering Route With Unvalidated Target And Encoding-Reachable Path Space (confidence 52, PASSIVE) — routing half proven, authorisation half explicitly not.
+[FINAL] 3. kassenkompass.de/js/live-calculation.js: Orphaned Unsigned data_sparsum Read Inflates The Displayed EUR Savings Figure (confidence 55, PASSIVE) — defect proven, delivery precondition unmet, explicitly not reportable as exploitable.
+```
+
+## STEP 5 — NEXT ACTION
+
+```
+[NEXT] PROBE: GET https://kassenkompass.de/js/param_passthrough.js (one request, then stop) and diff its parameter-name list against the recorded 7-mirror cookie alias set {lizenz, jid, customerid, agn, connectionnumber, ppn, employeenumber, advisorid, frab} for any name that maps to data_sparsum or to any cookie the client later reads. Rationale: param_passthrough.js is the file that documents the server-side mirror contract and is the last unread surface that could supply a link-deliverable delivery primitive for FINAL 3. If it lists no such name, FINAL 3's precondition is closed rather than open and the item should be reported as a hardening defect, not a vulnerability.
+```
+
+## STEP 6 — LEARNING
+
+```
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: whitelabel postMessage impact measured against the live DOM, not the selector list — 5 of 19 unconditional display:none selectors are real elements on this page (bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); the suppressed content is the "Sicher wechseln & sofort sparen" statutory-benefit block, the "4,8 auf Google" rating, the "10.893 Kunden" claim and the logo.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 occurrences of document.cookie, URLSearchParams, location.search/hash, fetch(, XMLHttpRequest, dataset or data- attributes; bonusrechner.php has no wl_* cookie/param/attribute; standard.js (67,969 B) has no whitelabel sender. Only the private editor sends wl-preview, so delivery is necessarily window.open + postMessage.
+[LEARN] ACCEPTED OTHER @ /js/whitelabel_live.js: the guard has no provenance component at all — neither event.origin nor event.source is read; the file's only "origin" token is the comment at line 17 claiming the control that line 227-231 does not implement.
+[LEARN] ACCEPTED OTHER @ htmlincludes/: exactly one include path is disclosed anywhere in the public JS corpus (whitelabel_styles.php, 200 / 0 B / text/html); standard.js discloses none, so there is no non-guessed filename left to test.
+[LEARN] ACCEPTED BUSLOGIC @ /js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from the cookie and line 624 adds it to the computed savings before animating the total into #resulteuro, while the corresponding setCookie is commented out at line 642. Sink is textContent (665, 672): display forgery, not XSS. 0 fetch/XHR/sendBeacon egress primitives in 36,499 B.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: the standing "reflection class closed 7/7" is a server-side-only measurement — it was produced by grepping the 200 HTML body and is structurally incapable of seeing a cookie→DOM sink that executes client-side. First such sink found this session.
+[LEARN] REJECTED OTHER @ awv.kassenkompass.de: as a cross-subdomain delivery primitive for the data_sparsum channel — root returns 400 to a default-curl UA (my own lead said 404; browser-UA control not run) and the response carries no Set-Cookie at all, zero of them scoped to Domain=.kassenkompass.de.
+```
+
+## STEP 7 — RISK
+
+```
+[RISK] KassenKompass GmbH: 89 — one high-confidence integrity finding whose impact is now measured rather than asserted (cross-origin removal of the 4,8 Google rating, the 10.893-customer claim and the statutory-advantage block from the health-insurance funnel entry page, no link and no click required; the no-link variant is positively closed and the not-XSS property re-confirmed). The API's only DELETE-registering route now has a demonstrated encoding-reachable, suffix-unbounded path space, which is a control-bypass on the destructive-verb surface even though authorisation is unassessed. New this session: an unsigned cookie drives a displayed EUR figure in the client rating engine with no writer, no signature and no range check. Held back deliberately: /post/create_user stays method-confounded and unproven after two retractions, the positive_kategorien_counts sink still has no delivery primitive after three cycles, and the data_sparsum channel is a proven defect with an unmet precondition that must not be written up as exploitable. Client-side rating engine, 2.1 MB tariff corpus and the 180-question S3 image set remain fully public.
+```
+## Objective
+- Produce the required analysis-only KassenKompass bug-bounty triage blocks, prioritizing concrete findings and one next action.
+- Validate the current top hypothesis: cross-origin `postMessage` can suppress trust/legal elements on `kassenkompass.de/bonusrechner.php`.
+
+## Important Details
+- State: `phase=POC`, `target=api`; report channel `bugs.olivermaicher.eu`.
+- Live testing must remain passive-first, ≤1 rps, and GET/HEAD/OPTIONS only; no mutation, auth bypass, or customer-data access.
+- Final output must use STEP 1–7 blocks: DELTA, PRIORITIZE, HYPOTHESES, SELF-CRITIQUE, exactly one NEXT, LEARNING, RISK.
+- Current hypothesis: `/js/whitelabel_live.js` listens for `wl-preview` without validating `event.origin`, adds `wl-active`, and emits CSS hiding trust/legal/footer selectors.
+- Cross-origin delivery and resulting DOM change remain inferred, not browser-confirmed.
+- This is presentation-integrity impact, not XSS: CSS is written with `textContent`, and brand values are allowlisted/sanitized.
+- Do not revive unauthenticated `/post/create_user`: 405 was method-confounded; gated `/cat_detail/` also returns 405 on GET but 401 on HEAD.
+- Current priorities include `api.kassenkompass.de/` (8.95), `bonusrechner_vergleich2.php` (5.75), `bonusrechner.php` (5.60), and `/htmlincludes/` (4.45).
+
+## Work State
+### Completed
+- Ran three rate-limited GET probes:
+  - `https://kassenkompass.de/js/whitelabel_live.js?v=v2.6.10` → `200`, 11,359 B.
+  - `https://kassenkompass.de/bonusrechner.php` → `200`, 42,990 B.
+  - `https://kassenkompass.de/htmlincludes/whitelabel/whitelabel_styles.php` → `200`, 0 B, `text/html; charset=UTF-8`.
+- Initial source grep confirmed:
+  - Line 17 claims a same-origin precondition.
+  - Line 18 claims strict validation, despite no observed origin check.
+  - Lines 79–99 list trust/legal/footer selectors under `body.wl-active`, including `bnv_trustwrapper`, `bnv_trustratebox`, `bnv2_trust_badge`, `bnv_footer`, `bnv_footer2`, and `bnv_legalmenu`.
+- Previously established source facts: handler adds `wl-active`; CSS uses `textContent`; no XSS sink; outgoing `wl-preview-ready` uses wildcard target origin.
+
+### Active
+- Inspect the complete unconditional `display:none` rule and message handler because the prior grep output was truncated.
+- Cross-check every affected selector against `br.html` to prove the targeted trust/legal elements exist in the served DOM.
+- Convert the source-level impact claim into a measured delta and finalize the required structured blocks.
+
+### Blocked
+- No browser execution has confirmed that a cross-origin opener delivers the message and causes the claimed visual mutation.
+- No command failed; the local grep result was simply truncated.
+
+## Next Move
+1. Inspect exact source regions and cross-check selectors locally:
+   `cd /tmp/opencode/kk && nl -ba wl.js | sed -n '1,30p;65,115p;205,245p' && grep -Ein 'event\.origin|\.origin|origin[[:space:]]*===|isTrusted|sameOrigin' wl.js || true`
+2. If selectors are present, emit the final triage blocks and retain one browser confirmation action:
+   `w=window.open('https://kassenkompass.de/bonusrechner.php'); w.postMessage({type:'wl-preview',brand:{}},'*');`
+
+## Relevant Files
+- `/tmp/opencode/kk/wl.js`: live 11,359 B whitelabel receiver; source for origin handling and CSS selectors.
+- `/tmp/opencode/kk/br.html`: live 42,990 B funnel page; use to prove affected DOM selectors exist.
+- `/tmp/opencode/kk/styles.php`: empty 200 response from the directly reachable server-side include path.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+Executing the STEP 5 [NEXT] PROBE — one read-only GET on a filename already in the inventory.
+[0m$ [0mcd /tmp/opencode/kk && sleep 1 && curl -sS -m 30 -D pp.h -o pp.js -w 'param_passthrough.js %{http_code} %{size_download}\n' 'https://kassenkompass.de/js/param_passthrough.js' && echo '--- set-cookie? ---' && (grep -i '^set-cookie' pp.h || echo '(none)')
+param_passthrough.js 200 5449
+--- set-cookie? ---
+set-cookie: AWSALB=qzH/C6Mi/5R19Pgk/UhbCTwkuq0CDUyyPHbXMR4ywAnM67UxyNAi2LFVBs36p5DuVqE2J+lX5wVx/6pAkcAtbA9WNs+DeKNKDfncpYL10nMWDo35ppwnW9TxXoYT; Expires=Wed, 07 Oct 2026 21:24:24 GMT; Path=/
+set-cookie: AWSALBCORS=qzH/C6Mi/5R19Pgk/UhbCTwkuq0CDUyyPHbXMR4ywAnM67UxyNAi2LFVBs36p5DuVqE2J+lX5wVx/6pAkcAtbA9WNs+DeKNKDfncpYL10nMWDo35ppwnW9TxXoYT; Expires=Wed, 07 Oct 2026 21:24:24 GMT; Path=/; SameSite=None; Secure
+[0m
+[0m$ [0mcd /tmp/opencode/kk && echo '=== A. cookie NAMES written/named in pp.js ===' && grep -oiE "cookie[A-Za-z]*\(['\"][a-z0-9_]+['\"]|setCookie\(['\"][a-z0-9_]+['\"]|['\"][a-z0-9_]*sparsum[a-z0-9_]*['\"]" pp.js | sort -u; echo; echo '=== B. URL/param names referenced in pp.js ===' && grep -oiE "(get|URLSearchParams|searchParams)[\(\.]+['\"]?[a-z0-9_]+|['\"][a-z_]{3,}['\"]" pp.js | tr -d "\"'" | sort -u | head -40
+=== A. cookie NAMES written/named in pp.js ===
+
+=== B. URL/param names referenced in pp.js ===
+DOMContentLoaded
+URLSearchParams(window
+advisorid
+agn
+click
+connectionnumber
+customerid
+direkt
+employeenumber
+fra
+get(href
+get(links
+get(m
+get(p
+href
+jid
+kkweb_pass_params
+lizenz
+loading
+onclick
+poolpartnernummer
+ppn
+searchParams.has
+searchParams.set
+utm_campaign
+utm_content
+utm_medium
+utm_source
+utm_term
+[0m
+[0m→ [0mRead /tmp/opencode/kk/pp.js
+[0m
+[0m$ [0mcd /tmp/opencode/kk && echo '=== direkt / fra / Fragebaum consumers in local corpus ===' && grep -oniE "\bdirekt\b|\bfra\b|fragebaum|fragebaum_|direct_?mode" br.html std.js live.js wl.js 2>/dev/null | sort -t: -k1,1 -k2,2n | uniq | head -40; echo; echo '=== lizenz / attribution consumers ===' && grep -oniE "\blizenz\b|pass_params|PASS_PARAMS" br.html std.js live.js wl.js 2>/dev/null | sort -t: -k1,1 -k2,2n | uniq | head -20; echo; echo '=== is param_passthrough.js loaded on the funnel entry page? ===' && grep -c "param_passthrough" br.html
+=== direkt / fra / Fragebaum consumers in local corpus ===
+br.html:369:direkt
+br.html:370:direkt
+live.js:845:direkt
+
+=== lizenz / attribution consumers ===
+
+=== is param_passthrough.js loaded on the funnel entry page? ===
+0
+[0m
+[0m$ [0mcd /tmp/opencode/kk && python3 - <<'EOF'
+import re
+h=open('br.html',encoding='utf-8',errors='replace').read().split('\n')
+for i in range(358,380):
+    if i < len(h):
+        print(i+1,':',re.sub(r'\s+',' ',h[i])[:400])
+EOF
+359 :  } else {
+360 :  animateCount(countElement, current, 0, 500);
+361 :  setTimeout(() => { countElement.textContent = "--"; }, 500);
+362 :  
+363 :  // Cookie löschen wenn kein Bundesland ausgewählt
+364 :  setCookie("available_kk_uids", "", -1);
+365 :  }
+366 :  });
+367 : 
+368 :  //suchfunktion Krankenkassen
+369 :  const suggestions = ["AOK Baden-W\u00fcrttemberg","AOK Bayern","AOK Bremen\/Bremerhaven","AOK Hessen","AOK Niedersachsen","AOK Nordost","AOK NordWest","AOK PLUS","AOK Rheinland\/Hamburg","AOK Rheinland-Pfalz\/Saarland","AOK Sachsen-Anhalt","Audi BKK","BAHN BKK","BARMER","BERGISCHE KRANKENKASSE","Bertelsmann BKK","BIG direkt gesund","BKK Akzo Nobel Bayern","BKK Diakonie","BKK D\u00fcrkoppAdler","B
+370 :  const kkImages = {"AOK Baden-W\u00fcrttemberg":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/kk_prof_logos\/aokbw.png","AOK Bayern":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/kk_prof_logos\/aokb.png","AOK Bremen\/Bremerhaven":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/kk_prof_logos\/aokbb.png","AOK Hessen":"https:\/\/kk-s3-01.s3.eu-central-1.amazona
+371 :  const defaultLogoPath = "bilder/stanicons/logo_kl.png";
+372 :  const inputField = document.getElementById("kk");
+373 :  const suggestionBox = document.getElementById("suggestions");
+374 :  const kkLogoElement = document.getElementById("kklogo");
+375 :  
+376 :  let currentSuggestionIndex = -1;
+377 :  let filteredSuggestions = [];
+378 : 
+379 :  inputField.addEventListener("input", function() {
+380 :  const query = this.value.trim();
+[0m
+`[NEXT]` executed. `param_passthrough.js` → `200`, 5,449 B. It closes one precondition and hardens one finding.
+
+## STEP 1 — DELTA
+
+```
+[CHANGED] The data_sparsum delivery precondition is CLOSED, negatively. param_passthrough.js:29-35 declares the complete forwardable set (PASS_PARAMS = lizenz, utm_source, utm_medium, utm_campaign, utm_content, utm_term, jid, customerid, agn, connectionnumber, ppn, poolpartnernummer, employeenumber, advisorid, fra, direkt) and data_sparsum is not among them. Line 55 also caps every value at 128 chars and rejects empty. There is therefore no URL parameter on the marketing site that can seed the cookie the client rating engine reads, and I am demoting that item from FINAL to a hardening defect per the rule I set for myself last cycle.
+[CHANGED] The previously-accepted param-to-cookie mirror finding is now mechanistically explained and materially wider than "the funnel mirrors URL params to cookies". param_passthrough.js harvests 16 attacker-controllable params from window.location.search (line 52-55, no value validation), persists them under sessionStorage key kkweb_pass_params (line 61-70), and then re-injects them into EVERY same-host funnel link (line 98-102) and every onclick CTA (line 108-120) on the page. The file's own header states the sink: the funnel's standard.php:29-34 consumes lizenz/utm_*, standard.php:47-61 consumes jid/agn/ppn/..., and sets cookies plus a linkklick server-side. So one visit to any marketing page with attacker params poisons attribution for the entire tab session, on any later funnel click from any page — the reachability is not a single crafted link but any marketing landing.
+[NEW] param_passthrough.js is NOT loaded on the funnel entry page (0 occurrences in the 42,990 B bonusrechner.php), which confirms the marketing-site/app split its header documents: the funnel receives these params in-URL only and does its own server-side mirroring.
+[NEW] Two forwardable params, fra and direkt, have NO consumer anywhere in the local corpus. The single "direkt" hit in bonusrechner.php is the insurer name "BIG direkt gesund" and the live.js:845 hit is not a flow control. The file's header calls them "Fragebaum-/Direktmodus-Steuerung aus Partner-Links" (line 28), so their effect is server-side and currently unmeasured. I am not claiming flow manipulation.
+[NEW] Four verified negatives in the rewriter that I specifically tested for injection and did not find: the host check is a strict same-host comparison against window.location.host (line 77); the funnel path regex is fully anchored (line 40); decorate() returns only u.pathname + u.search + u.hash, so no scheme or host can be injected through a param; and !u.searchParams.has(k) means a link's own param always wins over the session value. There is no href-based open redirect or javascript: sink here.
+[NEW] awv.kassenkompass.de root returns 400 to a default-curl UA, not the 404 my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation, not a drift finding. The response carries no Set-Cookie of any kind.
+```
+
+## STEP 2 — PRIORITIZE
+
+```
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/bonusrechner.php,6.95,attack_surface=4,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=2,freshness=9
+[PRIO] kassenkompass.de/js/live-calculation.js,6.30,attack_surface=2,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=1,freshness=10
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,6.05,attack_surface=4,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=2,freshness=7
+[PRIO] www.kassenkompass.de,5.20,attack_surface=5,business_value=6,tech_exposure=3,gate_ease=8,cloud_surface=2,freshness=6
+```
+
+## STEP 3 — HYPOTHESES
+
+```
+[HYP] Cross-Origin postMessage Receiver With No Provenance Check Removes The Google Rating, The Customer-Count Claim And The Statutory-Benefit Block From The Public Funnel Entry Page
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner.php
+confidence: 85
+reasoning: whitelabel_live.js:227-231 registers a window message listener whose entire guard is data.type === 'wl-preview' and typeof data.brand === 'object'. Neither event.origin nor event.source is read; the file's only mention of the word is the comment at line 17 asserting a same-origin precondition and strict validation that the code does not implement. The handler unconditionally runs document.body.classList.add('wl-active') and assigns ensureLiveStyle().textContent = buildCss(data.brand), and buildCss's first rule has no brand-value dependency: display:none !important on 19 selectors. Measured against the live page, 5 of the 19 are real class attributes: .bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate. Their served content is the "Sicher wechseln & sofort sparen" block, the three statutory-advantage claims, "Mehr als 10.893 Kunden vertrauen KassenKompass", the "4,8 auf Google" element and the logo. Values are allowlisted (isHex, pickEnum enums, RADIUS_MAP, sanitizeFont) and the write is textContent, so this is not XSS and not injection-defacement — it is trust-signal removal. Line 235 broadcasts {type:'wl-preview-ready'} to window.parent with targetOrigin '*'.
+evidence_needed: browser confirmation that a cross-origin window.open handle delivers the message and that those five elements actually leave the layout. Source reachability is proven; delivery and visual effect are inferred from postMessage semantics and NOT executed.
+verify_steps: from a cross-origin page run w=window.open('https://kassenkompass.de/bonusrechner.php'); w.postMessage({type:'wl-preview',brand:{}},'*'); then in w assert document.body.classList.contains('wl-active') and getComputedStyle(document.querySelector('.bnv_trustratebox')).display === 'none'. One page load, no auth, no server state. Control: postMessage({type:'other',brand:{}}) must be a no-op, which proves the type guard is the only barrier.
+impact: any third-party site can silently strip the customer-count claim, the 4,8 Google rating, the statutory-advantage block, the logo and the input card from a health-insurance comparison entry page, with no link, no click and no server state. Suppression of verified-rating and statutory-advantage messaging on a regulated-adjacent health funnel, plus competitor defacement. Presentation integrity only. LOW-MEDIUM.
+testability: PASSIVE
+```
+
+```
+[HYP] Client-Side Session-Wide Re-Broadcast Turns One Marketing-Page Visit Into A Whole-Session Attribution And Identity-Field Poisoning Primitive
+class: BUSLOGIC
+asset: kassenkompass.de/js/param_passthrough.js
+confidence: 64
+reasoning: param_passthrough.js collects 16 params from window.location.search with no value validation (only v.length <= 128, line 55), merges them into sessionStorage under kkweb_pass_params (line 66), and re-injects them into every same-host a[href] that matches the funnel path regex (line 98-102) and every onclick CTA (line 108-120). The file's header names the server sink precisely: the funnel's standard.php:29-34 turns lizenz into partner attribution, standard.php:47-61 turns jid/agn/ppn/... into JDC departure met-fields, and the funnel sets the corresponding cookies plus a linkklick record server-side. The forwardable set includes the partner-license field lizenz and the lead-identity fields customerid, employeenumber, poolpartnernummer, advisorid, connectionnumber, jid, agn. Because the store is sessionStorage, the poisoning survives every same-tab navigation and attaches to unrelated funnel CTAs on any later page.
+evidence_needed: the server-side effect of lizenz/customerid/employeenumber in the funnel's standard.php — specifically whether those cookies reach a CRM or the lead record unvalidated. That is the same unproven server sink the accepted mirror finding already carries; what is new and measured here is the client-side propagation mechanism and its session scope. param_passthrough.js is not loaded on the funnel page, so nothing about the server handling is observable from the static corpus.
+verify_steps: byte-diff the funnel response with and without the params — GET https://kassenkompass.de/bonusrechner.php and GET https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1, compare content-length and body; separately confirm the cookie names actually set by reading Set-Cookie on each response. Any difference in served flow or in the cookie set is the discriminator. Both are GETs on an unauthenticated page.
+impact: an attacker link to any marketing page silently reassigns the victim's lead to the attacker's partner license for the whole session and injects attacker-chosen values into identity-bearing fields including a health-insurance employer number, which the funnel persists as cookies and links to a recorded lead click. Lead and commission misattribution, plus integrity loss on the identity fields of a health-insurance funnel. MEDIUM as a business-integrity issue; the individual cookie-write primitive was already accepted, and the session-wide re-broadcast is the new surface.
+testability: PASSIVE
+```
+
+```
+[HYP] The Host's Only DELETE-Registering Route Has An Unvalidated Target And A Path Space That Defeats Literal-Path Allowlisting
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/
+confidence: 52
+reasoning: access-control-allow-methods on /health_insurance/ is "GET, POST, PUT, DELETE, OPTIONS" — the only cell on the host registering two destructive verbs, and neither appears in the unauthenticated 15-route root catalog. The 401 body is returned pre-auth with the path echoed in the instance field. The target is unconstrained at the routing layer (unbounded trailing absorption: /health_insurance/1/extra reaches the same handler). The match key is the percent-decoded request-target, not the literal path — /delete%2f1 returns a body byte-identical to /delete/1 with instance "/delete/1" — and decoding is exactly one level, since /%2568ealth_insurance/1 returns a static 404. Case matching is case-sensitive (/HEALTH_INSURANCE/1 falls to the catch-all), so the reachable set is spelling-bound but encoding-inclusive.
+evidence_needed: any credentialed request showing whether PUT/DELETE on this route is authorised per-object or unchecked. Not obtainable passively; no credential is in scope or available to me.
+verify_steps: read-only confirmation of the routing claim only — GET https://api.kassenkompass.de/health_insurance/ , GET https://api.kassenkompass.de/health_insurance/1/extra , GET https://api.kassenkompass.de/%68ealth_insurance/1 comparing status, content-length and access-control-allow-methods, then GET https://api.kassenkompass.de/%2568ealth_insurance/1 to confirm one-level decode. Do not send PUT or DELETE.
+impact: if the eventual authorisation is per-object, this route defeats a literal-path allowlist — a downstream WAF rule, API gateway or ASR entry filtering /health_insurance/ does not filter /%68ealth_insurance/1 or /health_insurance/1/extra. That is a control bypass on the destructive-verb surface, not a proven read or write impact. LOW-MEDIUM as a finding, MEDIUM as a remediation-priority signal.
+testability: PASSIVE
+```
+
+## STEP 4 — SELF-CRITIQUE
+
+```
+[PARKED] Orphaned unsigned data_sparsum read inflating #resulteuro — demoted out of FINAL this cycle. The defect is real and measured (getBaseSavingsValue parses the cookie, line 624 adds it to the total, line 639 animates it into the DOM, the writer is commented out at 642, sink is textContent so not XSS), but PASS_PARAMS closes the only delivery primitive I could identify and awv sets no cookies. Proven defect, no delivery: hardening item, not a vulnerability.
+[PARKED] IDOR on /user/{ext_id} — 62 but 26 sessions with zero new evidence, credential-gated on middleware B, only pre-auth routing evidence available. Unchanged since 09-05; carrying it again is a re-print, not a finding.
+[PARKED] fra/direkt flow control — the header claims Fragebaum/Direktmodus steering, but the only "direkt" token in the local corpus is the insurer "BIG direkt gesund". I will not assert flow manipulation from a comment; it needs the response diff below first.
+[PARKED] awv root 400-vs-404 — two-valued observation with no browser-UA control. Not a claim, a pending discriminator.
+[FINAL] 1. kassenkompass.de/bonusrechner.php: Cross-Origin postMessage Receiver With No Provenance Check Removes The Google Rating, Customer-Count Claim And Statutory-Benefit Block (85, PASSIVE) — evidence quality upgraded (impact measured against the live DOM instead of read off a selector list), scope corrected downward (5 elements not 19, no legal menu on this page), no-link variant positively closed.
+[FINAL] 2. kassenkompass.de/js/param_passthrough.js: Client-Side Session-Wide Re-Broadcast Turns One Marketing-Page Visit Into A Whole-Session Attribution And Identity-Field Poisoning Primitive (64, PASSIVE) — promoted over the API item; the propagation mechanism and its session scope are new, the server sink remains the same unproven one the mirror finding already carries.
+[FINAL] 3. api.kassenkompass.de/health_insurance/: Only DELETE-Registering Route With Unvalidated Target And Encoding-Reachable Path Space (52, PASSIVE) — routing half proven, authorisation half explicitly not.
+```
+
+## STEP 5 — NEXT ACTION
+
+```
+[NEXT] PROBE: GET https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1 (one request, then stop) and diff status, content-length and the full Set-Cookie list against the 42,990 B no-param baseline already captured, then body-diff the two. Rationale: fra/direkt are documented in param_passthrough.js:28 as Fragebaum-/Direktmodus-Steuerung, they are the only two forwardable params with no consumer in the static corpus, and the funnel does its mirroring server-side so their effect is visible only in the response. A byte-identical body with an unchanged cookie set closes them as dead parameters; a difference in either the served flow or the cookie set converts the parked flow-control item into a reportable finding, and the single combined request answers the go/no-go before any per-parameter bisection.
+```
+
+## STEP 6 — LEARNING
+
+```
+[LEARN] ACCEPTED BUSLOGIC @ /js/param_passthrough.js: propagation mechanism of the accepted param-to-cookie mirror, now measured — 16 params harvested from window.location.search with no value validation (only v.length <= 128), persisted in sessionStorage under kkweb_pass_params, re-injected into every same-host funnel a[href] and every onclick CTA; the file's own header names the sink as the funnel's standard.php:29-34 (lizenz/utm_*) and :47-61 (jid/agn/ppn/...), which set cookies plus a linkklick server-side.
+[LEARN] REJECTED BUSLOGIC @ /js/param_passthrough.js: "a marketing-page URL parameter can seed the data_sparsum cookie" — closed negatively against the declared PASS_PARAMS set (lizenz, utm_source, utm_medium, utm_campaign, utm_content, utm_term, jid, customerid, agn, connectionnumber, ppn, poolpartnernummer, employeenumber, advisorid, fra, direkt); data_sparsum is absent and every value is capped at 128 chars.
+[LEARN] REJECTED OTHER @ /js/param_passthrough.js: href rewriting as an injection or open-redirect vector — no host or scheme reaches the output. decorate() returns only u.pathname + u.search + u.hash, funnelTarget() enforces a strict u.host === window.location.host comparison plus a fully anchored funnel path regex, and !u.searchParams.has(k) makes a link's own param win over the session value.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: architecture confirmed by absence — param_passthrough.js has 0 occurrences in the 42,990 B bonusrechner.php, so the marketing-site/app split its header claims is real and the funnel receives these params in-URL only.
+[LEARN] ACCEPTED OTHER @ /js/param_passthrough.js: fra and direkt are documented at line 28 as Fragebaum-/Direktmodus-Steuerung but have no consumer in any local file; the single "direkt" token in bonusrechner.php is the insurer "BIG direkt gesund". Effect is server-side and unmeasured, claimed by comment only.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de: awv.kassenkompass.de root responds 400 to a default-curl UA, where my own lead recorded 404; the response carries no Set-Cookie of any kind, and only ALB cookies (AWSALB, AWSALBCORS) appear on param_passthrough.js.
+```
+
+## STEP 7 — RISK
+
+```
+[RISK] KassenKompass GmbH: 89 — one high-confidence integrity finding whose impact is now measured rather than asserted (cross-origin removal of the 4,8 Google rating, the 10.893-customer claim and the statutory-advantage block from the health-insurance funnel entry page; no link, no click, and the not-XSS property re-confirmed against a live allowlist). The accepted param-to-cookie mirror just became materially wider: a client-side script harvests 16 unvalidated params once, keeps them in sessionStorage for the whole tab, and stamps them onto every funnel CTA, so one marketing-page visit poisons partner attribution and lead-identity fields — including an employer number — for the entire session. The API's only DELETE-registering route has a demonstrated encoding-reachable, suffix-unbounded path space, a control bypass on the destructive-verb surface even though authorisation is unassessed. Held back deliberately: the data_sparsum display-forgery channel is now a hardening defect with its delivery precondition positively closed, /post/create_user stays method-confounded and unproven after two retractions, the positive_kategorien_counts sink still has no delivery primitive after three cycles, and fra/direkt are a comment with no measured effect. Client-side rating engine, 2.1 MB tariff corpus and the 180-question S3 image set remain fully public.
+```

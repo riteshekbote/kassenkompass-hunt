@@ -3679,3 +3679,32 @@
 - LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
 - LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+
+## RANKED HYPOTHESES 2026-09-30 21:25:41 UTC
+- [95] api.kassenkompass.de/: API Root Catalog Disclosure Enables Targeted Attack Planning Against All 16 Auth-Gated Endpoints (from art/lead_nemotron3.txt)
+- [52] api.kassenkompass.de/health_insurance/: The Host's Only DELETE-Registering Route Has An Unvalidated Target And A Path Space That Defeats Literal-Path Allowlisting (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/js/param_passthrough.js (one request, then stop) and diff its parameter-name list against the recorded 7-mirror cookie alias
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://api.kassenkompass.de/delete%2f1 and GET https://api.kassenkompass.de/delete%2f1%2fextra at ≤1 rps; compare 401 response `instance` field and 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: whitelabel postMessage impact measured against the live DOM, not the selector list — 5 of 19 uncondition
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 
+- LEARN: ACCEPTED OTHER @ /js/whitelabel_live.js: the guard has no provenance component at all — neither event.origin nor event.source is read; the file's only "origin" 
+- LEARN: ACCEPTED OTHER @ htmlincludes/: exactly one include path is disclosed anywhere in the public JS corpus (whitelabel_styles.php, 200 / 0 B / text/html); standard.
+- LEARN: ACCEPTED BUSLOGIC @ /js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from the cookie and line 624 add
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: the standing "reflection class closed 7/7" is a server-side-only measurement — it was produced by grepping the 200 HTML body 
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: as a cross-subdomain delivery primitive for the data_sparsum channel — root returns 400 to a default-curl UA (my own lead
+- LEARN: ACCEPTED BUSLOGIC @ /js/param_passthrough.js: propagation mechanism of the accepted param-to-cookie mirror, now measured — 16 params harvested from window.locat
+- LEARN: REJECTED BUSLOGIC @ /js/param_passthrough.js: "a marketing-page URL parameter can seed the data_sparsum cookie" — closed negatively against the declared PASS_PA
+- LEARN: REJECTED OTHER @ /js/param_passthrough.js: href rewriting as an injection or open-redirect vector — no host or scheme reaches the output. decorate() returns onl
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: architecture confirmed by absence — param_passthrough.js has 0 occurrences in the 42,990 B bonusrechner.php, so the marketing
+- LEARN: ACCEPTED OTHER @ /js/param_passthrough.js: fra and direkt are documented at line 28 as Fragebaum-/Direktmodus-Steuerung but have no consumer in any local file; 
+- LEARN: ACCEPTED OTHER @ kassenkompass.de: awv.kassenkompass.de root responds 400 to a default-curl UA, where my own lead recorded 404; the response carries no Set-Cook
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
