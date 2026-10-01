@@ -1414,3 +1414,10 @@ www.kassenkompass.de
 - CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
 
 ## 2026-10-01 14:39:37 UTC
+
+## 2026-10-01 19:51:24 UTC
+- NEW `GET /delete%2f1%2fextra` → 401 / 189 B / `b05031ccaf9c539e`, `instance: "/delete/1/extra"`, verb table `DELETE, OPTIONS` — a **second** encoded separator decodes and composes with suffix absorption o
+- NEW `GET /health_insurance%2f1%2fextra` → 401 / 241 B / `d91c109c481f499a`, `instance: "/health_insurance/1/extra"`, verb table `GET, POST, PUT, DELETE, OPTIONS` — byte-for-byte table match with `/health_
+- NEW `GET /delete%252f1` → 404 / 1245 B / `dc1d54dab6ec8c00` — double-encode fails to reach the route; decode is exactly one level, re-confirmed on this family.
+- NEW `GET /delete%2f` (empty id) → 401 / 181 B / `8bf613f3c717f967`, `instance: "/delete/"` — DELETE route binds with an empty id segment; id presence is not validated at routing (extends the 09-07 greedy-
+- CHANGED `/delete%2f1` re-measured byte-identical to the 09-29 record (`46bd50c0c679e09f`, 182 B, `DELETE, OPTIONS`) — no drift; the composition gap above was coverage, not drift.
