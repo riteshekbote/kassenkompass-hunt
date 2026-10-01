@@ -1225,3 +1225,14 @@ https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
 https://api.kassenkompass.de/%68ealth_insurance/1 -> HTTP 401
 https://api.kassenkompass.de/%2568ealth_insurance/1 -> HTTP 404
 https://kassenkompass.de/bonusrechner.php' -> HTTP 404
+
+## 2026-10-01 00:53:16 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php -> 200 len=?

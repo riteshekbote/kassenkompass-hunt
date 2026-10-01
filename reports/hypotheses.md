@@ -3708,3 +3708,27 @@
 - LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
 - LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+
+## RANKED HYPOTHESES 2026-10-01 00:53:02 UTC
+- [95] api.kassenkompass.de/: API Root Catalog Disclosure Enables Targeted Attack Planning Against All 16 Auth-Gated Endpoints (from art/lead_nemotron3.txt)
+- [85] kassenkompass.de/bonusrechner.php: Cross-Origin postMessage Receiver With No Provenance Check Removes The Google Rating, The Customer-Count Claim And The Statutory-Benefit Block From The Public Funnel Entry Page (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1 (read-only, ≤1 rps). Record status, content-length, Set-Cookie list and full response body (
+- NEXT(hypotheses-nemotron3.txt): PROBE: GET https://api.kassenkompass.de/delete%2f1 and GET https://api.kassenkompass.de/delete%2f1%2fextra at ≤1 rps; compare 401 response instance field and ac
+- LEARN: REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 
+- LEARN: ACCEPTED OTHER @ /js/whitelabel_live.js: guard reads only data.type and typeof data.brand; neither event.origin nor event.source is consulted. The only "origin"
+- LEARN: ACCEPTED OTHER @ /js/param_passthrough.js: 16 params harvested with length cap 128, stored in sessionStorage kkweb_pass_params, re-injected into every same-host
+- LEARN: REJECTED BUSLOGIC @ /js/param_passthrough.js: "marketing-page URL parameter can seed data_sparsum cookie" — closed negatively (PASS_PARAMS excludes data_sparsum
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: "/post/ requires X-API-Secret" was method-confounded. GET/OPTIONS cannot separate auth rejection from method mismat
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: percent-decode-before-match host-wide (v1+v2); encoded separators decode (/delete%2f1 → instance "/delete/1"); case-sensi
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload drift-in-±0.3% (2,152,258 B live vs recorded baseline) and data freshness ≤2025-12
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff) — 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/d
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
