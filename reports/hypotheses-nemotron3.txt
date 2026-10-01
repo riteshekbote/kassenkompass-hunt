@@ -1,14 +1,9 @@
-## 2026-10-01 00:52:54 UTC [target] (model nemotron3)
-[NEW] kassenkompass.de/js/whitelabel_live.js: 11,359 B public postMessage receiver with zero origin validation, handler force-adds wl-active, wildcard targetOrigin leaks frame-ready timing, NOT XSS (textContent write + allowlisting)
-[NEW] kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
-[NEW] kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from cookie, line 624 adds to computed savings before animating into #resulteuro; setCookie commented at 642; 0 egress primitives
-[NEW] kassenkompass.de/js/param_passthrough.js: propagation mechanism of param-to-cookie mirror — 16 params harvested from location.search (v.length <= 128), persisted in sessionStorage under kkweb_pass_params, re-injected into every same-host funnel a[href] and onclick CTA
-[NEW] awv.kassenkompass.de root returns 400 to default-curl UA (not 404 per prior lead); no Set-Cookie, only ALB cookies (AWSALB, AWSALBCORS)
-[CHANGED] api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
-[CHANGED] api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
-[CHANGED] api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
-[CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
-[CHANGED] api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+## 2026-10-01 07:07:22 UTC [target] (model nemotron3)
+[NEW] api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
+[NEW] api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[NEW] api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[NEW] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[NEW] api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 [CHANGED] Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 [CHANGED] No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
 [PRIO] api.kassenkompass.de/,9.20,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8

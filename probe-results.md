@@ -1236,3 +1236,12 @@ https://api.kassenkompass.de/delete/1/extra -> HTTP 401
 https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
 https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1 -> 200 len=?
 https://kassenkompass.de/bonusrechner.php -> 200 len=?
+
+## 2026-10-01 07:10:28 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401

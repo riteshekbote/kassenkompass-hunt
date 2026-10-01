@@ -42172,3 +42172,412 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff) — Cloudflare edge routing, not origin misconfiguration.
 
 [RISK] KassenKompass GmbH: 89 — one high-confidence integrity issue (cross-origin suppression of 4,8 Google rating, 10.893-customer claim and statutory-advantage block on health-insurance funnel entry, no link/click required; not XSS, allowlisted values). Session-wide attribution/identity-field propagation via param_passthrough.js (16 unvalidated params persisted in sessionStorage and stamped onto every funnel CTA for the tab). Encoding-reachable path space on the host's only DELETE-registering route (percent-decode-before-match + encoded separators + suffix absorption) creates control-bypass surface on destructive verbs pending authorisation assessment. Held back: data_sparsum display-forgery delivery closed negatively; /post/create_user auth unproven by method-confounded tests; fra/direkt effect unmeasured (comment-only). 2.1 MB tariff corpus and 180-question S3 image set remain fully public.
+===== ANALYST bigpickle 2026-10-01 07:10:16 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la 2>/dev/null | head -40; echo "---NET---"; timeout 12 curl -s -o /dev/null -w "%{http_code} %{size_download}\n" https://kassenkompass.de/bonusrechner.php 2>&1 | tail -3
+total 1024
+drwxr-xr-x 12 runner runner   4096 Oct  1 07:05 .
+drwxr-xr-x  3 runner runner   4096 Oct  1 07:04 ..
+drwxr-xr-x  7 runner runner   4096 Oct  1 07:05 .git
+drwxr-xr-x  3 runner runner   4096 Oct  1 07:04 .github
+-rw-r--r--  1 runner runner   1767 Oct  1 07:04 README.md
+-rw-r--r--  1 runner runner     32 Oct  1 07:05 analyst-out.txt
+-rw-r--r--  1 runner runner 444560 Oct  1 07:05 analyst-prompt.txt
+-rw-r--r--  1 runner runner 440742 Oct  1 07:05 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 leads
+-rw-r--r--  1 runner runner  62495 Oct  1 07:04 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 reports
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct  1 07:04 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  1 07:04 scripts
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  1 07:04 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  1 07:04 triage
+---NET---
+200 42990
+[0m
+Network is live. Running my standing NEXT probe: baseline vs `direkt=1&fra=1` on the funnel entry, ≤1 rps.
+[0m$ [0mcd /tmp/opencode && rm -f base.* stf.*
+timeout 25 curl -s -D base.hdr -o base.body -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/bonusrechner.php"
+echo "BASE: $(wc -c < base.body) B  sha256=$(sha256sum base.body | cut -c1-16)"
+echo "BASE cookies:"; grep -i '^set-cookie' base.hdr | sed 's/^/  /'
+sleep 3
+timeout 25 curl -s -D stf.hdr -o stf.body -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1"
+echo "FRA/DIREKT: $(wc -c < stf.body) B  sha256=$(sha256sum stf.body | cut -c1-16)"
+echo "STUFFED cookies:"; grep -i '^set-cookie' stf.hdr | sed 's/^/  /'
+BASE: 42990 B  sha256=2c471ef3742a6d51
+BASE cookies:
+  set-cookie: AWSALB=CG+cq9JgBXgu731XlGCpJEScL7A2x8fWUU+GkqBpxRyY4pfgJwRrqKxVhI/v1a2tJ3SUvbRMeT71Eh7qqvrnwlvAAA/eqFJXbEv8t2AQTwCvB78mQtc2N/uyvZpd; Expires=Thu, 08 Oct 2026 07:05:22 GMT; Path=/
+  set-cookie: AWSALBCORS=CG+cq9JgBXgu731XlGCpJEScL7A2x8fWUU+GkqBpxRyY4pfgJwRrqKxVhI/v1a2tJ3SUvbRMeT71Eh7qqvrnwlvAAA/eqFJXbEv8t2AQTwCvB78mQtc2N/uyvZpd; Expires=Thu, 08 Oct 2026 07:05:22 GMT; Path=/; SameSite=None; Secure
+  set-cookie: PHPSESSID=e82f02ef6fda467a12c772f8a1e3fd1d; path=/; secure; HttpOnly; SameSite=Lax
+FRA/DIREKT: 0 B  sha256=e3b0c44298fc1c14
+STUFFED cookies:
+  set-cookie: AWSALB=a57/XYDwCmIrvEVg65UOudFSgULihRA1OoGL01WrKA8bAZf6D5aJnj32yyFC5RfOfpO6o0eo1H+XLgOSz+EeLJXbpzvmpLIGebkVNdAxSUiNOQ2ARb04glDfpi+m; Expires=Thu, 08 Oct 2026 07:05:25 GMT; Path=/
+  set-cookie: AWSALBCORS=a57/XYDwCmIrvEVg65UOudFSgULihRA1OoGL01WrKA8bAZf6D5aJnj32yyFC5RfOfpO6o0eo1H+XLgOSz+EeLJXbpzvmpLIGebkVNdAxSUiNOQ2ARb04glDfpi+m; Expires=Thu, 08 Oct 2026 07:05:25 GMT; Path=/; SameSite=None; Secure
+  set-cookie: PHPSESSID=f6cf28ecace080eb5cae429089300312; path=/; secure; HttpOnly; SameSite=Lax
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== STUFFED HEADERS ==="; cat stf.hdr | head -25
+=== STUFFED HEADERS ===
+HTTP/2 302 
+date: Thu, 01 Oct 2026 07:05:25 GMT
+content-type: text/html; charset=UTF-8
+set-cookie: AWSALB=a57/XYDwCmIrvEVg65UOudFSgULihRA1OoGL01WrKA8bAZf6D5aJnj32yyFC5RfOfpO6o0eo1H+XLgOSz+EeLJXbpzvmpLIGebkVNdAxSUiNOQ2ARb04glDfpi+m; Expires=Thu, 08 Oct 2026 07:05:25 GMT; Path=/
+set-cookie: AWSALBCORS=a57/XYDwCmIrvEVg65UOudFSgULihRA1OoGL01WrKA8bAZf6D5aJnj32yyFC5RfOfpO6o0eo1H+XLgOSz+EeLJXbpzvmpLIGebkVNdAxSUiNOQ2ARb04glDfpi+m; Expires=Thu, 08 Oct 2026 07:05:25 GMT; Path=/; SameSite=None; Secure
+set-cookie: PHPSESSID=f6cf28ecace080eb5cae429089300312; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+location: /bonusrechner_daten.php?direkt=1&fra=1
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=bkezuNrZKy9OsJiPBxzThTJWB5fvBcS48yXIA0Is3aYrdAGNd5IVfjWhT6HfYS20BqpyfdL0c7015%2BPVyWtncIzlyDq%2BlQHgbaA%2Fja3eHJdHb4InUneMnhcKoYReVGzChjQ%3D"}]}
+cf-ray: a4399e6e897aeae2-ORD
+[0m
+Stuffed response is **0 bytes** where baseline is 42,990 B. That is a real differential — but before writing it up I need the status code and controls.
+302 → `/bonusrechner_daten.php?direkt=1&fra=1`. Params are preserved into the next funnel step. But an unknown-param control is mandatory before any claim.
+[0m$ [0mcd /tmp/opencode
+probe() {
+  local label="$1" url="$2"
+  sleep 3
+  local code len loc
+  read code len loc < <(timeout 25 curl -s -o /dev/null -D - -w "%{http_code} %{size_download} %{redirect_url}" -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "$url" 2>/dev/null | tr -d '\r' | awk '/^HTTP/{c=$2} /^location:/{l=$2} /^%{/{print c" "$0}' | head -1 | awk '{print $1, $2, $3}' | tr '\n' ' ')
+  loc=$(timeout 5 true; echo)
+  printf "%-28s %s\n" "$label" "$code"
+}
+for p in "direkt=1" "fra=1" "zzz_unknown_9f2=1" "lizenz=test"; do
+  sleep 3
+  out=$(timeout 25 curl -s -o /dev/null -D - -w "\n__CODE__%{http_code} __LEN__%{size_download}\n" -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/bonusrechner.php?$p" 2>/dev/null | tr -d '\r')
+  code=$(printf '%s' "$out" | grep -o '__CODE__[0-9]*' | tail -1 | sed 's/__CODE__//')
+  len=$(printf '%s' "$out" | grep -o '__LEN__[0-9]*' | tail -1 | sed 's/__LEN__//')
+  loc=$(printf '%s' "$out" | grep -i '^location:' | sed 's/^[Ll]ocation: *//')
+  printf "%-26s code=%s len=%s loc=%s\n" "?$p" "$code" "$len" "${loc:-<none>}"
+done
+?direkt=1                  code=302 len=0 loc=/bonusrechner_daten.php?direkt=1
+?fra=1                     code=200 len=42990 loc=<none>
+?zzz_unknown_9f2=1         code=200 len=42990 loc=<none>
+?lizenz=test               code=200 len=42990 loc=<none>
+[0m
+Clean, injective discrimination: unknown param → 200/42990, `lizenz` → 200/42990, but `direkt=1` → **302**. Controls passed. `direkt` is real server-side flow control. Does it propagate to the next step?
+[0m$ [0mcd /tmp/opencode
+for u in "bonusrechner_daten.php" "bonusrechner_daten.php?direkt=1" "bonusrechner_daten.php?direkt=1&fra=1"; do
+  sleep 3
+  out=$(timeout 25 curl -s -o d.body -D - -w "\n__CODE__%{http_code} __LEN__%{size_download}\n" -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/$u" 2>/dev/null | tr -d '\r')
+  code=$(printf '%s' "$out" | grep -o '__CODE__[0-9]*' | tail -1 | sed 's/__CODE__//')
+  len=$(printf '%s' "$out" | grep -o '__LEN__[0-9]*' | tail -1 | sed 's/__LEN__//')
+  loc=$(printf '%s' "$out" | grep -i '^location:' | sed 's/^[Ll]ocation: *//')
+  ck=$(printf '%s' "$out" | grep -ic '^set-cookie:')
+  printf "%-38s code=%s len=%s sha=%s sc=%s loc=%s\n" "$u" "$code" "$len" "$(sha256sum d.body|cut -c1-12)" "$ck" "${loc:-<none>}"
+done
+bonusrechner_daten.php                 code=200 len=62702 sha=c970ffb5fa71 sc=3 loc=<none>
+bonusrechner_daten.php?direkt=1        code=200 len=67284 sha=bdbd5100aff6 sc=3 loc=<none>
+bonusrechner_daten.php?direkt=1&fra=1  code=200 len=67284 sha=3cc204bd4b72 sc=3 loc=<none>
+[0m
+`direkt` propagates and **adds 4,582 B of content** on the data step. That's a different rendered form. I need to know what it adds.
+[0m$ [0mcd /tmp/opencode
+sleep 2; timeout 25 curl -s -o d_base.html -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/bonusrechner_daten.php"; sleep 3
+timeout 25 curl -s -o d_dir.html -A "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" "https://kassenkompass.de/bonusrechner_daten.php?direkt=1"
+echo "base=$(wc -c <d_base.html) direkt=$(wc -c <d_dir.html)"
+echo "=== DIFF (unified, first 90 lines) ==="
+diff <(sed 's/></>\n</g' d_base.html) <(sed 's/></>\n</g' d_dir.html) | head -90
+base=62702 direkt=67284
+=== DIFF (unified, first 90 lines) ===
+21c21
+< <script src="/js/standard.js?v=1790838391">
+---
+> <script src="/js/standard.js?v=1790838395">
+179,186d178
+< 				<div class="bnv_sparwrapper">
+< 			<h1 class="bnv_mainheader">Krankenkasse vergleichen &<br>jedes Jahr Geld sparen</h1>
+< 			<div class="bnv_sparbox">
+< 				<p class="bnv_spartext">Spare im Jahr bis zu</p>
+< 				<p class="bnv_sparnum">
+< <span id="sparsummer">---</span>&thinsp;€</p>
+< 			</div>
+< 		</div>
+189c181
+< 		<div class="bnv_inputframe" >
+---
+> 		<div class="bnv_inputframe" style="margin-top:20px">
+191a184
+> 				<p class="bnv_inputheader" style="font-weight: 400; font-size: 16px;margin-top:-16px;">Direkt zum Antrag bei deiner gewählten Krankenkasse</p>
+258a252,262
+> 								<div class="bn_selectwrap zielkk-field">
+> 					<img class="bn_select_arraow bnv_select_arraow" src="bilder/stanicons/arrow-down.svg">
+> 					<img class="bnv_img_inputerror bnv_img_inputerror_select" id="errorimg_zielkk" src="bilder/bonusrechner/alert_input.svg">
+> 					<select class="bn_questselect bnv_inputupdate" name="zielkk" id="zielkk">
+> 						<option value="none" selected>
+> </option>
+> 					</select>
+> 					<label class="animated-placeholder" for="zielkk">Ich wechsle zu folgender Krankenkasse</label>
+> 					<p class="bn_errortext bnv_errortext" id="error_zielkk">
+> </p>
+> 				</div>
+275,278d278
+< 								<div class="bnv_policwrapper">
+< 					<input required type="checkbox" class="bnv_policcheck" id="privacy_checkbox">
+< 					<label for="privacy_checkbox" class="bnv_polictext">Ich stimme der Verarbeitung meiner Daten zum Krankenkassenvergleich zu. Details in den <a href="datenschutz.php" class="bnv_policlink" target="_blank">Datenschutzrichtlinien</a>.</label>
+< 				</div>
+284c284
+< 					Fülle alle Felder aus, um den Vergleich zu starten				</div>
+---
+> 					Fülle alle Felder aus, um fortzufahren				</div>
+286c286
+< 					<span class="primary_label_xl">Jetzt&nbsp;vergleichen</span>
+---
+> 					<span class="primary_label_xl">Weiter&nbsp;zum&nbsp;Antrag</span>
+296,300d295
+< 						<div class="bnv_xl_wrapper">
+< 				<div class="bnv2_trustwrapper" style="width:auto;">
+< 					<p class="bnv2_ratingtext">Kostenlos & unverbindlich</p>
+< 				</div>
+< 			</div>
+361c356,362
+< 		const direktModus = false;
+---
+> 		const direktModus = true;
+> 				const availableKkByBund = {"13":["9","26","49","27","73","57","14","16","28","35","36","42","46","48","52","54","55","58","59","62","65","32","67","69","70","75","76","77","41","44","45","64","71","72","15","19","61","68"],"16":["9","49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","45","64","71","15","19","61","68","34"],"1":["26","49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","38","44","45","64","71","72","15","1","19","61","68"],"2":["26","49","27","73","2","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","25","29","44","45","64","71","72","43","15","19","61","68"],"3":["26","49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","64","71","72","15","19","61","68"],"5":["26","49","73","3","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","64","72","15","19","61","68"],"7":["26","49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","29","44","45","60","64","71","72","43","15","4","19","61","68"],"9":["26","49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","29","44","45","64","71","72","15","6","19","61","68"],"10":["26","49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","23","41","44","45","64","71","72","8","15","10","19","61","68"],"14":["26","49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","45","71","15","19","61","68","64"],"6":["26","49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","17","23","41","44","45","64","71","72","15","10","19","61","68"],"4":["49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","71","15","19","61","68","64"],"8":["49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","64","71","15","19","61","68"],"11":["49","27","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","60","64","71","15","34","11","19","61","68"],"12":["49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","44","45","60","64","72","15","11","19","61","68"],"15":["49","73","14","16","28","35","36","42","46","48","52","54","55","58","57","59","62","65","32","67","69","70","75","76","77","64","71","72","8","15","19","61","68","34"]};
+> 		const kkNameUidMap = {"1":"AOK Baden-W\u00fcrttemberg","2":"AOK Bayern","3":"AOK Bremen\/Bremerhaven","4":"AOK Hessen","6":"AOK Niedersachsen","8":"AOK NordWest","9":"AOK PLUS","10":"AOK Rheinland\/Hamburg","11":"AOK Rheinland-Pfalz\/Saarland","14":"Audi BKK","15":"BAHN BKK","16":"BARMER","17":"BERGISCHE KRANKENKASSE","19":"BIG direkt gesund","23":"BKK EUREGIO","25":"BKK Faber-Castell","26":"BKK firmus","27":"BKK Freudenberg","28":"BKK GILDEMEISTER SEIDENSTICKER","29":"BKK Herkules","32":"Mobil Krankenkasse","34":"BKK PFAFF","35":"BKK Pfalz","36":"BKK ProVita","38":"BKK SBH","41":"BKK VDN","42":"BKK VerbundPlus","43":"BKK Werra-Meissner","44":"BKK Wirtschaft & Finanzen","45":"ZF BKK","46":"BKK24","48":"Continentale BKK","49":"DAK","52":"Heimat Krankenkasse","54":"HEK Hanseatische Krankenkasse","55":"hkk Krankenkasse","57":"IKK classic","58":"IKK Die Innovationskasse","59":"IKK gesund plus","60":"IKK S\u00fcdwest","61":"KKH Kaufm\u00e4nnische Krankenkasse","62":"KNAPPSCHAFT","64":"mhplus BKK","65":"mkk - meine krankenkasse","67":"Pronova BKK","68":"R+V BKK","69":"Salus BKK","70":"SBK Siemens-Betriebskrankenkasse","71":"SECURVITA Krankenkasse","72":"SKD BKK","73":"Techniker Krankenkasse (TK)","75":"VIACTIV Krankenkasse","76":"vivida bkk","77":"WMF BKK"};
+> 		// §9b Firmus-Ausschluss: gesperrte Ziel-Kassen je Versicherungsstatus (UI-Code) — Quelle famsel_lib.
+> 		// KEIN JSON_FORCE_OBJECT: die äußeren Keys 1-5 encodieren ohnehin als Objekt, die inneren
+> 		// Sperrlisten MÜSSEN echte JS-Arrays bleiben (indexOf!) — Review-Finding 2026-08-23.
+> 		const famselBlockedTargets = {"1":[],"2":[],"3":[],"4":[26],"5":[26]};
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== famselBlockedTargets USAGE (direkt-mode page) ==="
+grep -o 'famselBlockedTargets[^;,)]*' d_dir.html | sort -u
+echo
+echo "=== availableKkByBund / kkNameUidMap USAGE ==="
+grep -o 'availableKkByBund[^;,)]\{0,90\}' d_dir.html | sort -u
+grep -o 'kkNameUidMap[^;,)]\{0,90\}' d_dir.html | sort -u
+echo
+echo "=== privacy_checkbox occurrences ==="
+grep -c 'privacy_checkbox' d_base.html d_dir.html
+echo "=== zielkk occurrences ==="
+grep -c 'zielkk' d_base.html d_dir.html
+=== famselBlockedTargets USAGE (direkt-mode page) ===
+famselBlockedTargets = {"1":[]
+famselBlockedTargets[famselUiNow] || []
+
+=== availableKkByBund / kkNameUidMap USAGE ===
+availableKkByBund = {"13":["9"
+availableKkByBund[selectedBund]
+kkNameUidMap = {"1":"AOK Baden-W\u00fcrttemberg"
+kkNameUidMap[uid]
+
+=== privacy_checkbox occurrences ===
+d_base.html:2
+d_dir.html:0
+=== zielkk occurrences ===
+d_base.html:23
+d_dir.html:28
+[0m
+`direkt=1` is a **flow-switch that removes a server-rendered `required` privacy-consent checkbox** and converts comparison → application deep-link. Let me examine the compliance list offline (no new requests).
+[0m$ [0mcd /tmp/opencode
+echo "=== context around famselUiNow / block-list read ==="
+sed 's/;/;\n/g' d_dir.html | grep -n 'famselUiNow\|famselBlockedTargets\|availableKkByBund\[\|indexOf' | head -20
+echo
+echo "=== full option-population block ==="
+sed 's/;/;\n/g' d_dir.html | grep -A2 -B2 'availableKkByBund\[selectedBund\]' | head -30
+=== context around famselUiNow / block-list read ===
+371:		// Sperrlisten MÜSSEN echte JS-Arrays bleiben (indexOf!) — Review-Finding 2026-08-23.
+372:		const famselBlockedTargets = {"1":[],"2":[],"3":[],"4":[26],"5":[26]};
+744:				if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+1587:				const famselUiNow = (famselElForZiel && famselElForZiel.value !== 'none')
+1590:				const blockedUids = famselBlockedTargets[famselUiNow] || [];
+1593:				if (selectedBund !== 'none' && availableKkByBund[selectedBund]) {
+1594:					const kkUids = availableKkByBund[selectedBund];
+1597:						if (blockedUids.indexOf(parseInt(uid, 10)) !== -1) { return;
+
+=== full option-population block ===
+
+
+				if (selectedBund !== 'none' && availableKkByBund[selectedBund]) {
+					const kkUids = availableKkByBund[selectedBund];
+
+					kkUids.forEach(function(uid) {
+[0m
+Two measured facts confirmed. Final offline checks to scope the claim precisely.
+[0m$ [0mcd /tmp/opencode
+echo "=== direktModus / blocklist presence per page ==="
+for f in d_base.html d_dir.html; do printf "%-12s direktModus=%s famselBlockedTargets=%s privacy_checkbox=%s zielkk_select=%s\n" "$f" "$(grep -c direktModus $f)" "$(grep -c famselBlockedTargets $f)" "$(grep -c privacy_checkbox $f)" "$(grep -c 'name="zielkk"' $f)"; done
+echo
+echo "=== does baseline already ship zielkk (23 hits) - what kind? ==="
+grep -o 'id="zielkk"\|name="zielkk"\|zielkk_"' d_base.html | sort | uniq -c
+echo "=== §9b statute reference ==="
+grep -o '§9b[^<]\{0,60\}\|9b SGB[^<]\{0,40\}\|Firmus[^<]\{0,40\}' d_dir.html | sort -u | head
+=== direktModus / blocklist presence per page ===
+d_base.html  direktModus=7 famselBlockedTargets=1 privacy_checkbox=2 zielkk_select=0
+d_dir.html   direktModus=7 famselBlockedTargets=2 privacy_checkbox=0 zielkk_select=1
+
+=== does baseline already ship zielkk (23 hits) - what kind? ===
+=== §9b statute reference ===
+Firmus = berechneKVBeitrag(salaryValue / 12, i
+Firmus = parseFloat(String(zusatzbeitragFirmus
+Firmus);
+FirmusJahr = beitragFirmus && typeof beitragFi
+FirmusJahr));
+FirmusRaw = kkZsb["BKK firmus"];
+Firmus["gesamtBeitragAN"] * 12
+§9b Firmus-Ausschluss: aktueller Versicherungsstatus (UI-Code; 
+§9b Firmus-Ausschluss: gesperrte Ziel-Kassen je Versicherungsst
+§9b: Status-Wechsel rendert das Ziel-Dropdown neu (gesperrte Ka
+[0m
+## Objective
+- Continue the KassenKompass GmbH POC and produce the required eight-step, structured bug-bounty analysis with current delta, priorities, hypotheses, closures, one next action, learning, and risk.
+- Prioritize evidence-backed business-logic/auth issues over descriptive errors or inventory-only findings.
+
+## Important Details
+- Phase: `POC`; target: `api`; report channel: `bugs.olivermaicher.eu`.
+- In scope: KassenKompass-owned infrastructure, APIs, websites, portals, domains, and applications defined by `scope.yml` and `inventory/kassenkompass.md`.
+- Live testing must remain passive-first, `GET`/`HEAD`/`OPTIONS` only, non-mutating, `<=1 rps`, and avoid customer/authentication data. Prior bursts triggered a transient WAF IP block.
+- Required output uses only `[DELTA]`, `[PRIO]`, `[HYP]`, `[PARKED]`, `[FINAL]`, exactly one `[NEXT]`, `[LEARN]`, and `[RISK]`; strict hypothesis fields and score formula apply.
+- Current ranked hypotheses:
+  1. `kassenkompass.de/bonusrechner.php`: cross-origin `postMessage` provenance failure suppresses five real trust/legal elements, confidence `85`, passive.
+  2. `/js/param_passthrough.js`: 16 URL parameters persist in `sessionStorage` under `kkweb_pass_params` and are stamped onto every matching funnel CTA, confidence `64`, passive.
+  3. `api.kassenkompass.de/health_insurance/`: encoded and suffix-unbounded paths reach the only route exposing both `PUT` and `DELETE`, confidence `52`; authorization remains unassessed.
+- Current risk score: `89`.
+- `/post/create_user` unauthenticated provisioning is unproven: earlier claims were method-confounded by `405`; `GET /cat_detail/` also returns `405` despite being auth-gated. Write auth requires an accepted-method credentialed request and must not be attempted passively.
+- `api.kassenkompass.de` percent-decoding occurs before routing across v1/v2; normalization matrix covers 17 route families with zero divergences. `/delete%2f1` reaches `/delete/1`; matching is case-sensitive.
+- Whitelabel finding is integrity impact, not XSS: `textContent` plus strict allowlists; measured selectors include `.bnv_inputframe`, `.bnv_trustwrapper`, `.bnv_logowrapper`, `.bnv_trustratebox`, and `.bnv_trustraterate`.
+- `data_sparsum` is excluded from `PASS_PARAMS`; no passive delivery primitive is known. The prior cookie-spoofing chain is negatively closed.
+- `fra` and `direkt` are documented in `/js/param_passthrough.js:28` as flow controls but have no local consumer; server-side effect remains unmeasured.
+
+## Work State
+### Completed
+- Verified `whitelabel_live.js` is `11,359 B`, reads neither `event.origin` nor `event.source`, forces `wl-active`, suppresses five live elements, and uses `textContent` rather than `innerHTML`.
+- Verified `param_passthrough.js` forwards `lizenz`, five `utm_*` fields, `jid`, `customerid`, `agn`, `connectionnumber`, `ppn`, `poolpartnernummer`, `employeenumber`, `advisorid`, `fra`, and `direkt`, with values capped at 128 characters.
+- Closed crafted-link whitelabel delivery negatively; delivery requires a private editor using `window.open` and `postMessage`.
+- Verified API root remains a `1167 B` catalog containing 15 v1 routes plus one v2 route; header-shape drift is cosmetic, not a new impact.
+- Verified `/sync/` remains a legacy HTTP-200 authentication-error envelope without demonstrated bypass or data exposure.
+- Verified `/post/help` returns `200 / 344 B application/json`; `/post/create_user` is POST-only; 30 candidate subpaths match the unregistered `200 / 0 B text/html` state.
+- Verified arbitrary-origin preflight has no ACAO, but this does not exclude simple form-encoded cross-origin POSTs.
+- Verified `bonusrechner_fragen.php` exposes roughly 2.1 MB anonymously without rate limiting; seven global debug functions and the full client-side rating engine are public.
+
+### Active
+- Compare one combined `?direkt=1&fra=1` request against the captured `42,990 B` no-parameter `bonusrechner.php` baseline.
+- Browser-level confirmation of the whitelabel `postMessage` visual effect remains outstanding.
+- Authorization impact for encoded paths reaching `PUT`/`DELETE` remains outstanding and requires credentials.
+
+### Blocked
+- No valid `X-API-Secret` or other authorized test account is available; `/post/create_user` and destructive-route authorization cannot be resolved passively.
+- No recorded no-parameter baseline SHA-256 or complete `Set-Cookie` manifest is present in the supplied state, only its `42,990 B` size.
+
+## Next Move
+1. Send exactly one read-only `GET https://kassenkompass.de/bonusrechner.php?direkt=1&fra=1` at `<=1 rps`; record status, `Content-Length`, complete `Set-Cookie` list, full-body SHA-256, and byte-diff against the captured `42,990 B` no-parameter baseline.
+2. (none)
+
+## Relevant Files
+- `scope.yml`: authoritative eligible asset scope.
+- `inventory/kassenkompass.md`: target inventory and discovery history.
+- `art/lead_bigpickle.txt`: latest bigpickle lead artifact.
+- `hypotheses-bigpickle.txt`: ranked bigpickle hypotheses and next probe.
+- `art/lead_nemotron3.txt`: latest nemotron3 lead artifact.
+- `hypotheses-nemotron3.txt`: ranked nemotron3 hypotheses and next probe.
+- `state_bigpickle.json`: current bigpickle phase/target state.
+- `state_nemotron3.json`: current nemotron3 phase/target state.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+Probe executed with passing controls. I have decisive data and no further passive questions that block the writeup — emitting the structured output.
+
+## [DELTA]
+New measurement this cycle (11 read-only GETs, ~3s spacing, no POST, no authenticated request):
+
+`direkt=1` is a **server-side flow switch**, not an inert passthrough param.
+
+| Request | Status | Bytes | Result |
+|---|---|---|---|
+| `/bonusrechner.php` (baseline) | 200 | 42,990 | normal entry render |
+| `/bonusrechner.php?direkt=1&fra=1` | **302** | 0 | → `/bonusrechner_daten.php?direkt=1&fra=1` |
+| `/bonusrechner.php?direkt=1` | **302** | 0 | → `/bonusrechner_daten.php?direkt=1` |
+| `/bonusrechner.php?fra=1` | 200 | 42,990 | **inert** (control) |
+| `/bonusrechner.php?zzz_unknown_9f2=1` | 200 | 42,990 | **inert** (unknown-param control) |
+| `/bonusrechner.php?lizenz=test` | 200 | 42,990 | **inert** (known passthrough control) |
+| `/bonusrechner_daten.php` | 200 | 62,702 | `direktModus = false` |
+| `/bonusrechner_daten.php?direkt=1` | 200 | 67,284 | `direktModus = true`, **+4,582 B** |
+| `/bonusrechner_daten.php?direkt=1&fra=1` | 200 | 67,284 | identical length, differing hash |
+
+The unknown-param and `lizenz` controls both stayed at baseline, so the redirect is **injective to `direkt`** — not the "any query param triggers it" artifact I have hit four times before. Cookie shape is identical across all variants (AWSALB, AWSALBCORS, PHPSESSID); no auth, no session delta, no reflection of values into `Set-Cookie`.
+
+Body diff of `direktModus=true` versus `false`, same page:
+- **`<input required type="checkbox" id="privacy_checkbox">` removed — 2 occurrences → 0.** With it went the consent text *"Ich stimme der Verarbeitung meiner Daten zum Krankenkassenvergleich zu"* (GDPR Art. 7 / Art. 9 special-category health data).
+- Comparison engine removed: `.bnv_sparwrapper`, `#sparsummer` savings estimator (*"Spare im Jahr bis zu … €"*), and the `bnv2_trustwrapper` *"Kostenlos & unverbindlich"* block.
+- CTA relabelled **"Jetzt vergleichen" → "Weiter zum Antrag"**, header → *"Direkt zum Antrag bei deiner gewählten Krankenkasse"*.
+- New required field `zielkk` added, plus a 53-insurer map (`kkNameUidMap`), a per-Bundesland availability map (`availableKkByBund`), and a compliance exclusion list.
+
+## [HYP]
+Three assets, one hypothesis each, confidence-weighted. Formula `conf*0.5 + reach*0.3 + impact*0.2`.
+
+**H1 — `kassenkompass.de/bonusrechner_daten.php?direkt=1` | BUSINESS_LOGIC | score 79 (c82 / r90 / i55)**
+An unauthenticated URL parameter, `direkt=1`, switches the funnel into a render path that collects no privacy consent and bypasses the comparison engine, carrying the user straight to a Krankenkasse switch-application deep link.
+- **Evidence:** `direktModus = true`; `privacy_checkbox` 2→0 occurrences; `.bnv_sparwrapper`/`#sparsummer`/`bnv2_trustwrapper` removed; CTA text change; +4,582 B. Injective against unknown-param and `lizenz` controls. Triggered at the entry page by a 302 that preserves the parameter.
+- **Reachability:** 1 unauthenticated GET, no account, no click, no CSRF token, no exotic position.
+- **Impact:** consent for special-category health data is not collected on this path while the normal path collects it; the user is moved from a comparison tool into an application funnel. Not a direct data breach — hence impact 55, not higher.
+- **Next probe:** whether the consent-skip reaches lead creation.
+- **Blocked on:** nothing for the claim as written. Server-side consent enforcement is unverified and would require a mutating POST.
+
+**H2 — `kassenkompass.de/bonusrechner_daten.php` inline JS `famselBlockedTargets` | OTHER | score 66 (c60 / r80 / i60)**
+The §9b SGB XI statutory steering exclusion is implemented as a client-side-only option filter, and its key is derived from a user-controllable form value with an empty-array fallback, so the blocklist resolves to empty for any unmapped key.
+- **Evidence:** `const famselBlockedTargets = {"1":[],"2":[],"3":[],"4":[26],"5":[26]};` — uid 26 is *BKK firmus* per `kkNameUidMap`. Its **only** enforcement point is `const blockedUids = famselBlockedTargets[famselUiNow] || [];` feeding `if (blockedUids.indexOf(parseInt(uid,10)) !== -1) { return; }`. `famselUiNow` derives from `famselElForZiel.value`, and `availableKkByBund["13"]` contains `"26"` — so Firmus is available and *only* the client-side filter excludes it. Source comment cites an internal `Review-Finding 2026-08-23` and `famsel_lib`, i.e. a knowingly-shared control.
+- **Reachability:** the bypass is a single form-control value; the select options are a rendering decision only.
+- **Impact:** §9b SGB XI bars steering a Versicherter to a named Kasse; a Vermittler-side breach carries regulatory exposure, and the enforcement the developers wrote is defeatable by the client.
+- **Next probe:** confirm the `famselUiNow` fallback branch yields `[]` for unmapped keys.
+- **Blocked on:** whether the backend re-validates `zielkk`. That is the entire difference between "cosmetic client-side control" and a live compliance bypass, and it needs a POST — out of my passive budget.
+
+**H3 — `api.kassenkompass.de/health_insurance/` | CONTROLS_BYPASS | score 52 (unchanged)**
+Encoded and suffix-unbounded paths reach the only route exposing both `PUT` and `DELETE`.
+- **Evidence:** host-wide percent-decode before routing, zero divergence across a 17-family normalization matrix; `/delete%2f1` reaches `/delete/1`.
+- **Blocked on:** authorization is entirely unassessed. Every candidate so far has been method-confounded, and this needs a valid `X-API-Secret`.
+
+## [PRIO]
+1. **H1 (79)** — measured, unauthenticated, zero prerequisites. Highest score, and the only item where the security property itself was observed rather than inferred.
+2. **H2 (66)** — same page, deeper mechanism, but the payoff depends entirely on unverified server-side validation. Promote the moment a credential exists; do not overclaim before then.
+3. **H3 (52)** — API-side coverage and the only path to genuine account impact, but fully blocked on credentials.
+4. Whitelabel `postMessage` (85 conf) — mechanism settled, **still awaiting browser-level confirmation** that five trust elements actually disappear. Not re-listed as a hypothesis because no new evidence arrived this cycle.
+
+## [PARKED]
+- **`/post/create_user` unauthenticated provisioning** — parked, not disproven. `GET` returns `405`, which is *not* evidence of protection: `/cat_detail/` also returns `405` and is auth-gated. Keep parked rather than claiming a closure I have not earned.
+- **Whitespace-negative-cache question** — parked permanently. A value-negative followed by a known-positive control is a two-valued experiment; "no control fired" is indistinguishable from "control is not comparable." I will not read it as a third value again.
+- **Crafted-link whitelabel delivery** — closed negative. Delivery requires a private editor using `window.open` + `postMessage`.
+- **Cookie-spoofing chain** — closed negative; no server-side consumption of those values found.
+- **`fra`** — downgraded to inert. Server-side effect measured as **none** at the entry page, and it stays identical to `direkt=1` alone at the data step (`fra` is documented as Fragebaum control, i.e. a later step). Not a finding; note it consumed 2 requests to close.
+- **Root route catalog (95 attack-surface score)** — remains reconnaissance. Not a standalone disclosure: an unauthenticated 1167 B catalog of 15 v1 + 1 v2 route names with no demonstrated data or auth impact. Ranked high on surface, reported low on substance.
+
+## [FINAL]
+The three prior open items are unchanged; this cycle added one genuinely new **measured business-logic finding**. `direkt=1` is the strongest asset on the program: unauthenticated, one GET, no account, no CSRF token, no unusual client position, and — critically — the effect is **causally isolated** by a control that failed to fire. H1 and H2 are complementary and share a root cause, which is itself the insight: the direkt path was built to skip steps, and what it skips includes the consent gate and the compliance filter.
+
+Two things I am explicitly *not* claiming: that the backend fails to re-validate the §9b list or the consent state, and that the whitelabel `postMessage` visual effect is browser-confirmed. Both need capability I do not have. Phase remains **POC**; nothing is report-ready until H1's consent claim is either substantiated as purely client-side or refuted by server-side enforcement — and that is a POST, which I will not make unilaterally.
+
+## [NEXT]
+One read-only GET, ≤1 rps, no POST, no cookies reused:
+
+```
+GET https://kassenkompass.de/bonusrechner_abschluss.php?direkt=1
+```
+
+Purpose: determine whether the final lead step is reachable **without** traversing the consent-bearing data step, i.e. whether the direkt skip extends all the way to lead creation. Record status, `Content-Length`, redirect target, and `Set-Cookie` only. A `200` with a lead form, or a `302` that bypasses consent, would raise H1 from 79 to the top of the report queue. A `405`, `403`, or a redirect back into the normal funnel closes H1's escalation path and downgrades it to a consent-display gap.
+
+## [LEARN]
+The control is the finding. `direkt=1` looked like the "any query param redirects" artifact at first glance — a 302 to 0 bytes is exactly the shape I have four times mistaken for a vulnerability. The reason this one survived is that I ran the two controls that would have killed it: an unknown parameter and a *known* passthrough parameter. Both stayed pinned at 42,990 B. Without `?lizenz=test` I would have had a confident, wrong finding.
+
+Second lesson, sharper and cheaper: a *zero-count* is stronger evidence than a diff. `privacy_checkbox` went 2 → 0. That single number proves the consent gate is absent in direkt mode, and it survives any amount of page restyling — far more durable than quoting the 4,582-byte diff. When a diff is large, find the count that collapses to zero.
+
+Third: client-side enforcement deserves suspicion precisely when the source comments show the developers *knew* it mattered (`Review-Finding 2026-08-23`, `famsel_lib`, "MÜSSEN echte JS-Arrays bleiben"). Comments that defend a control's fragility are a pointer to where the real boundary should be, and here there is no server-side counterpart in evidence. I still logged it at 60 confidence rather than 95 — the code-level claim is near-certain, but the *impact* claim depends on a POST I am not authorized to make.
+
+## [RISK]
+**86.** Down from 89. The new H1 is the most concretely-demonstrated business-logic item on the program, which raises the floor on what the program is likely worth reporting; the offsetting drop is that H2's real-world impact remains gated on unverified server-side validation, so I am not letting a 66 score read as a confirmed compliance breach.
+
+Residual risk is concentrated where I am blind: the API write-authorization surface (`health_insurance` PUT/DELETE, `/post/create_user`) is entirely unassessed and is the only place where genuine account-level impact plausibly lives. `?direkt=1` reaching lead creation unchecked would be the single largest privacy finding available. No authentication credentials are available to me, so both remain genuinely open rather than closed — and I am declining to convert "I could not test it" into "there is nothing there."
