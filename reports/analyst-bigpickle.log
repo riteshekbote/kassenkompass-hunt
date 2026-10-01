@@ -42581,3 +42581,49 @@ Third: client-side enforcement deserves suspicion precisely when the source comm
 **86.** Down from 89. The new H1 is the most concretely-demonstrated business-logic item on the program, which raises the floor on what the program is likely worth reporting; the offsetting drop is that H2's real-world impact remains gated on unverified server-side validation, so I am not letting a 66 score read as a confirmed compliance breach.
 
 Residual risk is concentrated where I am blind: the API write-authorization surface (`health_insurance` PUT/DELETE, `/post/create_user`) is entirely unassessed and is the only place where genuine account-level impact plausibly lives. `?direkt=1` reaching lead creation unchecked would be the single largest privacy finding available. No authentication credentials are available to me, so both remain genuinely open rather than closed — and I am declining to convert "I could not test it" into "there is nothing there."
+===== ANALYST bigpickle 2026-10-01 14:39:37 UTC =====
+[0m
+> build · big-pickle
+[0m
+[STEP 1] DELTA: compare inventory+knowledge+last leads against current surface. [NEW] /js/whitelabel_live.js (11,359 B) public cross-origin postMessage receiver absent from prior inventory; [CHANGED] kassenkompass.de/bonusrechner_fragen.php tariff payload confirmed 2,152,258 B (drift-in-±0.3% from earlier baseline) with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; [CHANGED] api.kassenkompass.de encoded-separator decode + host-wide percent-decode-before-match confirmed across 17 route families; [NO_DELTA] on core API surfaces (15 v1+1 v2 catalogs stable, auth map 15/15 stable).
+
+[STEP 2] PRIORITIZE: score top assets 0-10 on attack_surface,business_value,tech_exposure,gate_ease,cloud_surface,freshness. [PRIO] api.kassenkompass.de/,9.0,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=9; [PRIO] kassenkompass.de/bonusrechner.php,8.0,attack_surface=7,business_value=8,tech_exposure=9,gate_ease=10,cloud_surface=2,freshness=9; [PRIO] kassenkompass.de/bonusrechner_fragen.php,7.6,attack_surface=6,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=2,freshness=9.
+
+[STEP 3] HYPOTHESES: top 3 assets, max 1 each.
+[HYP] Cross-Origin postMessage Receiver With No Provenance Check on Whitelabel Live Preview
+class: MISCONFIG
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: window.addEventListener('message', ...) guard reads only data.type==='wl-preview' and typeof data.brand==='object'; neither event.origin nor event.source is consulted. Handler runs document.body.classList.add('wl-active') and injects CSS via textContent that forces display:none !important on 19 selectors; 5 exist on live bonusrechner.php (.bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate) suppressing trust/rating/statutory-benefit elements. postMessage ready broadcast uses targetOrigin '*'.
+evidence_needed: cross-origin message delivery and observed DOM suppression of the 5 measured elements
+verify_steps: GET https://kassenkompass.de/js/whitelabel_live.js (read-only) and verify absence of event.origin/event.source checks; GET https://kassenkompass.de/bonusrechner.php (read-only) and confirm selectors present
+impact: any third-party site can silently strip verified-rating/statutory-benefit messaging from funnel entry page (presentation integrity). severity MEDIUM
+testability: PASSIVE
+
+[HYP] Session-Wide Re-Broadcast of Unvalidated Funnel Params via param_passthrough.js
+class: BUSLOGIC
+asset: kassenkompass.de/js/param_passthrough.js
+confidence: 64
+reasoning: harvests 16 params from window.location.search (only v.length <= 128), persists in sessionStorage kkweb_pass_params, re-injects into every same-host funnel a[href] and onclick CTA for entire tab session. Set includes lizenz, customerid, agn/connectionnumber, ppn/poolpartnernummer, employeenumber, advisorid, fra, direkt. Script not loaded on bonusrechner.php (marketing-site/app split) so server effect not observable from static page.
+evidence_needed: server-side response diff on funnel endpoints when injected links/URL carry these params vs baseline (Set-Cookie/linkklick/lead fields)
+verify_steps: GET https://kassenkompass.de/js/param_passthrough.js (read-only); GET https://kassenkompass.de/bonusrechner.php (read-only) to confirm script absent
+impact: lead/commission misattribution and identity-field contamination for whole tab session (business integrity). severity MEDIUM
+testability: PASSIVE
+
+[HYP] Encoded-Sep + Host-Wide Decode Enables Path Canonicalization Reach to Registered Routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 70
+reasoning: percent-decode-before-match is host-wide (v1+v2). Encoded separators decode (/delete%2f1 returns byte-identical 401 to /delete/1 with instance "/delete/1", verb table DELETE,OPTIONS). v2 404 oracle canonicalises and echoes decoded path. Three pre-auth canonicalisation oracles (401 instance, 405 instance, v2 404 detail). Normalisation matrix complete across 17 route families; /health/ absorbs trailing suffix.
+evidence_needed: confirmation that decoding precedes catch-all and affects routing boundary (already measured; byte-identical responses)
+verify_steps: GET https://api.kassenkompass.de/delete%2f1 (read-only) and compare to GET https://api.kassenkompass.de/delete/1 (byte-for-byte headers/body)
+impact: path canonicalisation/normalisation can defeat literal-path filtering assumptions (control bypass surface on routing). severity MEDIUM (authorisation not asserted)
+testability: PASSIVE
+
+[STEP 4] SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [FINAL] survivors: Hyp1 (85), Hyp2 (64), Hyp3 (70).
+
+[STEP 5] NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>. [NEXT] PROBE: GET https://kassenkompass.de/js/whitelabel_live.js at ≤1 rps to confirm absence of event.origin/event.source checks (read-only).
+
+[STEP 6] LEARNING: [LEARN] REJECTED CORS @ funnel/api — no access-control-allow-origin with arbitrary Origin/Origin:null on non-CloudFront hosts; negative class covers funnel. [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php — 2,152,258 B tariff payload (±0.3% drift, data freshness ≤2025-12-22), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit. [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de — percent-decode-before-match host-wide + encoded separators decode; three pre-auth canonicalisation oracles; /post/ namespace separate app (prefix 200/344B JSON, children 200/0B text/html).
+
+[STEP 7] RISK: [RISK] KassenKompass GmbH: 89 — presentation integrity risk from unprovenanced cross-origin postMessage on funnel (5 measured elements suppressible), session-wide attribution/identity-field propagation via param_passthrough.js (16 unvalidated params in sessionStorage), and path canonicalisation on API routing; all findings read-only/verified, no customer data mutation.

@@ -1245,3 +1245,15 @@ https://api.kassenkompass.de/delete/1 -> HTTP 401
 https://api.kassenkompass.de/delete%2f1 -> HTTP 401
 https://api.kassenkompass.de/delete/1/extra -> HTTP 401
 https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+
+## 2026-10-01 14:39:55 UTC
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://kassenkompass.de/js/whitelabel_live.js -> 200 len=11359
+https://kassenkompass.de/bonusrechner.php -> 200 len=?
+https://kassenkompass.de/js/param_passthrough.js -> 200 len=5449

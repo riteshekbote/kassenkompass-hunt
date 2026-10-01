@@ -7614,3 +7614,31 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff) — Cloudflare edge routing, not origin misconfiguration.
 [RISK] KassenKompass GmbH: 89 — one high-confidence integrity issue (cross-origin suppression of 4,8 Google rating, 10.893-customer claim and statutory-advantage block on health-insurance funnel entry, no link/click required; not XSS, allowlisted values). Session-wide attribution/identity-field propagation via param_passthrough.js (16 unvalidated params persisted in sessionStorage and stamped onto every funnel CTA for the tab). Encoding-reachable path space on the host's only DELETE-registering route (percent-decode-before-match + encoded separators + suffix absorption) creates control-bypass surface on destructive verbs pending authorisation assessment. Held back: data_sparsum display-forgery delivery closed negatively; /post/create_user auth unproven by method-confounded tests; fra/direkt effect unmeasured (comment-only). 2.1 MB tariff corpus and 180-question S3 image set remain fully public.
 ## 2026-10-01 07:10:05 UTC [target] (model bigpickle)
+## 2026-10-01 14:36:57 UTC [target] (model bigpickle)
+[HYP] Cross-Origin postMessage Receiver With No Provenance Check on Whitelabel Live Preview
+class: MISCONFIG
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: window.addEventListener('message', ...) guard reads only data.type==='wl-preview' and typeof data.brand==='object'; neither event.origin nor event.source is consulted. Handler runs document.body.classList.add('wl-active') and injects CSS via textContent that forces display:none !important on 19 selectors; 5 exist on live bonusrechner.php (.bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate) suppressing trust/rating/statutory-benefit elements. postMessage ready broadcast uses targetOrigin '*'.
+evidence_needed: cross-origin message delivery and observed DOM suppression of the 5 measured elements
+verify_steps: GET https://kassenkompass.de/js/whitelabel_live.js (read-only) and verify absence of event.origin/event.source checks; GET https://kassenkompass.de/bonusrechner.php (read-only) and confirm selectors present
+impact: any third-party site can silently strip verified-rating/statutory-benefit messaging from funnel entry page (presentation integrity). severity MEDIUM
+testability: PASSIVE
+[HYP] Session-Wide Re-Broadcast of Unvalidated Funnel Params via param_passthrough.js
+class: BUSLOGIC
+asset: kassenkompass.de/js/param_passthrough.js
+confidence: 64
+reasoning: harvests 16 params from window.location.search (only v.length <= 128), persists in sessionStorage kkweb_pass_params, re-injects into every same-host funnel a[href] and onclick CTA for entire tab session. Set includes lizenz, customerid, agn/connectionnumber, ppn/poolpartnernummer, employeenumber, advisorid, fra, direkt. Script not loaded on bonusrechner.php (marketing-site/app split) so server effect not observable from static page.
+evidence_needed: server-side response diff on funnel endpoints when injected links/URL carry these params vs baseline (Set-Cookie/linkklick/lead fields)
+verify_steps: GET https://kassenkompass.de/js/param_passthrough.js (read-only); GET https://kassenkompass.de/bonusrechner.php (read-only) to confirm script absent
+impact: lead/commission misattribution and identity-field contamination for whole tab session (business integrity). severity MEDIUM
+testability: PASSIVE
+[HYP] Encoded-Sep + Host-Wide Decode Enables Path Canonicalization Reach to Registered Routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 70
+reasoning: percent-decode-before-match is host-wide (v1+v2). Encoded separators decode (/delete%2f1 returns byte-identical 401 to /delete/1 with instance "/delete/1", verb table DELETE,OPTIONS). v2 404 oracle canonicalises and echoes decoded path. Three pre-auth canonicalisation oracles (401 instance, 405 instance, v2 404 detail). Normalisation matrix complete across 17 route families; /health/ absorbs trailing suffix.
+evidence_needed: confirmation that decoding precedes catch-all and affects routing boundary (already measured; byte-identical responses)
+verify_steps: GET https://api.kassenkompass.de/delete%2f1 (read-only) and compare to GET https://api.kassenkompass.de/delete/1 (byte-for-byte headers/body)
+impact: path canonicalisation/normalisation can defeat literal-path filtering assumptions (control bypass surface on routing). severity MEDIUM (authorisation not asserted)
+testability: PASSIVE

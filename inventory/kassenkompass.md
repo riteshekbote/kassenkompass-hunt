@@ -1412,3 +1412,5 @@ www.kassenkompass.de
 - NEW api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+
+## 2026-10-01 14:39:37 UTC
