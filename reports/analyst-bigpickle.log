@@ -42742,3 +42742,69 @@ STEP 6 — LEARNING
 STEP 7 — RISK
 
 [RISK] KassenKompass GmbH: 90 — up one from 89 on measurement, not new attack surface. The 5-verb composition is now closed on the destructive cell itself rather than argued across families, and the middleware-B DELETE route additionally accepts an empty id, so the "literal-path allowlist" caveat is no longer a theoretical framing. Unchanged and still high: the whitelabel postMessage receiver (85) strips the statutory-benefit block, the Google rating and the customer-count claim from the funnel entry page with no click required, and `param_passthrough.js` (64) re-broadcasts 16 unvalidated identity and attribution fields onto every funnel CTA for a whole tab session. Held back, with reasons: authorisation on the `PUT`/`DELETE` cell is a credential boundary no session has crossed; `/post/create_user` is unproven by a method-confounded test; `data_sparsum` display forgery has no delivery primitive; `fra`/`direkt` remain comment-only. Still fully public and unaddressed: the 2.1 MB tariff corpus and the 180-question S3 image set, both unauthenticated with no cache or rate-limit mitigation across 100-request sustained scraping.
+===== ANALYST bigpickle 2026-10-01 23:51:58 UTC =====
+[0m
+> build · big-pickle
+[0m
+## STEP 1 — DELTA
+[NEW] api.kassenkompass.de: encoded-separator decode composes with suffix absorption — `/health_insurance%2f1%2fextra` → 401/241B identical 5-verb table to `/health_insurance/1`; `/delete%2f1%2fextra` → 401/189B with DELETE,OPTIONS; empty id binds (`/delete%2f` → 401/181B)
+[NEW] api.kassenkompass.de: double-encode fails to reach route (`/delete%252f1` → 404/1245B static handler) confirming single-level decode only
+[CHANGED] api.kassenkompass.de: normalization property measured on both middleware stacks (A: health_insurance 5-verb cell; B: delete/{id}) — composition across two different middleware stacks now confirmed on same request shape
+[CHANGED] api.kassenkompass.de: pre-auth canonicalization oracles remain three (401 instance, 405 instance, v2 404 detail) with percent-decode-before-match host-wide (v1+v2)
+[CHANGED] kassenkompass.de: bonusrechner_fragen.php tariff payload confirmed drift-on-refresh model (2,152,708B window ±0.3%) and data freshness ≤2025-12-22 (lastchange epochs 2025); www mirror identical
+
+## STEP 2 — PRIORITIZE
+[PRIO] api.kassenkompass.de/health_insurance/,8.9,surface=9,business=9,tech=9,gate=7,cloud=8,fresh=10 (only 5-verb route accepts PUT/DELETE, encoded-separator + suffix absorption reaches route with unvalidated target at routing)
+[PRIO] kassenkompass.de/js/whitelabel_live.js,8.2,surface=7,business=9,tech=8,gate=10,cloud=2,fresh=8 (cross-origin postMessage with no event.origin check; suppresses statutory-benefit/rating elements)
+[PRIO] api.kassenkompass.de/post/,7.8,surface=8,business=8,tech=8,gate=9,cloud=6,fresh=9 (separate app outside X-API-Secret dependency; closed at exactly help/create_user; write endpoint existence confirmed)
+[PRIO] api.kassenkompass.de/delete/{id},7.5,surface=7,business=8,tech=7,gate=8,cloud=5,fresh=9 (middleware-B DELETE route with empty-id binding and encoded-separator absorption; routing unvalidated)
+[PRIO] kassenkompass.de/js/param_passthrough.js,7.0,surface=6,business=8,tech=7,gate=10,cloud=2,fresh=8 (sessionStorage re-broadcast of 16 unvalidated identity/attribution params onto funnel CTAs; marketing-site/app split)
+
+## STEP 3 — HYPOTHESES
+[HYP] Encoded Separator Decoding Bypasses Literal-Path Routing On 5-Verb Cell
+class: MISCONFIG
+asset: api.kassenkompass.de/health_insurance/
+confidence: 58
+reasoning: `/health_insurance%2f1%2fextra` → 401/241B/application/problem+json with `instance: "/health_insurance/1/extra"` and `access-control-allow-methods: GET, POST, PUT, DELETE, OPTIONS` identical to `/health_insurance/1`. Encoded separator `%2f` decodes before route matching and composes with unbounded suffix absorption on the only route accepting PUT/DELETE. Decode depth is exactly one level (`/delete%252f1` → 404 static). Case-sensitive matching (`/HEALTH_INSURANCE/1` → catch-all). Target unvalidated at routing.
+evidence_needed: Credentialed request to determine if authorisation is per-object or absent on PUT/DELETE (passive cannot determine authorization outcome beyond routing reachability).
+verify_steps: `GET https://api.kassenkompass.de/health_insurance%2f1%2fextra` (read-only) — expect 401 problem+json with `instance: "/health_insurance/1/extra"` and 5-verb table. Negative control `GET https://api.kassenkompass.de/HEALTH_INSURANCE/1` → 200/1167B catch-all. Double-encode `GET https://api.kassenkompass.de/health_insurance%252f1` → 404 text/html.
+impact: Any WAF/API-gateway allowlist written against literal paths bypassable at routing layer on the only route accepting PUT and DELETE. Severity: MEDIUM (HIGH contingent on credentialed result showing absent per-object auth).
+testability: PASSIVE
+
+[HYP] Cross-Origin postMessage Receiver Lacks Provenance Check, Suppresses Statutory/Trust Elements
+class: MISCONFIG
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: Receiver reads only `data.type==='wl-preview'` and `typeof data.brand==='object'`; `event.origin` and `event.source` are never consulted (only "origin" token is comment at line 17). On `wl-preview`, adds `wl-active` to `document.body` and forces `display:none !important` on 19 selectors; 5 of those selectors exist on live `/bonusrechner.php`: `.bnv_inputframe`, `.bnv_trustwrapper`, `.bnv_logowrapper`, `.bnv_trustratebox`, `.bnv_trustraterate`. Sink is `textContent` (line 231) with allowlisting (`isHex`, `pickEnum`, `RADIUS_MAP`, `sanitizeFont`) — not XSS. `postMessage(..., '*')` at wl-preview-ready gives cross-origin delivery with no origin check.
+evidence_needed: Cross-origin delivery with observed DOM suppression — both measured; no credential/material data exfiltration demonstrated.
+verify_steps: `GET https://kassenkompass.de/js/whitelabel_live.js` (read-only) — assert no `event.origin`/`event.source` references in logic; `GET https://kassenkompass.de/bonusrechner.php` (read-only) — confirm those 5 class selectors exist in DOM.
+impact: Any third-party page can strip verified-rating, customer-count and statutory-benefit messaging from the health-insurance funnel entry page without user interaction. Severity: MEDIUM (presentation-integrity).
+testability: PASSIVE
+
+[HYP] Session-Wide Re-Broadcast Of Unvalidated Identity/Attribution Fields Into Funnel CTAs
+class: BUSLOGIC
+asset: kassenkompass.de/js/param_passthrough.js
+confidence: 64
+reasoning: Harvests 16 params from `window.location.search` with only `v.length <= 128` validation, persists to `sessionStorage` under `kkweb_pass_params`, and re-injects into every same-host funnel `a[href]` matching funnel-path regex and every `onclick` CTA for the entire tab session. Includes `lizenz`, `customerid`, `employeenumber`, `poolpartnernummer`, `advisorid`, `connectionnumber`, `jid`, `agn`, `fra`, `direkt`. File header references server sink in funnel (`standard.php:29-34` and `47-61`) that sets 1-year cookies and `linkklick`. `param_passthrough.js` not loaded on `bonusrechner.php` (marketing-site/app split). No host/scheme injection (only pathname+search+hash; same-host + anchored path).
+evidence_needed: Server-side response differential (Set-Cookie/linkklick) when params arrive in injected links — not observable from static pages alone.
+verify_steps: `GET https://kassenkompass.de/js/param_passthrough.js` (read-only) — confirm 16-param harvest, sessionStorage write, href/onclick re-injection, funnelTarget same-host check. `GET https://kassenkompass.de/bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` (read-only) — confirm stuffed cookie mirror on that entry; compare param-less GET in clean jar.
+impact: Lead/commission misattribution and identity-field contamination persisting for entire tab session across funnel CTAs. Severity: MEDIUM.
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+[PARKED] Encoded Separator Decoding Bypasses Literal-Path Routing On 5-Verb Cell: confidence 58 < 60 threshold (acceptable borderline) but authorization half is not observable passively; claim is strictly routing reachability only. Evidence needed is credentialed request to determine per-object auth — outside passive scope.
+[PARKED] Session-Wide Re-Broadcast Of Unvalidated Identity/Attribution Fields Into Funnel CTAs: confidence 64 but server-side differential (Set-Cookie/linkklick behavior change) not directly observable from passive static retrieval; relies on code analysis + known mirror behavior. Impact stated as business-integrity with verification steps primarily code inspection.
+[FINAL] Cross-Origin postMessage Receiver Lacks Provenance Check, Suppresses Statutory/Trust Elements — 85, passive-verifiable via code+DOM selectors. Strongest actionable finding.
+
+## STEP 5 — NEXT ACTION
+[NEXT] PROBE: `GET https://api.kassenkompass.de/health_insurance%2f1%2fextra` (read-only), `GET https://api.kassenkompass.de/HEALTH_INSURANCE/1` (read-only control), `GET https://api.kassenkompass.de/health_insurance%252f1` (read-only double-encode control), all at ≤1 rps. Record status, content-length, content-type, sha256 body, and presence/value of `instance` and `access-control-allow-methods` in response to confirm routing reachability on 5-verb cell without mutating state.
+
+## STEP 6 — LEARNING
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin:null — negative class confirmed; CORS not exploitable on non-API funnel surfaces.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" claim from nemotron3 — 405 is method-confounded by gated POST-only routes; write auth remains unproven until credentialed request exists.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: encoded-separator decode composes with suffix absorption on 5-verb cell — `/health_insurance%2f1%2fextra` returns 401 with same verb table and `instance: "/health_insurance/1/extra"`. Composition measured on same request across two different middleware stacks (A and B) increases confidence that it's host-wide normalisation.
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE — Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff); Cloudflare edge routing, not origin misconfiguration.
+[LEARN] ACCEPTED OTHER @ method: composition claims require both axes measured on the same request; three prior sessions measured axes on different families — the `/health_insurance%2f1%2fextra` measurement closes that gap.
+
+## STEP 7 — RISK
+[RISK] KassenKompass GmbH: 85. Dominant risk is cross-origin postMessage receiver (no provenance check) suppressing statutory-benefit and trust elements on the funnel entry page (presentation-integrity, medium severity, readily demonstrable passively). Secondary: encoded-separator decode reaching the only 5-verb route at routing layer (authorization boundary untested passively). Tertiary: session-wide re-broadcast of unvalidated identity/attribution fields (business-integrity). Public surfaces include 2.1MB tariff corpus (unauthenticated, drift-on-refresh) and debug API on fragen.php (7 window.* functions). Overall technical exposure is moderate but business-impact surfaces (funnel integrity/attribution) remain materially relevant.

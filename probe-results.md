@@ -1271,3 +1271,17 @@ https://api.kassenkompass.de/HEALTH_INSURANCE/1` -> 200 len=0
 https://api.kassenkompass.de/health_insurance%252f1` -> HTTP 404
 https://kassenkompass.de/js/whitelabel_live.js` -> HTTP 404
 https://kassenkompass.de/bonusrechner.php` -> HTTP 404
+
+## 2026-10-01 23:52:29 UTC
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> ERR The read operation timed out
+https://api.kassenkompass.de/health_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/health_insurance%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/health_insurance%2f1%2fextra` -> HTTP 401
+https://api.kassenkompass.de/HEALTH_INSURANCE/1` -> 200 len=0
+https://api.kassenkompass.de/health_insurance%252f1` -> HTTP 404

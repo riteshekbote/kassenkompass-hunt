@@ -1421,3 +1421,10 @@ www.kassenkompass.de
 - NEW `GET /delete%252f1` → 404 / 1245 B / `dc1d54dab6ec8c00` — double-encode fails to reach the route; decode is exactly one level, re-confirmed on this family.
 - NEW `GET /delete%2f` (empty id) → 401 / 181 B / `8bf613f3c717f967`, `instance: "/delete/"` — DELETE route binds with an empty id segment; id presence is not validated at routing (extends the 09-07 greedy-
 - CHANGED `/delete%2f1` re-measured byte-identical to the 09-29 record (`46bd50c0c679e09f`, 182 B, `DELETE, OPTIONS`) — no drift; the composition gap above was coverage, not drift.
+
+## 2026-10-01 23:51:58 UTC
+- NEW api.kassenkompass.de: encoded-separator decode composes with suffix absorption — `/health_insurance%2f1%2fextra` → 401/241B identical 5-verb table to `/health_insurance/1`; `/delete%2f1%2fextra` → 401
+- NEW api.kassenkompass.de: double-encode fails to reach route (`/delete%252f1` → 404/1245B static handler) confirming single-level decode only
+- CHANGED api.kassenkompass.de: normalization property measured on both middleware stacks (A: health_insurance 5-verb cell; B: delete/{id}) — composition across two different middleware stacks now confirmed on 
+- CHANGED api.kassenkompass.de: pre-auth canonicalization oracles remain three (401 instance, 405 instance, v2 404 detail) with percent-decode-before-match host-wide (v1+v2)
+- CHANGED kassenkompass.de: bonusrechner_fragen.php tariff payload confirmed drift-on-refresh model (2,152,708B window ±0.3%) and data freshness ≤2025-12-22 (lastchange epochs 2025); www mirror identical
