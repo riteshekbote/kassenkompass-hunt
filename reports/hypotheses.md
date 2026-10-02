@@ -3861,3 +3861,26 @@
 - LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
 - LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
 - LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+
+## RANKED HYPOTHESES 2026-10-02 21:19:28 UTC
+- [90] api.kassenkompass.de/delete/: Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules (from art/lead_nemotron3.txt)
+- [0] ?: api.kassenkompass.de,72,XSS,UNCONFIRMED,"The decode-then-echo `instance` primitive is live and unauthenticated on BOTH API gateways, but is inert only because the local renderer is fixed (no content negotiation, nosniff, and no path-reflecting HTML branch); the open question is whether any non-API KassenKompass surface renders an api.kassenkompass.de error body, which would convert the raw `<`/`>` (RFC 8259-legal, unescaped) into a live sink.","Offline: grep the already-ingested funnel/white-label JS and HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` is written to a DOM sink (innerHTML/insertAdjacentHTML/document.write/eval). Decisive if zero call-sites render an API error body; live if any writes the body or the `instance`/`type` value into an HTML context.","If any funnel or white-label surface renders an api error body in an HTML context, the reflected decoded path becomes reflected XSS on a trusted KassenKompass origin — a same-brand phishing and session-theft primitive against the exact funnel pages that already carry the white-label postMessage integrity issue.","Zero new traffic; RAG over artifacts already in inventory (art/lead_bigpickle.txt, art/lead_nemotron3.txt, the three funnel JS files)." (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): RAG: Grep the already-ingested funnel, white-label, and param-passthrough JS/HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `t
+- NEXT(hypotheses-nemotron3.txt): PROBE: HEAD https://api.kassenkompass.de/delete%2f1%2fextra and HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra at ≤1 rps; compare 401 response i
+- LEARN: I had been rejecting the v2 path-reflection XSS because the JSON was "escaped" — that was wrong. `<` and `>` are raw, and RFC 8259 makes that legal. Reflection 
+- LEARN: Twenty-six sessions hashed the 1245 B static-404 page and never opened it. Reading it cost one request and destroyed a long-standing assumption that it might re
+- LEARN: My oracle inventory said "three canonicalisation oracles" because I catalogued the least informative field on each branch. Both gateways echo the full decoded p
+- LEARN: A blanket prefix app has no route-not-found state, so `/sync/zzz_unknown_9f2/` being byte-identical to `/sync/` is a negative result about enumeration, not a po
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/d
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to dir
+- LEARN: REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-Cl
+- LEARN: REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as 
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of s
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextr

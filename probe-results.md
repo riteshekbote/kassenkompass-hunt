@@ -1326,3 +1326,14 @@ https://kassenkompass.de/bonusrechner.php -> 200 len=?
 https://kassenkompass.de/js/whitelabel_live.js -> 200 len=11359
 https://kassenkompass.de/js/param_passthrough.js -> 200 len=5449
 https://kassenkompass.de/bonusrechner_daten.php?lizenz=testxyz&jid=12345 -> 200 len=?
+
+## 2026-10-02 21:19:45 UTC
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/delete%2f -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/health_insurance%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
+https://kassenkompass.de/bonusrechner.php -> 200 len=?
