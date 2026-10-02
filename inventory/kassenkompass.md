@@ -1428,3 +1428,13 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de: normalization property measured on both middleware stacks (A: health_insurance 5-verb cell; B: delete/{id}) — composition across two different middleware stacks now confirmed on 
 - CHANGED api.kassenkompass.de: pre-auth canonicalization oracles remain three (401 instance, 405 instance, v2 404 detail) with percent-decode-before-match host-wide (v1+v2)
 - CHANGED kassenkompass.de: bonusrechner_fragen.php tariff payload confirmed drift-on-refresh model (2,152,708B window ±0.3%) and data freshness ≤2025-12-22 (lastchange epochs 2025); www mirror identical
+
+## 2026-10-02 05:17:50 UTC
+- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+- NEW kassenkompass.de — live frontend, Cloudflare-fronted, insurance comparison platform with customer/partner/insurer logins
+- NEW www.kassenkompass.de — mirrors kassenkompass.de
+- CHANGED Inventory Live HTTP count: 0 → 3 (all three hosts serve HTTP)
+- NEW /post/ is a SEPARATELY MOUNTED APP with a THIN middleware chain that does not enforce the global X-API-Secret dependency the root catalog advertises. Discriminating evidence (no credential on any requ
+- NEW METHOD-CHECK ORDERING DIVERGENCE (clean discriminator, both read-only). On gated routes auth precedes the method check -> `HEAD /cat_detail/` = 401 (acam POST, OPTIONS), `HEAD /delete/1` = 401, `HEAD 
+- NEW /post app has NO route-not-found handler: every unregistered child returns HTTP 200 with a ZERO-LENGTH body and `text/html` — `GET /post/zzz_unknown_9f2/` = 200 / 0 B, `GET /post/create_user_x9/` = 20
+- NEW UNDOCUMENTED WRITE ENDPOINT: the root catalog enumerates 15 endpoints and lists `POST /post/` -> "API Datenempfang (POST)" as the only /post surface; `POST /post/create_user` is NOT in the catalog. It

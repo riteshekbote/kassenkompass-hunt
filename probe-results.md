@@ -1285,3 +1285,16 @@ https://api.kassenkompass.de/v2/ -> 200 len=0
 https://api.kassenkompass.de/health_insurance%2f1%2fextra` -> HTTP 401
 https://api.kassenkompass.de/HEALTH_INSURANCE/1` -> 200 len=0
 https://api.kassenkompass.de/health_insurance%252f1` -> HTTP 404
+
+## 2026-10-02 05:18:09 UTC
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/delete%2f -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/health_insurance%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
+https://api.kassenkompass.de/ -> 200 len=0
+https://api.kassenkompass.de/v2/ -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
