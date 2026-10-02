@@ -1440,3 +1440,5 @@ www.kassenkompass.de
 - NEW UNDOCUMENTED WRITE ENDPOINT: the root catalog enumerates 15 endpoints and lists `POST /post/` -> "API Datenempfang (POST)" as the only /post surface; `POST /post/create_user` is NOT in the catalog. It
 
 ## 2026-10-02 11:13:33 UTC
+
+## 2026-10-02 16:44:57 UTC
