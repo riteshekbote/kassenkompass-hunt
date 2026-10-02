@@ -1438,3 +1438,5 @@ www.kassenkompass.de
 - NEW METHOD-CHECK ORDERING DIVERGENCE (clean discriminator, both read-only). On gated routes auth precedes the method check -> `HEAD /cat_detail/` = 401 (acam POST, OPTIONS), `HEAD /delete/1` = 401, `HEAD 
 - NEW /post app has NO route-not-found handler: every unregistered child returns HTTP 200 with a ZERO-LENGTH body and `text/html` — `GET /post/zzz_unknown_9f2/` = 200 / 0 B, `GET /post/create_user_x9/` = 20
 - NEW UNDOCUMENTED WRITE ENDPOINT: the root catalog enumerates 15 endpoints and lists `POST /post/` -> "API Datenempfang (POST)" as the only /post surface; `POST /post/create_user` is NOT in the catalog. It
+
+## 2026-10-02 11:13:33 UTC
