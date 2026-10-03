@@ -1473,3 +1473,11 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate co
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+
+## 2026-10-03 11:33:49 UTC
+- CHANGED Encoded vs literal composed paths are byte-identical: `/delete%2f1%2fextra` and `/delete/1/extra` both return 401/189 B, sha256 `b05031ccaf9c539e`; no origin-side or edge-side differential exists betw
+- CHANGED The queued [NEXT] PROBE specified HEAD; HEAD returns `content-length: 0` with no `instance` field on both paths, making it structurally incapable of testing the hypothesis it was queued to test. Re-ra
+- CHANGED Baselines measured fresh: `/delete/1` = 401/182 B sha256 `46bd50c0c679e09f` `instance=/delete/1`; `/health_insurance/1` = 401/234 B sha256 `303dc4e8a68014cc` `instance=/health_insurance/1`. Prior KB r
+- CHANGED Both composed paths reach middleware with the full 5-verb table (`GET, POST, PUT, DELETE, OPTIONS`) on `health_insurance`, and `DELETE, OPTIONS` on `delete`; verb table is unchanged by encoding.
+- CHANGED `/delete%252f1` returns 404/1245 B sha256 `dc1d54dab6ec8c00`, no `instance`, no `allow-methods` — static 404 handler, confirming exactly one decode level.
+- CHANGED Cloudflare passed all variants to origin on the same edge path (cf-ray LAX, `cf-cache-status: DYNAMIC`, identical security-header set). No WAF block, challenge, or 403-layer differential on any varian
