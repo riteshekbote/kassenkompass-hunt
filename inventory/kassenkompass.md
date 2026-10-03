@@ -1483,3 +1483,14 @@ www.kassenkompass.de
 - CHANGED Cloudflare passed all variants to origin on the same edge path (cf-ray LAX, `cf-cache-status: DYNAMIC`, identical security-header set). No WAF block, challenge, or 403-layer differential on any varian
 
 ## 2026-10-03 15:21:13 UTC
+
+## 2026-10-03 18:47:11 UTC
+- NEW Time advanced ~3.5h since last KB aggregation (2026-10-03 15:21 → 2026-10-03 18:44 UTC); all major surfaces stable per last live probes
+- NEW Encoded vs literal composed paths on `/delete/` and `/health_insurance/` confirmed byte-identical (401/189B sha256 `b05031ccaf9c539e` and 401/241B sha256 `d91c109c481f499a`); no origin/edge differenti
+- NEW Normalization matrix complete for 17 route families (baseline + encoded pair each, 0 divergences); three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+- NEW `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_user`→405; GET `/post/help
+- NEW `/cat_detail/` auth state moves from INFERRED to OBSERVED — HEAD `/cat_detail/`→401 problem+json (route is auth-gated); GET `/cat_detail/`→405 method mismatch; GET/HEAD divergence proven
+- NEW v2 `/insurance_info/1` first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+- NEW `bonusrechner_fragen.php` tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- NEW Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- NEW No new attack surface introduced since 2026-09-07 — all major surfaces stable
