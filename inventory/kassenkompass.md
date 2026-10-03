@@ -1444,3 +1444,14 @@ www.kassenkompass.de
 ## 2026-10-02 16:44:57 UTC
 
 ## 2026-10-02 21:19:28 UTC
+
+## 2026-10-03 00:37:11 UTC
+- NEW (2026-10-03, this agent) H1 (api.kassenkompass.de XSS) is CLOSED, decisively and permanently. The RAG returned zero call-sites: across the entire mined client-side corpus there is not a single fetch()
+- CHANGED Current time 2026-10-03 00:33 UTC vs last KB aggregation 2026-10-02 23:51 UTC — ~42 min gap; all major surfaces stable per last live probes
+- CHANGED api.kassenkompress.de root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match ho
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php emits device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate co
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable

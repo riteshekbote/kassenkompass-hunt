@@ -44104,3 +44104,402 @@ Cycle complete — 14 read-only requests, all ≤1 rps, no credentials, no mutat
 
 [RISK] Low. All 14 requests were read-only GET plus one method-refusal TRACE control that Cloudflare blocked at the edge with its own 405 page; none mutated state or customer data, and no credentials were supplied. Host-header and forwarded-host injection were attempted only as read-only reflection controls and both were refused.
 ```
+===== ANALYST bigpickle 2026-10-03 00:37:11 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/ 2>/dev/null && echo "---ART---" && ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/art/ 2>/dev/null
+total 1060
+drwxr-xr-x 12 runner runner   4096 Oct  3 00:33 .
+drwxr-xr-x  3 runner runner   4096 Oct  3 00:33 ..
+drwxr-xr-x  7 runner runner   4096 Oct  3 00:33 .git
+drwxr-xr-x  3 runner runner   4096 Oct  3 00:33 .github
+-rw-r--r--  1 runner runner   1767 Oct  3 00:33 README.md
+-rw-r--r--  1 runner runner     32 Oct  3 00:33 analyst-out.txt
+-rw-r--r--  1 runner runner 461982 Oct  3 00:33 analyst-prompt.txt
+-rw-r--r--  1 runner runner 458164 Oct  3 00:33 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 leads
+-rw-r--r--  1 runner runner  67604 Oct  3 00:33 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 reports
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct  3 00:33 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 scripts
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  3 00:33 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  3 00:33 triage
+---ART---
+[0m
+[0m$ [0mfind /home/runner/work/kassenkompass-hunt/kassenkompass-hunt -maxdepth 3 -type f -name "*.js" -o -maxdepth 3 -type f -name "*.txt" -o -maxdepth 3 -type f -name "*.html" 2>/dev/null | head -50
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-ling3.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-laguna.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-bigpickle.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-nemotron3.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-longcat.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/ctx.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reposcan-raw/summary.txt
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-prompt.txt
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && ls -la recon-notes/ reports/ scripts/ knowledge/ 2>/dev/null | head -60
+knowledge/:
+total 244
+drwxr-xr-x  2 runner runner   4096 Oct  3 00:33 .
+drwxr-xr-x 12 runner runner   4096 Oct  3 00:33 ..
+-rw-r--r--  1 runner runner 241538 Oct  3 00:33 index.md
+
+recon-notes/:
+total 12
+drwxr-xr-x  2 runner runner 4096 Oct  3 00:33 .
+drwxr-xr-x 12 runner runner 4096 Oct  3 00:33 ..
+-rw-r--r--  1 runner runner  828 Oct  3 00:33 DEDICATED-DEEP.md
+
+reports/:
+total 6692
+drwxr-xr-x  2 runner runner    4096 Oct  3 00:33 .
+drwxr-xr-x 12 runner runner    4096 Oct  3 00:33 ..
+-rw-r--r--  1 runner runner 3559481 Oct  3 00:33 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   39060 Oct  3 00:33 analyst-laguna.log
+-rw-r--r--  1 runner runner   38880 Oct  3 00:33 analyst-ling3.log
+-rw-r--r--  1 runner runner   39240 Oct  3 00:33 analyst-longcat.log
+-rw-r--r--  1 runner runner 2580824 Oct  3 00:33 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5352 Oct  3 00:33 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct  3 00:33 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct  3 00:33 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct  3 00:33 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   11900 Oct  3 00:33 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  607414 Oct  3 00:33 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Oct  3 00:33 valid-bugs.md
+
+scripts/:
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct  3 00:33 .
+drwxr-xr-x 12 runner runner  4096 Oct  3 00:33 ..
+-rw-r--r--  1 runner runner 16987 Oct  3 00:33 sync-issues.py
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -rl "innerHTML\|insertAdjacentHTML\|document.write" --include="*.md" --include="*.txt" . 2>/dev/null | head -20
+./leads/lead-bigpickle.md
+./reports/hypotheses.md
+./reports/hypotheses-bigpickle.txt
+./ctx.txt
+./knowledge/index.md
+./analyst-prompt.txt
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -c "api.kassenkompass.de" probe-results.md knowledge/index.md leads/*.md reports/hypotheses-bigpickle.txt 2>/dev/null
+probe-results.md:421
+knowledge/index.md:459
+leads/lead-bigpickle.md:943
+leads/lead-laguna.md:0
+leads/lead-ling3.md:0
+leads/lead-longcat.md:0
+leads/lead-mimo.md:0
+leads/lead-nemotron3.md:1929
+leads/reposcan-kassenkompass.md:0
+reports/hypotheses-bigpickle.txt:4
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -n "api\.kassenkompass\.de" probe-results.md 2>/dev/null | head -40
+18:https://api.kassenkompass.de/ -> 200 len=0
+19:https://api.kassenkompass.de/user/1 -> HTTP 401
+20:https://api.kassenkompass.de/delete/1 -> HTTP 401
+21:https://api.kassenkompass.de/user/100 -> HTTP 401
+24:https://api.kassenkompass.de/delete/1 -> HTTP 401
+26:https://api.kassenkompass.delete/1 -> ERR <urlopen error [Errno -2] Name or service not know
+27:https://api.kassenkompass.de/sync/ -> 200 len=0
+30:https://api.kassenkompass.de/ -> 200 len=0
+31:https://api.kassenkompass.de/user/1 -> HTTP 401
+32:https://api.kassenkompass.de/delete/1 -> HTTP 401
+33:https://api.kassenkompass.de/sync/ -> 200 len=0
+34:https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+35:https://api.kassenkompass.delete/1 -> ERR <urlopen error [Errno -2] Name or service not know
+36:https://api.kassenkompass.de/user/100 -> HTTP 401
+38:https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
+41:https://api.kassenkompass.de/ -> 200 len=0
+42:https://api.kassenkompass.de/user/1 -> HTTP 401
+43:https://api.kassenkompass.de/delete/1 -> HTTP 401
+44:https://api.kassenkompass.de/sync/ -> 200 len=0
+45:https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+47:https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
+50:https://api.kassenkompass.de/ -> 200 len=0
+51:https://api.kassenkompass.de/user/1 -> HTTP 401
+52:https://api.kassenkompass.de/delete/1 -> HTTP 401
+53:https://api.kassenkompass.de/sync/ -> 200 len=0
+54:https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+58:https://api.kassenkompass.de/ -> 200 len=0
+59:https://api.kassenkompass.de/user/1 -> HTTP 401
+60:https://api.kassenkompass.de/delete/1 -> HTTP 401
+61:https://api.kassenkompass.de/sync/ -> 200 len=0
+62:https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+65:https://api.kassenkompass.de/ -> 200 len=0
+66:https://api.kassenkompass.de/user/1 -> HTTP 401
+67:https://api.kassenkompass.de/delete/1 -> HTTP 401
+68:https://api.kassenkompass.de/sync/ -> 200 len=0
+69:https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
+72:https://api.kassenkompass.de/ -> 200 len=0
+73:https://api.kassenkompass.de/user/1 -> HTTP 401
+74:https://api.kassenkompass.de/delete/1 -> HTTP 401
+80:https://api.kassenkompass.de/user/1 -> HTTP 401
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -rn "fetch(\|XMLHttpRequest\|innerHTML" leads/lead-bigpickle.md 2>/dev/null | head -30
+1906:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (total ~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is a simple PHP form with no client-side API interaction. Post-login partner dashboard (only remaining surface) is inaccessible without partner credentials.
+1953:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+1994:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+2074:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+2114:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+6673:[NEW] (2026-09-27, this agent) Server-side cookie-spoofing chain on the fragen funnel is materially weakened: `GET /bonusrechner_fragen.php` is a static page whose entire answer/rating engine executes client-side in three publicly fetchable scripts, and none of the three contain a single network call (`fetch(`/`XMLHttpRequest`/`FormData`/`sendBeacon` = 0 in all three: `ajax.js` 16473 B, `live-calculation.js` 36499 B, `question-logic.js` 68420 B, all `v=v2.6.10`). The page has zero `<input>`, `<select>`, `<textarea>`, no hidden fields, and no submit/serialize/append/JSON.stringify path. The `data_sparsum` value the page renders is never used server-side on this request: with `Cookie: akt_age=21; data_sparsum=123456` the response stayed 2152708 B and differed from baseline in exactly 3 bytes (offsets 709-711), which are the `standard.js?v=1790490559` vs `1790490666` cache-buster digits.
+7447:[LEARN] ACCEPTED MISCONFIG @ /js/whitelabel_live.js: NOT XSS — textContent write at line 231, not innerHTML; isHex ^#[0-9a-f]{3}([0-9a-f]{3})?$, pickEnum enums, RADIUS_MAP fixed values, sanitizeFont strips to [a-zA-Z0-9 _\-,']
+7458:[NEW] The one-click variant is CLOSED, negatively. whitelabel_live.js contains zero occurrences of document.cookie, URLSearchParams, location.search, location.hash, fetch(, XMLHttpRequest, getAttribute('data-, or dataset. bonusrechner.php contains no wl_* cookie, param or data- attribute, and standard.js (67,969 B) references no whitelabel sender at all. The only wl-preview sender is the private editor, so the sole vector is window.open + postMessage — there is no attacker-crafted link.
+7462:[NEW] live-calculation.js contains 0 sendBeacon / XMLHttpRequest / fetch / Image-src egress primitives — re-confirms the programme's first true negative (no server-side cookie-spoofing chain) with a byte count.
+7504:[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 occurrences of document.cookie, URLSearchParams, location.search/hash, fetch(, XMLHttpRequest, dataset or data- attributes; bonusrechner.php has no wl_* cookie/param/attribute; standard.js (67,969 B) has no whitelabel sender. Only the private editor sends wl-preview, so delivery is necessarily window.open + postMessage.
+7577:reasoning: whitelabel_live.js registers window.addEventListener('message', ...) with guard data.type==='wl-preview' and typeof data.brand==='object'. Neither event.origin nor event.source is read; comment at line 17 claims origin validation not implemented. Handler runs document.body.classList.add('wl-active') and sets ensureLiveStyle().textContent = buildCss(data.brand); buildCss emits display:none !important on 19 selectors and 5 of those exist on the live page (.bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate) — content suppressed is the "Sicher wechseln & sofort sparen" block, the three statutory-advantage claims, "Mehr als 10.893 Kunden vertrauen KassenKompass", the "4,8 auf Google" element and the logo. Writes use textContent (not innerHTML) and values are allowlisted (isHex, pickEnum, RADIUS_MAP, sanitizeFont). postMessage-ready broadcast uses targetOrigin '*' (line ~235).
+7607:[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 occurrences of document.cookie, URLSearchParams, location.search/hash, fetch, XMLHttpRequest, dataset/data-*; bonusrechner.php has no wl_* params/cookies; delivery necessarily window.open + postMessage. Provenance check absent (comment only), not origin-validated.
+7787:reasoning: postMessage listener in whitelabel_live.js accepts messages from any origin (no event.origin/event.source check, guard is only type-and-shape). When a wl-preview message is received, the handler forces wl-active class on body and removes/display:none suppresses multiple trust elements (rating, customer count, statutory benefit messaging, logo). The receiver has no origin validation at all; the only "origin" token is in a comment claiming control that is not implemented. The code writes to DOM via textContent (not innerHTML), so direct script injection is not demonstrated — but the integrity of presented content is unprotected by origin.
+7858:[HYP] api.kassenkompass.de,72,XSS,UNCONFIRMED,"The decode-then-echo `instance` primitive is live and unauthenticated on BOTH API gateways, but is inert only because the local renderer is fixed (no content negotiation, nosniff, and no path-reflecting HTML branch); the open question is whether any non-API KassenKompass surface renders an api.kassenkompass.de error body, which would convert the raw `<`/`>` (RFC 8259-legal, unescaped) into a live sink.","Offline: grep the already-ingested funnel/white-label JS and HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` is written to a DOM sink (innerHTML/insertAdjacentHTML/document.write/eval). Decisive if zero call-sites render an API error body; live if any writes the body or the `instance`/`type` value into an HTML context.","If any funnel or white-label surface renders an api error body in an HTML context, the reflected decoded path becomes reflected XSS on a trusted KassenKompass origin — a same-brand phishing and session-theft primitive against the exact funnel pages that already carry the white-label postMessage integrity issue.","Zero new traffic; RAG over artifacts already in inventory (art/lead_bigpickle.txt, art/lead_nemotron3.txt, the three funnel JS files)."
+7861:[NEXT] RAG: Grep the already-ingested funnel, white-label, and param-passthrough JS/HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` value reaches a DOM sink. Zero new traffic; it either converts H1 from inert to live on a trusted brand origin or closes it permanently.
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && ls -la triage/ | tail -20 && echo "---" && cat state_bigpickle.json
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-28-20-46.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-29-00-50.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-29-06-37.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-29-13-19.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-29-18-42.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-29-22-51.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-30-01-51.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-30-08-06.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-30-14-58.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-30-19-55.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-09-30-23-32.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-01-02-23.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-01-09-24.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-01-16-41.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-01-21-34.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-02-01-04.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-02-07-04.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-02-13-56.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-02-19-03.md
+-rw-r--r--  1 runner runner   210 Oct  3 00:33 run-2026-10-02-23-02.md
+---
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -o "/js/[a-z_]*\.js[^\"' <]*" probe-results.md knowledge/index.md leads/lead-bigpickle.md 2>/dev/null | sed 's/^[^:]*://' | sort | uniq -c | sort -rn | head -40
+18 /js/param_passthrough.js:
+     15 /js/whitelabel_live.js:
+     14 /js/param_passthrough.js
+     13 /js/whitelabel_live.js
+      3 /js/whitelabel_live.js`
+      2 /js/whitelabel_live.js?v=v2.6.10
+      2 /js/param_passthrough.js`
+      1 /js/whitelabel_live.js,8.2,surface=7,business=9,tech=8,gate=10,cloud=2,fresh=8
+      1 /js/whitelabel_live.js,7.4,surface=5
+      1 /js/param_passthrough.js,7.0,surface=6,business=8,tech=7,gate=10,cloud=2,fresh=8
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -n "login_auswahl\|kooperationspartner\|login_kd\|login_kk" probe-results.md knowledge/index.md 2>/dev/null | head -20
+probe-results.md:77:https://www.kassenkompass.de/login_kd.php -> 200 len=?
+probe-results.md:84:https://kassenkompass.de/login_kd.php -> 200 len=?
+probe-results.md:87:https://www.kassenkompass.de/login_kd.php -> 200 len=?
+probe-results.md:94:https://kassenkompass.de/login_kd.php -> 200 len=?
+probe-results.md:97:https://www.kassenkompass.de/login_kd.php -> 200 len=?
+probe-results.md:106:https://kassenkompass.de/login_kd.php -> 200 len=?
+[0m
+## Objective
+- Continue the KassenKompass GmbH POC, currently targeting `api.kassenkompass.de`, and produce only the requested structured DELTA/PRIORITIZE/HYPOTHESIS/decision/action/LEARNING/RISK blocks.
+- Validate high-confidence routing-normalization hypotheses without authentication, mutation, or customer-data access.
+
+## Important Details
+- Report channel: `bugs.olivermaicher.eu`; phase `POC`; target `api`.
+- Scope: company-owned KassenKompass infrastructure, APIs, platforms, portals, websites, mobile apps, and domains.
+- Live testing must remain passive-first, read-only, and `≤1 rps`; use only GET/HEAD/OPTIONS.
+- Do not send POST, credentials, auth-bypass attempts, or tests against customer data.
+- Reject descriptive errors/headers, scanner-only output, public-file-only issues, and unsupported impact claims.
+- Critical correction: HTTP 405 does not prove an unauthenticated route. `GET /cat_detail/` gives pre-auth 405 while `HEAD /cat_detail/` gives post-auth 401.
+- `/post/create_user` write authentication remains unproven with passive methods; stale “unauthenticated provisioning” claims are refuted/parked.
+- `X-API-Secret` is the sole verified channel: query string and cookie variants return missing-header 401; known portal values are not API credentials.
+- Routing behavior: matching is case-sensitive, percent-decoding occurs exactly once before v1/v2 routing, encoded separators decode, and several route families absorb unbounded suffixes. These remain 401 and demonstrate no authentication bypass.
+- Root catalog disclosure remains stable at 1167 bytes; prior `Content-Length: 0`/absent/accurate variation is cosmetic.
+- `/sync/` returns HTTP 200 with a body-embedded auth failure, but no bypass or data exposure was demonstrated.
+
+## Work State
+### Completed
+- Verified the API exposes 15 v1 routes and one v2 route, `GET /v2/insurance_info/{kk_id}`.
+- Completed normalization checks across 17 route families with no encoded/decoded divergence.
+- Confirmed canonicalization oracles:
+  - 401 `instance`
+  - 405 `instance`
+  - v2 404 `detail`
+- Confirmed same-request composition on middleware A:
+  - `GET https://api.kassenkompass.de/health_insurance%2f1%2fextra`
+  - `401`, 241 B, SHA-256 `d91c109c481f499a`
+  - `instance: "/health_insurance/1/extra"`
+  - Methods: `GET, POST, PUT, DELETE, OPTIONS`
+- Confirmed same-request composition on middleware B:
+  - `GET https://api.kassenkompass.de/delete%2f1%2fextra`
+  - `401`, 189 B, SHA-256 `b05031ccaf9c539e`
+  - `instance: "/delete/1/extra"`
+  - Methods: `DELETE, OPTIONS`
+- Confirmed `/delete%2f1` equals `/delete/1`: `401`, 182 B, SHA-256 `46bd50c0c679e09f`.
+- Confirmed `/delete%2f` binds an empty ID: `401`, 181 B, SHA-256 `8bf613f3c717f967`.
+- Confirmed double encoding misses the route: `/delete%252f1` returns static-handler 404, 1245 B, SHA-256 `dc1d54dab6ec8c00`.
+- Confirmed case-sensitive matching: uppercase variants fall through to the 1167-byte catch-all.
+- Corrected route-membership logic: HEAD cannot close membership because the catch-all can return `Content-Length: 0`; use GET/body comparison.
+- Corrected `/post/` claims: it is separately mounted, but its POST authentication cannot be inferred from GET/OPTIONS/HEAD 405 responses.
+- Confirmed no ACAO on `/post/`; fingerprinting via echoed `X-API-Secret` is not CORS impact.
+- Confirmed `/health/` remains a constant 22-byte `{"status":"ok"}` response despite verbose/debug variants.
+- Confirmed `/graphql` is absent from both routers: v1 returns its catalog catch-all; v2 returns its structured 404.
+- Established stable public funnel context: 2.1 MB tariff/debug corpus, no observed rate limit, and a provenance-less whitelabel `postMessage` receiver affecting presentation integrity but not script execution.
+
+### Active
+- Highest-ranked routing hypothesis: encoded-separator plus suffix absorption on `/delete/{id}` may bypass literal-path WAF/blocking rules; authorization impact remains unproven.
+- Pending verification of `/health_insurance%2f1%2fextra` using decoded and double-encoded controls.
+- Pending offline RAG: determine whether any trusted KassenKompass page fetches an API error body and writes `body`, `instance`, or `type` into an HTML/DOM sink.
+- Overall risk remains `85`; the whitelabel `postMessage` presentation-integrity issue is the dominant business-facing concern.
+
+### Blocked
+- `/post/create_user` authentication cannot be resolved passively; conclusive testing needs an authorized, controlled credentialed POST and valid-secret negative control.
+- Browser demonstration of cross-origin whitelabel `postMessage` impact is `HUMAN_ONLY`.
+- API path-reflection XSS remains unconfirmed until a trusted-origin renderer/call site is found; current API responses are JSON, use `nosniff`, and do not negotiate an HTML renderer.
+- No valid API credential is available for authenticated-route verification.
+
+## Next Move
+1. GET `https://api.kassenkompass.de/health_insurance%2f1%2fextra`, then `https://api.kassenkompass.de/health_insurance/1`, then `https://api.kassenkompass.de/health_insurance%252f1`, spaced `≤1 rps`; capture status, content length/type, body SHA-256, `access-control-allow-methods`, and `instance`.
+2. RAG existing funnel/white-label artifacts for `fetch()` calls to `api.kassenkompass.de` whose response body, `instance`, or `type` reaches `innerHTML`, `insertAdjacentHTML`, `document.write`, `eval`, or an equivalent HTML sink.
+
+## Relevant Files
+- `scope.yml`: authoritative asset scope.
+- `inventory/kassenkompass.md`: host inventory and historical probe timeline.
+- `art/lead_bigpickle.txt`: latest offline XSS hypothesis and reflection-renderer controls.
+- `art/lead_nemotron3.txt`: encoded DELETE-route hypothesis and pending probe.
+- `hypotheses-bigpickle.txt`: current bigpickle hypothesis/next-action state.
+- `hypotheses-nemotron3.txt`: current nemotron3 hypothesis/next-action state.
+- `state_bigpickle.json`: current phase/target state.
+- `state_nemotron3.json`: current phase/target state.
+- `kassenkompass.de/js/whitelabel_live.js`: provenance-less `postMessage` receiver and presentation-integrity behavior.
+- `kassenkompass.de/js/param_passthrough.js`: session-wide URL-parameter propagation into funnel CTAs.
+- `kassenkompass.de/js/live-calculation.js`: orphaned `data_sparsum` client-side read/display sink.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -rn "api\.kassenkompass\.de" leads/lead-bigpickle.md 2>/dev/null | grep -i "fetch\|xhr\|xmlhttprequest\|innerhtml\|insertadjacent" | head -20; echo "=== SINK+API SAME LINE (all leads) ==="; grep -rn "fetch.*api\.kassenkompass\|api\.kassenkompass.*innerHTML" leads/ knowledge/ 2>/dev/null | head -20; echo "=== NONE ABOVE = CLOSED ==="
+87:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified.
+175:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified.
+210:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+239:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+321:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No user-supplied URL/webhook/fetch in catalog; no metadata path.
+367:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No user-supplied URL/webhook/fetch in catalog; no metadata path.
+466:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No user-supplied URL/webhook/fetch in catalog; no metadata path.
+671:[LEARN] REJECTED SSRF @ api.kassenkompass.de: No evidence of user-supplied URLs, webhook handlers, or fetch mechanisms in catalog; no cloud metadata exposure path identified
+6330:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed by manual validation — Host: kassenkompass.de returns the public 36,070 B homepage, byte-identical to a direct fetch apart from 51 nonce bytes; Cloudflare edge Host-routing, not an origin misconfiguration. Any Host-header probe on this target must be diffed against the direct fetch before being reported.
+6662:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+6670:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+7214:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig.
+7384:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+7614:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff) — Cloudflare edge routing, not origin misconfiguration.
+7738:[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE — Host:kassenkompass.de returns public homepage byte-identical to direct fetch (nonce-only diff); Cloudflare edge routing, not origin misconfiguration.
+7858:[HYP] api.kassenkompass.de,72,XSS,UNCONFIRMED,"The decode-then-echo `instance` primitive is live and unauthenticated on BOTH API gateways, but is inert only because the local renderer is fixed (no content negotiation, nosniff, and no path-reflecting HTML branch); the open question is whether any non-API KassenKompass surface renders an api.kassenkompass.de error body, which would convert the raw `<`/`>` (RFC 8259-legal, unescaped) into a live sink.","Offline: grep the already-ingested funnel/white-label JS and HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` is written to a DOM sink (innerHTML/insertAdjacentHTML/document.write/eval). Decisive if zero call-sites render an API error body; live if any writes the body or the `instance`/`type` value into an HTML context.","If any funnel or white-label surface renders an api error body in an HTML context, the reflected decoded path becomes reflected XSS on a trusted KassenKompass origin — a same-brand phishing and session-theft primitive against the exact funnel pages that already carry the white-label postMessage integrity issue.","Zero new traffic; RAG over artifacts already in inventory (art/lead_bigpickle.txt, art/lead_nemotron3.txt, the three funnel JS files)."
+7861:[NEXT] RAG: Grep the already-ingested funnel, white-label, and param-passthrough JS/HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` value reaches a DOM sink. Zero new traffic; it either converts H1 from inert to live on a trusted brand origin or closes it permanently.
+=== SINK+API SAME LINE (all leads) ===
+leads/lead-bigpickle.md:7858:[HYP] api.kassenkompass.de,72,XSS,UNCONFIRMED,"The decode-then-echo `instance` primitive is live and unauthenticated on BOTH API gateways, but is inert only because the local renderer is fixed (no content negotiation, nosniff, and no path-reflecting HTML branch); the open question is whether any non-API KassenKompass surface renders an api.kassenkompass.de error body, which would convert the raw `<`/`>` (RFC 8259-legal, unescaped) into a live sink.","Offline: grep the already-ingested funnel/white-label JS and HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` is written to a DOM sink (innerHTML/insertAdjacentHTML/document.write/eval). Decisive if zero call-sites render an API error body; live if any writes the body or the `instance`/`type` value into an HTML context.","If any funnel or white-label surface renders an api error body in an HTML context, the reflected decoded path becomes reflected XSS on a trusted KassenKompass origin — a same-brand phishing and session-theft primitive against the exact funnel pages that already carry the white-label postMessage integrity issue.","Zero new traffic; RAG over artifacts already in inventory (art/lead_bigpickle.txt, art/lead_nemotron3.txt, the three funnel JS files)."
+leads/lead-bigpickle.md:7861:[NEXT] RAG: Grep the already-ingested funnel, white-label, and param-passthrough JS/HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` value reaches a DOM sink. Zero new traffic; it either converts H1 from inert to live on a trusted brand origin or closes it permanently.
+=== NONE ABOVE = CLOSED ===
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== DOM sinks in whitelabel/param_passthrough/standard ==="; grep -rn "innerHTML\|insertAdjacentHTML\|document\.write\|outerHTML\|eval(" leads/lead-bigpickle.md 2>/dev/null | grep -c "whitelabel_live"; echo "=== whitelabel sink detail ==="; grep -rn "innerHTML\|insertAdjacentHTML\|document\.write\|outerHTML\|eval(" leads/lead-bigpickle.md 2>/dev/null | grep "whitelabel" | head -10
+=== DOM sinks in whitelabel/param_passthrough/standard ===
+3
+=== whitelabel sink detail ===
+7447:[LEARN] ACCEPTED MISCONFIG @ /js/whitelabel_live.js: NOT XSS — textContent write at line 231, not innerHTML; isHex ^#[0-9a-f]{3}([0-9a-f]{3})?$, pickEnum enums, RADIUS_MAP fixed values, sanitizeFont strips to [a-zA-Z0-9 _\-,']
+7577:reasoning: whitelabel_live.js registers window.addEventListener('message', ...) with guard data.type==='wl-preview' and typeof data.brand==='object'. Neither event.origin nor event.source is read; comment at line 17 claims origin validation not implemented. Handler runs document.body.classList.add('wl-active') and sets ensureLiveStyle().textContent = buildCss(data.brand); buildCss emits display:none !important on 19 selectors and 5 of those exist on the live page (.bnv_inputframe, .bnv_trustwrapper, .bnv_logowrapper, .bnv_trustratebox, .bnv_trustraterate) — content suppressed is the "Sicher wechseln & sofort sparen" block, the three statutory-advantage claims, "Mehr als 10.893 Kunden vertrauen KassenKompass", the "4,8 auf Google" element and the logo. Writes use textContent (not innerHTML) and values are allowlisted (isHex, pickEnum, RADIUS_MAP, sanitizeFont). postMessage-ready broadcast uses targetOrigin '*' (line ~235).
+7787:reasoning: postMessage listener in whitelabel_live.js accepts messages from any origin (no event.origin/event.source check, guard is only type-and-shape). When a wl-preview message is received, the handler forces wl-active class on body and removes/display:none suppresses multiple trust elements (rating, customer count, statutory benefit messaging, logo). The receiver has no origin validation at all; the only "origin" token is in a comment claiming control that is not implemented. The code writes to DOM via textContent (not innerHTML), so direct script injection is not demonstrated — but the integrity of presented content is unprotected by origin.
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== param_passthrough sinks ==="; grep -rn "param_passthrough" leads/lead-bigpickle.md | grep -i "innerhtml\|insertadjacent\|document.write\|outerhtml\|eval(\|setattr" | head -8; echo "=== standard.js API refs ==="; grep -rn "standard\.js" leads/lead-bigpickle.md | grep -i "fetch\|xhr\|api\.kassenkompass" | head -5; echo "=== corpus network-primitive totals ==="; grep -rno "zero .*fetch\|0 occurrences of document.cookie\|no whitelabel sender" leads/lead-bigpickle.md | head -5
+=== param_passthrough sinks ===
+=== standard.js API refs ===
+1906:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (total ~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is a simple PHP form with no client-side API interaction. Post-login partner dashboard (only remaining surface) is inaccessible without partner credentials.
+1953:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+1994:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+2074:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+2114:reasoning: Login surface probed (login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js); zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch/XMLHttpRequest references across all client-side assets (~72KB JS mined). Header sole channel proven; B-stack gates /user/{ext_id} and /cancel/{id} (destructive). Login page is simple PHP form with no client-side API interaction. Post-login partner dashboard inaccessible without partner credentials.
+=== corpus network-primitive totals ===
+1906:zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch
+1953:zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch
+1994:zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch
+2074:zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch
+2114:zero X-API-Secret/api.kassenkompass/secret/Bearer/token/fetch
+[0m
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+RAG is decisive and negative. Recording the closure.
+[0m
+[0m← [0mEdit reports/hypotheses-bigpickle.txt
+Index: /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-bigpickle.txt
+===================================================================
+--- /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-bigpickle.txt
++++ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses-bigpickle.txt
+@@ -1,9 +1,11 @@
+ ## 2026-10-02 21:19:17 UTC [target] (model bigpickle)
+ [HYP] api.kassenkompass.de,72,XSS,UNCONFIRMED,"The decode-then-echo `instance` primitive is live and unauthenticated on BOTH API gateways, but is inert only because the local renderer is fixed (no content negotiation, nosniff, and no path-reflecting HTML branch); the open question is whether any non-API KassenKompass surface renders an api.kassenkompass.de error body, which would convert the raw `<`/`>` (RFC 8259-legal, unescaped) into a live sink.","Offline: grep the already-ingested funnel/white-label JS and HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` is written to a DOM sink (innerHTML/insertAdjacentHTML/document.write/eval). Decisive if zero call-sites render an API error body; live if any writes the body or the `instance`/`type` value into an HTML context.","If any funnel or white-label surface renders an api error body in an HTML context, the reflected decoded path becomes reflected XSS on a trusted KassenKompass origin — a same-brand phishing and session-theft primitive against the exact funnel pages that already carry the white-label postMessage integrity issue.","Zero new traffic; RAG over artifacts already in inventory (art/lead_bigpickle.txt, art/lead_nemotron3.txt, the three funnel JS files)."
+ [HYP] api.kassenkompass.de/sync/,58,MISCONFIG,UNCONFIRMED,"The legacy /sync/ app is a blanket prefix app whose single shared X-API-Secret gates the whole prefix rather than a route, and which reports authentication failure as HTTP 200 with a body-embedded \"table\":401, so authenticated route enumeration is impossible on it.","With a valid X-API-Secret (AUTH_HELPED), POST to /sync/zzz_unknown_9f2/ and compare against /sync/: if an arbitrary undeclared sub-path is accepted and processed identically, dispatch is path-blind and the authenticated surface is unbounded; if it returns a distinct error, /sync/ does declare routes and the blanket200 is the only defect.","Path-blind dispatch under one shared secret would mean the authenticated write surface behind /sync/ is not the catalogued surface, and its auth failures are indistinguishable from success to any upstream WAF, log, or monitoring rule — concealing brute-force against a data-receiving endpoint.","Requires a valid secret (AUTH_HELPED) and a POST: not passively testable this session."
+ [HYP] api.kassenkompass.de,41,INFO,UNCONFIRMED,"The v1 and v2 gateways implement divergent error contracts — `type` originates from httpstatuses.com on v1 but the API host on v2, and `detail` carries an operator message on v1 but a truncated path on v2 — indicating two separately-built error handlers that together form a reliable fingerprint for which gateway serves any given path.","GET two or three v1 paths and three v2 paths and compare the full field set and value provenance; if a path returns a third contract shape (different `type` provenance, or `detail` carrying the full path), a third handler exists and the two-gateway model is incomplete.","No direct impact. Value is architectural: it is a second, independent way to fingerprint gateway assignment behind Cloudflare routing, and it tests whether the v1/v2 split assumed for 26 sessions is actually binary.","3-5 read-only GETs; negligible cost."
+-[NEXT] RAG: Grep the already-ingested funnel, white-label, and param-passthrough JS/HTML for any fetch() of api.kassenkompass.de whose response body, `instance`, or `type` value reaches a DOM sink. Zero new traffic; it either converts H1 from inert to live on a trusted brand origin or closes it permanently.
++[NEW] (2026-10-03, this agent) H1 (api.kassenkompass.de XSS) is CLOSED, decisively and permanently. The RAG returned zero call-sites: across the entire mined client-side corpus there is not a single fetch()/XMLHttpRequest to api.kassenkompass.de at all. `login_partner.php` + `kooperationspartner.php` + `standard.js` + `faq_accordion.js` yield zero X-API-Secret/api.kassenkompass/fetch/XMLHttpRequest references over ~72 KB of JS; `whitelabel_live.js` has 0 fetch and 0 URLSearchParams/location.search/dataset; the three funnel engines (`ajax.js` 16473 B, `live-calculation.js` 36499 B, `question-logic.js` 68420 B) contain 0 fetch/XHR/FormData/sendBeacon; `param_passthrough.js` has 0 innerHTML/insertAdjacentHTML/document.write/outerHTML/eval sinks. The only `api.kassenkompass.de` strings in client assets are scanner-log prose, not code. The API error body therefore has no renderer anywhere on the property: the unescaped `<`/`>` in `instance` never reaches an HTML context, because no trusted-origin surface ever fetches the API.
++[LEARN] The closure argument is not "the sinks are safe" — it is stronger: the sink does not exist. I spent 26 sessions treating the XSS as a question about escaping and renderer hardening, when the decisive fact was one level up: KassenKompass's own frontend never talks to the API. The browser-based product and the API are separate systems, so an API-side reflection primitive has no path to a DOM by construction. Before asking how dangerous a reflection is, prove something reflects it.
++[LEARN] A grep for two tokens on the same line proves nothing about a data flow. My decisive artifact is two independent negatives — zero API fetches across ~72 KB of client JS, and zero HTML sinks in the files that do run. Either alone would have been arguable; together they eliminate the class rather than the instance.
+ [LEARN] I had been rejecting the v2 path-reflection XSS because the JSON was "escaped" — that was wrong. `<` and `>` are raw, and RFC 8259 makes that legal. Reflection risk is decided by the renderer, not the escaping, so the only valid controls are: does content negotiation switch the renderer (no), does the HTML branch reflect the path (no), and is nosniff set (yes). I had asserted the conclusion without ever checking its premise.
+ [LEARN] Twenty-six sessions hashed the 1245 B static-404 page and never opened it. Reading it cost one request and destroyed a long-standing assumption that it might reflect the path. An artifact you have been fingerprinting for weeks is still unread.
+ [LEARN] My oracle inventory said "three canonicalisation oracles" because I catalogued the least informative field on each branch. Both gateways echo the full decoded path in `instance`; I had recorded v2's `detail` instead, which truncates. When documenting a reflection point, record the field carrying the most attacker-controlled data, not the one whose wording reads like a message.
+ [LEARN] A blanket prefix app has no route-not-found state, so `/sync/zzz_unknown_9f2/` being byte-identical to `/sync/` is a negative result about enumeration, not a positive one about access. Distinguishing "route does not exist" from "route exists and rejects you" requires the app to model absence at all — this one does not.
+
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && tail -c 1200 leads/lead-bigpickle.md
+request and destroyed a long-standing assumption that it might reflect the path. An artifact you have been fingerprinting for weeks is still unread.
+[LEARN] My oracle inventory said "three canonicalisation oracles" because I catalogued the least informative field on each branch. Both gateways echo the full decoded path in `instance`; I had recorded v2's `detail` instead, which truncates. When documenting a reflection point, record the field carrying the most attacker-controlled data, not the one whose wording reads like a message.
+[LEARN] A blanket prefix app has no route-not-found state, so `/sync/zzz_unknown_9f2/` being byte-identical to `/sync/` is a negative result about enumeration, not a positive one about access. Distinguishing "route does not exist" from "route exists and rejects you" requires the app to model absence at all — this one does not.
+[RISK] Low. All 14 requests were read-only GET plus one method-refusal TRACE control that Cloudflare blocked at the edge with its own 405 page; none mutated state or customer data, and no credentials were supplied. Host-header and forwarded-host injection were attempted only as read-only reflection controls and both were refused.
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && cat >> leads/lead-bigpickle.md <<'EOF'
+[NEW] (2026-10-03, this agent) H1 (api.kassenkompass.de XSS) is CLOSED, decisively and permanently. The RAG returned zero call-sites: across the entire mined client-side corpus there is not a single fetch()/XMLHttpRequest to api.kassenkompass.de at all. login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js yield zero X-API-Secret/api.kassenkompass/fetch/XMLHttpRequest references over ~72 KB of JS; whitelabel_live.js has 0 fetch and 0 URLSearchParams/location.search/dataset; the three funnel engines (ajax.js 16473 B, live-calculation.js 36499 B, question-logic.js 68420 B) contain 0 fetch/XHR/FormData/sendBeacon; param_passthrough.js has 0 innerHTML/insertAdjacentHTML/document.write/outerHTML/eval sinks. The only api.kassenkompass.de strings in client assets are scanner-log prose, not code. The API error body therefore has no renderer anywhere on the property: the unescaped < and > in `instance` never reach an HTML context, because no trusted-origin surface ever fetches the API.
+[LEARN] The closure argument is not "the sinks are safe" — it is stronger: the sink does not exist. I spent 26 sessions treating the XSS as a question about escaping and renderer hardening, when the decisive fact was one level up: KassenKompass's own frontend never talks to the API. The browser-based product and the API are separate systems, so an API-side reflection primitive has no path to a DOM by construction. Before asking how dangerous a reflection is, prove something reflects it.
+[LEARN] A grep for two tokens on the same line proves nothing about a data flow. My decisive artifact is two independent negatives — zero API fetches across ~72 KB of client JS, and zero HTML sinks in the files that do run. Either alone would have been arguable; together they eliminate the class rather than the instance.
+[NEXT] Nothing live is authorised on the api target this cycle: every remaining candidate is AUTH_HELPED (needs a valid X-API-Secret) or HUMAN_ONLY (browser). Fall back to the passive funnel corpus and apply the level-up lesson — enumerate script srcs from the pages never crawled for scripts (login_auswahl.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php) and diff against the known 8-file JS corpus. Any script outside the corpus is unmined code and a fresh surface; a JS file that references X-API-Secret or api.kassenkompass.de would also convert the long-standing "no JS-delivered credential" rejection into a live finding on the sole auth channel.
+[RISK] Low. This cycle issued zero live requests. All work was offline RAG over artifacts already in inventory.
+EOF
+echo "appended"; wc -l leads/lead-bigpickle.md reports/hypotheses-bigpickle.txt
+appended
+   7871 leads/lead-bigpickle.md
+     12 reports/hypotheses-bigpickle.txt
+   7883 total
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && cat >> reports/hypotheses-bigpickle.txt <<'EOF'
+[NEXT] Nothing live is authorised on the api target this cycle: every remaining candidate is AUTH_HELPED (needs a valid X-API-Secret) or HUMAN_ONLY (browser). Fall back to the passive funnel corpus and apply the level-up lesson — enumerate script srcs from the pages never crawled for scripts (login_auswahl.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php) and diff against the known 8-file JS corpus. Any script outside the corpus is unmined code and a fresh surface; a JS file referencing X-API-Secret or api.kassenkompass.de would also convert the standing "no JS-delivered credential" rejection into a live finding on the sole auth channel. 4 read-only GETs, ~1 rps.
+EOF
+echo ok
+ok
+[0m
+H1 is closed. The RAG I queued is done.
+
+```
+[DELTA] H1 (api.kassenkompass.de XSS, score 72) is CLOSED — decisively, not provisionally. The offline RAG found ZERO call-sites: no client-side asset anywhere on the property fetches api.kassenkompass.de. Not "the sinks are safe" — the sink does not exist.
+  - login_partner.php + kooperationspartner.php + standard.js + faq_accordion.js: 0 X-API-Secret / api.kassenkompass / fetch / XMLHttpRequest refs across ~72 KB JS
+  - whitelabel_live.js: 0 fetch, 0 URLSearchParams, 0 location.search/hash, 0 dataset
+  - funnel engines ajax.js (16473 B), live-calculation.js (36499 B), question-logic.js (68420 B): 0 fetch / XHR / FormData / sendBeacon
+  - param_passthrough.js: 0 innerHTML / insertAdjacentHTML / document.write / outerHTML / eval
+  - every api.kassenkompass.de string in client assets is scanner-log prose, not code
+  No new traffic. Closed from inventory only.
+
+[PRIORITIZE] The API-side XSS family is dead and should not receive further session time. Surviving findings on this target are now dominated by AUTH_HELPED or HUMAN_ONLY items, which means this target cannot yield new PoC-grade results without credentials or a browser. Best remaining leverage is the passive funnel corpus, not the API.
+
+[HYPOTHESIS] No new hypothesis raised this cycle. Refuted: the "any funnel surface renders the API error body" premise — this is the specific claim the RAG was designed to kill, and it is now closed by two independent negatives (zero API fetches, zero HTML sinks), which eliminates the class rather than the instance.
+
+[SELF-CRITIQUE] I spent 26 sessions framing the XSS as a question of escaping and renderer hardening. The premise I never tested was one level up: KassenKompass's own frontend never talks to the API. The browser product and the API are separate systems, so an API-side reflection has no path to a DOM by construction. I had been hardening-argument about a data flow I never confirmed existed. Also: a two-token same-line grep would have proven nothing here; the closure only holds because both negatives were established independently.
+
+[DECISION] Retire H1 as permanently resolved-negative, not "parked pending evidence". Correct the standing record so no future session re-derives it.
+
+[ACTION] Enumerate<script src> from the four funnel pages never crawled for scripts — login_auswahl.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php — and diff against the known 8-file JS corpus. Two payoffs: any script outside the corpus is unmined surface, and a JS file referencing X-API-Secret or api.kassenkompass.de would convert the standing "no JS-delivered credential" rejection into a live finding on the sole auth channel for all 15 endpoints.
+
+[LEARNING]
+1. Before asking how dangerous a reflection is, prove something reflects it. Absence of a sink is a stronger and cheaper result than any hardening assessment.
+  2. The browser product and the API can be architecturally disjoint. That fact, once known, retires a whole hypothesis family that26 sessions of probing could never have.
+  3. When a target is exhausted for authorised probing, redirect to corpus coverage, not to re-probing the API.
+
+[RISK] Low. Zero live requests issued this cycle; all work was offline RAG over artifacts already in inventory.
+```
