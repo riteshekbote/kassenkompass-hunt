@@ -1,39 +1,41 @@
-## 2026-10-03 18:45:12 UTC [target] (model bigpickle)
-[PRIO]
-asset: kassenkompass.de/bonusrechner_fragen.php, score: 6.10, axis: attack_surface=7, business_value=6, tech_exposure=6, gate_ease=10, cloud_surface=0, freshness=6
-asset: api.kassenkompass.de, score: 5.90, axis: attack_surface=6, business_value=7, tech_exposure=6, gate_ease=4, cloud_surface=6, freshness=6
-asset: kassenkompass.de/js/whitelabel_live.js, score: 5.65, axis: attack_surface=5, business_value=5, tech_exposure=7, gate_ease=8, cloud_surface=0, freshness=7
-[HYP]
+## 2026-10-03 22:07:41 UTC [target] (model bigpickle)
+[PRIO] asset: kassenkompass.de/bonusrechner_fragen.php, score: 6.10, axis: attack_surface=7, business_value=6, tech_exposure=6, gate_ease=10, cloud_surface=0, freshness=6
+[PRIO] asset: api.kassenkompass.de, score: 5.90, axis: attack_surface=6, business_value=7, tech_exposure=6, gate_ease=4, cloud_surface=6, freshness=6
+[PRIO] asset: kassenkompass.de/js/whitelabel_live.js, score: 5.65, axis: attack_surface=5, business_value=5, tech_exposure=7, gate_ease=8, cloud_surface=0, freshness=7
+[HYP] Unauthenticated tariff corpus exposure
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
 confidence: 62
-reasoning: Returns ~2.15 MB of inline tariff/question data with HTTP 200 and no credential. cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified, and sustained 1 rps scraping confirmed without 429 or WAF block. bonusrechner_daten.php accepts arbitrary lizenz/jid query values and returns 200 with no observed server-side licence validation on the data path.
-evidence_needed: Vendor statement of data classification (intended-public tariff content vs licensed partner business data) to determine whether this is acceptable exposure or a data leak.
-verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (record status/headers/length) and GET https://kassenkompass.de/bonusrechner_daten.php?lizenz=invalid&jid=1 (compare response to documented-valid request shape, read-only).
-impact: Unbounded scraping of full tariff corpus with unlicensed parameter replay. Severity informational-to-low pending vendor data classification.
+reasoning: Returns ~2.15 MB inline tariff/question data (ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds) via HTTP 200 with no credential; cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified; sustained 1 rps scraping confirmed without 429 or WAF block. data_sparsum not consumed server-side on GET; data freshness ≤2025-12-22.
+evidence_needed: Vendor data classification (intended-public tariff content vs licensed partner business data) to determine whether this is acceptable exposure or a data leak.
+verify_steps: `GET https://kassenkompass.de/bonusrechner_fragen.php` — record status, headers, transfer-encoding/length, sha256 of body; `GET https://www.kassenkompass.de/bonusrechner_fragen.php` — compare sha256 to apex. All PASSIVE, ≤1 rps.
+impact: Unbounded scraping of full tariff corpus; severity informational-to-low pending vendor data classification.
 testability: PASSIVE
-[HYP]
+[HYP] Cross-origin trust-element suppression via unchecked postMessage
 class: OTHER
 asset: kassenkompass.de/js/whitelabel_live.js
 confidence: 55
 reasoning: Message receiver validates only data.type and typeof data.brand; neither event.origin nor event.source is consulted. Five live trust elements on bonusrechner.php are suppressible by a hostile frame. Sink is textContent with fixed selector allowlist (not innerHTML), so integrity suppression only, no script execution demonstrated.
-evidence_needed: Browser reproduction showing a hostile third-party page suppressing trust elements in an embedded KassenKompass page (cannot be established from HTTP responses alone).
-verify_steps: GET https://kassenkompass.de/js/whitelabel_live.js (confirm absence of origin/source checks) and perform manual browser test posting {"type":"brand","brand":"..."} from hostile parent page.
-impact: Suppression of partner/insurer trust/branding elements in embedded context. Low severity; requires browser context verification.
+evidence_needed: Browser reproduction showing hostile third-party page suppressing trust elements in an embedded KassenKompass page (cannot be established from HTTP responses alone).
+verify_steps: `GET https://kassenkompass.de/js/whitelabel_live.js` — confirm absence of origin/source checks at receiver; manual browser test posting `{"type":"brand","brand":"..."}` from hostile parent page.
+impact: UI-integrity suppression of partner/insurer trust/branding elements in embedded context; low severity.
 testability: HUMAN_ONLY
-[HYP]
+[HYP] Encoded path normalisation without demonstrated access-control bypass
 class: MISCONFIG
 asset: api.kassenkompass.de
 confidence: 35
-reasoning: Percent-decode-before-match host-wide (v1+v2), single-level decode, encoded separators decode and compose with suffix absorption (/health_insurance%2f1%2fextra, /delete%2f1%2fextra). Fresh measurement shows /delete%2f1%2fextra and /delete/1%2fextra-equivalent literal forms return byte-identical 401 responses (same sha256, identical verb tables) with Cloudflare passing both to origin under identical edge conditions. No differential (literal blocked vs encoded passed) was observed at any layer; access control bypass is unproven.
-evidence_needed: A literal-path access control that demonstrably blocks /delete/1/extra or /delete/1 while the encoded form passes (requires observable WAF/origin rule differential not present in read-only tests).
-verify_steps: GET https://api.kassenkompass.de/delete%2f1%2fextra and GET https://api.kassenkompass.de/delete/1/extra (read-only, ≤1 rps) — already measured byte-identical; no additional passive step exists.
-impact: If such control existed, encoded separator could reach handlers; no control demonstrated, so no attacker gain proven.
+reasoning: Host-wide percent-decode-before-match (v1+v2), single-level decode, encoded separators decode and compose with suffix absorption (`/delete%2f1%2fextra` ≡ `/delete/1%2fextra` byte-identical 401). Fresh measurement shows no differential (literal vs encoded) at Cloudflare/origin; routing quirk real, access-control bypass unproven.
+evidence_needed: Demonstrable differential (literal path blocked vs encoded path passed) at any observable layer (WAF/origin rule differential).
+verify_steps: `GET https://api.kassenkompass.de/delete%2f1%2fextra` and `GET https://api.kassenkompass.de/delete/1/extra` — compare status, headers, body sha256 (already byte-identical). PASSIVE, ≤1 rps.
+impact: If control existed, encoded separators could reach handlers; no control demonstrated, attacker gain unproven.
 testability: AUTH_HELPED
-[PARKED] Encoded path separators reach destructive route handlers identically to literal separators, defeating any literal-path-only access control: confidence 35 < 40 and requires differential not observed in passive/read-only measurements. Hypothesis remains architectural context only; access-control bypass unproven.
-[FINAL]
-[NEXT]
-[NEXT] HUMAN: Request data classification from program contact for bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner business data), and request one scoped read-only test credential for api.kassenkompass.de. No additional passive HTTP probes recommended at this time (API surface exhausted unauthenticated, funnel/tariff/normalization fully characterised).
-[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurement shows /delete%2f1%2fextra and /delete/1/extra are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass claim requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
-[RISK]
-[RISK] KassenKompass GmbH: 34/100. API is exhausted for unauthenticated testing; every remaining high-value path (IDOR/BOLA on user/delete/settlement, /post/create_user write) is credential-gated behind single X-API-Secret with known magic values rejected. Provable unauthenticated findings are low-severity only: unauthenticated 2.15 MB tariff corpus exposure (pending data classification), unlicensed parameter replay surface on bonusrechner_daten.php, and cross-origin trust-element suppression via unchecked postMessage (browser-only). No repository scanning configured; continuing unauthenticated probing yields indistinguishable 401s. Correct next step is vendor data classification and/or scoped credential, not additional unauthenticated requests.
+[PARKED] Encoded path normalisation without demonstrated access-control bypass: confidence 35 < 40 and requires an observable differential not present in passive/read-only measurements. Routing quirk real but access-control bypass unproven; retained as architectural context only.
+[FINAL] 1. Unauthenticated tariff corpus exposure (62, PASSIVE) — reportable as informational-to-low pending vendor data classification.
+[FINAL] 2. Cross-origin trust-element suppression via unchecked postMessage (55, HUMAN_ONLY) — reportable as low (integrity-only).
+[FINAL] 3. Encoded path normalisation without demonstrated access-control bypass — PARKED (35).
+[NEXT] HUMAN: Request data classification from program contact for `kassenkompass.de/bonusrechner_fragen.php` and `kassenkompass.de/bonusrechner_daten.php` (intended-public tariff content vs licensed partner business data), and request one scoped read-only test credential for `api.kassenkompass.de`. No additional passive HTTP probes recommended at this time (API surface exhausted unauthenticated; normalization matrix complete).
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+[LEARN] REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+[LEARN] ACCEPTED OTHER @ method: Composition claims require both axes measured on the same request; three prior sessions measured axes on different families — the combined encoded-separator + suffix-absorption measurements on the same request closed that coverage gap.
+[LEARN] REJECTED MISCONFIG (vhost/Host-header) @ api.kassenkompass.de: `Host: kassenkompass.de` returns the public homepage byte-identical to a direct fetch apart from nonce bytes; Cloudflare edge routing, not origin misconfiguration.
+[RISK] KassenKompass GmbH: 34/100. API is exhausted for unauthenticated testing; remaining high-value paths (IDOR/BOLA on user/delete/settlement, /post/create_user write) are credential-gated behind a single X-API-Secret with known magic values rejected. Provable unauthenticated findings are low-severity only: unauthenticated 2.15 MB tariff corpus exposure (pending data classification), unlicensed parameter-replay surface on bonusrechner_daten.php, and cross-origin trust-element suppression via unchecked postMessage (browser-only). No repository scanning configured; continuing unauthenticated probing yields indistinguishable 401s. Correct next step is vendor data classification and/or scoped credential, not additional unauthenticated requests.
