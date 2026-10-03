@@ -46846,3 +46846,225 @@ testability: HUMAN_ONLY
 ## STEP 7 — RISK
 
 [RISK] kassenkompass: 34/100. The API target is exhausted for unauthenticated testing. Every remaining high-value claim (`/user/{ext_id}` IDOR, `/delete/{id}` BOLA, `/settlement_report` tenant scoping, `/post/create_user` write auth) is blocked behind one `X-API-Secret`, and both known magic values (`KKX3382745` sha256 `bc2cb4e9…`, `X8372` sha256 `a4197524…`) were rejected 403 on every stack including middleware B and v2. Today's fresh evidence is negative: the strongest prior hypothesis is refuted by byte-identical encoded-vs-literal responses. What remains provable without a credential is low-severity only — an unauthenticated 2.1 MB tariff corpus, unlicensed parameter replay, and cross-origin trust-element suppression. No repository scanning is configured. Continuing to re-probe the same credential-gated paths will keep producing indistinguishable401s; the correct next step is a credential or a data-classification answer, not more requests.
+===== ANALYST bigpickle 2026-10-03 15:21:13 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll establish fresh evidence with a small, paced read-only probe set, then run the 8 steps.
+[0m$ [0mwhich curl python3 2>/dev/null; echo "---"; getent hosts api.kassenkompass.de kassenkompass.de 2>/dev/null | head -5
+/usr/bin/curl
+/usr/bin/python3
+---
+2606:4700:20::681a:d84 api.kassenkompass.de
+2606:4700:20::681a:c84 api.kassenkompass.de
+2606:4700:20::ac43:498f api.kassenkompass.de
+2606:4700:20::681a:d84 kassenkompass.de
+2606:4700:20::681a:c84 kassenkompass.de
+[0m
+[0m$ [0mcurl -sS -o /tmp/opencode/wl.js -w 'status=%{http_code} len=%{size_download} type=%{content_type}\n' --max-time 20 https://kassenkompass.de/js/whitelabel_live.js 2>&1 | tail -3
+status=200 len=11359 type=application/javascript
+[0m
+[0m$ [0msleep 1.5; cd /tmp/opencode && grep -nE "data\.(brand|type)|pickEnum|RADIUS_MAP|sanitizeFont|whitelabel_styles|addEventListener\('message'|wl-preview|logo|font|radius|color" wl.js | head -60
+9: *   htmlincludes/whitelabel/whitelabel_styles.php
+14: *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+26:	const pickEnum = (v, allowed) => allowed.indexOf(v) !== -1 ? v : null;
+27:	const sanitizeFont = v => (typeof v === 'string') ? v.replace(/[^a-zA-Z0-9 _\-,']/g, '') : '';
+29:	const RADIUS_MAP = { leicht: '4px', mittel: '10px', stark: '20px' };
+51:		const col_primary     = isHex(brand.color_primary)         ? brand.color_primary         : null;
+52:		const col_secondary   = isHex(brand.color_secondary)       ? brand.color_secondary       : null;
+53:		const col_background  = isHex(brand.color_background)      ? brand.color_background      : null;
+54:		const col_text        = isHex(brand.color_text)            ? brand.color_text            : null;
+55:		const col_button      = isHex(brand.color_button)          ? brand.color_button          : null;
+56:		const col_button_text = isHex(brand.color_button_text)     ? brand.color_button_text     : null;
+57:		const col_card_bg     = isHex(brand.color_card_background) ? brand.color_card_background : null;
+58:		const col_card_border = isHex(brand.color_card_border)     ? brand.color_card_border     : null;
+59:		const col_highlight   = isHex(brand.color_highlight)       ? brand.color_highlight       : null;
+61:		const button_style = pickEnum(brand.button_style, ['clean', 'solid', 'outline']);
+62:		const border_radius = pickEnum(brand.border_radius, ['leicht', 'mittel', 'stark']);
+63:		const card_style = pickEnum(brand.card_style, ['minimal', 'modern', 'elevated']);
+64:		const font_family = sanitizeFont(brand.font_family);
+73:		const btn_text_color = col_button_text || '#ffffff';
+77:		// Auto-Hide (Spiegel von whitelabel_styles.php)
+82:			'body.wl-active .bnv_logowrapper,' +
+100:		// Gegenstück zum Legal-Menü-Hide: rechtes Header-Ornament bei WL wieder zeigen (Spiegel von whitelabel_styles.php;
+123:			out.push('body.wl-active .bnv_genderquestwrapper { background-color: ' + col_card_bg + ' !important; }');
+126:			out.push('body.wl-active .bnv_genderquestwrapper { border-color: ' + col_card_border + ' !important; }');
+129:			out.push('body.wl-active .bnv_genderquestwrapper { color: ' + col_text + ' !important; }');
+134:			out.push('body.wl-active, body.wl-active .bn_bodystan { background-color: ' + col_background + ' !important; }');
+137:			out.push('body.wl-active, body.wl-active p, body.wl-active label, body.wl-active span:not(.wl_status_badge) { color: ' + col_text + ' !important; }');
+142:			out.push('body.wl-active h1, body.wl-active h2, body.wl-active .bnv_mainheader, body.wl-active .bnv_inputheader { color: ' + col_primary + ' !important; }');
+147:			out.push('body.wl-active .bnv_inputframe { background-color: ' + col_card_bg + ' !important; }');
+155:			out.push('body.wl-active .in_sec1_vorschlag:hover, body.wl-active .in_sec1_vorschlag.highlighted { background-color: ' + col_highlight + ' !important; }');
+160:			out.push('body.wl-active .bnv_infochecktext, body.wl-active .bnv_infocheck { color: ' + col_secondary + ' !important; }');
+166:			let secBtn = 'body.wl-active .bnve_detailbutton { border: 2px solid ' + col_primary + ' !important; color: ' + col_primary + ' !important;';
+167:			if (col_card_bg) secBtn += ' background-color: ' + col_card_bg + ' !important;';
+170:			out.push('body.wl-active .bnve_detailbutton .bnve_detailbuttext, body.wl-active .bnve_detailbutton p, body.wl-active .bnve_detailbutton span { color: ' + col_primary + ' !important; }');
+176:			out.push(BTN_SELECTORS + ' { background: ' + col_button + ' !important; background-image: none !important; border-color: ' + col_button + ' !important; }');
+177:			out.push(BTN_TEXT_SELECTORS + ' { color: ' + btn_text_color + ' !important; }');
+182:			out.push(BTN_SVG_SELECTORS + ' { stroke: ' + btn_text_color + ' !important; }');
+190:			out.push(BTN_TEXT_SELECTORS + ' { color: ' + col_button + ' !important; }');
+195:		if (border_radius && RADIUS_MAP[border_radius]) {
+196:			out.push(BTN_SELECTORS + ', body.wl-active .bnve_detailbutton, body.wl-active .bnv_inputframe { border-radius: ' + RADIUS_MAP[border_radius] + ' !important; }');
+209:		if (font_family) {
+210:			out.push("body.wl-active, body.wl-active * { font-family: '" + font_family + "', Arial, sans-serif !important; }");
+226:	window.addEventListener('message', function (event) {
+228:		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+231:		ensureLiveStyle().textContent = buildCss(data.brand);
+235:	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+[0m
+[0m$ [0mcd /tmp/opencode && sed -n '1,30p' wl.js
+/**
+ * Whitelabel Live-Preview Receiver
+ *
+ * Hört auf postMessage-Events von der Whitelabel-Konfig-Seite und überschreibt
+ * die vom Server gerenderten CSS-Variablen + Hooks in einem dedizierten
+ * <style id="wl-vars-live">-Block.
+ *
+ * WICHTIG: Die hier abgebildete CSS-Build-Logik ist ein 1:1-JS-Spiegel von
+ *   htmlincludes/whitelabel/whitelabel_styles.php
+ * Jede neue Style-Hook-Regel muss auch hier ergänzt werden, sonst greift
+ * sie zwar nach dem Speichern, aber nicht im Live-Editor.
+ *
+ * Erwartete Message:
+ *   { type: 'wl-preview', brand: { color_primary: '#…', button_style: 'solid', … } }
+ *
+ * Sicherheit:
+ * - same-origin Voraussetzung (Editor + Funnel laufen auf gleicher Domain)
+ * - postMessage erlaubt zwar Cross-Origin, aber wir validieren strikt
+ *   den Message-Typ + Whitelisten die Brand-Keys + Sanitize jeden Wert
+ */
+(function () {
+	'use strict';
+
+	const HEX = /^#[0-9a-f]{3}([0-9a-f]{3})?$/i;
+	const isHex = v => typeof v === 'string' && HEX.test(v);
+	const pickEnum = (v, allowed) => allowed.indexOf(v) !== -1 ? v : null;
+	const sanitizeFont = v => (typeof v === 'string') ? v.replace(/[^a-zA-Z0-9 _\-,']/g, '') : '';
+
+	const RADIUS_MAP = { leicht: '4px', mittel: '10px', stark: '20px' };
+[0m
+[0m$ [0mcd /tmp/opencode && sed -n '220,245p' wl.js
+el.id = 'wl-vars-live';
+			document.head.appendChild(el);
+		}
+		return el;
+	}
+
+	window.addEventListener('message', function (event) {
+		const data = event.data;
+		if (!data || data.type !== 'wl-preview' || !data.brand || typeof data.brand !== 'object') return;
+		// wl-active sicherstellen (Live-Preview funktioniert auch wenn WL noch nicht aktiv ist)
+		document.body.classList.add('wl-active');
+		ensureLiveStyle().textContent = buildCss(data.brand);
+	});
+
+	// Editor mitteilen, dass wir bereit sind (für initialen Push nach iframe-Load)
+	try { window.parent.postMessage({ type: 'wl-preview-ready' }, '*'); } catch (e) { /* no-op */ }
+})();
+[0m
+## Objective
+- Produce the requested Step 1–7 structured bounty analysis for KassenKompass, currently in POC against `api`, using only verified evidence and avoiding stale or refuted claims.
+
+## Important Details
+- Scope: KassenKompass GmbH company-owned infrastructure only; report via `bugs.olivermaicher.eu`.
+- Live work is passive-first, ≤1 rps, limited to GET/HEAD/OPTIONS; no mutating requests or customer-data exposure.
+- API high-value testing is blocked by the sole `X-API-Secret` header channel; query/cookie/alternate auth sources are closed. Both known magic credentials were rejected on A/B/v2.
+- Never infer auth state from HTTP 405: gated `/cat_detail/` also returns 405 on GET but 401 on HEAD.
+- Never use HEAD alone for route membership: catch-all HEAD omits `instance` and reports `content-length: 0`; compare GET bodies.
+- The stale ranked `[90]` encoded-path WAF-bypass claim is refuted: encoded and literal composed paths are byte-identical with no edge/origin differential.
+- `/post/create_user` write authentication remains unproven; do not report unauthenticated provisioning from HEAD/GET 405 alone.
+- The former risk score `88` overstates executable cookie stuffing/account creation. Current defensible risk is `34`; funnel cookie mirroring is real, but automated account creation is lead-gated and the `fragen.php` server-side spoof chain was rejected.
+- Repository scanning is unavailable: runs report `TARGET_ORG not configured; skipping`.
+- Peer pipeline remains mostly empty/stub-only; do not wait for new peer signal.
+
+## Work State
+### Completed
+- Mapped API root as HTTP 200, 1167 B, 15 v1 routes/version 1.0; `/v2/` contains only `insurance_info`/version 2.0.
+- Mapped auth envelopes and middleware behavior; `/health/` returns constant 22 B `{"status":"ok"}`; `/sync/` retains HTTP-200 legacy auth-error envelope.
+- Established `/post/` as a separately mounted application: `/post/help` returns 200/344 B JSON and advertises `POST /post/create_user`; unknown children return 200/0 B `text/html`.
+- Completed 17-family normalization matrix: one-level percent-decode-before-match, case-sensitive routing, encoded separators, unbounded suffix absorption, and canonicalization oracles. No access-control bypass exists.
+- Confirmed composed routing requests:
+  - `/delete%2f1%2fextra` ≡ `/delete/1/extra`: 401/189 B, sha256 `b05031ccaf9c539e`.
+  - `/health_insurance%2f1%2fextra` ≡ decoded handler path: 401/241 B, sha256 `d91c109c481f499a`.
+  - `/delete%252f1` reaches static 404: 1245 B, sha256 `dc1d54dab6ec8c00`.
+- Confirmed `bonusrechner_fragen.php` serves approximately 2,152,708 B anonymously with `no-store`, `CF-DYNAMIC`, no validators, and no throttling across 100 requests at 1 rps.
+- Confirmed public frontend debug/rating data: seven `window.*` debug functions, `pseudoKkIds`, tariff/budget/bonus data, and 138-question `dataant` decision engine; business impact still needs data classification.
+- Confirmed `whitelabel_live.js` lacks `event.origin`/`event.source` checks and can suppress five live trust/legal elements; sink uses `textContent`, so this is UI integrity suppression, not XSS.
+- Confirmed `param_passthrough.js` stores 16 URL parameters in `sessionStorage` under `kkweb_pass_params` and re-injects them into same-host funnel links; values are capped at 128 characters.
+- Rejected the `fragen.php` server-side `data_sparsum` cookie-spoofing chain: engine is client-side and the write is intentionally commented out.
+- Mapped `kk-s3-01` public image corpus through qid 180, with multi-image extension; sensitive/non-image keys remain denied.
+
+### Active
+- Prepare the final eight-step analysis from existing evidence without another broad sweep.
+- Likely reportable survivors:
+  - Anonymous tariff/questionnaire corpus exposure, confidence about `62`, `PASSIVE`, severity pending classification.
+  - Cross-origin trust-element suppression, confidence about `55`, `HUMAN_ONLY`, low/informational.
+- Park the unlicensed `lizenz`/`jid` replay separately because it depends on the same unresolved data classification.
+- Keep `/post/create_user` authentication as an `AUTH_HELPED` unknown, not a finding.
+
+### Blocked
+- `/user/{ext_id}` IDOR, `/delete/{id}` BOLA, settlement tenant scoping, and `/post/create_user` write auth require a scoped valid `X-API-Secret`.
+- Tariff/business-data severity requires program confirmation whether `bonusrechner_fragen.php` and `bonusrechner_daten.php` contain intended-public or licensed partner data.
+- Browser reproduction of whitelabel suppression requires a hostile parent frame and remains `HUMAN_ONLY`; frame-ancestor behavior is unverified.
+
+## Next Move
+1. Emit Step 1–7 with `NO_DELTA`, corrected scoring, the two defensible survivors, and no encoded-path WAF-bypass or unauthenticated-write claim.
+2. Use one `[NEXT] HUMAN` action: contact the program for endpoint data classification and one scoped test credential/test-account workflow for API writes.
+
+## Relevant Files
+- `inventory/kassenkompass.md`: authoritative asset inventory and confirmed hosts.
+- `art/lead_bigpickle.txt`: latest API normalization measurements and refutation of encoded-path bypass.
+- `art/lead_nemotron3.txt`: stale high-ranked WAF-bypass hypothesis; treat as refuted unless new differential evidence appears.
+- `hypotheses-bigpickle.txt`: latest hypothesis shortlist, confidence values, and next actions.
+- `hypotheses-nemotron3.txt`: queued but method-invalid HEAD route-membership probe.
+- `probe-results.md`: historical live response evidence and harness artifacts.
+- `state_bigpickle.json`: current state `{"phase":"POC","target":"api"}`.
+- `state_nemotron3.json`: peer state; peer lead payloads have been mostly empty/stub-only.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && for q in "color_primary=%23ff0000" "color_primary=%23ff0000&color_secondary=%2300ff00&color_background=%23ffffff&color_text=%23101010&color_button=%23000080&color_button_text=%23ffffff&color_card_background=%23fafafa&color_card_border=%23cccccc&color_highlight=%23ffff00&button_style=solid&border_radius=stark&card_style=elevated&font_family=Georgia"; do sleep 1.3; curl -sS -o body.out -w "q=${q:0:28}.. status=%{http_code} len=%{size_download} type=%{content_type}\n" --max-time 20 "https://kassenkompass.de/htmlincludes/whitelabel/whitelabel_styles.php?$q"; echo "sha256=$(sha256sum body.out | cut -c1-16)"; done
+q=color_primary=%23ff0000.. status=200 len=0 type=text/html; charset=UTF-8
+sha256=e3b0c44298fc1c14
+q=color_primary=%23ff0000&colo.. status=200 len=0 type=text/html; charset=UTF-8
+sha256=e3b0c44298fc1c14
+[0m
+[0m$ [0mcd /tmp/opencode && for q in "id=1" "partner=1" "partner_id=1" "whitelabel=1" "wl_id=1" "domain=kunden.de"; do sleep 1.3; curl -sS -o b2.out -w "q=$q status=%{http_code} len=%{size_download} body=$(sha256sum b2.out | cut -c1-12)\n" --max-time 20 "https://kassenkompass.de/htmlincludes/whitelabel/whitelabel_styles.php?$q"; done
+sha256sum: b2.out: No such file or directory
+q=id=1 status=200 len=0 body=
+q=partner=1 status=200 len=0 body=e3b0c44298fc
+q=partner_id=1 status=200 len=0 body=e3b0c44298fc
+q=whitelabel=1 status=200 len=0 body=e3b0c44298fc
+q=wl_id=1 status=200 len=0 body=e3b0c44298fc
+q=domain=kunden.de status=200 len=0 body=e3b0c44298fc
+[0m
+Nine paced read-only requests this session. Delta is real but narrow — and it is a negative that *bounds* an existing hypothesis rather than a new finding.
+
+**Step 1 — Summary**
+One new bounded result: the whitelabel **server-side** renderer has no anonymous GET-reachable input surface, so the whitelabel CSS surface is provably client-side only. Plus byte-exact reconfirmation of `whitelabel_live.js`. No new high/critical finding. Risk unchanged at **34**.
+
+**Step 2 — New / changed evidence**
+| Probe | Result | Status |
+|---|---|---|
+| `GET /js/whitelabel_live.js` | 200, 11,359 B, `application/javascript` | **Confirmed, zero drift** vs prior record |
+| `GET /htmlincludes/whitelabel/whitelabel_styles.php` + canonical 12-key brand set (`color_primary`, `color_secondary`, `color_background`, `color_text`, `color_button`, `color_button_text`, `color_card_background`, `color_card_border`, `color_highlight`, `button_style`, `border_radius`, `card_style`, `font_family`) | 200, **0 B**, empty-body sha256 `e3b0c44298fc…` | **Tested** |
+| same + `id`, `partner`, `partner_id`, `whitelabel`, `wl_id`, `domain` | 200, **0 B**, same empty hash (6/6 invariant) | **Tested** |
+| API root catalog, `/post/help`, 15/15 auth matrix, 17-family normalization matrix | not re-probed | **Known standing** |
+
+Key inference: the file header states the CSS build logic is a *"1:1-JS-Spiegel von htmlincludes/whitelabel/whitelabel_styles.php"*. The PHP twin therefore takes the same brand interface, yet emits nothing for any GET input → it is session/config-driven, not query-driven.
+
+**Step 3 — Files / exceptions**
+No repository artifacts written; scratch in `/tmp/opencode` only. 9 requests total, all GET, paced ≥1.3 s, no scope exceptions.
+
+**Step 4 — Success / failure of approaches**
+- Success: binary decision reached on the renderer — any server-side reflection, CSS-injection, SSRF or LFI angle on `whitelabel_styles.php` is now **excluded** for anonymous GET, removing the main source of inflation in this hypothesis.
+- Failure: first `sha256sum` in the identifier sweep raced the curl file write (cosmetic; `status=200 len=0` independently confirmed).
+
+**Step 5 — Actions deliberately not taken**
+No `POST` to the renderer (mutating method, excluded by passive-first rules). No credentialed requests. No auth bypass, no customer-data access, no enumeration beyond6 bounded parameter names.
+
+**Step 6 — Analysis**
+The whitelabel finding is now correctly scoped: cross-origin trust-element suppression in `wl.js:226`, sink is `textContent`, and the server-side twin refuses to render anything anonymous — so this is **UI integrity suppression, ~55 confidence, low/informational**, `HUMAN_ONLY` for browser repro. The anonymous tariff/questionnaire corpus (2,152,708 B, `no-store`, no rate limiting) remains the only survivor above the 40 threshold, at **~62**, `PASSIVE`, severity gated on classification. `/post/create_user` stays `AUTH_HELPED`; the encoded-path WAF-bypass and unauthenticated-provisioning claims stay refuted.
+
+**Step 7 — Parked / open**
+Data classification for `bonusrechner_fragen.php` and `bonusrechner_daten.php`; write auth on `POST /post/create_user`; `/user/{ext_id}` IDOR and `/delete/{id}` BOLA; whitelabel hostile-frame repro; `data_sparsum` orphaned read/write asymmetry.
+
+**[NEXT] HUMAN** — Contact the program (via `bugs.olivermaicher.eu`) with one message requesting: (a) whether the two `bonusrechner_*` datasets are intended-public or licensed partner data, and (b) one scoped API test credential plus a test-account workflow for write endpoints.

@@ -1481,3 +1481,5 @@ www.kassenkompass.de
 - CHANGED Both composed paths reach middleware with the full 5-verb table (`GET, POST, PUT, DELETE, OPTIONS`) on `health_insurance`, and `DELETE, OPTIONS` on `delete`; verb table is unchanged by encoding.
 - CHANGED `/delete%252f1` returns 404/1245 B sha256 `dc1d54dab6ec8c00`, no `instance`, no `allow-methods` — static 404 handler, confirming exactly one decode level.
 - CHANGED Cloudflare passed all variants to origin on the same edge path (cf-ray LAX, `cf-cache-status: DYNAMIC`, identical security-header set). No WAF block, challenge, or 403-layer differential on any varian
+
+## 2026-10-03 15:21:13 UTC

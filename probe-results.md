@@ -1375,3 +1375,15 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://kassenkompass.de/bonusrechner_fragen.php` -> HTTP 404
 https://kassenkompass.de/bonusrechner_daten.php?lizenz=invalid&jid=1` -> 200 len=?
+
+## 2026-10-03 15:21:31 UTC
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/delete%2f1 -> HTTP 401
+https://api.kassenkompass.de/delete/1/extra -> HTTP 401
+https://api.kassenkompass.de/delete%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/delete%2f -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1 -> HTTP 401
+https://api.kassenkompass.de/health_insurance%2f1%2fextra -> HTTP 401
+https://api.kassenkompass.de/health_insurance/1/extra -> HTTP 401
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
