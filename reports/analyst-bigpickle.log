@@ -44503,3 +44503,1351 @@ H1 is closed. The RAG I queued is done.
 
 [RISK] Low. Zero live requests issued this cycle; all work was offline RAG over artifacts already in inventory.
 ```
+===== ANALYST bigpickle 2026-10-03 05:49:15 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la; echo "---"; ls -la art 2>/dev/null | head -50; echo "---"; ls -la *.yml *.md 2>/dev/null
+total 1076
+drwxr-xr-x 12 runner runner   4096 Oct  3 05:44 .
+drwxr-xr-x  3 runner runner   4096 Oct  3 05:44 ..
+drwxr-xr-x  7 runner runner   4096 Oct  3 05:44 .git
+drwxr-xr-x  3 runner runner   4096 Oct  3 05:44 .github
+-rw-r--r--  1 runner runner   1767 Oct  3 05:44 README.md
+-rw-r--r--  1 runner runner     32 Oct  3 05:44 analyst-out.txt
+-rw-r--r--  1 runner runner 467525 Oct  3 05:44 analyst-prompt.txt
+-rw-r--r--  1 runner runner 463707 Oct  3 05:44 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 leads
+-rw-r--r--  1 runner runner  68152 Oct  3 05:44 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 reports
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct  3 05:44 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 scripts
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  3 05:44 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  3 05:44 triage
+---
+---
+-rw-r--r-- 1 runner runner  1767 Oct  3 05:44 README.md
+-rw-r--r-- 1 runner runner 68152 Oct  3 05:44 probe-results.md
+-rw-r--r-- 1 runner runner  3231 Oct  3 05:44 scope.yml
+[0m
+[0m$ [0mwhich curl python3 jq 2>/dev/null; echo "--- net test ---"; curl -s -o /dev/null -w "%{http_code} %{time_total}\n" --max-time 8 https://api.kassenkompass.de/health/ 2>&1 || echo "NO NET"
+/usr/bin/curl
+/usr/bin/python3
+/usr/bin/jq
+--- net test ---
+200 0.834759
+[0m
+[0m$ [0mcat scope.yml
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mls -la leads knowledge reconnotes 2>/dev/null; echo "=== leads ==="; ls -la leads; echo "=== triage (tail) ==="; ls -la triage | tail -20
+knowledge:
+total 252
+drwxr-xr-x  2 runner runner   4096 Oct  3 05:44 .
+drwxr-xr-x 12 runner runner   4096 Oct  3 05:44 ..
+-rw-r--r--  1 runner runner 246190 Oct  3 05:44 index.md
+
+leads:
+total 3148
+drwxr-xr-x  2 runner runner    4096 Oct  3 05:44 .
+drwxr-xr-x 12 runner runner    4096 Oct  3 05:44 ..
+-rw-r--r--  1 runner runner 1271534 Oct  3 05:44 lead-bigpickle.md
+-rw-r--r--  1 runner runner    9231 Oct  3 05:44 lead-laguna.md
+-rw-r--r--  1 runner runner    9050 Oct  3 05:44 lead-ling3.md
+-rw-r--r--  1 runner runner    9412 Oct  3 05:44 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct  3 05:44 lead-mimo.md
+-rw-r--r--  1 runner runner 1870564 Oct  3 05:44 lead-nemotron3.md
+-rw-r--r--  1 runner runner   28574 Oct  3 05:44 reposcan-kassenkompass.md
+=== leads ===
+total 3148
+drwxr-xr-x  2 runner runner    4096 Oct  3 05:44 .
+drwxr-xr-x 12 runner runner    4096 Oct  3 05:44 ..
+-rw-r--r--  1 runner runner 1271534 Oct  3 05:44 lead-bigpickle.md
+-rw-r--r--  1 runner runner    9231 Oct  3 05:44 lead-laguna.md
+-rw-r--r--  1 runner runner    9050 Oct  3 05:44 lead-ling3.md
+-rw-r--r--  1 runner runner    9412 Oct  3 05:44 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct  3 05:44 lead-mimo.md
+-rw-r--r--  1 runner runner 1870564 Oct  3 05:44 lead-nemotron3.md
+-rw-r--r--  1 runner runner   28574 Oct  3 05:44 reposcan-kassenkompass.md
+=== triage (tail) ===
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-29-00-50.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-29-06-37.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-29-13-19.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-29-18-42.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-29-22-51.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-30-01-51.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-30-08-06.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-30-14-58.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-30-19-55.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-09-30-23-32.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-01-02-23.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-01-09-24.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-01-16-41.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-01-21-34.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-02-01-04.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-02-07-04.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-02-13-56.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-02-19-03.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-02-23-02.md
+-rw-r--r--  1 runner runner   210 Oct  3 05:44 run-2026-10-03-02-04.md
+[0m
+[0m$ [0mcat triage/run-2026-10-03-02-04.md; echo "=== mimo ==="; cat leads/lead-mimo.md; echo "=== nemotron3 tail 120 ==="; tail -120 leads/lead-nemotron3.md
+===== TRIAGE 2026-10-03 02:04:58 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_28af6191"
+  }
+}
+=== mimo ===
+# Lead log (seed)
+=== nemotron3 tail 120 ===
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-10-02 21:16:50 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de/delete/,9.10,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/health_insurance/,8.95,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=1,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/js/whitelabel_live.js,8.50,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.40,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.10,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 90
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide; `/delete%2f1` → 401 byte-identical to `/delete/1` (instance: "/delete/1"); trailing suffix absorption: `/delete/1/extra` reaches same handler; second encoded separator composes — `/delete%2f1%2fextra` → 401 with instance "/delete/1/extra"; empty id binds: `/delete%2f` → 401; decode depth exactly one level (double-encode → static handler 404); normalization matrix complete for 17 route families with 0 divergences; composition confirmed across middleware B (this route) and middleware A (health_insurance)
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved id after routing; test if composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); HEAD https://api.kassenkompass.de/delete%2f (empty id); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path WAF rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; HIGH (destructive verb)
+testability: PASSIVE
+[HYP] Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs
+class: BUSLOGIC
+asset: api.kassenkompass.de/health_insurance/
+confidence: 88
+reasoning: /health_insurance/ is the only route on the host registering PUT+DELETE (allow-methods: GET,POST,PUT,DELETE,OPTIONS); middleware A auth; percent-decode-before-match host-wide; encoded separator composes with suffix absorption on the destructive cell — `/health_insurance%2f1%2fextra` → 401 / 241 B / `d91c109c481f499a` / `instance: "/health_insurance/1/extra"` with verb table identical to `/health_insurance/1`; greedy prefix matching absorbs `/health_insurance/savings/1` and `/health_insurance/comparison/1` into same handler; decode depth exactly one level; composition measured on same request across two different middleware stacks (A and B) confirming host-wide normalization
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved path after routing; test if PUT/DELETE on composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/health_insurance/1 (baseline 401); HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra (encoded separator + suffix); HEAD https://api.kassenkompass.de/health_insurance/1/extra (plain suffix); OPTIONS https://api.kassenkompass.de/health_insurance%2f1%2fextra (verify verb table); all at ≤1 rps
+impact: Route shadowing defeat for destructive verbs — literal-path rules for PUT/DELETE on /health_insurance/ are bypassable; potential cross-tenant data manipulation if authorization only checks secret not resource ownership; CRITICAL (destructive verbs + 5-verb cell)
+testability: PASSIVE
+[HYP] Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page
+class: XSS
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: whitelabel_live.js (11,359 B) loads on bonusrechner.php; postMessage handler at lines 227-231 reads only `data.type === 'wl-preview'` and `typeof data.brand`, NEITHER `event.origin` NOR `event.source`; guard is type-and-shape only; handler force-adds `wl-active` class to body (line 229), unconditionally suppresses 19 CSS selectors via `display:none` (5 measured as real DOM elements: bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); suppressed content includes statutory-benefit block, Google rating, customer count claim, logo; `postMessage({type:'wl-preview-ready'}, '*')` wildcard targetOrigin leaks frame-ready timing cross-origin; delivery requires `window.open` + postMessage (no URL params, no cookies, no fetch/XHR in whitelabel_live.js or bonusrechner.php); standard.js (67,969 B) has no whitelabel sender; private editor origin is only known sender
+evidence_needed: Demonstrate cross-origin frame can deliver malicious wl-preview message that suppresses trust elements or injects controlled brand object; verify no CSP frame-ancestors restricts embedding
+verify_steps: GET https://kassenkompass.de/bonusrechner.php (confirm whitelabel_live.js loads); inspect CSP headers for frame-ancestors; craft off-origin page that window.opens bonusrechner.php and postMessages `{type:'wl-preview', brand:{...}}` with controlled selectors; measure DOM suppression
+impact: Trust element suppression (statutory benefit text, ratings, logos) via cross-origin frame; no XSS (textContent write, strict allowlists) but integrity violation of regulated comparison UI; MEDIUM
+testability: PASSIVE (recon) → HUMAN_ONLY (exploit requires victim interaction)
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+[PARKED] v2 Insurance Info BOLA Cross-Tenant Read: confidence 60 — v2 insurance_info returns draft categories + resolved references but ucatKkData on bonusrechner_fragen.php publicly replicates this domain; value downgraded to unpublished-draft-only; no credentialed access to confirm cross-tenant isolation.
+[FINAL] 1. api.kassenkompass.de/delete/: Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules (confidence 90, PASSIVE)
+[FINAL] 2. api.kassenkompass.de/health_insurance/: Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs (confidence 88, PASSIVE)
+[FINAL] 3. kassenkompass.de/js/whitelabel_live.js: Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page (confidence 85, PASSIVE→HUMAN_ONLY)
+[NEXT] PROBE: HEAD https://api.kassenkompass.de/delete%2f1%2fextra and HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra at ≤1 rps; compare 401 response instance field, access-control-allow-methods, and body sha256 against baseline paths `/delete/1` and `/health_insurance/1` to confirm encoded separator + suffix composition reaches same handler on both middleware stacks
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-10-03 00:34:49 UTC [target] (model nemotron3)
+[CHANGED] Current time 2026-10-03 00:33 UTC vs last KB aggregation 2026-10-02 23:51 UTC — ~42 min gap; all major surfaces stable per last live probes
+[CHANGED] api.kassenkompress.de root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[CHANGED] api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match host-wide (v1+v2)
+[CHANGED] kassenkompass.de/bonusrechner_vergleich2.php emits device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+[CHANGED] kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate confirmed
+[CHANGED] Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable
+[PRIO] api.kassenkompass.de/delete/,9.10,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/health_insurance/,8.95,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=1,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/js/whitelabel_live.js,8.50,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.40,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.10,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 90
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide; `/delete%2f1` → 401 byte-identical to `/delete/1` (instance: "/delete/1"); trailing suffix absorption: `/delete/1/extra` reaches same handler; second encoded separator composes — `/delete%2f1%2fextra` → 401 with instance "/delete/1/extra"; empty id binds: `/delete%2f` → 401; decode depth exactly one level (double-encode → static handler 404); normalization matrix complete for 17 route families with 0 divergences; composition confirmed across middleware B (this route) and middleware A (health_insurance)
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved id after routing; test if composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); HEAD https://api.kassenkompass.de/delete%2f (empty id); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path WAF rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; HIGH (destructive verb)
+testability: PASSIVE
+[HYP] Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs
+class: BUSLOGIC
+asset: api.kassenkompass.de/health_insurance/
+confidence: 88
+reasoning: /health_insurance/ is the only route on the host registering PUT+DELETE (allow-methods: GET,POST,PUT,DELETE,OPTIONS); middleware A auth; percent-decode-before-match host-wide; encoded separator composes with suffix absorption on the destructive cell — `/health_insurance%2f1%2fextra` → 401 / 241 B / `d91c109c481f499a` / `instance: "/health_insurance/1/extra"` with verb table identical to `/health_insurance/1`; greedy prefix matching absorbs `/health_insurance/savings/1` and `/health_insurance/comparison/1` into same handler; decode depth exactly one level; composition measured on same request across two different middleware stacks (A and B) confirming host-wide normalization
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved path after routing; test if PUT/DELETE on composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/health_insurance/1 (baseline 401); HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra (encoded separator + suffix); HEAD https://api.kassenkompass.de/health_insurance/1/extra (plain suffix); OPTIONS https://api.kassenkompass.de/health_insurance%2f1%2fextra (verify verb table); all at ≤1 rps
+impact: Route shadowing defeat for destructive verbs — literal-path rules for PUT/DELETE on /health_insurance/ are bypassable; potential cross-tenant data manipulation if authorization only checks secret not resource ownership; CRITICAL (destructive verbs + 5-verb cell)
+testability: PASSIVE
+[HYP] Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page
+class: XSS
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: whitelabel_live.js (11,359 B) loads on bonusrechner.php; postMessage handler at lines 227-231 reads only `data.type === 'wl-preview'` and `typeof data.brand`, NEITHER `event.origin` NOR `event.source`; guard is type-and-shape only; handler force-adds `wl-active` class to body (line 229), unconditionally suppresses 19 CSS selectors via `display:none` (5 measured as real DOM elements: bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); suppressed content includes statutory-benefit block, Google rating, customer count claim, logo; `postMessage({type:'wl-preview-ready'}, '*')` wildcard targetOrigin leaks frame-ready timing cross-origin; delivery requires `window.open` + postMessage (no URL params, no cookies, no fetch/XHR in whitelabel_live.js or bonusrechner.php); standard.js (67,969 B) has no whitelabel sender; private editor origin is only known sender
+evidence_needed: Demonstrate cross-origin frame can deliver malicious wl-preview message that suppresses trust elements or injects controlled brand object; verify no CSP frame-ancestors restricts embedding
+verify_steps: GET https://kassenkompass.de/bonusrechner.php (confirm whitelabel_live.js loads); inspect CSP headers for frame-ancestors; craft off-origin page that window.opens bonusrechner.php and postMessages `{type:'wl-preview', brand:{...}}` with controlled selectors; measure DOM suppression
+impact: Trust element suppression (statutory benefit text, ratings, logos) via cross-origin frame; no XSS (textContent write, strict allowlists) but integrity violation of regulated comparison UI; MEDIUM
+testability: PASSIVE (recon) → HUMAN_ONLY (exploit requires victim interaction)
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+[PARKED] v2 Insurance Info BOLA Cross-Tenant Read: confidence 60 — v2 insurance_info returns draft categories + resolved references but ucatKkData on bonusrechner_fragen.php publicly replicates this domain; value downgraded to unpublished-draft-only; no credentialed access to confirm cross-tenant isolation.
+[FINAL] 1. api.kassenkompass.de/delete/: Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules (confidence 90, PASSIVE)
+[FINAL] 2. api.kassenkompass.de/health_insurance/: Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs (confidence 88, PASSIVE)
+[FINAL] 3. kassenkompass.de/js/whitelabel_live.js: Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page (confidence 85, PASSIVE→HUMAN_ONLY)
+[NEXT] PROBE: HEAD https://api.kassenkompass.de/delete%2f1%2fextra and HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra at ≤1 rps; compare 401 response instance field, access-control-allow-methods, and body sha256 against baseline paths `/delete/1` and `/health_insurance/1` to confirm encoded separator + suffix composition reaches same handler on both middleware stacks
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[0m
+Network is live. My queued action from the last lead is the unmined-JS corpus diff. Running it.
+[0m$ [0mcd /tmp/opencode && mkdir -p kk && cd kk
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for p in login_auswahl.php bonusrechner_vergleich2.php bonusrechner_abschluss.php termin.php; do
+  curl -s --max-time 20 -A "$UA" -o "page_$p" -w "$p %{http_code} %{size_download}\n" "https://kassenkompass.de/$p"
+  sleep 1.5
+done
+echo "=== SCRIPT SRCS ==="
+grep -ohiE '<script[^>]*src="[^"]+"' page_*.php | grep -oiE 'src="[^"]+"' | sed 's/src="//;s/"//' | sort -u
+login_auswahl.php 200 3876
+bonusrechner_vergleich2.php 200 344603
+bonusrechner_abschluss.php 200 64340
+termin.php 200 8697
+=== SCRIPT SRCS ===
+//js-eu1.hs-scripts.com/146866466.js
+/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js
+/js/standard.js?v=1791006283
+/js/standard.js?v=1791006285
+/js/standard.js?v=1791006287
+/js/standard.js?v=1791006290
+https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js
+https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js
+js/ajax.js
+js/calc_beitrag.js
+js/calc_beitrag.js?v=v2.6.10
+js/expand-functionality.js?v=v2.6.10
+js/faq_accordion.js
+js/faq_toggle.js?v=v2.6.10
+js/kk_sorting.js?v=v2.6.10
+js/moneycalc.js
+js/moneycalc.js?v=v2.6.10
+js/verg_tooltip.js?v=v2.6.10
+js/vergleich_js.js?v=v2.6.10
+js/whitelabel_live.js?v=v2.6.10
+[0m
+## Objective
+- Continue the KassenKompass GmbH bug-bounty POC (`phase=POC`, `target=api`) and produce the required structured analyst blocks from current evidence.
+- Prioritize demonstrable logic flaws or chains; avoid descriptive-error, recon-only, or method-confounded claims.
+
+## Important Details
+- Scope: KassenKompass-owned assets only; report channel `bugs.olivermaicher.eu`.
+- Live probes must be passive-first, `GET`/`HEAD`/`OPTIONS` only, at `≤1 rps`; no mutating requests, auth bypasses, customer data, or credentials.
+- Required blocks: `[DELTA]`, `[PRIORITIZE]`, `[HYP]`, `[PARKED]`, `[FINAL]`, exactly one `[NEXT]`, `[LEARN]`, and `[RISK]`. Prompt says “8 steps” but defines seven.
+- `/post/create_user` authentication is method-confounded and unproven; it requires `AUTH_HELPED` POST testing.
+- Never revive refuted claims: API XSS, three-state 401/405/200 oracle, Host-header misconfiguration, case-variant routing, GraphQL, unauthenticated provisioning, or the `fragen.php` server-side cookie-spoofing chain.
+- A prior ~14-request burst caused a transient WAF IP block; maintain strict pacing.
+
+## Work State
+### Completed
+- API surface stable: unauthenticated 1167-byte catalog with 15 v1 routes; `/v2/` exposes only `insurance_info/{kk_id}`.
+- API auth map substantially closed: `X-API-Secret` header is the only accepted channel; query, cookie, Bearer, API-key, and token alternatives are rejected. `/health/` is unauthenticated; `/sync/` embeds auth failure under HTTP 200 but shows no bypass.
+- Host-wide one-level percent decoding confirmed across v1/v2. Encoded separators and unbounded suffixes compose on both middleware stacks:
+  - `/delete%2f1%2fextra` → 401, canonical `instance: "/delete/1/extra"`, methods `DELETE, OPTIONS`.
+  - `/health_insurance%2f1%2fextra` → 401, canonical `instance: "/health_insurance/1/extra"`, five-verb table.
+  - Double encoding falls to static 404; routing is case-sensitive. No auth bypass is demonstrated.
+- API reflection/XSS hypothesis closed: mined client code has no API `fetch`/XHR call sites, so API error bodies never reach a KassenKompass DOM sink.
+- `kassenkompass.de/js/whitelabel_live.js` analyzed: no `event.origin`/`event.source` check, but writes use `textContent` and value sanitization. It is a presentation-integrity issue, not script XSS; five real trust/legal elements can be suppressed only through opener plus `postMessage`.
+- `kassenkompass.de/js/param_passthrough.js` analyzed: 16 URL parameters, length capped at 128, stored under `sessionStorage["kkweb_pass_params"]` and reinjected into same-host funnel CTAs. `data_sparsum` is excluded; server-side attribution impact remains unverified.
+- `bonusrechner_fragen.php` exposes an unauthenticated ~2.15 MB tariff/decision corpus, seven browser globals, and full client-side rating logic. Sustained 1-rps retrieval caused no 429 or WAF block. Stuffed cookies do not drive its server-rendered state.
+- Funnel registration is server-side lead-gated; one-shot cookie stuffing to account creation was refuted.
+- S3 surface confirmed image-only; non-image keys return 403. `kassenkompass.net` uniformly redirects and provides no origin-bypass or existence oracle.
+
+### Active
+- Highest-confidence remaining lead: cross-origin `postMessage` presentation manipulation, confidence 85, `HUMAN_ONLY` demonstration needed.
+- Attribution/lead-integrity hypothesis from `param_passthrough.js`, confidence 64, requires downstream live propagation plus server-side cookie/lead effect.
+- `/post/create_user` remains parked below proof threshold because read-only 405 responses cannot establish POST authentication.
+- Current program risk estimate is 85/100, dominated by funnel presentation integrity and secondarily attribution integrity.
+- Peer pipeline remains largely empty or stub-only after 25+ cycles.
+
+### Blocked
+- Cross-origin DOM proof requires a real browser/opener interaction.
+- Attribution impact requires `AUTH_HELPED` or a completed funnel transition.
+- `/post/create_user` auth requires a credentialed POST with a valid-secret negative control; this conflicts with current passive-only limits.
+- No valid `X-API-Secret` is available for deeper API data testing.
+
+## Next Move
+1. Perform offline-first script inventory using four paced GETs: `https://kassenkompass.de/login_auswahl.php`, `/bonusrechner_vergleich2.php`, `/bonusrechner_abschluss.php`, and `/termin.php`; extract `<script src>` values and diff them against the known corpus.
+2. Search any new scripts for `api.kassenkompass.de`, `X-API-Secret`, `fetch`, or `XMLHttpRequest`; if none appear, retain only the presentation-integrity and attribution hypotheses and emit exactly one `[NEXT]` block.
+
+## Relevant Files
+- `scope.yml`: authoritative in-scope asset policy.
+- `inventory/kassenkompass.md`: host and funnel inventory.
+- `art/lead_bigpickle.txt`: latest passive-analysis leads and closed API XSS result.
+- `art/lead_nemotron3.txt`: encoded-route normalization hypothesis and evidence.
+- `hypotheses-bigpickle.txt`: pending script-corpus enumeration.
+- `hypotheses-nemotron3.txt`: ranked encoded-separator probe history.
+- `state_bigpickle.json`: `{"phase":"POC","target":"api"}`.
+- `state_nemotron3.json`: `{"phase":"POC","target":"api"}`.
+- `kassenkompass.de/js/whitelabel_live.js`: provenance-free `postMessage` receiver.
+- `kassenkompass.de/js/param_passthrough.js`: `sessionStorage` attribution propagation.
+- `kassenkompass.de/js/live-calculation.js`: client-side rating and orphaned `data_sparsum` read.
+- `kassenkompass.de/bonusrechner_fragen.php`: large public decision-data and debug surface.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+New scripts found — 7 outside the mined corpus. Fetching and analyzing.
+[0m$ [0mcd /tmp/opencode/kk
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for f in calc_beitrag.js moneycalc.js expand-functionality.js kk_sorting.js verg_tooltip.js vergleich_js.js faq_toggle.js; do
+  curl -s --max-time 20 -A "$UA" -o "js_$f" -w "$f %{http_code} %{size_download}\n" "https://kassenkompass.de/js/$f"
+  sleep 1.2
+done
+echo "=== sha + lines ==="
+sha256sum js_*.js | cut -c1-16,65-200
+wc -c js_*.js
+calc_beitrag.js 200 15658
+moneycalc.js 200 1645
+expand-functionality.js 200 6201
+kk_sorting.js 200 19662
+verg_tooltip.js 200 15160
+vergleich_js.js 200 24214
+faq_toggle.js 200 2257
+=== sha + lines ===
+790cf78da6ec5b89  js_calc_beitrag.js
+4b61e7b233a76759  js_expand-functionality.js
+8f9d6bc9d260c656  js_faq_toggle.js
+f38331d76fa9d6ee  js_kk_sorting.js
+792c668034aec8cf  js_moneycalc.js
+03e30e5045e955a9  js_verg_tooltip.js
+da9ce32c7daa81f4  js_vergleich_js.js
+15658 js_calc_beitrag.js
+ 6201 js_expand-functionality.js
+ 2257 js_faq_toggle.js
+19662 js_kk_sorting.js
+ 1645 js_moneycalc.js
+15160 js_verg_tooltip.js
+24214 js_vergleich_js.js
+84797 total
+[0m
+[0m$ [0mcd /tmp/opencode/kk
+echo "########## SINKS (XSS-relevant) ##########"
+grep -nE 'innerHTML|outerHTML|document\.write|insertAdjacentHTML|\.src\s*=|setAttribute\(.?(href|src|action)|eval\(|new Function|location\.(hash|search|href)|document\.referrer|window\.name|URLSearchParams|decodeURIComponent' js_*.js | cut -c1-260
+echo
+echo "########## POSTMESSAGE / ORIGIN ##########"
+grep -nE 'postMessage|addEventListener\(.message|event\.origin|event\.source|\.data\b' js_*.js | cut -c1-260
+echo
+echo "########## API / SECRET / NETWORK ##########"
+grep -nE 'api\.kassenkompass|X-API-Secret|x-api-secret|fetch\(|XMLHttpRequest|\$\.ajax|\$\.get|\$\.post|axios|\.json' js_*.js | cut -c1-260
+########## SINKS (XSS-relevant) ##########
+js_calc_beitrag.js:290:      const innervals = infefield.innerHTML.split(".,.");
+js_calc_beitrag.js:323:    if (infefieldtext) infefieldtext.innerHTML = text;
+js_calc_beitrag.js:337:        infoboxholder.innerHTML = infoboxText;
+js_calc_beitrag.js:397:      sparpotElement.innerHTML = `Sparpotenzial ${gesamtSparpotential
+js_calc_beitrag.js:405:      gunstElement.innerHTML = "";
+js_calc_beitrag.js:412:      gunstElement.innerHTML = `${mehrkosten
+js_calc_beitrag.js:416:      gunstElement.innerHTML = `${jahresersparnis
+js_calc_beitrag.js:423:    const content = element.innerHTML.split(".,.");
+js_calc_beitrag.js:426:      element.innerHTML = `${content[0]} € für ${content[1]}`;
+js_calc_beitrag.js:456:        element.innerHTML = ergebnis;
+js_calc_beitrag.js:458:        element.innerHTML = `${ergebnis.toString().replace(".", ",")} €`;
+js_expand-functionality.js:29:                textElement.innerHTML = "<strong>" + kkName + "</strong>: " + langText;
+js_expand-functionality.js:33:                textElement.innerHTML = "<strong>" + kkName + "</strong>: " + langText;
+js_expand-functionality.js:40:            const currentText = textElement.innerHTML;
+js_expand-functionality.js:49:                textElement.innerHTML = "<strong>" + targetKkName + "</strong>: " + targetText;
+js_faq_toggle.js:34:                        button.src = 'bilder/bonusrechner/circle-minus.svg';
+js_faq_toggle.js:42:                    button.src = 'bilder/bonusrechner/circle-plus.svg';
+js_kk_sorting.js:51:      return decodeURIComponent(c.substring(nameEQ.length));
+js_kk_sorting.js:520:  topCardContainer.innerHTML = "";
+js_kk_sorting.js:549:  secondCardContainer.innerHTML = "";
+js_verg_tooltip.js:78:    toolheader.innerHTML = toolheadtextar[toolcase];
+js_verg_tooltip.js:79:    tooltext.innerHTML = tooltextar[toolcase];
+js_verg_tooltip.js:80:    toolhintboxtext.innerHTML = toolhintboxtextar[toolcase];
+js_verg_tooltip.js:90:        toolrow1_header.innerHTML = 'Beitragsersparnis';
+js_verg_tooltip.js:91:        toolrow2_header.innerHTML = 'Unterschied bei Leistungen & Bonus';
+js_verg_tooltip.js:92:        toolrow3_header.innerHTML = 'Gesamtersparnis';
+js_verg_tooltip.js:101:        let name_newkk = document.getElementById('kkname_'+id_kk).innerHTML;
+js_verg_tooltip.js:103:        let name_oldkk = document.getElementById("oldkkname").innerHTML;
+js_verg_tooltip.js:105:        toolrow1_header.innerHTML = 'Monatsbeitrag<br><span class="bnv2_toolkkname">'+name_oldkk+'</span>';
+js_verg_tooltip.js:106:        toolrow2_header.innerHTML = 'Monatsbeitrag<br><span class="bnv2_toolkkname">'+name_newkk+'</span>';
+js_verg_tooltip.js:107:        toolrow3_header.innerHTML = 'Monatlicher Beitragsunterschied';
+js_verg_tooltip.js:108:        toolrow4_header.innerHTML = 'Jährlicher Beitragsunterschied';
+js_verg_tooltip.js:117:        let name_newkk = document.getElementById('kkname_'+id_kk).innerHTML;
+js_verg_tooltip.js:119:        let name_oldkk = document.getElementById("oldkkname").innerHTML;
+js_verg_tooltip.js:121:        toolrow1_header.innerHTML = 'Leistungsvorteil<br><span class="bnv2_toolkkname">'+name_oldkk+'</span>';
+js_verg_tooltip.js:122:        toolrow2_header.innerHTML = 'Leistungsvorteil<br><span class="bnv2_toolkkname">'+name_newkk+'</span>';
+js_verg_tooltip.js:123:        toolrow4_header.innerHTML = 'Jährlicher Unterschied';
+js_verg_tooltip.js:128:    let old_kk_month = document.getElementById("oldkk_month").innerHTML;
+js_verg_tooltip.js:129:    let new_kk_month = document.getElementById(id_kk).innerHTML;
+js_verg_tooltip.js:142:    let gesspar = document.getElementById("ges_"+id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:143:    let contrspar_raw = document.getElementById("contr_" + id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:144:    let leispar_raw = document.getElementById("spar_" + id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:181:    let masteroldkk_value = masteroldkk_element ? parseNumber(masteroldkk_element.innerHTML) : 0;
+js_verg_tooltip.js:224:        toolrow3_num.innerHTML = (gesamt_differenz < 0 ? '-' : '') + gesspar_formatted + ' Euro';
+js_verg_tooltip.js:226:        toolrow2_num.innerHTML = (leistung_is_negative ? '-' : '+') + leispar + ' Euro';
+js_verg_tooltip.js:228:        toolrow1_num.innerHTML = (beitrag_is_negative ? '-' : '') + contrspar + ' Euro';
+js_verg_tooltip.js:237:        toolrow1_num.innerHTML = old_kk_month.replace(/€/g, "") + ' Euro';
+js_verg_tooltip.js:238:        toolrow2_num.innerHTML = (beitrag_neutral ? '' : '- ') + new_kk_month.replace(/€/g, "") + ' Euro';
+js_verg_tooltip.js:242:        toolrow3_num.innerHTML = '= ' + (beitrag_is_negative ? '-' : '') + contrspar_month + ' Euro';
+js_verg_tooltip.js:243:        toolrow4_num.innerHTML = (beitrag_is_negative ? '-' : '') + contrspar + ' Euro';
+js_verg_tooltip.js:247:            ? (masteroldkk_element ? masteroldkk_element.innerHTML : '0') 
+js_verg_tooltip.js:249:        toolrow1_num.innerHTML = masteroldkk + 'Euro';
+js_verg_tooltip.js:256:        toolrow2_num.innerHTML = new_kk_mastervalue_formatted + ' Euro';
+js_verg_tooltip.js:259:        toolrow4_num.innerHTML = (leistung_is_negative ? '-' : '') + leispar + ' Euro';
+js_vergleich_js.js:225:            sparIcon.src = "bilder/bonusrechner/arrow_grey_up.svg";
+js_vergleich_js.js:238:            sparIcon.src = "bilder/bonusrechner/arrow_green_up.svg";
+js_vergleich_js.js:284:            imgElement.src = "bilder/bonusrechner/arrow_grey_up.svg";
+js_vergleich_js.js:298:            imgElement.src = "bilder/bonusrechner/arrow_green_up.svg";
+js_vergleich_js.js:379:          beitrdiffElement.innerHTML = formattedDifferenz + "";
+js_vergleich_js.js:381:          beitrdiffElement.innerHTML = formattedDifferenz + "";
+js_vergleich_js.js:676:  debugPanel.innerHTML =
+js_vergleich_js.js:686:    debugContent.innerHTML += "<br>" + message;
+
+########## POSTMESSAGE / ORIGIN ##########
+
+########## API / SECRET / NETWORK ##########
+[0m
+[0m→ [0mRead /tmp/opencode/kk/js_expand-functionality.js
+[0m
+[0m$ [0mcd /tmp/opencode/kk; echo "=== vergleich_js 655-700 ==="; sed -n '655,700p' js_vergleich_js.js; echo; echo "=== kk_sorting 30-70 ==="; sed -n '30,70p' js_kk_sorting.js
+=== vergleich_js 655-700 ===
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 5px 0;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 10px;
+    `;
+  cookieButton.onclick = () => {
+    // Setze Test-Cookies
+    const firstKkId = Object.keys(kk_data)[0];
+    document.cookie = `akt_kk_id=${firstKkId}; path=/`;
+    document.cookie = `akt_salary=50000; path=/`;
+    document.cookie = `akt_employ=1; path=/`;
+    updateDebugPanel(
+      "🍪 Test-Cookies gesetzt: KK=" + firstKkId + ", Salary=50000, Employ=1"
+    );
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+  debugPanel.innerHTML =
+    '<strong>🐛 Calculation Debug</strong><br><div id="debug-content">Initialisierung...</div>';
+  debugPanel.appendChild(testButton);
+  debugPanel.appendChild(cookieButton);
+  document.body.appendChild(debugPanel);
+}
+
+function updateDebugPanel(message) {
+  const debugContent = document.getElementById("debug-content");
+  if (debugContent) {
+    debugContent.innerHTML += "<br>" + message;
+    // Auto-scroll to bottom
+    const debugPanel = document.getElementById("debug-panel");
+    if (debugPanel) {
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+    }
+  }
+}
+
+=== kk_sorting 30-70 ===
+    const categoryCounts = JSON.parse(positiveCategoriesCookie);
+    // Prüfe ob "143" im Cookie enthalten ist
+    if (categoryCounts && categoryCounts.hasOwnProperty("143")) {
+      fixedSecondPositionEnabled = true;
+      fixedSecondPositionId = "16";
+    }
+  }
+} catch (e) {}
+
+// Warten auf vergleich_js.js completion
+let calculationWaitCounter = 0;
+const maxWaitTime = 10; // Max 10 seconds
+
+// Cookie helper function
+function getCookie(name) {
+  const nameEQ = `${name}=`;
+  const cookies = document.cookie.split(";");
+
+  for (let cookie of cookies) {
+    let c = cookie.trim();
+    if (c.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(c.substring(nameEQ.length));
+    }
+  }
+  return null;
+}
+
+// Load fixed second position settings from cookie
+function loadFixedSecondPositionSettings() {
+  const enabledCookie = getCookie("fixedSecondPositionEnabled");
+  const idCookie = getCookie("fixedSecondPositionId");
+
+  if (enabledCookie !== null) {
+    fixedSecondPositionEnabled =
+      enabledCookie === "true" || enabledCookie === "1";
+  }
+
+  if (idCookie !== null) {
+    fixedSecondPositionId = idCookie;
+  }
+}
+[0m
+No API calls, no postMessage in any of the 7 — H1 stays closed. But there are new `innerHTML` sinks. Tracing sources.
+[0m$ [0mcd /tmp/opencode/kk
+echo "########## COOKIE READS ##########"
+grep -ohE '(getCookie\("|document\.cookie[^;]{0,40})[A-Za-z_]+' js_*.js | grep -oE '[a-z_][a-zA-Z0-9_]{2,30}$' | sort -u | tr '\n' ' '
+echo; echo "########## data_sparsum / STORAGE ##########"
+grep -nE 'data_sparsum|sessionStorage|localStorage|kk_data|positiveCategories' js_*.js | cut -c1-200
+echo; echo "########## fixedSecondPosition usage ##########"
+grep -nE 'fixedSecondPosition' js_kk_sorting.js | cut -c1-200
+########## COOKIE READS ##########
+akt_employ akt_kk_id akt_salary annualSalaryforcalc brunebe expires firstKkId fixedSecondPositionEnabled fixedSecondPositionId match positive_kategorien_counts professionalgroupforcalc split 
+########## data_sparsum / STORAGE ##########
+js_kk_sorting.js:28:  const positiveCategoriesCookie = getCookie("positive_kategorien_counts");
+js_kk_sorting.js:29:  if (positiveCategoriesCookie) {
+js_kk_sorting.js:30:    const categoryCounts = JSON.parse(positiveCategoriesCookie);
+js_kk_sorting.js:398:  return parseFloat(kk_data[kkId].zsb);
+js_vergleich_js.js:42:  if (!aktKkId || !kk_data[aktKkId]) {
+js_vergleich_js.js:46:  // Zusatzbeitrag aus kk_data holen
+js_vergleich_js.js:47:  const zusatzbeitrag = parseFloat(kk_data[aktKkId]["zsb"]) || 0;
+js_vergleich_js.js:132:    if (!kkId || !kk_data[kkId]) {
+js_vergleich_js.js:136:    // Zusatzbeitrag aus kk_data holen
+js_vergleich_js.js:137:    const zusatzbeitrag = parseFloat(kk_data[kkId]["zsb"]) || 0;
+js_vergleich_js.js:547:  if (typeof kk_data === "undefined") {
+js_vergleich_js.js:548:    updateDebugPanel("❌ kk_data ist nicht verfügbar");
+js_vergleich_js.js:559:    `✅ Bereit - KK Daten: ${Object.keys(kk_data).length}, Own Elements: ${
+js_vergleich_js.js:665:    const firstKkId = Object.keys(kk_data)[0];
+
+########## fixedSecondPosition usage ##########
+23:let fixedSecondPositionEnabled = false; // An/Aus-Schalter für fixe zweite Position
+24:let fixedSecondPositionId = ""; // ID der Karte, die an die zweite Stelle soll
+33:      fixedSecondPositionEnabled = true;
+34:      fixedSecondPositionId = "16";
+59:  const enabledCookie = getCookie("fixedSecondPositionEnabled");
+60:  const idCookie = getCookie("fixedSecondPositionId");
+63:    fixedSecondPositionEnabled =
+68:    fixedSecondPositionId = idCookie;
+274:  if (fixedSecondPositionEnabled && fixedSecondPositionId) {
+276:      (card) => card.getAttribute("data-kk-id") === fixedSecondPositionId
+540:    if (fixedSecondPositionEnabled) {
+[0m
+`vergleich_js.js` has a production debug panel. Checking cookie/state trust boundaries across all new scripts.
+Corpus diff is negative for new findings. One decision-relevant passive check remains: does CSP block the top finding's delivery path?
+[0m$ [0mcd /tmp/opencode/kk
+curl -s -I --max-time 15 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0.0.0 Safari/537.36' https://kassenkompass.de/bonusrechner.php -o hdr_bonus.txt -w "%{http_code}\n"
+echo "=== CSP / frame control ==="
+grep -iE 'content-security-policy|x-frame-options|frame-ancestors|cross-origin' hdr_bonus.txt || echo "NONE PRESENT"
+echo "=== all headers ==="
+cat hdr_bonus.txt | cut -c1-150
+200
+=== CSP / frame control ===
+x-frame-options: SAMEORIGIN
+referrer-policy: strict-origin-when-cross-origin
+=== all headers ===
+HTTP/2 200 
+date: Sat, 03 Oct 2026 05:47:19 GMT
+content-type: text/html; charset=UTF-8
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+set-cookie: AWSALB=cJAXFozlg5yv2PkfRwr9CSuFLk7hXJtqd0dDLhWTLlUKE9KZ1ewWXlZKStrASo5N7gBoh/dXY2yowd90T6U6CRQIgLZq76HDBrMJJplOtgVlHbBVWEJhCGHCSk/1; Expir
+set-cookie: AWSALBCORS=cJAXFozlg5yv2PkfRwr9CSuFLk7hXJtqd0dDLhWTLlUKE9KZ1ewWXlZKStrASo5N7gBoh/dXY2yowd90T6U6CRQIgLZq76HDBrMJJplOtgVlHbBVWEJhCGHCSk/1; E
+set-cookie: PHPSESSID=8e9a50caa6e827c2301ba6acd5d61797; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=QpbvXh9ffRcPANweXxlg5rd38dKU8riPpwShPVS2Fk
+cf-ray: a449a6c08d4aa32a-SEA
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt; cat analyst-out.txt; echo "=== README ==="; cat README.md
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_1004dc951001o4h3qO9ABhUWnE
+
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-10-02 21:16:50 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de/delete/,9.10,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/health_insurance/,8.95,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=1,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/js/whitelabel_live.js,8.50,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.40,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.10,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 90
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide; `/delete%2f1` → 401 byte-identical to `/delete/1` (instance: "/delete/1"); trailing suffix absorption: `/delete/1/extra` reaches same handler; second encoded separator composes — `/delete%2f1%2fextra` → 401 with instance "/delete/1/extra"; empty id binds: `/delete%2f` → 401; decode depth exactly one level (double-encode → static handler 404); normalization matrix complete for 17 route families with 0 divergences; composition confirmed across middleware B (this route) and middleware A (health_insurance)
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved id after routing; test if composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); HEAD https://api.kassenkompass.de/delete%2f (empty id); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path WAF rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; HIGH (destructive verb)
+testability: PASSIVE
+[HYP] Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs
+class: BUSLOGIC
+asset: api.kassenkompass.de/health_insurance/
+confidence: 88
+reasoning: /health_insurance/ is the only route on the host registering PUT+DELETE (allow-methods: GET,POST,PUT,DELETE,OPTIONS); middleware A auth; percent-decode-before-match host-wide; encoded separator composes with suffix absorption on the destructive cell — `/health_insurance%2f1%2fextra` → 401 / 241 B / `d91c109c481f499a` / `instance: "/health_insurance/1/extra"` with verb table identical to `/health_insurance/1`; greedy prefix matching absorbs `/health_insurance/savings/1` and `/health_insurance/comparison/1` into same handler; decode depth exactly one level; composition measured on same request across two different middleware stacks (A and B) confirming host-wide normalization
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved path after routing; test if PUT/DELETE on composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/health_insurance/1 (baseline 401); HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra (encoded separator + suffix); HEAD https://api.kassenkompass.de/health_insurance/1/extra (plain suffix); OPTIONS https://api.kassenkompass.de/health_insurance%2f1%2fextra (verify verb table); all at ≤1 rps
+impact: Route shadowing defeat for destructive verbs — literal-path rules for PUT/DELETE on /health_insurance/ are bypassable; potential cross-tenant data manipulation if authorization only checks secret not resource ownership; CRITICAL (destructive verbs + 5-verb cell)
+testability: PASSIVE
+[HYP] Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page
+class: XSS
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: whitelabel_live.js (11,359 B) loads on bonusrechner.php; postMessage handler at lines 227-231 reads only `data.type === 'wl-preview'` and `typeof data.brand`, NEITHER `event.origin` NOR `event.source`; guard is type-and-shape only; handler force-adds `wl-active` class to body (line 229), unconditionally suppresses 19 CSS selectors via `display:none` (5 measured as real DOM elements: bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); suppressed content includes statutory-benefit block, Google rating, customer count claim, logo; `postMessage({type:'wl-preview-ready'}, '*')` wildcard targetOrigin leaks frame-ready timing cross-origin; delivery requires `window.open` + postMessage (no URL params, no cookies, no fetch/XHR in whitelabel_live.js or bonusrechner.php); standard.js (67,969 B) has no whitelabel sender; private editor origin is only known sender
+evidence_needed: Demonstrate cross-origin frame can deliver malicious wl-preview message that suppresses trust elements or injects controlled brand object; verify no CSP frame-ancestors restricts embedding
+verify_steps: GET https://kassenkompass.de/bonusrechner.php (confirm whitelabel_live.js loads); inspect CSP headers for frame-ancestors; craft off-origin page that window.opens bonusrechner.php and postMessages `{type:'wl-preview', brand:{...}}` with controlled selectors; measure DOM suppression
+impact: Trust element suppression (statutory benefit text, ratings, logos) via cross-origin frame; no XSS (textContent write, strict allowlists) but integrity violation of regulated comparison UI; MEDIUM
+testability: PASSIVE (recon) → HUMAN_ONLY (exploit requires victim interaction)
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+[PARKED] v2 Insurance Info BOLA Cross-Tenant Read: confidence 60 — v2 insurance_info returns draft categories + resolved references but ucatKkData on bonusrechner_fragen.php publicly replicates this domain; value downgraded to unpublished-draft-only; no credentialed access to confirm cross-tenant isolation.
+[FINAL] 1. api.kassenkompass.de/delete/: Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules (confidence 90, PASSIVE)
+[FINAL] 2. api.kassenkompass.de/health_insurance/: Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs (confidence 88, PASSIVE)
+[FINAL] 3. kassenkompass.de/js/whitelabel_live.js: Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page (confidence 85, PASSIVE→HUMAN_ONLY)
+[NEXT] PROBE: HEAD https://api.kassenkompass.de/delete%2f1%2fextra and HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra at ≤1 rps; compare 401 response instance field, access-control-allow-methods, and body sha256 against baseline paths `/delete/1` and `/health_insurance/1` to confirm encoded separator + suffix composition reaches same handler on both middleware stacks
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+## 2026-10-03 00:34:49 UTC [target] (model nemotron3)
+[CHANGED] Current time 2026-10-03 00:33 UTC vs last KB aggregation 2026-10-02 23:51 UTC — ~42 min gap; all major surfaces stable per last live probes
+[CHANGED] api.kassenkompress.de root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[CHANGED] api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match host-wide (v1+v2)
+[CHANGED] kassenkompass.de/bonusrechner_vergleich2.php emits device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id, confirmed live
+[CHANGED] kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate confirmed
+[CHANGED] Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable
+[PRIO] api.kassenkompass.de/delete/,9.10,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/health_insurance/,8.95,attack_surface=10,business_value=9,tech_exposure=9,gate_ease=1,cloud_surface=7,freshness=8
+[PRIO] api.kassenkompass.de/,8.95,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=7,freshness=8
+[PRIO] kassenkompass.de/js/whitelabel_live.js,8.50,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.40,attack_surface=9,business_value=9,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,7.10,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules
+class: BUSLOGIC
+asset: api.kassenkompass.de/delete/
+confidence: 90
+reasoning: /delete/{id} is the only route registering DELETE (allow-methods: DELETE,OPTIONS); middleware B auth; percent-decode-before-match host-wide; `/delete%2f1` → 401 byte-identical to `/delete/1` (instance: "/delete/1"); trailing suffix absorption: `/delete/1/extra` reaches same handler; second encoded separator composes — `/delete%2f1%2fextra` → 401 with instance "/delete/1/extra"; empty id binds: `/delete%2f` → 401; decode depth exactly one level (double-encode → static handler 404); normalization matrix complete for 17 route families with 0 divergences; composition confirmed across middleware B (this route) and middleware A (health_insurance)
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved id after routing; test if composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/delete/1 (401 baseline); HEAD https://api.kassenkompass.de/delete%2f1 (encoded separator); HEAD https://api.kassenkompass.de/delete/1/extra (suffix); HEAD https://api.kassenkompass.de/delete%2f1%2fextra (composed); HEAD https://api.kassenkompass.de/delete%2f (empty id); all at ≤1 rps, compare instance field and verb table
+impact: Route shadowing defeat — any literal-path WAF rule for DELETE on /delete/ is bypassable; potential IDOR/BOLA if authorization only checks secret not resource ownership; HIGH (destructive verb)
+testability: PASSIVE
+[HYP] Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs
+class: BUSLOGIC
+asset: api.kassenkompass.de/health_insurance/
+confidence: 88
+reasoning: /health_insurance/ is the only route on the host registering PUT+DELETE (allow-methods: GET,POST,PUT,DELETE,OPTIONS); middleware A auth; percent-decode-before-match host-wide; encoded separator composes with suffix absorption on the destructive cell — `/health_insurance%2f1%2fextra` → 401 / 241 B / `d91c109c481f499a` / `instance: "/health_insurance/1/extra"` with verb table identical to `/health_insurance/1`; greedy prefix matching absorbs `/health_insurance/savings/1` and `/health_insurance/comparison/1` into same handler; decode depth exactly one level; composition measured on same request across two different middleware stacks (A and B) confirming host-wide normalization
+evidence_needed: Confirm server-side authorization validates resource ownership on resolved path after routing; test if PUT/DELETE on composed paths reach business logic with valid credentials
+verify_steps: HEAD https://api.kassenkompass.de/health_insurance/1 (baseline 401); HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra (encoded separator + suffix); HEAD https://api.kassenkompass.de/health_insurance/1/extra (plain suffix); OPTIONS https://api.kassenkompass.de/health_insurance%2f1%2fextra (verify verb table); all at ≤1 rps
+impact: Route shadowing defeat for destructive verbs — literal-path rules for PUT/DELETE on /health_insurance/ are bypassable; potential cross-tenant data manipulation if authorization only checks secret not resource ownership; CRITICAL (destructive verbs + 5-verb cell)
+testability: PASSIVE
+[HYP] Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page
+class: XSS
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 85
+reasoning: whitelabel_live.js (11,359 B) loads on bonusrechner.php; postMessage handler at lines 227-231 reads only `data.type === 'wl-preview'` and `typeof data.brand`, NEITHER `event.origin` NOR `event.source`; guard is type-and-shape only; handler force-adds `wl-active` class to body (line 229), unconditionally suppresses 19 CSS selectors via `display:none` (5 measured as real DOM elements: bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); suppressed content includes statutory-benefit block, Google rating, customer count claim, logo; `postMessage({type:'wl-preview-ready'}, '*')` wildcard targetOrigin leaks frame-ready timing cross-origin; delivery requires `window.open` + postMessage (no URL params, no cookies, no fetch/XHR in whitelabel_live.js or bonusrechner.php); standard.js (67,969 B) has no whitelabel sender; private editor origin is only known sender
+evidence_needed: Demonstrate cross-origin frame can deliver malicious wl-preview message that suppresses trust elements or injects controlled brand object; verify no CSP frame-ancestors restricts embedding
+verify_steps: GET https://kassenkompass.de/bonusrechner.php (confirm whitelabel_live.js loads); inspect CSP headers for frame-ancestors; craft off-origin page that window.opens bonusrechner.php and postMessages `{type:'wl-preview', brand:{...}}` with controlled selectors; measure DOM suppression
+impact: Trust element suppression (statutory benefit text, ratings, logos) via cross-origin frame; no XSS (textContent write, strict allowlists) but integrity violation of regulated comparison UI; MEDIUM
+testability: PASSIVE (recon) → HUMAN_ONLY (exploit requires victim interaction)
+[PARKED] Unauthenticated User Provisioning Via /post/create_user Write Namespace: confidence 55 but testability AUTH_HELPED — requires valid X-API-Secret which has no known acquisition path; header strictly sole channel confirmed 26+ cycles; /cat_detail/ control proves 405 is method-confounded, not auth evidence. Treat as UNPROVEN until credentialed request exists.
+[PARKED] v2 Insurance Info BOLA Cross-Tenant Read: confidence 60 — v2 insurance_info returns draft categories + resolved references but ucatKkData on bonusrechner_fragen.php publicly replicates this domain; value downgraded to unpublished-draft-only; no credentialed access to confirm cross-tenant isolation.
+[FINAL] 1. api.kassenkompass.de/delete/: Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules (confidence 90, PASSIVE)
+[FINAL] 2. api.kassenkompass.de/health_insurance/: Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs (confidence 88, PASSIVE)
+[FINAL] 3. kassenkompass.de/js/whitelabel_live.js: Cross-Origin postMessage Receiver Lacks Provenance Check on Funnel Entry Page (confidence 85, PASSIVE→HUMAN_ONLY)
+[NEXT] PROBE: HEAD https://api.kassenkompass.de/delete%2f1%2fextra and HEAD https://api.kassenkompass.de/health_insurance%2f1%2fextra at ≤1 rps; compare 401 response instance field, access-control-allow-methods, and body sha256 against baseline paths `/delete/1` and `/health_insurance/1` to confirm encoded separator + suffix composition reaches same handler on both middleware stacks
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompass.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[0m
+Network is live. My queued action from the last lead is the unmined-JS corpus diff. Running it.
+[0m$ [0mcd /tmp/opencode && mkdir -p kk && cd kk
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for p in login_auswahl.php bonusrechner_vergleich2.php bonusrechner_abschluss.php termin.php; do
+  curl -s --max-time 20 -A "$UA" -o "page_$p" -w "$p %{http_code} %{size_download}\n" "https://kassenkompass.de/$p"
+  sleep 1.5
+done
+echo "=== SCRIPT SRCS ==="
+grep -ohiE '<script[^>]*src="[^"]+"' page_*.php | grep -oiE 'src="[^"]+"' | sed 's/src="//;s/"//' | sort -u
+login_auswahl.php 200 3876
+bonusrechner_vergleich2.php 200 344603
+bonusrechner_abschluss.php 200 64340
+termin.php 200 8697
+=== SCRIPT SRCS ===
+//js-eu1.hs-scripts.com/146866466.js
+/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js
+/js/standard.js?v=1791006283
+/js/standard.js?v=1791006285
+/js/standard.js?v=1791006287
+/js/standard.js?v=1791006290
+https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js
+https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.4/lottie.min.js
+js/ajax.js
+js/calc_beitrag.js
+js/calc_beitrag.js?v=v2.6.10
+js/expand-functionality.js?v=v2.6.10
+js/faq_accordion.js
+js/faq_toggle.js?v=v2.6.10
+js/kk_sorting.js?v=v2.6.10
+js/moneycalc.js
+js/moneycalc.js?v=v2.6.10
+js/verg_tooltip.js?v=v2.6.10
+js/vergleich_js.js?v=v2.6.10
+js/whitelabel_live.js?v=v2.6.10
+[0m
+## Objective
+- Continue the KassenKompass GmbH bug-bounty POC (`phase=POC`, `target=api`) and produce the required structured analyst blocks from current evidence.
+- Prioritize demonstrable logic flaws or chains; avoid descriptive-error, recon-only, or method-confounded claims.
+
+## Important Details
+- Scope: KassenKompass-owned assets only; report channel `bugs.olivermaicher.eu`.
+- Live probes must be passive-first, `GET`/`HEAD`/`OPTIONS` only, at `≤1 rps`; no mutating requests, auth bypasses, customer data, or credentials.
+- Required blocks: `[DELTA]`, `[PRIORITIZE]`, `[HYP]`, `[PARKED]`, `[FINAL]`, exactly one `[NEXT]`, `[LEARN]`, and `[RISK]`. Prompt says “8 steps” but defines seven.
+- `/post/create_user` authentication is method-confounded and unproven; it requires `AUTH_HELPED` POST testing.
+- Never revive refuted claims: API XSS, three-state 401/405/200 oracle, Host-header misconfiguration, case-variant routing, GraphQL, unauthenticated provisioning, or the `fragen.php` server-side cookie-spoofing chain.
+- A prior ~14-request burst caused a transient WAF IP block; maintain strict pacing.
+
+## Work State
+### Completed
+- API surface stable: unauthenticated 1167-byte catalog with 15 v1 routes; `/v2/` exposes only `insurance_info/{kk_id}`.
+- API auth map substantially closed: `X-API-Secret` header is the only accepted channel; query, cookie, Bearer, API-key, and token alternatives are rejected. `/health/` is unauthenticated; `/sync/` embeds auth failure under HTTP 200 but shows no bypass.
+- Host-wide one-level percent decoding confirmed across v1/v2. Encoded separators and unbounded suffixes compose on both middleware stacks:
+  - `/delete%2f1%2fextra` → 401, canonical `instance: "/delete/1/extra"`, methods `DELETE, OPTIONS`.
+  - `/health_insurance%2f1%2fextra` → 401, canonical `instance: "/health_insurance/1/extra"`, five-verb table.
+  - Double encoding falls to static 404; routing is case-sensitive. No auth bypass is demonstrated.
+- API reflection/XSS hypothesis closed: mined client code has no API `fetch`/XHR call sites, so API error bodies never reach a KassenKompass DOM sink.
+- `kassenkompass.de/js/whitelabel_live.js` analyzed: no `event.origin`/`event.source` check, but writes use `textContent` and value sanitization. It is a presentation-integrity issue, not script XSS; five real trust/legal elements can be suppressed only through opener plus `postMessage`.
+- `kassenkompass.de/js/param_passthrough.js` analyzed: 16 URL parameters, length capped at 128, stored under `sessionStorage["kkweb_pass_params"]` and reinjected into same-host funnel CTAs. `data_sparsum` is excluded; server-side attribution impact remains unverified.
+- `bonusrechner_fragen.php` exposes an unauthenticated ~2.15 MB tariff/decision corpus, seven browser globals, and full client-side rating logic. Sustained 1-rps retrieval caused no 429 or WAF block. Stuffed cookies do not drive its server-rendered state.
+- Funnel registration is server-side lead-gated; one-shot cookie stuffing to account creation was refuted.
+- S3 surface confirmed image-only; non-image keys return 403. `kassenkompass.net` uniformly redirects and provides no origin-bypass or existence oracle.
+
+### Active
+- Highest-confidence remaining lead: cross-origin `postMessage` presentation manipulation, confidence 85, `HUMAN_ONLY` demonstration needed.
+- Attribution/lead-integrity hypothesis from `param_passthrough.js`, confidence 64, requires downstream live propagation plus server-side cookie/lead effect.
+- `/post/create_user` remains parked below proof threshold because read-only 405 responses cannot establish POST authentication.
+- Current program risk estimate is 85/100, dominated by funnel presentation integrity and secondarily attribution integrity.
+- Peer pipeline remains largely empty or stub-only after 25+ cycles.
+
+### Blocked
+- Cross-origin DOM proof requires a real browser/opener interaction.
+- Attribution impact requires `AUTH_HELPED` or a completed funnel transition.
+- `/post/create_user` auth requires a credentialed POST with a valid-secret negative control; this conflicts with current passive-only limits.
+- No valid `X-API-Secret` is available for deeper API data testing.
+
+## Next Move
+1. Perform offline-first script inventory using four paced GETs: `https://kassenkompass.de/login_auswahl.php`, `/bonusrechner_vergleich2.php`, `/bonusrechner_abschluss.php`, and `/termin.php`; extract `<script src>` values and diff them against the known corpus.
+2. Search any new scripts for `api.kassenkompass.de`, `X-API-Secret`, `fetch`, or `XMLHttpRequest`; if none appear, retain only the presentation-integrity and attribution hypotheses and emit exactly one `[NEXT]` block.
+
+## Relevant Files
+- `scope.yml`: authoritative in-scope asset policy.
+- `inventory/kassenkompass.md`: host and funnel inventory.
+- `art/lead_bigpickle.txt`: latest passive-analysis leads and closed API XSS result.
+- `art/lead_nemotron3.txt`: encoded-route normalization hypothesis and evidence.
+- `hypotheses-bigpickle.txt`: pending script-corpus enumeration.
+- `hypotheses-nemotron3.txt`: ranked encoded-separator probe history.
+- `state_bigpickle.json`: `{"phase":"POC","target":"api"}`.
+- `state_nemotron3.json`: `{"phase":"POC","target":"api"}`.
+- `kassenkompass.de/js/whitelabel_live.js`: provenance-free `postMessage` receiver.
+- `kassenkompass.de/js/param_passthrough.js`: `sessionStorage` attribution propagation.
+- `kassenkompass.de/js/live-calculation.js`: client-side rating and orphaned `data_sparsum` read.
+- `kassenkompass.de/bonusrechner_fragen.php`: large public decision-data and debug surface.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+New scripts found — 7 outside the mined corpus. Fetching and analyzing.
+[0m$ [0mcd /tmp/opencode/kk
+UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+for f in calc_beitrag.js moneycalc.js expand-functionality.js kk_sorting.js verg_tooltip.js vergleich_js.js faq_toggle.js; do
+  curl -s --max-time 20 -A "$UA" -o "js_$f" -w "$f %{http_code} %{size_download}\n" "https://kassenkompass.de/js/$f"
+  sleep 1.2
+done
+echo "=== sha + lines ==="
+sha256sum js_*.js | cut -c1-16,65-200
+wc -c js_*.js
+calc_beitrag.js 200 15658
+moneycalc.js 200 1645
+expand-functionality.js 200 6201
+kk_sorting.js 200 19662
+verg_tooltip.js 200 15160
+vergleich_js.js 200 24214
+faq_toggle.js 200 2257
+=== sha + lines ===
+790cf78da6ec5b89  js_calc_beitrag.js
+4b61e7b233a76759  js_expand-functionality.js
+8f9d6bc9d260c656  js_faq_toggle.js
+f38331d76fa9d6ee  js_kk_sorting.js
+792c668034aec8cf  js_moneycalc.js
+03e30e5045e955a9  js_verg_tooltip.js
+da9ce32c7daa81f4  js_vergleich_js.js
+15658 js_calc_beitrag.js
+ 6201 js_expand-functionality.js
+ 2257 js_faq_toggle.js
+19662 js_kk_sorting.js
+ 1645 js_moneycalc.js
+15160 js_verg_tooltip.js
+24214 js_vergleich_js.js
+84797 total
+[0m
+[0m$ [0mcd /tmp/opencode/kk
+echo "########## SINKS (XSS-relevant) ##########"
+grep -nE 'innerHTML|outerHTML|document\.write|insertAdjacentHTML|\.src\s*=|setAttribute\(.?(href|src|action)|eval\(|new Function|location\.(hash|search|href)|document\.referrer|window\.name|URLSearchParams|decodeURIComponent' js_*.js | cut -c1-260
+echo
+echo "########## POSTMESSAGE / ORIGIN ##########"
+grep -nE 'postMessage|addEventListener\(.message|event\.origin|event\.source|\.data\b' js_*.js | cut -c1-260
+echo
+echo "########## API / SECRET / NETWORK ##########"
+grep -nE 'api\.kassenkompass|X-API-Secret|x-api-secret|fetch\(|XMLHttpRequest|\$\.ajax|\$\.get|\$\.post|axios|\.json' js_*.js | cut -c1-260
+########## SINKS (XSS-relevant) ##########
+js_calc_beitrag.js:290:      const innervals = infefield.innerHTML.split(".,.");
+js_calc_beitrag.js:323:    if (infefieldtext) infefieldtext.innerHTML = text;
+js_calc_beitrag.js:337:        infoboxholder.innerHTML = infoboxText;
+js_calc_beitrag.js:397:      sparpotElement.innerHTML = `Sparpotenzial ${gesamtSparpotential
+js_calc_beitrag.js:405:      gunstElement.innerHTML = "";
+js_calc_beitrag.js:412:      gunstElement.innerHTML = `${mehrkosten
+js_calc_beitrag.js:416:      gunstElement.innerHTML = `${jahresersparnis
+js_calc_beitrag.js:423:    const content = element.innerHTML.split(".,.");
+js_calc_beitrag.js:426:      element.innerHTML = `${content[0]} € für ${content[1]}`;
+js_calc_beitrag.js:456:        element.innerHTML = ergebnis;
+js_calc_beitrag.js:458:        element.innerHTML = `${ergebnis.toString().replace(".", ",")} €`;
+js_expand-functionality.js:29:                textElement.innerHTML = "<strong>" + kkName + "</strong>: " + langText;
+js_expand-functionality.js:33:                textElement.innerHTML = "<strong>" + kkName + "</strong>: " + langText;
+js_expand-functionality.js:40:            const currentText = textElement.innerHTML;
+js_expand-functionality.js:49:                textElement.innerHTML = "<strong>" + targetKkName + "</strong>: " + targetText;
+js_faq_toggle.js:34:                        button.src = 'bilder/bonusrechner/circle-minus.svg';
+js_faq_toggle.js:42:                    button.src = 'bilder/bonusrechner/circle-plus.svg';
+js_kk_sorting.js:51:      return decodeURIComponent(c.substring(nameEQ.length));
+js_kk_sorting.js:520:  topCardContainer.innerHTML = "";
+js_kk_sorting.js:549:  secondCardContainer.innerHTML = "";
+js_verg_tooltip.js:78:    toolheader.innerHTML = toolheadtextar[toolcase];
+js_verg_tooltip.js:79:    tooltext.innerHTML = tooltextar[toolcase];
+js_verg_tooltip.js:80:    toolhintboxtext.innerHTML = toolhintboxtextar[toolcase];
+js_verg_tooltip.js:90:        toolrow1_header.innerHTML = 'Beitragsersparnis';
+js_verg_tooltip.js:91:        toolrow2_header.innerHTML = 'Unterschied bei Leistungen & Bonus';
+js_verg_tooltip.js:92:        toolrow3_header.innerHTML = 'Gesamtersparnis';
+js_verg_tooltip.js:101:        let name_newkk = document.getElementById('kkname_'+id_kk).innerHTML;
+js_verg_tooltip.js:103:        let name_oldkk = document.getElementById("oldkkname").innerHTML;
+js_verg_tooltip.js:105:        toolrow1_header.innerHTML = 'Monatsbeitrag<br><span class="bnv2_toolkkname">'+name_oldkk+'</span>';
+js_verg_tooltip.js:106:        toolrow2_header.innerHTML = 'Monatsbeitrag<br><span class="bnv2_toolkkname">'+name_newkk+'</span>';
+js_verg_tooltip.js:107:        toolrow3_header.innerHTML = 'Monatlicher Beitragsunterschied';
+js_verg_tooltip.js:108:        toolrow4_header.innerHTML = 'Jährlicher Beitragsunterschied';
+js_verg_tooltip.js:117:        let name_newkk = document.getElementById('kkname_'+id_kk).innerHTML;
+js_verg_tooltip.js:119:        let name_oldkk = document.getElementById("oldkkname").innerHTML;
+js_verg_tooltip.js:121:        toolrow1_header.innerHTML = 'Leistungsvorteil<br><span class="bnv2_toolkkname">'+name_oldkk+'</span>';
+js_verg_tooltip.js:122:        toolrow2_header.innerHTML = 'Leistungsvorteil<br><span class="bnv2_toolkkname">'+name_newkk+'</span>';
+js_verg_tooltip.js:123:        toolrow4_header.innerHTML = 'Jährlicher Unterschied';
+js_verg_tooltip.js:128:    let old_kk_month = document.getElementById("oldkk_month").innerHTML;
+js_verg_tooltip.js:129:    let new_kk_month = document.getElementById(id_kk).innerHTML;
+js_verg_tooltip.js:142:    let gesspar = document.getElementById("ges_"+id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:143:    let contrspar_raw = document.getElementById("contr_" + id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:144:    let leispar_raw = document.getElementById("spar_" + id_kk).innerHTML.replace(/[\s€]/g, "");
+js_verg_tooltip.js:181:    let masteroldkk_value = masteroldkk_element ? parseNumber(masteroldkk_element.innerHTML) : 0;
+js_verg_tooltip.js:224:        toolrow3_num.innerHTML = (gesamt_differenz < 0 ? '-' : '') + gesspar_formatted + ' Euro';
+js_verg_tooltip.js:226:        toolrow2_num.innerHTML = (leistung_is_negative ? '-' : '+') + leispar + ' Euro';
+js_verg_tooltip.js:228:        toolrow1_num.innerHTML = (beitrag_is_negative ? '-' : '') + contrspar + ' Euro';
+js_verg_tooltip.js:237:        toolrow1_num.innerHTML = old_kk_month.replace(/€/g, "") + ' Euro';
+js_verg_tooltip.js:238:        toolrow2_num.innerHTML = (beitrag_neutral ? '' : '- ') + new_kk_month.replace(/€/g, "") + ' Euro';
+js_verg_tooltip.js:242:        toolrow3_num.innerHTML = '= ' + (beitrag_is_negative ? '-' : '') + contrspar_month + ' Euro';
+js_verg_tooltip.js:243:        toolrow4_num.innerHTML = (beitrag_is_negative ? '-' : '') + contrspar + ' Euro';
+js_verg_tooltip.js:247:            ? (masteroldkk_element ? masteroldkk_element.innerHTML : '0') 
+js_verg_tooltip.js:249:        toolrow1_num.innerHTML = masteroldkk + 'Euro';
+js_verg_tooltip.js:256:        toolrow2_num.innerHTML = new_kk_mastervalue_formatted + ' Euro';
+js_verg_tooltip.js:259:        toolrow4_num.innerHTML = (leistung_is_negative ? '-' : '') + leispar + ' Euro';
+js_vergleich_js.js:225:            sparIcon.src = "bilder/bonusrechner/arrow_grey_up.svg";
+js_vergleich_js.js:238:            sparIcon.src = "bilder/bonusrechner/arrow_green_up.svg";
+js_vergleich_js.js:284:            imgElement.src = "bilder/bonusrechner/arrow_grey_up.svg";
+js_vergleich_js.js:298:            imgElement.src = "bilder/bonusrechner/arrow_green_up.svg";
+js_vergleich_js.js:379:          beitrdiffElement.innerHTML = formattedDifferenz + "";
+js_vergleich_js.js:381:          beitrdiffElement.innerHTML = formattedDifferenz + "";
+js_vergleich_js.js:676:  debugPanel.innerHTML =
+js_vergleich_js.js:686:    debugContent.innerHTML += "<br>" + message;
+
+########## POSTMESSAGE / ORIGIN ##########
+
+########## API / SECRET / NETWORK ##########
+[0m
+[0m→ [0mRead /tmp/opencode/kk/js_expand-functionality.js
+[0m
+[0m$ [0mcd /tmp/opencode/kk; echo "=== vergleich_js 655-700 ==="; sed -n '655,700p' js_vergleich_js.js; echo; echo "=== kk_sorting 30-70 ==="; sed -n '30,70p' js_kk_sorting.js
+=== vergleich_js 655-700 ===
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        margin: 5px 0;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 10px;
+    `;
+  cookieButton.onclick = () => {
+    // Setze Test-Cookies
+    const firstKkId = Object.keys(kk_data)[0];
+    document.cookie = `akt_kk_id=${firstKkId}; path=/`;
+    document.cookie = `akt_salary=50000; path=/`;
+    document.cookie = `akt_employ=1; path=/`;
+    updateDebugPanel(
+      "🍪 Test-Cookies gesetzt: KK=" + firstKkId + ", Salary=50000, Employ=1"
+    );
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  };
+  debugPanel.innerHTML =
+    '<strong>🐛 Calculation Debug</strong><br><div id="debug-content">Initialisierung...</div>';
+  debugPanel.appendChild(testButton);
+  debugPanel.appendChild(cookieButton);
+  document.body.appendChild(debugPanel);
+}
+
+function updateDebugPanel(message) {
+  const debugContent = document.getElementById("debug-content");
+  if (debugContent) {
+    debugContent.innerHTML += "<br>" + message;
+    // Auto-scroll to bottom
+    const debugPanel = document.getElementById("debug-panel");
+    if (debugPanel) {
+      debugPanel.scrollTop = debugPanel.scrollHeight;
+    }
+  }
+}
+
+=== kk_sorting 30-70 ===
+    const categoryCounts = JSON.parse(positiveCategoriesCookie);
+    // Prüfe ob "143" im Cookie enthalten ist
+    if (categoryCounts && categoryCounts.hasOwnProperty("143")) {
+      fixedSecondPositionEnabled = true;
+      fixedSecondPositionId = "16";
+    }
+  }
+} catch (e) {}
+
+// Warten auf vergleich_js.js completion
+let calculationWaitCounter = 0;
+const maxWaitTime = 10; // Max 10 seconds
+
+// Cookie helper function
+function getCookie(name) {
+  const nameEQ = `${name}=`;
+  const cookies = document.cookie.split(";");
+
+  for (let cookie of cookies) {
+    let c = cookie.trim();
+    if (c.indexOf(nameEQ) === 0) {
+      return decodeURIComponent(c.substring(nameEQ.length));
+    }
+  }
+  return null;
+}
+
+// Load fixed second position settings from cookie
+function loadFixedSecondPositionSettings() {
+  const enabledCookie = getCookie("fixedSecondPositionEnabled");
+  const idCookie = getCookie("fixedSecondPositionId");
+
+  if (enabledCookie !== null) {
+    fixedSecondPositionEnabled =
+      enabledCookie === "true" || enabledCookie === "1";
+  }
+
+  if (idCookie !== null) {
+    fixedSecondPositionId = idCookie;
+  }
+}
+[0m
+No API calls, no postMessage in any of the 7 — H1 stays closed. But there are new `innerHTML` sinks. Tracing sources.
+[0m$ [0mcd /tmp/opencode/kk
+echo "########## COOKIE READS ##########"
+grep -ohE '(getCookie\("|document\.cookie[^;]{0,40})[A-Za-z_]+' js_*.js | grep -oE '[a-z_][a-zA-Z0-9_]{2,30}$' | sort -u | tr '\n' ' '
+echo; echo "########## data_sparsum / STORAGE ##########"
+grep -nE 'data_sparsum|sessionStorage|localStorage|kk_data|positiveCategories' js_*.js | cut -c1-200
+echo; echo "########## fixedSecondPosition usage ##########"
+grep -nE 'fixedSecondPosition' js_kk_sorting.js | cut -c1-200
+########## COOKIE READS ##########
+akt_employ akt_kk_id akt_salary annualSalaryforcalc brunebe expires firstKkId fixedSecondPositionEnabled fixedSecondPositionId match positive_kategorien_counts professionalgroupforcalc split 
+########## data_sparsum / STORAGE ##########
+js_kk_sorting.js:28:  const positiveCategoriesCookie = getCookie("positive_kategorien_counts");
+js_kk_sorting.js:29:  if (positiveCategoriesCookie) {
+js_kk_sorting.js:30:    const categoryCounts = JSON.parse(positiveCategoriesCookie);
+js_kk_sorting.js:398:  return parseFloat(kk_data[kkId].zsb);
+js_vergleich_js.js:42:  if (!aktKkId || !kk_data[aktKkId]) {
+js_vergleich_js.js:46:  // Zusatzbeitrag aus kk_data holen
+js_vergleich_js.js:47:  const zusatzbeitrag = parseFloat(kk_data[aktKkId]["zsb"]) || 0;
+js_vergleich_js.js:132:    if (!kkId || !kk_data[kkId]) {
+js_vergleich_js.js:136:    // Zusatzbeitrag aus kk_data holen
+js_vergleich_js.js:137:    const zusatzbeitrag = parseFloat(kk_data[kkId]["zsb"]) || 0;
+js_vergleich_js.js:547:  if (typeof kk_data === "undefined") {
+js_vergleich_js.js:548:    updateDebugPanel("❌ kk_data ist nicht verfügbar");
+js_vergleich_js.js:559:    `✅ Bereit - KK Daten: ${Object.keys(kk_data).length}, Own Elements: ${
+js_vergleich_js.js:665:    const firstKkId = Object.keys(kk_data)[0];
+
+########## fixedSecondPosition usage ##########
+23:let fixedSecondPositionEnabled = false; // An/Aus-Schalter für fixe zweite Position
+24:let fixedSecondPositionId = ""; // ID der Karte, die an die zweite Stelle soll
+33:      fixedSecondPositionEnabled = true;
+34:      fixedSecondPositionId = "16";
+59:  const enabledCookie = getCookie("fixedSecondPositionEnabled");
+60:  const idCookie = getCookie("fixedSecondPositionId");
+63:    fixedSecondPositionEnabled =
+68:    fixedSecondPositionId = idCookie;
+274:  if (fixedSecondPositionEnabled && fixedSecondPositionId) {
+276:      (card) => card.getAttribute("data-kk-id") === fixedSecondPositionId
+540:    if (fixedSecondPositionEnabled) {
+[0m
+`vergleich_js.js` has a production debug panel. Checking cookie/state trust boundaries across all new scripts.
+Corpus diff is negative for new findings. One decision-relevant passive check remains: does CSP block the top finding's delivery path?
+[0m$ [0mcd /tmp/opencode/kk
+curl -s -I --max-time 15 -A 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0.0.0 Safari/537.36' https://kassenkompass.de/bonusrechner.php -o hdr_bonus.txt -w "%{http_code}\n"
+echo "=== CSP / frame control ==="
+grep -iE 'content-security-policy|x-frame-options|frame-ancestors|cross-origin' hdr_bonus.txt || echo "NONE PRESENT"
+echo "=== all headers ==="
+cat hdr_bonus.txt | cut -c1-150
+200
+=== CSP / frame control ===
+x-frame-options: SAMEORIGIN
+referrer-policy: strict-origin-when-cross-origin
+=== all headers ===
+HTTP/2 200 
+date: Sat, 03 Oct 2026 05:47:19 GMT
+content-type: text/html; charset=UTF-8
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+set-cookie: AWSALB=cJAXFozlg5yv2PkfRwr9CSuFLk7hXJtqd0dDLhWTLlUKE9KZ1ewWXlZKStrASo5N7gBoh/dXY2yowd90T6U6CRQIgLZq76HDBrMJJplOtgVlHbBVWEJhCGHCSk/1; Expir
+set-cookie: AWSALBCORS=cJAXFozlg5yv2PkfRwr9CSuFLk7hXJtqd0dDLhWTLlUKE9KZ1ewWXlZKStrASo5N7gBoh/dXY2yowd90T6U6CRQIgLZq76HDBrMJJplOtgVlHbBVWEJhCGHCSk/1; E
+set-cookie: PHPSESSID=8e9a50caa6e827c2301ba6acd5d61797; path=/; secure; HttpOnly; SameSite=Lax
+cache-control: no-store, no-cache, must-revalidate
+pragma: no-cache
+expires: Thu, 19 Nov 1981 08:52:00 GMT
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+referrer-policy: strict-origin-when-cross-origin
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=QpbvXh9ffRcPANweXxlg5rd38dKU8riPpwShPVS2Fk
+cf-ray: a449a6c08d4aa32a-SEA
+[0m
+=== README ===
+# kassenkompass-hunt
+
+24/7 deep multi-model bug-hunting automation for **KassenKompass GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/kassenkompass.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German health insurance comparison and switching platform for statutory health insurance providers
+[0m
+[0m$ [0mcd /tmp/opencode/kk
+echo "=== data-alte-kk-name / data-neue-text occurrences ==="
+grep -oE 'data-(alte|neue)(kk-name|text)="[^"]{0,120}"' page_bonusrechner_vergleich2.php | head -8
+echo "=== count ==="
+grep -ocE 'data-(alte|neue)(kk-name|text)=' page_bonusrechner_vergleich2.php
+echo "=== any raw < or > inside those attrs (would mean unescaped server data)? ==="
+grep -oE 'data-(alte|neue)(kk-name|text)="[^"]*[<>][^"]*"' page_bonusrechner_vergleich2.php | head -5 || true
+echo "(empty above = all values escaped/clean)"
+echo "=== htmlspecialchars-style entities present in those attrs? ==="
+grep -oE 'data-(alte|neue)(kk-name|text)="[^"]*(&[a-z]+;|&amp;)[^"]*"' page_bonusrechner_vergleich2.php | head -3 || echo "none"
+=== data-alte-kk-name / data-neue-text occurrences ===
+=== count ===
+0
+=== any raw < or > inside those attrs (would mean unescaped server data)? ===
+(empty above = all values escaped/clean)
+=== htmlspecialchars-style entities present in those attrs? ===
+[0m
+Corpus diff complete. One free check remains on data already fetched — is the new `innerHTML` sink fed escaped or raw server data?
+[0m$ [0mcd /tmp/opencode/kk
+echo "=== who SETS the dataset attrs consumed by expand-functionality.js? ==="
+grep -rnE 'dataset\.(alteKkName|neueKkName|alteText|neueText)|setAttribute\(.data-(alte|neue)' js_*.js | cut -c1-220 || echo "NOT SET IN ANY NEW SCRIPT"
+echo
+echo "=== is .bnve_expandcontenttext present in fetched HTML at all? ==="
+grep -oc 'bnve_expandcontenttext\|bnve_accorsparshowbox' page_bonusrechner_vergleich2.php page_bonusrechner_abschluss.php
+echo
+echo "=== calc_beitrag.js:280-340 source of infoboxText / infefieldtext ==="
+sed -n '280,340p' js_calc_beitrag.js | cut -c1-200
+=== who SETS the dataset attrs consumed by expand-functionality.js? ===
+js_expand-functionality.js:27:                const kkName = textElement.dataset.alteKkName || "Krankenkasse";
+js_expand-functionality.js:28:                const langText = textElement.dataset.alteText || "Kein Text verfügbar";
+js_expand-functionality.js:31:                const kkName = textElement.dataset.neueKkName || "Krankenkasse";
+js_expand-functionality.js:32:                const langText = textElement.dataset.neueText || "Kein Text verfügbar";
+js_expand-functionality.js:42:                (textElement.dataset.alteText || "Kein Text verfügbar") : 
+js_expand-functionality.js:43:                (textElement.dataset.neueText || "Kein Text verfügbar");            const targetKkName = (kkType === "alte_kk") ? 
+js_expand-functionality.js:44:                (textElement.dataset.alteKkName || "Krankenkasse") : 
+js_expand-functionality.js:45:                (textElement.dataset.neueKkName || "Krankenkasse");
+
+=== is .bnve_expandcontenttext present in fetched HTML at all? ===
+page_bonusrechner_vergleich2.php:0
+page_bonusrechner_abschluss.php:0
+
+=== calc_beitrag.js:280-340 source of infoboxText / infefieldtext ===
+    }
+
+  // UI-Element-Management
+  setupInfoFields(element) {
+    const infefield =
+      element.closest("div")?.querySelector(".infclos") ||
+      element.closest(".accordion-row")?.querySelector(".infclos") ||
+      element.closest(".price-right")?.querySelector(".infclos");
+
+    if (infefield) {
+      const innervals = infefield.innerHTML.split(".,.");
+      const [colfirstback, colsecfont, textinfefield, textinfobox] = innervals;
+      const ifinfobox = !!textinfobox;
+
+      const infofieldwrapper = element.closest(".accordion-row");
+      const infofield = infofieldwrapper?.querySelector(".infofield");
+
+      if (infofield) {
+        this.updateInfoFieldStyles(
+          infofield,
+          colfirstback,
+          colsecfont,
+          textinfefield,
+          textinfobox,
+          ifinfobox
+        );
+      }
+    }
+  }
+
+  updateInfoFieldStyles(
+    infofield,
+    backgroundColor,
+    color,
+    text,
+    infoboxText,
+    hasInfobox
+  ) {
+    const infofieldfont = infofield.querySelector(".infofieldfont");
+    const infefieldtext = infofield.querySelector(".infefieldtext");
+    const infofieldcircel = infofield.querySelector(".infofieldcircel");
+    const infoboxholder = infofield.querySelector(".infofieldtool");
+
+    if (infefieldtext) infefieldtext.innerHTML = text;
+
+    infofield.style.display = "flex";
+
+    if (infofieldfont) {
+      infofieldfont.style.backgroundColor = backgroundColor;
+      infofieldfont.style.color = color;
+    }
+
+    if (infofieldcircel) {
+      infofieldcircel.style.borderColor = color;
+      infofieldcircel.style.color = color;
+
+      if (hasInfobox && infoboxholder) {
+        infoboxholder.innerHTML = infoboxText;
+      } else {
+        infofieldcircel.style.pointerEvents = "none";
+        infofieldcircel.style.display = "none";
+[0m
+Corpus fully mined. Writing the consolidated cycle.
+
+## Analyst Output — bigpickle · 2026-10-03 05:50 UTC · target `api` · phase `POC`
+
+### [DELTA]
+**[NEW]** Script-corpus diff on the four pages never previously crawled for scripts is **complete**. `login_auswahl.php` (3,876 B), `bonusrechner_vergleich2.php` (344,603 B), `bonusrechner_abschluss.php` (64,340 B), `termin.php` (8,697 B) yielded **7 scripts outside the mined 8-file corpus**, all fetched and analyzed (84,797 B): `calc_beitrag.js` (15,658), `vergleich_js.js` (24,214), `kk_sorting.js` (19,662), `verg_tooltip.js` (15,160), `expand-functionality.js` (6,201), `faq_toggle.js` (2,257), `moneycalc.js` (1,645).
+
+**[NEW] API reflection-XSS is now *provably* closed, not merely unsupported.** Across all **15 client-side JS files** there are **zero** occurrences of `api.kassenkompass`, `X-API-Secret`, `fetch(`, `XMLHttpRequest`, `$.ajax`, `$.get`, `$.post`, or `axios`. The frontend never contacts the API host, so API error bodies have no path into any KassenKompass DOM. This upgrades the earlier "no known sink" closure to "no call site exists."
+
+**[NEW] No second `postMessage` receiver.** The 7 new scripts contain no `postMessage`, no `addEventListener('message')`, and no `event.origin`/`event.source` reference. `whitelabel_live.js` is the **sole** provenance-less receiver in the entire corpus.
+
+**[NEW] `bonusrechner.php` sends `x-frame-options: SAMEORIGIN` and no `Content-Security-Policy` frame-ancestors.** This is decision-relevant in two directions: XFO governs *iframe embedding only*, so it does **not** block the `window.open` + `postMessage` delivery path; conversely an iframe-based PoC **would** be dismissed as unframable. The PoC must use `window.open`.
+
+**[NEW] Production debug panel shipped to live clients.** `vergleich_js.js:650-694` builds a `🐛 Calculation Debug` panel on `document.body` with a "Test-Cookies" button that writes `akt_kk_id`, `akt_salary=50000`, `akt_employ=1` then reloads. Effect is confined to the visitor's own browser → informational.
+
+**[CHANGED] Re-ranking correction against peer lead `nemotron3` (conf 90/88).** Both encoded-separator hypotheses were **already measured on 2026-10-01** and are recorded in the knowledge base (`/delete%2f1%2fextra` → 401/189 B/`b05031ccaf9c539e`; `/health_insurance%2f1%2fextra` → 401/241 B/`d91c109c481f499a`). The 401 auth gate is **intact on both routes**. No WAF rule was ever observed to exist on those paths, so "bypasses literal-path WAF rules" describes a control never seen; the remaining `evidence_needed` is credentialed. These are recon-grade MISCONFIG, not top findings, and I am downgrading them.
+
+### [PRIORITIZE]
+```
+kassenkompass.de/js/whitelabel_live.js     8.60  as=9 bv=8 te=8 ge=10 cs=4 fr=7
+kassenkompass.de/js/param_passthrough.js   7.40  as=8 bv=9 te=7 ge=10 cs=3 fr=6
+kassenkompass.de/js/expand-functionality.js 5.20 as=6 bv=5 te=7 ge=9  cs=2 fr=8
+api.kassenkompass.de/ (normalization)      4.60  as=10 bv=9 te=9 ge=1 cs=7 fr=8
+kk-s3-01.s3.eu-central-1.amazonaws.com     3.80  as=7 bv=3 te=3 ge=10 cs=8 fr=7
+```
+API host retains the largest attack surface but scores lowest on gate ease — every non-catalog route is credential-gated, and this cycle produced no new reachable code path into it.
+
+### [HYP]
+
+**[HYP] Cross-origin `postMessage` presentation manipulation on the comparison funnel**
+- `class:` OTHER (UI/DOM integrity) — **not XSS**; writes are `textContent` + allowlisted values
+- `asset:` `kassenkompass.de/js/whitelabel_live.js` · `confidence:` 85
+- `reasoning:` Receiver validates only `data.type === 'wl-preview'` and `typeof data.brand`; neither `event.origin` nor `event.source` is checked. On match it force-adds `wl-active` to `<body>`, which suppresses 19 CSS selectors — 5 measured as real elements: `bnv_inputframe`, `bnv_trustwrapper`, `bnv_logowrapper`, `bnv_trustratebox`, `bnv_trustraterate`. Suppressed content includes the statutory-benefit block, the Google rating, the customer-count claim, and the logo. Conversely `postMessage({type:'wl-preview-ready'}, '*')` uses a wildcard `targetOrigin`. Now confirmed this cycle: **no CSP frame-ancestors**, and XFO `SAMEORIGIN` does not constrain `window.open`, so the delivery path is open.
+- `impact:` Any site can strip statutory and trust signals from a regulated insurance comparison UI, and can drive victim-controlled brand values into it. Integrity of regulated content, not code execution. **MEDIUM**
+- `testability:` `HUMAN_ONLY` — requires a victim to open an attacker page
+- `verify_steps:` host an off-origin page that calls `window.open('https://kassenkompass.de/bonusrechner.php')` and sends `{type:'wl-preview', brand:{…}}`; measure computed `display` on the five selectors. **Do not** attempt the iframe variant — XFO `SAMEORIGIN` will block it.
+
+**[HYP] Unsanitized marketing-parameter propagation into lead attribution**
+- `class:` BUSLOGIC · `asset:` `kassenkompass.de/js/param_passthrough.js` · `confidence:` 64
+- `reasoning:` 16 URL parameters accepted with only a 128-char length cap, persisted to `sessionStorage["kkweb_pass_params"]` and re-injected into same-host funnel anchors and CTA `onclick` handlers for the whole tab session. `data_sparsum` is correctly excluded. Attribution identifiers such as `lizenz`, `jid`, `agn`, `connectionnumber`, `ppn`, `poolpartnernummer` are attacker-suppliable and survive the marketing-site → app boundary.
+- `evidence_needed:` server-side confirmation that a propagated value reaches the stored lead/contract record rather than dying client-side
+- `impact:` lead and commission misattribution on regulated broker agreements · **MEDIUM**
+- `testability:` `AUTH_HELPED`
+
+### [PARKED]
+- **`expand-functionality.js:29,33,49`** — `innerHTML = "<strong>" + kkName + "</strong>: " + langText`. **Dead on reachable pages.** The `data-alte-kk-name` / `data-alte-text` attributes are read-only here, never assigned by any of the 7 new scripts, and absent from both `vergleich2` and `abschluss` server HTML (0 occurrences of `.bnve_accorsparshowbox`); every read falls back to the literal `"Krankenkasse"` / `"Kein Text verfügbar"`. A latent HTML-injection sink if KK benefit text is ever admin-injectable — but no external write path exists. Parked at 25.
+- **`calc_beitrag.js:323,337`** — `infefieldtext.innerHTML = text` / `infoboxholder.innerHTML = infoboxText`, sourced DOM→DOM from `.infclos` tariff-card markup. DB-sourced, not attacker-reachable. Parked at 20.
+- **`kk_sorting.js:30`** — `JSON.parse(getCookie('positive_kategorien_counts'))` is inside `try/catch`; malformed input is swallowed, and DoS is out of scope anyway. No finding.
+- **Cookie-driven card ordering** — `fixedSecondPositionEnabled` / `fixedSecondPositionId` (unvalidated, `decodeURIComponent` at line 51) reorder the top-two tariff cards, but purely client-side in the attacker's own view. Self-scoped, not reportable.
+- **`/post/create_user`** — unchanged. 405 is method-confounded by gated POST-only `/cat_detail/`; still `AUTH_HELPED`, no credential path.
+- **v2 `insurance_info` BOLA** — unchanged at 60; `ucatKkData` publicly replicates the domain, value is unpublished-draft-only.
+
+### [FINAL]
+1. `kassenkompass.de/js/whitelabel_live.js` — cross-origin `postMessage` presentation manipulation (85, PASSIVE recon complete → `HUMAN_ONLY`)
+2. `kassenkompass.de/js/param_passthrough.js` — unsanitized attribution-parameter propagation (64, `AUTH_HELPED`)
+3. `api.kassenkompass.de` — percent-decode-before-match with encoded-separator and suffix composition, host-wide (55, **complete**; routing MISCONFIG only, auth gate held on every route, **no bypass**)
+4. `kassenkompass.de/js/expand-functionality.js` — latent DB-sourced `innerHTML` sink, dead on reachable pages (25, parked)
+
+### [NEXT]
+**[NEXT] PROBE:** Measure page reach of the top finding with four paced `GET`s — `https://kassenkompass.de/bonusrechner_fragen.php`, `https://kassenkompass.de/bonusrechner_vergleich2.php`, `https://kassenkompass.de/bonusrechner_abschluss.php`, `https://kassenkompass.de/termin.php` — extracting `<script src>` and recording which pages load `whitelabel_live.js`. At `≤1 rps`. A wider receiver footprint directly raises the impact rating of the only finding with reportable potential; reach breadth is its last unmeasured variable and is fully resolvable without credentials.
+
+### [LEARN]
+- `[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js:` `bonusrechner.php` sends `x-frame-options: SAMEORIGIN` with **no** CSP `frame-ancestors`. XFO does not apply to `window.open`, so cross-origin delivery via opener remains viable; the iframe variant is blocked and must not be used in the PoC.
+- `[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php:` production `🐛 Calculation Debug` panel injected into `document.body` by `vergleich_js.js:650-694`, including a control that sets `akt_kk_id`, `akt_salary=50000`, `akt_employ=1` and reloads. Client-side effect only — informational, not independently reportable.
+- `[LEARN] REJECTED XSS @ api.kassenkompass.de:` closure hardened — 15 client JS files scanned, zero API call sites of any kind. Not merely "no reachable sink"; no client code invokes the API host.
+- `[LEARN] REJECTED XSS @ kassenkompass.de/js/expand-functionality.js:` `data-alte-kk-name` / `data-alte-text` never assigned in the 7 new scripts and absent from server HTML; all reads resolve to hardcoded German fallbacks.
+- `[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js:` all 16 tracked identifiers confirmed absent from the 7 newly mined scripts, keeping the propagation chain confined to the one known loader.
+- `[LEARN] REJECTED XSS @ kassenkompass.de/js/{kk_sorting,calc_beitrag,verg_tooltip,vergleich_js,moneycalc,faq_toggle}.js:` every `innerHTML` write resolves to server-rendered tariff markup (`kk_data`, `.infclos`) or numeric formatting; no URL, cookie, storage, or `postMessage` value reaches a sink. Client-side cookie reads (`akt_salary`, `akt_employ`, `akt_kk_id`, `positive_kategorien_counts`, `fixedSecondPosition*`) are consumption-only with no server trust dependency.
+- `[LEARN] ACCEPTED OTHER @ api.kassenkompass.de (correction):` encoded-separator composition measured 2026-10-01 returns **401 on both routes** with canonical `instance` values; auth gate intact. Downgraded from BUSLOGIC/CRITICAL to routing MISCONFIG — a literal-path WAF rule on these paths was never observed, so "bypass" remains untestable speculation.
+- `[LEARN] REJECTED MISCONFIG @ kassenkompass.de (session handling):` `PHPSESSID` issued `Secure; HttpOnly; SameSite=Lax` with `no-store` caching. Correct hygiene; no finding.
+
+### [RISK]
+`KassenKompass GmbH: 80` — Client-side trust architecture is the dominant exposure: the regulated comparison UI renders statutory-benefit, rating, and logo signals that a single provenance-less `postMessage` receiver can suppress from any origin, and broker attribution identifiers are attacker-suppliable with only a length cap. Offsetting this, the API is uniformly credential-gated: `X-API-Secret` remains the sole accepted channel across 26+ cycles, and this cycle confirmed the frontend never calls the API at all, removing the reflection-XSS class entirely. All seven newly mined scripts are free of attacker-reachable DOM sinks, and the sole latent one is dead code on reachable pages. `post/create_user` write authentication remains method-confounded and unproven. The peer lead's encoded-separator findings are real but recon-grade — I am correcting them downward rather than carrying inflated 90/88 scores into triage. No new attack surface since 2026-09-07; the peer pipeline produced its26th consecutive stub-only cycle.
