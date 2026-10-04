@@ -1509,3 +1509,15 @@ www.kassenkompass.de
 ## 2026-10-04 00:50:45 UTC
 
 ## 2026-10-04 06:51:17 UTC
+
+## 2026-10-04 13:19:37 UTC
+- NEW api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1
+- NEW api.kassenkompass.de normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
+- NEW api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE,OPTIONS`; composition with suffix absorption confi
+- NEW api.kassenkompass.de: double-encode fails to reach route (`/delete%252f1` → 404/1245B static handler) confirming single-level decode only
+- NEW api.kassenkompress.de: `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_use
+- NEW kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical;
+- NEW kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only
+- NEW Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 

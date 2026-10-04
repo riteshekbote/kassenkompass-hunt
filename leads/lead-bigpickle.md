@@ -8248,3 +8248,4 @@ testability: AUTH_HELPED
 [RISK] KassenKompass GmbH: 34/100. API is exhausted for unauthenticated testing; remaining high-value paths (IDOR/BOLA on user/delete/settlement, /post/create_user write) are credential-gated behind a single X-API-Secret with known magic values rejected. Provable unauthenticated findings are low-severity only: unauthenticated 2.15 MB tariff corpus exposure (pending data classification), unlicensed parameter-replay surface on bonusrechner_daten.php, and cross-origin trust-element suppression via unchecked postMessage (browser-only). No repository scanning configured; continuing unauthenticated probing yields indistinguishable 401s. Correct next step is vendor data classification and/or scoped credential, not additional unauthenticated requests.
 ## 2026-10-04 00:50:35 UTC [target] (model bigpickle)
 ## 2026-10-04 06:51:08 UTC [target] (model bigpickle)
+## 2026-10-04 13:19:26 UTC [target] (model bigpickle)
