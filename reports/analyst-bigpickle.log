@@ -48736,3 +48736,181 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA rather than re-deriving prior conclusions as new. Peer models continue to queue /user/1 and /delete/1 unauth GETs that are already measured at 401; re-queueing measured endpoints is the pipeline's main wasted-spend source.
 [RISK] KassenKompass GmbH: 34/100. The API is exhausted for unauthenticated testing — 15/15 v1 routes and 1 v2 route mapped, auth-stacked (middleware A, middleware B, legacy /sync/), normalization matrix complete, /post/ write surface method-gated, and every alternate auth channel and known magic value rejected. Remaining high-value paths (BOLA on /user/{ext_id}, /delete/{id}, /settlement_report/, and /post/create_user) are all credential-gated behind a single X-API-Secret. Provable unauthenticated findings are low-severity only: the unauthenticated 2.15 MB tariff corpus (pending classification) and postMessage trust-element suppression (browser-only, integrity-only). No TARGET_ORG is configured, so repository scanning is unavailable. Additional unauthenticated probing has negative expected value; the correct next step is vendor data classification and/or a scoped credential.
 ```
+===== ANALYST bigpickle 2026-10-04 23:39:58 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m→ [0mRead .
+## Objective
+
+- Conduct a read-only, passive-first bug bounty analysis of KassenKompass GmbH in-scope assets (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de and related inventory: awv.kassenkompass.de, load.awv.kassenkompass.de, kassenkompass.net, kk-s3-01.s3.eu-central-1.amazonaws.com) to identify real logic/auth/config flaws.
+- Maintain strict discipline: <=1 rps, GET/HEAD/OPTIONS only for live probes, no mutating tests against customer data, sha256 secrets, facts vs hypotheses separated. Escalate to AUTH_HELPED or HUMAN_ONLY when evidence cannot be obtained passively.
+
+## Important Details
+
+- **Scope & reporting**: bugs.olivermaicher.eu. Only company-owned infrastructure/domains listed in scope.yml and inventory/kassenkompass.md.
+- **Constraints**: passive-first. Do not perform DoS, account lockout, credential brute force, social engineering, or tests that would expose customer/employee/financial/auth data. 
+- **API surface**: api.kassenkompass.de — 15 v1 routes + 1 v2 route (`GET /v2/insurance_info/{kk_id}`), version 1.0/2.0. Three response envelopes: gated v1 (pretty `application/problem+json` with `instance`), legacy `/sync/` (HTTP 200 + auth-error JSON), and `/post/*` app (separately mounted, 200/0B text/html for unknown children, 200/344B JSON for `/post/help`, 405 for POST-only `/post/create_user`).
+- **Auth model**: X-API-Secret header is the sole channel (Authorization Bearer, X-API-Key, X-Api-Token, `api_key` query, query/cookie X-API-Secret all rejected as missing-header). Two middleware stacks: **A** (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`) used by v1 majority + v2; **B** (`X-API-Secret Header fehlt` / `Ungültiger X-API-Secret`) used by `/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}` (user-lifecycle). `/sync/` is legacy (200 + body). `/health/` is fully unauthenticated (200 `{"status":"ok"}`, PHP/8.4.3). `/post/*` prefix is mounted outside the X-API-Secret dependency for the prefix boundary (write auth remains unproven).
+- **Routing/normalization**: percent-decode-before-match host-wide (v1+v2). Encoded separators decode (`/delete%2f1` → same as `/delete/1`, `instance: "/delete/1"`). Decode depth = exactly 1 level (`/%2568...` → static 404). Case-sensitive. Unbounded suffix absorption on many gated routes (`/health_insurance/1/extra` → same handler). 
+- **Method/HEAD divergence**: `/cat_detail/` is auth-gated but GET → 405 (method mismatch) while HEAD → 401 (auth check observed) — do not infer auth from 405. The root catch-all answers HEAD with `content-length: 0` and omits `instance`, so route-membership requires GET + body comparison.
+- **Funnel**: kassenkompass.de/www.kassenkompass.de — 7 funnel mirrors (bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php) with step-scoped alias maps (e.g. `lizenz→afilcode` non-HttpOnly, `jid→customerid`, `agn`+`connectionnumber→agenturnummer` dual-alias duplicate, `ppn→poolpartnernummer`, `employeenumber`). 
+- **Tariff corpus**: bonusrechner_fragen.php returns ~2,152,708 B inline JSON (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) unauthenticated, `no-store`, `CF-DYNAMIC`, no ETag/Last-Modified, no rate limit observed in sustained 100×1 rps. Data freshness ≤2025-12-22 (epoch-derived). Byte-drift ±0.3% across rotation windows (not byte-static). www mirror identical.
+- **Client JS findings**: kassenkompass.de/js/whitelabel_live.js (11,359 B) has postMessage receiver with no `event.origin`/`event.source` check (type+shape only), forces `wl-active`, suppresses 5 measured trust/legal/branding elements (integrity-only). kassenkompass.de/js/param_passthrough.js harvests 16 URL params (length cap 128) into `sessionStorage['kkweb_pass_params']` and re-injects into same-host funnel anchors/onclick CTAs (marketing-site/app split: not loaded on bonusrechner.php). kassenkompass.de/js/live-calculation.js has orphaned `data_sparsum` read path (cookie) but no write observed in public code (client-side sink only, no network egress). 
+- **Other inventory**: awv.kassenkompass.de (SGTM/Stape + GA4/FB), load.awv.kassenkompass.de (Cloudflare-challenged), kassenkompass.net (IIS/10.0+PHP 8.4.3, blanket 302 on app-handled paths → no existence oracle), kk-s3-01.s3.eu-central-1.amazonaws.com (qid 1..180, n-dimension extends, images-only; 200=public-readable object, 403 AccessDenied=absent).
+- **Normalization matrix**: complete for 17 route families (baseline + encoded pair) — 0 divergences. Three pre-auth canonicalization oracles: 401 `instance`, 405 `instance`, v2 404 `detail`. 
+- **Rejected/closed**: Host-header vhost false positive (Cloudflare edge routing), CORS reflection negative on funnel/.net, encoded-separator access-control bypass unproven (byte-identical 401 under identical edge conditions), `/post/*` unauthenticated write provisioning unproven with read-only methods (405 method-confounded; requires AUTH_HELPED credentialed POST + negative control), "unauthenticated user provisioning" nemotron3 claim refuted on evidence, cookie-spoofing server-side chain weakened (client-executed engine + no `data_sparsum` write in public code).
+- **Pipeline**: 25+ consecutive triage cycles returned empty/header-only peer leads — observability gap persists. No new attack surface since 2026-09-07 for most unauthenticated paths.
+
+## Work State
+
+### Completed
+
+- **API mapping**: 15/15 v1 verb+auth matrix via `access-control-allow-methods` (authority), `/cancel/{id}` and `/delete/{id}` identified as middleware B, `/post/` identified as separately mounted app (closed at exactly 2 members: `help`, `create_user`).
+- **Normalization oracle**: host-wide percent-decode-before-match + encoded separators + single-level decode + case-sensitivity established and verified across 17 families.
+- **HEAD vs GET**: `/cat_detail/` divergence proven; root HEAD `content-length:0` rule documented (body comparison required).
+- **Funnel surface**: 7 mirrors mapped with divergent alias sets; `device_id` emitted only by `bonusrechner_vergleich2.php`; `bonusrechner_abschluss.php` POST-only lead gate confirmed (`"Account-ID nicht gefunden"` only on POST).
+- **Tariff corpus**: measured 2,152,708 B, `no-store`+`CF-DYNAMIC`, no rate limit, mirror on www, dataant + 7 debug globals identified in fragen.php.
+- **Client JS**: `whitelabel_live.js`, `param_passthrough.js`, `live-calculation.js` read and constraints mapped (integrity-only for whitelabel; param propagation via sessionStorage; orphaned `data_sparsum` read).
+- **S3 + .net**: kk-s3-01 oracle (200 vs 403), qid 1..180 + n-dimension, kassenkompass.net blanket 302 (no existence oracle).
+- **False positives killed**: Host-header, CORS on funnel/.net, encoded-separator bypass (unproven), `/post/*` unauthenticated write (unproven).
+- **Auth channel closure**: X-API-Secret sole; query/cookie variants rejected; known magic values rejected.
+
+### Active
+
+- **Tariff classification**: 2,152,708 B corpus is unauthenticated and unrate-limited — severity depends on whether it’s intended-public comparison content or licensed partner/commission business data. Not yet confirmed.
+- **`/post/create_user` authorization**: namespace mounted outside X-API-Secret prefix but write auth cannot be determined with read-only methods (405 method-confounded). Requires credentialed POST + negative control (AUTH_HELPED). 
+- **Whitelabel postMessage**: no `event.origin`/`event.source` validation — integrity-only issue; impact gated on whether embedded in cross-origin frame in live flow (HUMAN_ONLY/browser context).
+- **Param_passthrough propagation**: 16 params persisted to `sessionStorage['kkweb_pass_params']` and re-injected into same-host funnel links/CTAs — downstream consumption unverified beyond cookie mirror (active mapping only).
+
+### Blocked
+
+- **Credentialed API tests**: need scoped X-API-Secret for api.kassenkompass.de covering `/user/*`, `/delete/*`, `/settlement_report/*`, `/post/*` to test BOLA/IDOR and `/post/create_user` auth (AUTH_HELPED). 
+- **Vendor confirmation**: data classification for bonusrechner_fragen.php and bonusrechner_daten.php (public vs licensed/commission). Required to finalize tariff exposure severity (HUMAN_ONLY).
+- **Browser reproduction**: whitelabel postMessage cross-origin suppression requires real browser session (not HTTP-only). 
+- **Pipeline observability**: 25+ consecutive empty triage cycles — peer leads header-only/stub; cannot rely on peer signal.
+
+## Next Move
+
+1. **(Immediate)** Send HUMAN request to bugs.olivermaicher.eu asking:
+   - (a) Data classification for `https://kassenkompass.de/bonusrechner_fragen.php` and `https://kassenkompass.de/bonusrechner_daten.php` (intended-public tariff/comparison content vs licensed partner/commission business data).
+   - (b) Whether a scoped, read-only X-API-Secret can be provided for `api.kassenkompass.de` covering `/user/`, `/delete/`, `/settlement_report/`, `/post/*` (to assess BOLA/IDOR and `/post/create_user` authorization) under passive-first constraints.
+2. **(Next)** If credential (b) is granted (AUTH_HELPED), run a minimal credentialed test set: `GET /user/<known-id>` vs unauthorized/foreign-id (BOLA check), `OPTIONS/HEAD/POST /post/create_user` with valid/invalid secret + negative control against gated sibling, and verify `/settlement_report/*` authorization — all at <=1 rps, no bulk enumeration.
+
+## Relevant Files
+
+- **inventory/kassenkompass.md**: Discovered hosts, live HTTP status, inventory seed — reference for in-scope surface.
+- **art/probe-results.md**: All live HTTP probes (requests/responses, status, headers, body sizes, sha256, Set-Cookie) — primary evidence base for the above.
+- **art/lead_*.txt (bigpickle, nemotron3, laguna, ling3, longcat, mimo)**: Agent hypotheses/learns; many peer leads empty/stub but bigpickle/nemotron3 contain useful closures/refutations.
+- **kassenkompass.de/js/whitelabel_live.js**: 11,359 B — postMessage receiver, no origin check, forces wl-active, suppresses 5 trust elements.
+- **kassenkompass.de/js/param_passthrough.js**: 16-param harvester + sessionStorage `kkweb_pass_params` + anchor/onclick re-injection (marketing-site/app split).
+- **kassenkompass.de/js/live-calculation.js**: 36,499 B — client-side calculation, orphaned `data_sparsum` read path, no egress primitives.
+- **kassenkompass.de/bonusrechner_fragen.php**: 2,152,708 B tariff corpus (ucatKkData/globalbudgetsData/kombiboniData/dataant/pseudoKkIds), debug globals present.
+- **api.kassenkompass.de root (`/`)**: 1167 B catalog (15 v1 ver 1.0 + 1 v2 ver 2.0) — cosmetic CL drift class resolved (accurate).
+- **kk-s3-01.s3.eu-central-1.amazonaws.com**: Existence oracle (200 vs 403), qid 1..180 + n-dimension mapping.
+- **kassenkompass.net**: Blanket 302 on app-handled paths — no existence oracle (origin-bypass differential not possible).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m→ [0mRead scope.yml
+Continuing. Next steps are clear.
+
+I'll confirm exact scope wording and draft the HUMAN request to bugs.olivermaicher.eu.
+[0m✗ [0mRead reports/bug_report_kk_phase1.md 2>/dev/null; echo "---SEP---"; head -80 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt | tail -40 failed
+[91m[1mError: [0mFile not found: /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/bug_report_kk_phase1.md 2>/dev/null; echo "---SEP---"; head -80 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt | tail -40
+[0m
+[0m$ [0mcat /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt | grep -B 5 -A 80 "HUMAN request\|bugs.olivermaicher.eu" | head -60
+- Conduct a read-only, passive-first bug bounty analysis of KassenKompass GmbH in-scope assets (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de and related inventory: awv.kassenkompass.de, load.awv.kassenkompass.de, kassenkompass.net, kk-s3-01.s3.eu-central-1.amazonaws.com) to identify real logic/auth/config flaws.
+- Maintain strict discipline: <=1 rps, GET/HEAD/OPTIONS only for live probes, no mutating tests against customer data, sha256 secrets, facts vs hypotheses separated. Escalate to AUTH_HELPED or HUMAN_ONLY when evidence cannot be obtained passively.
+
+## Important Details
+
+- **Scope & reporting**: bugs.olivermaicher.eu. Only company-owned infrastructure/domains listed in scope.yml and inventory/kassenkompass.md.
+- **Constraints**: passive-first. Do not perform DoS, account lockout, credential brute force, social engineering, or tests that would expose customer/employee/financial/auth data. 
+- **API surface**: api.kassenkompass.de — 15 v1 routes + 1 v2 route (`GET /v2/insurance_info/{kk_id}`), version 1.0/2.0. Three response envelopes: gated v1 (pretty `application/problem+json` with `instance`), legacy `/sync/` (HTTP 200 + auth-error JSON), and `/post/*` app (separately mounted, 200/0B text/html for unknown children, 200/344B JSON for `/post/help`, 405 for POST-only `/post/create_user`).
+- **Auth model**: X-API-Secret header is the sole channel (Authorization Bearer, X-API-Key, X-Api-Token, `api_key` query, query/cookie X-API-Secret all rejected as missing-header). Two middleware stacks: **A** (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`) used by v1 majority + v2; **B** (`X-API-Secret Header fehlt` / `Ungültiger X-API-Secret`) used by `/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}` (user-lifecycle). `/sync/` is legacy (200 + body). `/health/` is fully unauthenticated (200 `{"status":"ok"}`, PHP/8.4.3). `/post/*` prefix is mounted outside the X-API-Secret dependency for the prefix boundary (write auth remains unproven).
+- **Routing/normalization**: percent-decode-before-match host-wide (v1+v2). Encoded separators decode (`/delete%2f1` → same as `/delete/1`, `instance: "/delete/1"`). Decode depth = exactly 1 level (`/%2568...` → static 404). Case-sensitive. Unbounded suffix absorption on many gated routes (`/health_insurance/1/extra` → same handler). 
+- **Method/HEAD divergence**: `/cat_detail/` is auth-gated but GET → 405 (method mismatch) while HEAD → 401 (auth check observed) — do not infer auth from 405. The root catch-all answers HEAD with `content-length: 0` and omits `instance`, so route-membership requires GET + body comparison.
+- **Funnel**: kassenkompass.de/www.kassenkompass.de — 7 funnel mirrors (bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php) with step-scoped alias maps (e.g. `lizenz→afilcode` non-HttpOnly, `jid→customerid`, `agn`+`connectionnumber→agenturnummer` dual-alias duplicate, `ppn→poolpartnernummer`, `employeenumber`). 
+- **Tariff corpus**: bonusrechner_fragen.php returns ~2,152,708 B inline JSON (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) unauthenticated, `no-store`, `CF-DYNAMIC`, no ETag/Last-Modified, no rate limit observed in sustained 100×1 rps. Data freshness ≤2025-12-22 (epoch-derived). Byte-drift ±0.3% across rotation windows (not byte-static). www mirror identical.
+- **Client JS findings**: kassenkompass.de/js/whitelabel_live.js (11,359 B) has postMessage receiver with no `event.origin`/`event.source` check (type+shape only), forces `wl-active`, suppresses 5 measured trust/legal/branding elements (integrity-only). kassenkompass.de/js/param_passthrough.js harvests 16 URL params (length cap 128) into `sessionStorage['kkweb_pass_params']` and re-injects into same-host funnel anchors/onclick CTAs (marketing-site/app split: not loaded on bonusrechner.php). kassenkompass.de/js/live-calculation.js has orphaned `data_sparsum` read path (cookie) but no write observed in public code (client-side sink only, no network egress). 
+- **Other inventory**: awv.kassenkompass.de (SGTM/Stape + GA4/FB), load.awv.kassenkompass.de (Cloudflare-challenged), kassenkompass.net (IIS/10.0+PHP 8.4.3, blanket 302 on app-handled paths → no existence oracle), kk-s3-01.s3.eu-central-1.amazonaws.com (qid 1..180, n-dimension extends, images-only; 200=public-readable object, 403 AccessDenied=absent).
+- **Normalization matrix**: complete for 17 route families (baseline + encoded pair) — 0 divergences. Three pre-auth canonicalization oracles: 401 `instance`, 405 `instance`, v2 404 `detail`. 
+- **Rejected/closed**: Host-header vhost false positive (Cloudflare edge routing), CORS reflection negative on funnel/.net, encoded-separator access-control bypass unproven (byte-identical 401 under identical edge conditions), `/post/*` unauthenticated write provisioning unproven with read-only methods (405 method-confounded; requires AUTH_HELPED credentialed POST + negative control), "unauthenticated user provisioning" nemotron3 claim refuted on evidence, cookie-spoofing server-side chain weakened (client-executed engine + no `data_sparsum` write in public code).
+- **Pipeline**: 25+ consecutive triage cycles returned empty/header-only peer leads — observability gap persists. No new attack surface since 2026-09-07 for most unauthenticated paths.
+
+## Work State
+
+### Completed
+
+- **API mapping**: 15/15 v1 verb+auth matrix via `access-control-allow-methods` (authority), `/cancel/{id}` and `/delete/{id}` identified as middleware B, `/post/` identified as separately mounted app (closed at exactly 2 members: `help`, `create_user`).
+- **Normalization oracle**: host-wide percent-decode-before-match + encoded separators + single-level decode + case-sensitivity established and verified across 17 families.
+- **HEAD vs GET**: `/cat_detail/` divergence proven; root HEAD `content-length:0` rule documented (body comparison required).
+- **Funnel surface**: 7 mirrors mapped with divergent alias sets; `device_id` emitted only by `bonusrechner_vergleich2.php`; `bonusrechner_abschluss.php` POST-only lead gate confirmed (`"Account-ID nicht gefunden"` only on POST).
+- **Tariff corpus**: measured 2,152,708 B, `no-store`+`CF-DYNAMIC`, no rate limit, mirror on www, dataant + 7 debug globals identified in fragen.php.
+- **Client JS**: `whitelabel_live.js`, `param_passthrough.js`, `live-calculation.js` read and constraints mapped (integrity-only for whitelabel; param propagation via sessionStorage; orphaned `data_sparsum` read).
+- **S3 + .net**: kk-s3-01 oracle (200 vs 403), qid 1..180 + n-dimension, kassenkompass.net blanket 302 (no existence oracle).
+- **False positives killed**: Host-header, CORS on funnel/.net, encoded-separator bypass (unproven), `/post/*` unauthenticated write (unproven).
+- **Auth channel closure**: X-API-Secret sole; query/cookie variants rejected; known magic values rejected.
+
+### Active
+
+- **Tariff classification**: 2,152,708 B corpus is unauthenticated and unrate-limited — severity depends on whether it’s intended-public comparison content or licensed partner/commission business data. Not yet confirmed.
+- **`/post/create_user` authorization**: namespace mounted outside X-API-Secret prefix but write auth cannot be determined with read-only methods (405 method-confounded). Requires credentialed POST + negative control (AUTH_HELPED). 
+- **Whitelabel postMessage**: no `event.origin`/`event.source` validation — integrity-only issue; impact gated on whether embedded in cross-origin frame in live flow (HUMAN_ONLY/browser context).
+- **Param_passthrough propagation**: 16 params persisted to `sessionStorage['kkweb_pass_params']` and re-injected into same-host funnel links/CTAs — downstream consumption unverified beyond cookie mirror (active mapping only).
+
+### Blocked
+
+- **Credentialed API tests**: need scoped X-API-Secret for api.kassenkompass.de covering `/user/*`, `/delete/*`, `/settlement_report/*`, `/post/*` to test BOLA/IDOR and `/post/create_user` auth (AUTH_HELPED). 
+- **Vendor confirmation**: data classification for bonusrechner_fragen.php and bonusrechner_daten.php (public vs licensed/commission). Required to finalize tariff exposure severity (HUMAN_ONLY).
+- **Browser reproduction**: whitelabel postMessage cross-origin suppression requires real browser session (not HTTP-only). 
+- **Pipeline observability**: 25+ consecutive empty triage cycles — peer leads header-only/stub; cannot rely on peer signal.
+
+## Next Move
+
+1. **(Immediate)** Send HUMAN request to bugs.olivermaicher.eu asking:
+   - (a) Data classification for `https://kassenkompass.de/bonusrechner_fragen.php` and `https://kassenkompass.de/bonusrechner_daten.php` (intended-public tariff/comparison content vs licensed partner/commission business data).
+   - (b) Whether a scoped, read-only X-API-Secret can be provided for `api.kassenkompass.de` covering `/user/`, `/delete/`, `/settlement_report/`, `/post/*` (to assess BOLA/IDOR and `/post/create_user` authorization) under passive-first constraints.
+2. **(Next)** If credential (b) is granted (AUTH_HELPED), run a minimal credentialed test set: `GET /user/<known-id>` vs unauthorized/foreign-id (BOLA check), `OPTIONS/HEAD/POST /post/create_user` with valid/invalid secret + negative control against gated sibling, and verify `/settlement_report/*` authorization — all at <=1 rps, no bulk enumeration.
+
+## Relevant Files
+
+- **inventory/kassenkompass.md**: Discovered hosts, live HTTP status, inventory seed — reference for in-scope surface.
+- **art/probe-results.md**: All live HTTP probes (requests/responses, status, headers, body sizes, sha256, Set-Cookie) — primary evidence base for the above.
+- **art/lead_*.txt (bigpickle, nemotron3, laguna, ling3, longcat, mimo)**: Agent hypotheses/learns; many peer leads empty/stub but bigpickle/nemotron3 contain useful closures/refutations.
+- **kassenkompass.de/js/whitelabel_live.js**: 11,359 B — postMessage receiver, no origin check, forces wl-active, suppresses 5 trust elements.
+[0m
+Continuing. Clear next steps.
+
+## Immediate action: draft HUMAN request to bugs.olivermaicher.eu
+
+Send the following clarification:
+
+**Subject:** Clarification needed for passive-first analysis (data classification + scoped read-only API access)
+
+Dear KassenKompass GmbH Security Team,
+
+As part of the passive-first analysis under the program at bugs.olivermaicher.eu, we need clarification on two items to finalize impact assessment without violating constraints (<=1 rps, read-only, no customer/financial data modification):
+
+1. **Data classification for public funnel files**
+- `https://kassenkompass.de/bonusrechner_fragen.php` (observed ~2,152,708 B inline JSON containing `ucatKkData`, `globalbudgetsData`, `kombiboniData`, `dataant`, `pseudoKkIds`)
+- `https://kassenkompass.de/bonusrechner_daten.php` (funnel mirror)
+
+Question: Are these endpoints intended to return publicly accessible tariff/comparison content, or do they contain licensed/partner/commission business data with restricted distribution? This determines whether the unauthenticated, unrate-limited exposure is expected public content or a data exposure issue.
+
+2. **Scoped read-only API access for `api.kassenkompass.de`**
+To assess BOLA/IDOR and authorization on middleware-B routes and the `/post/*` namespace without mutating live data, we request a scoped, read-only X-API-Secret covering:
+- `/user/*`
+- `/delete/*`
+- `/cancel/*` (for consistency with middleware-B)
+- `/settlement_report/*`
+- `/post/*` (including verification of `/post/create_user` authorization via non-mutating probes)
+
+Constraints honored: passive-first, <=1 rps, read-only methods (GET/HEAD/OPTIONS) where feasible, no bulk enumeration, no credential brute force, no modification of live customer data.
+
+If you can provide (1) classification and (2) a time-limited scoped secret, we will proceed under AUTH_HELPED with minimal, non-destructive checks.
+
+Thank you,
+[Contact details as required by program]
+
+## Await
+Do not proceed with credentialed tests until response received. After response, if credential granted, execute minimal test set as outlined (BOLA check on `/user/*`, authorization verification on `/settlement_report/*`, and non-mutating assessment of `/post/create_user` with negative controls).
