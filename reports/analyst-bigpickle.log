@@ -48024,3 +48024,69 @@ Continue if you have next steps, or stop and ask for clarification if you are un
 - **Next:** Request data classification from program contact for `bonusrechner_fragen.php` and `bonusrechner_daten.php` (public vs licensed partner) — blocks tariff exposure severity.
 - **Next:** Request one scoped read-only API credential for `api.kassenkompass.de` to test `/post/create_user` write auth and gated routes.
 - **Pause:** No further unauthenticated probes (API/funnel/normalization/tariff exhausted). Encoded-separator bypass parked (35 < 40). Await program input.
+===== ANALYST bigpickle 2026-10-04 17:52:01 UTC =====
+[0m
+> build · big-pickle
+[0m
+# STEP 1 — DELTA
+[NO_DELTA] - Surface is stable since 2026-09-07; api.kassenkompass.de normalization matrix complete for 17 route families with encoded-separator decode (single-level), root content-length accurate at 1167 bytes, /sync/ legacy HTTP-200 auth body persists; kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen across 10+ rotation windows (±0.3% drift, ~2.152MB), debug API exposed on page; funnel mirrors stable (7 entry points), v2 oracle saturated at 42 names (insurance_info sole). No new hosts/endpoints observed in latest aggregation.
+
+# STEP 2 — PRIORITIZE
+[PRIO] asset: api.kassenkompass.de, score: 6.18, axis: attack_surface=7, business_value=7, tech_exposure=7, gate_ease=4, cloud_surface=6, freshness=6
+[PRIO] asset: kassenkompass.de/bonusrechner_fragen.php, score: 5.95, axis: attack_surface=5, business_value=6, tech_exposure=5, gate_ease=10, cloud_surface=0, freshness=6
+[PRIO] asset: kassenkompass.de/js/whitelabel_live.js, score: 5.00, axis: attack_surface=3, business_value=5, tech_exposure=4, gate_ease=10, cloud_surface=0, freshness=7
+
+# STEP 3 — HYPOTHESES
+[HYP] Unauthenticated tariff corpus exposure
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 62
+reasoning: Returns ~2.15 MB inline tariff/question data (ucatKkData, globalbudgetsData, kombiboniData, pseudoKkIds) via HTTP 200 with no credential; cache-control no-store, cf-cache-status DYNAMIC, no ETag/Last-Modified; sustained 1 rps scraping confirmed without 429/WAF block; data_sparsum not consumed server-side on GET; lastchange epochs ≤2025-12-22.
+evidence_needed: Vendor data classification (intended-public tariff content vs licensed partner business data) to determine whether exposure is acceptable.
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (record status/headers/transfer-encoding and sha256 of body). GET https://www.kassenkompass.de/bonusrechner_fragen.php (compare sha256 to apex). Both passive, ≤1 rps.
+impact: Unbounded scraping of full tariff corpus; severity informational-to-low pending vendor data classification.
+testability: PASSIVE
+
+[HYP] Cross-origin trust-element suppression via unchecked postMessage
+class: OTHER
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 55
+reasoning: postMessage receiver validates only data.type and typeof data.brand; neither event.origin nor event.source is consulted. On bonusrechner.php, exactly 5 live trust elements (bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate) are suppressible by a hostile frame. Sink is textContent with fixed selector allowlist (no innerHTML) — integrity suppression only, no script execution demonstrated.
+evidence_needed: Browser reproduction showing hostile third-party page suppressing trust elements in embedded KassenKompass page (cannot be established from HTTP responses alone).
+verify_steps: GET https://kassenkompass.de/js/whitelabel_live.js (confirm absence of origin/source checks at receiver). Manual browser test posting {"type":"brand","brand":"..."} from hostile parent page.
+impact: UI-integrity suppression of statutory/trust/branding elements in embedded context; low severity.
+testability: HUMAN_ONLY
+
+[HYP] /post/ namespace write auth status (passive determination insufficient)
+class: OTHER
+asset: api.kassenkompass.de
+confidence: 35
+reasoning: /post/help returns HTTP 200 / 344 B application/json advertising POST /post/create_user ("Erstellt einen neuen User. Erwartet JSON im Body."); /post/ and /post/create_user return 405 problem+json. HEAD differentials show /post/ app mounted outside X-API-Secret dependency for the prefix, but write auth cannot be proven with read-only methods; 405 is method-confounded on POST-only routes. Mutating test (POST /post/create_user) would be required but is not permitted as passive.
+evidence_needed: Credentialed POST to /post/create_user with a known-invalid and known-valid X-API-Secret and negative control to a gated sibling; or vendor confirmation. No passive-only test exists.
+verify_steps: (No passive-only verification available.) Authenticated/credentialed test required; cannot execute under passive-first constraint.
+impact: If unauthenticated write allowed, user provisioning surface exists; unproven with current read-only evidence.
+testability: AUTH_HELPED
+
+# STEP 4 — SELF-CRITIQUE
+[PARKED] /post/ namespace write auth status (passive determination insufficient): confidence 35 < 40 and requires AUTH_HELPED mutating test outside passive-first constraint; cannot assert unauthenticated provisioning from read-only evidence.
+[FINAL] Unauthenticated tariff corpus exposure (confidence 62)
+[FINAL] Cross-origin trust-element suppression via unchecked postMessage (confidence 55)
+
+# STEP 5 — NEXT ACTION
+[NEXT] HUMAN: Request data classification from program contact for kassenkompass.de/bonusrechner_fragen.php and kassenkompass.de/bonusrechner_daten.php (intended-public tariff content vs licensed partner business data), and request one scoped read-only/credentialed test scope for api.kassenkompass.de /post/* if write-surface assessment is required. No additional passive HTTP probes recommended at this time.
+
+# STEP 6 — LEARNING
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — 405 method-confounded by gated POST-only routes; write auth cannot be proven with read-only methods. Requires credentialed POST and negative control; passive-first constraint prevents conclusive verification.
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: /delete%2f1%2fextra and /delete/1/extra are byte-identical (401) with Cloudflare/origin returning same edge conditions; no differential observed; routing quirk real, access-control bypass unproven.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.15 MB tariff corpus served unauthenticated with no-store headers; leakage severity depends on vendor data classification.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no origin/source validation; integrity-only suppression of trust elements in embedded context.
+
+# STEP 7 — RISK
+[RISK] KassenKompass GmbH: 34/100. API exhausted for unauthenticated testing (15/15 verb+auth mapped, normalization matrix complete, /post/ write surface credential-gated). Provable unauthenticated findings are low-severity only: unauthenticated tariff corpus exposure (pending data classification) and cross-origin trust-element suppression via unchecked postMessage (browser-only integrity issue). Remaining high-value paths (IDOR/BOLA on user/delete/settlement, /post/create_user write) require credentialed testing. Continuing passive probes yields indistinguishable 401s; vendor data classification and scoped credential are appropriate next steps.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+No further passive tests possible. Pending human actions:
+
+- **Data classification**: Verify if tariff corpus on `bonusrechner_fragen.php` is intended to be public.
+- **Scoped credentialed testing**: Needed for `/post/*` write surface (create_user) and user/settlement paths.
+
+Await clarification from program contact before proceeding.

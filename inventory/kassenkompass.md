@@ -1521,3 +1521,14 @@ www.kassenkompass.de
 - NEW Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
+
+## 2026-10-04 17:52:01 UTC
+- CHANGED api.kassenkompass.de root: content-length header now consistently accurate (1167) matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ve
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
+- CHANGED api.kassenkompress.de: `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_use
+- CHANGED `/cat_detail/` auth state moves from INFERRED to OBSERVED — HEAD `/cat_detail/`→401 problem+json (route is auth-gated); GET `/cat_detail/`→405 method mismatch; GET/HEAD divergence proven
+- CHANGED v2 `/insurance_info/1` first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
