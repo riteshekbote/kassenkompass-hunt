@@ -1560,3 +1560,17 @@ www.kassenkompass.de
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates; n-dimension extends (qid 60 n=2 = 1,051,319 B, distin
+
+## 2026-10-05 02:31:47 UTC
+- CHANGED api.kassenkompass.de/ root content-length now consistently accurate 1167 (was CL:0→absent→accurate drift class) — catalog substance unchanged 15 v1 + 1 v2
+- CHANGED kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3% — drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates; n-dimension extends (qid 60 n=2 = 1,051,319 B)
+- CHANGED api.kassenkompass.de/post/ write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD /delete/1→401, HEAD /state/→401, HEAD /post/→405, HEAD /post/create_user→405; GET /
+- CHANGED /cat_detail/ auth state moves from INFERRED to OBSERVED — HEAD /cat_detail/→401 problem+json (route is auth-gated); GET /cat_detail/→405 method mismatch; GET/HEAD divergence proven
+- CHANGED v2 /insurance_info/1 first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+- CHANGED kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only; forces wl-active, suppresses 5 real trust elements
+- CHANGED kassenkompass.de/js/param_passthrough.js: harvests 16 unvalidated params (length cap 128) into sessionStorage kkweb_pass_params, re-injects into every same-host funnel anchor/onclick CTA
+- CHANGED kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from cookie, adds to computed savings before animating into #resulteuro; set
