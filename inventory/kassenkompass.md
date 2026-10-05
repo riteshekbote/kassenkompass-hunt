@@ -1574,3 +1574,10 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only; forces wl-active, suppresses 5 real trust elements
 - CHANGED kassenkompass.de/js/param_passthrough.js: harvests 16 unvalidated params (length cap 128) into sessionStorage kkweb_pass_params, re-injects into every same-host funnel anchor/onclick CTA
 - CHANGED kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from cookie, adds to computed savings before animating into #resulteuro; set
+
+## 2026-10-05 09:40:03 UTC
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de/root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
