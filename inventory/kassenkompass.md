@@ -1613,3 +1613,19 @@ www.kassenkompass.de
 - CHANGED Encoded-separator bypass hypotheses REJECTED by fresh measurements: /delete%2f1%2fextra ≡ /delete/1/extra (401/189B, same sha256), /health_insurance%2f1%2fextra ≡ /health_insurance/1/extra (401/241B, 
 - CHANGED HEAD methodology REJECTED for route-membership — HEAD returns CL:0 and omits `instance` field; GET with body comparison required
 - CHANGED Normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+
+## 2026-10-06 23:49:03 UTC
+- NEW api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences); three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404
+- NEW api.kassenkompass.de: `/post/` is a separately mounted app outside X-API-Secret dependency (prefix returns 200/344B JSON at `/post/`, 200/0B text/html for unknown sub-paths); closed at exactly 2 membe
+- NEW api.kassenkompass.de: verb+auth matrix complete from `access-control-allow-methods` (route table, not status codes) — 4 catalogued-GET routes exclude GET entirely (`/sync/`, `/health_insurance_savings
+- NEW api.kassenkompass.de: composition confirmed on same request — suffix absorption composes with percent-decode+encoded-separators (e.g. `/health_insurance%2f1%2fextra` → 401/241B with verb table matchin
+- CHANGED api.kassenkompass.de: `/sync/` returns HTTP/2 200 with `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (67B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349c
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 2,157,169 B tariff corpus (within ±0.3% drift band, 2,152,708→2,157,169, +0.207%) served unauthenticated with `no-store, no-cache, must-revalidate`, `cf-cache
+- NEW kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no `event.origin`/`event.source` check (type-and-shape only); forces `wl-active` on body; suppresses 5 real statutory/trust elements (i
+- NEW kassenkompass.de/js/param_passthrough.js: harvests 16 params from `location.search` (length cap 128), persists to `sessionStorage.kkweb_pass_params`, re-injects into every same-host funnel anchor and 
+- NEW kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — parses `data_sparsum` from cookie and adds to computed savings (sink `#resulteuro` via `textContent`), but `setCookie(
+- NEW kassenkompass.de/bonusrechner_vergleich2.php: emits `device_id` (1yr Secure HttpOnly SameSite=Lax) + force-deletes `catoint` (sole funnel step emitting `device_id`)
+- NEW kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" div appears ONLY on valid form POST (server validates Account-ID on submission, not page render); le
+- CHANGED kassenkompass.net: blanket 302 on every app-handled path (.php and non-.php) — no existence oracle; cannot be used for origin-bypass differential testing; cookies host-only (.net→302→.de, host-only) s
+- CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 (6 beyond page-refs 175-180), all byte-identical duplicates at n=1 (ETag 52f04d11..., 747082 B, 2025-10-28); n-dimension extends (qid 60 n=2 = 1
+- CHANGED Pipeline/observability: peer leads header-only/stub for 25+ consecutive triage cycles (observability gap persists); no new attack surface introduced since 2026-09-07; reposcan unavailable (TARGET_ORG 
