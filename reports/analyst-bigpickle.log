@@ -50859,3 +50859,516 @@ All open items resolved. Writing the delta to the KB:
 **[LEARN]** The unauthenticated passive surface is genuinely exhausted — this cycle's only live spend went to a control experiment that was never run, not to re-deriving a known result. `HPKE DHKEM_P256_HKDF_SHA256` keys in the GTM container are public by construction; don't pattern-match them as secrets.
 
 **[RISK]** 34/100 — unchanged. Peer ledger still ranks the refuted encoded-separator finals @90/@88 and re-queues an executable HEAD probe; both remain cancelled, do not action.
+===== ANALYST bigpickle 2026-10-06 19:53:22 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -sS -o /tmp/opencode/fragen.html -D /tmp/opencode/fragen.hdr -w "%{http_code} %{size_download}\n" "https://kassenkompass.de/bonusrechner_fragen.php" --max-time 30
+200 2157169
+[0m
+[0m$ [0msleep 2; curl -sS -o /tmp/opencode/apiroot.json -D /tmp/opencode/apiroot.hdr -w "%{http_code} %{size_download}\n" "https://api.kassenkompass.de/" --max-time 30
+200 1167
+[0m
+## Objective
+- Act as senior bug bounty analyst for KassenKompass GmbH (report channel: bugs.olivermaicher.eu), running the mandated 7-step pipeline (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARN → RISK) against in-scope assets only.
+- Emit only structured blocks; passive-first probes only (GET/HEAD/OPTIONS, ≤1 rps); no REJECTED-class findings.
+
+## Important Details
+- Scope ONLY: KassenKompass GmbH infra (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com).
+- My state: `{"phase": "POC", "target": "api"}`.
+- Priority formula: `0.25*attack_surface + 0.25*business_value + 0.15*tech_exposure + 0.15*gate_ease + 0.10*cloud_surface + 0.10*freshness` (must be recomputed from emitted axes; prior 5.80 vs formula 6.50 error noted).
+- Standing constraints: ≤1 rps (2026-09-11 burst triggered transient WAF IP-block); no credentialed/mutating tests without scoped X-API-Secret (AUTH_HELPED); HEAD unsound for route-membership (returns content-length: 0, omits `instance`) — use GET + body comparison; a 405 is never evidence about credentials on this host, only a 401 is; idempotent re-runs must emit NO_DELTA.
+- Established API facts: 15 v1 + 1 v2 endpoint catalog (root 1167 B, ver 1.0/2.0); auth map — middleware A (v1 majority + v2, "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"), middleware B ({/user/{ext_id}, /delete/{id}, /cancel/{id}}, "X-API-Secret Header fehlt" + instance), legacy /sync/ HTTP-200 envelope, /health/ unauthenticated (22 B constant), /post/* separately mounted (help 200/344 B JSON, create_user 405 POST-only; namespace closed at 2 members).
+- Normalization matrix COMPLETE: 17 route families, 0 divergences; percent-decode-before-match host-wide (v1+v2), single decode level, case-sensitive, encoded separators decode (`/delete%2f1` ≡ `/delete/1`), three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- REJECTED (do not re-raise): encoded-separator access-control bypass (encoded ≡ literal byte-identical 401, no differential — retires peer finals @90 and @88); HEAD route-membership; "unauthenticated user provisioning" on /post/create_user (method-confounded); Host-header vhost FP; CORS on .net/funnel/api; CRLF on .net; SSRF/JWT/CRED_REUSE classes.
+- Key severity of remaining findings: three low findings only — tariff corpus (MISCONFIG, conf 62, PASSIVE), unchecked postMessage (OTHER, conf 55, HUMAN_ONLY), /sync/ HTTP-200 (MISCONFIG, conf 45, PASSIVE).
+- Program risk last recorded: 34/100 (unauthenticated surface exhausted).
+
+## Work State
+### Completed
+- Full 15/15 verb+auth matrix, 17-family normalization matrix, v2 42-name saturation, /post/* enumeration (2 members), S3 qid 1..180 + n-axis mapped, 7 funnel cookie-mirror entries documented, reflection class closed 7/7 server-side.
+- Self-measured 2026-10-05 18:51 UTC: `GET /sync/` → HTTP/2 200, 67 B, sha256 `b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3`, body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`.
+- Tariff payload stable 2,152,708 B (drift ±0.3%, drift-on-refresh model); apex+www mirror identical.
+- Prior [LEARN]s emitted: ACCEPTED /sync/ MISCONFIG, ACCEPTED fragen.php MISCONFIG, ACCEPTED whitelabel_live.js XSS/OTHER, REJECTED encoded-separator bypass, REJECTED /post/ provisioning, REJECTED S3 confidentiality impact, ACCEPTED NO_DELTA methodology, ACCEPTED scoring recomputation.
+- Latest peer ranking (2026-10-06 14:36:27 UTC) still shows `[95] bonusrechner_fragen.php Unauthenticated Mass Tariff Data Exposure` and a nemotron3 NEXT PROBE for /post/help and /delete/1 (both already measured — re-queue is wasted spend).
+
+### Active
+- Awaiting emission of this cycle's 7 structured blocks (STEP 1–7) for the 2026-10-06 14:36 run; expected outcome is largely NO_DELTA given surface exhaustion.
+- Standing [NEXT] from last leads is HUMAN: contact bugs.olivermaicher.eu for (a) data classification of bonusrechner_fragen.php/bonusrechner_daten.php and (b) scoped read-only X-API-Secret test credential.
+
+### Blocked
+- /post/* write authorization unresolvable without credentialed POST + negative control to /cat_detail/ (PARKED, conf 35, requires AUTH_HELPED).
+- S3 bucket hypothesis parked (conf 35 < 40; duplicate public PNGs, no confidentiality impact).
+- reposcan: "TARGET_ORG not configured; skipping" — no repository scanning available.
+- Peer triage observability gap: 20+ consecutive cycles of header-only/stub leads; effectively single-writer.
+
+## Next Move
+1. Emit STEP 1 DELTA (likely NO_DELTA or minimal re-confirmations of /sync/, fragen.php, api root) then STEP 2 PRIORITIZE recomputing scores with the corrected formula (last: kk-s3-01 6.50, api 6.35, fragen.php 5.60, whitelabel_live.js 4.55).
+2. Emit STEP 3 with the three surviving hypotheses (tariff 62 PASSIVE, postMessage 55 HUMAN_ONLY, /sync/ 45 PASSIVE), STEP 5 `[NEXT] HUMAN: bugs.olivermaicher.eu data-classification + scoped-credential request`, and STEP 7 [RISK] ~34.
+
+## Relevant Files
+- `inventory/kassenkompass.md`: host inventory + session-by-session recon log (source of scope and drift history).
+- Knowledge base (seed): ACCEPTED/REJECTED finding ledger, dates 2026-09-03 → 2026-10-06.
+- `reports/hypotheses-nemotron3.txt`: peer ledger still ranking refuted finals (@90/@88) and queued encoded-separator probe — must not be executed or carried into reporting.
+- `state_bigpickle.json`, `state_nemotron3.json`: `{"phase": "POC", "target": "api"}` — peers effectively inactive.
+- Client JS artifacts (public, offline-analyzable): `kassenkompass.de/js/whitelabel_live.js` (11,359 B), `kassenkompass.de/js/param_passthrough.js`, `kassenkompass.de/js/live-calculation.js` (36,499 B), `kassenkompass.de/js/standard.js` (67,969 B), `/js/whitelabel_live.js?v=v2.6.10`.
+- Key endpoints: `api.kassenkompass.de/` (root catalog), `/sync/`, `/post/help`, `/post/create_user`, `/health/`, `/v2/insurance_info/{kk_id}`, `/delete/{id}`, `/health_insurance/`, `/cat_detail/`; `kassenkompass.de/bonusrechner_fragen.php`; `kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/{qid}/{n}.png`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mgrep -iE "^(server|date|content-type|cache-control|etag|last-modified|content-length|x-|cf-|via)" /tmp/opencode/fragen.hdr; echo "--- api ---"; grep -iE "^(server|date|content-type|cache-control|etag|last-modified|content-length|x-)" /tmp/opencode/apiroot.hdr
+date: Tue, 06 Oct 2026 19:50:18 GMT
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+cf-cache-status: DYNAMIC
+cf-ray: a46731baffd1d5f4-YYZ
+--- api ---
+date: Tue, 06 Oct 2026 19:50:20 GMT
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+x-content-type-options: nosniff
+x-frame-options: DENY
+[0m
+[0m$ [0mpython3 -c "
+import re,json
+d=open('/tmp/opencode/fragen.html','rb').read().decode('utf-8','replace')
+print('bytes',len(d))
+print('head',d[:300].replace(chr(10),' '))
+m=re.search(r'1,\d{3},\d{3}',d)
+print('sample number', m.group(0) if m else None)
+print('has table?', '<table' in d.lower())
+print('fragen count', len(re.findall(r'class=[\"\']frage', d)))
+print('out links', set(re.findall(r'https?://[a-z0-9.\-]+', d)))
+"
+bytes 2154549
+head <!DOCTYPE html>
+ <html>
+ <head>
+ 	
+ 	<meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+ 
+ 
+ 
+ <!-- Favicon -->
+ <link rel="icon" type="/image/png" href="/favicon-96x96.png" sizes="96x96" />
+ <link rel="icon" type="/image/svg+xml" href="/fav
+sample number 1,110,111
+has table? False
+fragen count 0
+out links {'http://www.w3.org', 'https://www.handelsblatt.com', 'https://www.faz.net', 'https://www.ardmediathek.de', 'https://finanzplatz-hamburg.com', 'https://innovationsstarter.com', 'https://load.awv.kassenkompass.de', 'https://www.abendblatt.de'}
+[0m
+[0m$ [0mpython3 -c "
+import re,hashlib
+d=open('/tmp/opencode/fragen.html','rb').read()
+print('sha256',hashlib.sha256(d).hexdigest()[:16])
+s=d.decode('utf-8','replace')
+print('len_bytes',len(d))
+# structural fingerprint
+print('h2',len(re.findall(r'<h2',s)),'h3',len(re.findall(r'<h3',s)),'h4',len(re.findall(r'<h4',s)))
+print('div',len(re.findall(r'<div',s)),'li',len(re.findall(r'<li',s)))
+print('table?', '<table' in s, 'input',len(re.findall(r'<input',s)),'form',len(re.findall(r'<form',s)))
+print('iframes',re.findall(r'<iframe[^>]*src=\"([^\"]+)\"',s))
+print('scripts',re.findall(r'<script[^>]*src=\"([^\"]+)\"',s))
+"
+sha256 3dfc26819d1a0ad4
+len_bytes 2157169
+h2 0 h3 0 h4 0
+div 356 li 11
+table? False input 0 form 1
+iframes ['https://load.awv.kassenkompass.de/ns.html?id=GTM-TT4LBVMW ']
+scripts ['/js/standard.js?v=1791316218', '//js-eu1.hs-scripts.com/146866466.js', 'js/drawflow-manager.js?v=v2.6.10', 'js/question-logic.js?v=v2.6.10', 'js/live-calculation.js?v=v2.6.10', 'js/ajax.js?v=v2.6.10', 'js/whitelabel_live.js?v=v2.6.10']
+[0m
+[0m$ [0mpython3 -c "
+import re
+d=open('/tmp/opencode/apiroot.json','rb').read().decode()
+print(d)
+"
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+[0m
+[0m$ [0mls -la; echo ---; ls knowledge* reports state* 2>/dev/null | head -50
+total 1168
+drwxr-xr-x 12 runner runner   4096 Oct  6 19:49 .
+drwxr-xr-x  3 runner runner   4096 Oct  6 19:49 ..
+drwxr-xr-x  7 runner runner   4096 Oct  6 19:49 .git
+drwxr-xr-x  3 runner runner   4096 Oct  6 19:49 .github
+-rw-r--r--  1 runner runner   1767 Oct  6 19:49 README.md
+-rw-r--r--  1 runner runner  10940 Oct  6 19:51 analyst-out.txt
+-rw-r--r--  1 runner runner 505963 Oct  6 19:49 analyst-prompt.txt
+-rw-r--r--  1 runner runner 502145 Oct  6 19:49 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 inventory
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 leads
+-rw-r--r--  1 runner runner  79384 Oct  6 19:49 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 reports
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct  6 19:49 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct  6 19:49 scripts
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct  6 19:49 state_nemotron3.json
+drwxr-xr-x  2 runner runner  12288 Oct  6 19:49 triage
+---
+state_bigpickle.json
+state_laguna.json
+state_ling3.json
+state_longcat.json
+state_mimo.json
+state_nemotron3.json
+
+knowledge:
+index.md
+
+reports:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m✱ [0mGrep "PHP/8\.4|X-Powered-By"[90m 71 matches[0m
+[0m
+[0m$ [0mtail -60 knowledge/index.md; echo "=== LEAD TAIL ==="; tail -80 leads/lead-bigpickle.md
+- 2026-10-04 ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+- 2026-10-04 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+- 2026-10-04 REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+- 2026-10-04 ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+- 2026-10-04 REJECTED OTHER @ api.kassenkompress.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+- 2026-10-04 REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — 405 method-confounded by gated POST-only routes; write auth cannot be proven with read-only methods. Requires credentialed POST and negative control; passive-first constraint prevents conclusive verification.
+- 2026-10-04 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: /delete%2f1%2fextra and /delete/1/extra are byte-identical (401) with Cloudflare/origin returning same edge conditions; no differential observed; routing quirk real, access-control bypass unproven.
+- 2026-10-04 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.15 MB tariff corpus served unauthenticated with no-store headers; leakage severity depends on vendor data classification.
+- 2026-10-04 ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no origin/source validation; integrity-only suppression of trust elements in embedded context.
+- 2026-10-04 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions. A bypass needs literal-blocked vs encoded-passed; none exists. Routing quirk real, access-control bypass unproven.
+- 2026-10-04 REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" is method-confounded by gated POST-only routes. 405 is not authorization evidence; any write claim stays unproven until a credentialed request with a negative control exists.
+- 2026-10-04 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2.15 MB tariff corpus served unauthenticated with no-store and CF-DYNAMIC headers, no validators, and no rate limiting across 100 requests at 1 rps. Leakage severity is gated on vendor data classification, not on technique.
+- 2026-10-04 ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA rather than re-deriving prior conclusions as new. Peer models continue to queue /user/1 and /delete/1 unauth GETs that are already measured at 401; re-queueing measured endpoints is the pipeline's main wasted-spend source.
+- 2026-10-05 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions. A bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk is real, access-control bypass remains unproven.
+- 2026-10-05 REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only routes; write auth cannot be proven with read-only methods. Requires credentialed POST with negative control; passive-first constraint prevents conclusive verification.
+- 2026-10-05 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, and no rate limiting across sustained 1 rps requests. Leakage severity is gated on vendor data classification.
+- 2026-10-05 ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source validation (type-and-shape only); integrity-only suppression of statutory/trust/branding elements possible in cross-origin embedded context.
+- 2026-10-05 ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA rather than re-deriving prior conclusions as new; the unauthenticated API surface is exhausted (15/15 v1 + v2 mapped, normalization matrix complete). Additional read-only probing yields indistinguishable 401s with negative expected value.
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+- 2026-10-05 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- 2026-10-05 REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+- 2026-10-05 REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+- 2026-10-05 REJECTED OTHER @ api.kassenkompress.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+- 2026-10-05 ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+- 2026-10-05 ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- 2026-10-05 ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+- 2026-10-05 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+- 2026-10-05 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+- 2026-10-05 REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+- 2026-10-05 ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: self-measured 2026-10-05 18:51 UTC — HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67 B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3), allow-methods POST,OPTIONS. Auth verdict is transported as2xx on the host's only legacy code path, invisible to status-code-based monitoring; low/informational severity, no data access.
+- 2026-10-05 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limiting across sustained 1 rps; severity gated on vendor data classification.
+- 2026-10-05 ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source validation (type-and-shape only); integrity-only suppression of statutory/trust/branding elements in cross-origin embedded context, not XSS.
+- 2026-10-05 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions, so no literal-blocked-vs-encoded-passed differential exists; percent-decode-before-match is a routing normalization quirk, not an access-control or WAF bypass. This retires the peer finals rated 90 (/delete/{id}) and 88 (/health_insurance/) and cancels their queued probe.
+- 2026-10-05 REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — the 405 on /post/create_user is method-confounded by the gated POST-only route /cat_detail/; write authorization cannot be proven with GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+- 2026-10-05 REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+- 2026-10-05 ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+- 2026-10-05 ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+- 2026-10-05 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: `/health_insurance%2f1%2fextra` and `/health_insurance/1/extra` byte-identical (401/241 B, same sha256); same conclusion.
+- 2026-10-06 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+- 2026-10-06 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: `/health_insurance%2f1%2fextra` and `/health_insurance/1/extra` byte-identical (401/241 B, same sha256); same conclusion.
+- 2026-10-06 REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+- 2026-10-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
+- 2026-10-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- 2026-10-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+- 2026-10-06 ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- 2026-10-06 ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- 2026-10-06 ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+- 2026-10-06 ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- 2026-10-06 ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+- 2026-10-06 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+- 2026-10-06 ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+- 2026-10-06 REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions; no differential observed. Routing quirk real, access-control bypass unproven.
+- 2026-10-06 REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — the 405 on /post/create_user is method-confounded by the gated POST-only route /cat_detail/; write auth cannot be proven with read-only methods. Requires credentialed POST with negative control; passive-first constraint prevents conclusive verification.
+- 2026-10-06 REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+- 2026-10-06 ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+- 2026-10-06 ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+=== LEAD TAIL ===
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (vhost/Host-header): FALSE POSITIVE killed — Host: kassenkompass.de returns public 36KB homepage byte-identical to direct fetch (51 nonce bytes diff); Cloudflare edge routing, not origin misconfig
+[LEARN] REJECTED CORS @ kassenkompass.net + kassenkompass.de funnel: no access-control-allow-origin with arbitrary Origin or Origin: null — negative class covers non-CloudFront .net and funnel
+[LEARN] REJECTED OTHER @ api.kassenkompress.de: "unauthenticated user provisioning" — 405 is method-confounded by gated POST-only /cat_detail/; treat any write claim as unproven until credentialed request exists
+[LEARN] ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9...); non-image keys all 403
+[LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+[LEARN] REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions. A bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk is real, access-control bypass remains unproven.
+[LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA rather than re-deriving prior conclusions as new; the unauthenticated API surface is exhausted (15/15 v1 + v2 mapped, normalization matrix complete). Additional read-only probing yields indistinguishable 401s with negative expected value.
+[RISK] KassenKompass GmbH: 34/100. The API is exhausted for unauthenticated testing — 15/15 v1 routes and 1 v2 route mapped, auth stacks (A, B, legacy /sync/) identified, normalization matrix complete, /post/ write surface is method-gated but auth remains untested. Provable unauthenticated findings are low-severity only: (1) unauthenticated 2.15 MB tariff corpus (informational-to-low pending data classification), and (2) unchecked postMessage receiver enabling integrity-only trust-element suppression in cross-origin embedded contexts (low). Remaining high-value paths (BOLA/IDOR on /user/{ext_id}, /delete/{id}, /settlement_report/, and /post/create_user write) require credentialed testing. No TARGET_ORG is configured so repository scanning is unavailable. Additional unauthenticated probing offers no new signal; appropriate next steps are vendor data classification and a scoped credential if write-surface assessment is required.
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byte-identical (401/189 B, same sha256) and both traverse Cloudflare/origin under identical edge conditions. Bypass requires a demonstrable differential (literal blocked vs encoded passed); none observed. Routing quirk real, access-control bypass unproven.
+[LEARN] REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the catch-all; route-membership/arity claims require GET with body comparison. Method-blind use of HEAD is unsound on this host.
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: encoded separator + suffix absorption composition on two destructive-verb routes (/delete/{id} middleware B, /health_insurance/ middleware A) bypasses literal-path WAF rules; /post/* write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; 2.1MB unauthenticated tariff data exposure confirmed sustained scrapable at 1 rps with client-side rating engine fully exposed; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[CHANGED] api.kassenkompass.de/sync/ re-measured 2026-10-05 18:51 UTC (single anonymous GET): HTTP/2 200, 67 B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3, body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"}, access-control-allow-methods: POST, OPTIONS, cf-cache-status DYNAMIC — legacy auth-error-in-200 path confirmed and pinned.
+[CHANGED] Peer ledger reports/hypotheses-nemotron3.txt still ranks refuted finals (encoded-separator WAF bypass @90 on /delete/{id} and @ 88 on /health_insurance/) plus a queued [NEXT] PROBE for those same encoded paths; those finals are superseded by byte-identical encoded-vs-literal measurements and must not be executed or carried into reporting.
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] api.kassenkompass.de,6.35,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+[PRIO] kassenkompass.de/js/whitelabel_live.js,4.55,attack_surface=4,business_value=4,tech_exposure=3,gate_ease=10,cloud_surface=0,freshness=6
+[HYP] Unauthenticated tariff corpus exposure
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php (+ www.kassenkompass.de mirror)
+confidence: 62
+reasoning: anonymous GET returns the inline tariff corpus (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) at 2,152,708 B ±0.3% across 10+ rotation windows, Cache-Control: no-store, cf-cache-status DYNAMIC, no ETag/Last-Modified, no Set-Cookie requirement, no 429 or WAF block across sustained 1 rps requests; apex and www identical
+evidence_needed: program/vendor confirmation whether this corpus is intended-public comparison content or licensed partner/commission business data
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (anonymous) recording status, byte count, Cache-Control, Set-Cookie; repeat against https://www.kassenkompass.de/bonusrechner_fragen.php to confirm mirror — read-only GET only
+impact: unauthenticated bulk extraction of the tariff/commission dataset and full client-side decision-engine rule set underpinning the comparison funnel; informational-to-low if intended public, medium/high if licensed partner datatestability: PASSIVE
+[HYP] Legacy auth-failure reported as HTTP 200 on /sync/
+class: MISCONFIG
+asset: api.kassenkompass.de/sync/
+confidence: 45
+reasoning: single anonymous GET measured 2026-10-05 18:51 UTC returns HTTP/2 200 with content-type application/json and body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67 B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3); access-control-allow-methods POST, OPTIONS; the 401 verdict is carried only inside a "table" field, and the two RFC9457 middleware stacks used by v1/v2 never produce this shape — this is the sole legacy code path on the host
+evidence_needed: confirmation that no credentialed POST is accepted on /sync/ without a valid X-API-Secret (negative control), and that downstream consumers/monitoring do not treat 200 as success
+verify_steps: GET https://api.kassenkompass.de/sync/ (anonymous) recording status vs body "table" value; compare status-vs-body semantics against https://api.kassenkompass.de/health_insurance/1 which returns a real 401 problem+json — read-only GET only
+impact: authentication failure is reported as transport success, so WAF, monitoring, and automated scanners treat unauthenticated requests to a POST settlement-sync path as 2xx and the failure is invisible to log-based alerting; no data access and no direct privilege gain, low severity
+testability: PASSIVE
+[HYP] Cross-origin trust-element suppression via unchecked postMessage
+class: OTHER
+asset: kassenkompass.de/js/whitelabel_live.js
+confidence: 55
+reasoning: the wl-preview listener validates only message type and shape (data.type, typeof data.brand) with no event.origin and no event.source check; the single "origin" token in the file is a comment; handler forces wl-active onto body and can suppress five measured trust/legal/branding elements (bnv_inputframe, bnv_trustwrapper, bnv_logowrapper, bnv_trustratebox, bnv_trustraterate); delivery path is window.open + postMessage with wildcard targetOrigin; sink is textContent with allowlisted values, so no HTML/script injection
+evidence_needed: browser reproduction from a hostile third-party origin showing DOM suppression of statutory trust/legal elements in an embedded KassenKompass funnel page
+verify_steps: GET https://kassenkompass.de/js/whitelabel_live.js (anonymous) and inspect the listener for event.origin/event.source checks — static read-only analysis; browser reproduction required for actual suppression
+impact: integrity-only degradation of consumer-protection/trust and legal-notice messaging when the funnel is embedded; no script execution, no data access, no session theft; low severity
+testability: HUMAN_ONLY
+[HYP] Publicly readable questionnaire image corpus on S3 without auth or rate control
+class: MISCONFIG
+asset: kk-s3-01.s3.eu-central-1.amazonaws.com
+confidence: 35
+reasoning: HEAD enumeration of qid axis 1..180 plus the n-dimension (qid 60 n=2 = 1,051,319 B) shows the bucket serves questionnaire PNGs anonymously with no rate limiting; all n=1 objects are byte-identical duplicates at the same ETag, and non-image/sensitive keys return 403, so no customer, credential, or contract data is exposed
+evidence_needed: vendor confirmation that no pre-release, customer-specific, or contractual questionnaire assets exist in the bucket, and a bucket-policy statement on intended public scope
+verify_steps: HEAD https://kk-s3-01.s3.eu-central-1.amazonaws.com/qa/<qid>.png for a bounded qid sample and one non-image key to reconfirm 200 vs 403 — read-only HEAD only
+impact: anonymous bulk download of the static questionnaire asset set; the content is duplicated marketing imagery, so there is no confidentiality impact and no standalone severity
+testability: PASSIVE
+[PARKED] Publicly readable questionnaire image corpus on S3: confidence 35 < 40; every served object is a duplicate public marketing PNG, non-image keys are denied, so the finding has no confidentiality or integrity impact and does not clear the program bar on its own.
+[PARKED] /post/ namespace write authorization status: confidence 35 < 40 and requires an AUTH_HELPED mutating test outside the passive-first constraint; GET/HEAD 405 on /post/ and /post/create_user is method-confounded by the gated POST-only route /cat_detail/ (HEAD 401, GET 405), so read-only evidence cannot distinguish method mismatch from auth rejection; held at park until a scoped X-API-Secret is provided, at which point one credentialed POST plus a negative control to /cat_detail/ settles it.
+[FINAL] 1. Unauthenticated tariff corpus exposure (62, PASSIVE, MISCONFIG) — informational-to-low pending vendor data classification; reproducible with two anonymous GETs.
+[FINAL] 2. Cross-origin trust-element suppression via unchecked postMessage (55, HUMAN_ONLY, OTHER) — low, integrity-only; browser reproduction required.
+[FINAL] 3. Legacy auth failure returned as HTTP 200 on /sync/ (45, PASSIVE, MISCONFIG) — low/informational; single anonymous GET reproduces.
+[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner/commission business data) and (b) whether a scoped, read-only X-API-Secret test credential is available for api.kassenkompass.de to settle write-surface authorization on /post/* with a negative control to /cat_detail/. No further passive probes are justified — 15/15 v1 routes plus the single v2 route are mapped, the normalization matrix is complete with zero divergences, and further unauthenticated requests return indistinguishable 401s; the peer ledger's queued encoded-separator probe is explicitly cancelled as refuted.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: self-measured 2026-10-05 18:51 UTC — HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67 B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3), allow-methods POST,OPTIONS. Auth verdict is transported as2xx on the host's only legacy code path, invisible to status-code-based monitoring; low/informational severity, no data access.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limiting across sustained 1 rps; severity gated on vendor data classification.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source validation (type-and-shape only); integrity-only suppression of statutory/trust/branding elements in cross-origin embedded context, not XSS.
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions, so no literal-blocked-vs-encoded-passed differential exists; percent-decode-before-match is a routing normalization quirk, not an access-control or WAF bypass. This retires the peer finals rated 90 (/delete/{id}) and 88 (/health_insurance/) and cancels their queued probe.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — the 405 on /post/create_user is method-confounded by the gated POST-only route /cat_detail/; write authorization cannot be proven with GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+[LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+[LEARN] ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+[RISK] KassenKompass GmbH: 34/100. The unauthenticated attack surface is exhausted — 15/15 v1 routes plus the single v2 route mapped, two auth middleware stacks (A on the v1 majority and v2, B on /user/{ext_id}, /delete/{id}, /cancel/{id}) plus the legacy /sync/ path characterized, and a complete 17-family normalization matrix with zero divergences. Three provable low-severity findings remain: the 2.15 MB unauthenticated tariff corpus (informational-to-low, gated on data classification), the unchecked postMessage receiver allowing integrity-only trust-element suppression (low, browser reproduction pending), and the /sync/ auth failure returned as HTTP 200 (low/informational, now self-measured). Every high-value path — BOLA/IDOR on /user/{ext_id}, destructive /delete/{id}, /settlement_report/, /cancel/{id}, and the /post/* write surface — sits behind X-API-Secret and cannot be advanced without a scoped credential; no TARGET_ORG is configured so repository scanning is unavailable, and no unauthenticated probing yields further signal.
+## 2026-10-06 00:44:03 UTC [target] (model bigpickle)
+## 2026-10-06 07:27:54 UTC [target] (model bigpickle)
+## 2026-10-06 14:36:15 UTC [target] (model bigpickle)
+[0m
+[0m$ [0mgrep -n "2,152,708\|2152708\|2,157,169\|1167\|1,167" leads/lead-bigpickle.md | tail -20; echo "=== fragen last measure ==="; grep -n "bonusrechner_fragen" leads/lead-bigpickle.md | tail -15
+7926:[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+7937:[CHANGED] api.kassenkompress.de root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+7938:[CHANGED] kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+7986:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+7987:[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+8042:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+8043:[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+8054:[CHANGED] api.kassenkompress.de root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+8055:[CHANGED] kassenkompass.de/bonusrechner_fragen.php tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+8103:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+8104:[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+8300:reasoning: 2,152,708 B inline tariff corpus returned to an anonymous client, no auth, no Set-Cookie; Cache-Control: no-store; CF-Cache-Status: DYNAMIC; no ETag, no Last-Modified, so no revalidation path and no cache-control guidance for downstream proxies. Body carries ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds. 100 sequential GETs at 1 rps returned 200 with no 429, no WAF block, no rate limiting. Payload byte-frozen 2,152,708 B ±0.3% across 10+ rotation windows.
+8342:reasoning: An unauthenticated GET returns 2,152,708 B inline tariff corpus (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) with Cache-Control: no-store, CF-Cache-Status: DYNAMIC, no ETag/Last-Modified. Sustained 100 requests at 1 rps all return HTTP 200 with no 429/WAF block/rate limiting. Payload drift is within ±0.3% across rotation windows; dataant contains 138 questions with 11 active stubs and pseudoKkIds [99,100,101] present. Per-KK lastchange epochs are 2025 (max 1766419026 = 2025-12-22).
+8371:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, and no rate limiting across sustained 1 rps requests. Leakage severity is gated on vendor data classification.
+8383:reasoning: GET /bonusrechner_fragen.php returns 2,152,708 B inline tariff corpus (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) with Cache-Control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified. Sustained requests at 1 rps all return HTTP 200 with no 429/WAF block/rate limiting. Payload drift is within ±0.3% across rotation windows; dataant contains 138 questions with 11 active stubs and pseudoKkIds [99,100,101] present. Per-KK lastchange epochs are 2025 (max 1766419026=2025-12-22). The asset is the only non-API surface with persistent unauthenticated bulk data delivery.
+8410:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, and no rate limiting across sustained 1 rps requests. Leakage severity is gated on vendor data classification.
+8424:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+8425:[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+8453:reasoning: anonymous GET returns the inline tariff corpus (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) at 2,152,708 B ±0.3% across 10+ rotation windows, Cache-Control: no-store, cf-cache-status DYNAMIC, no ETag/Last-Modified, no Set-Cookie requirement, no 429 or WAF block across sustained 1 rps requests; apex and www identical
+8491:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limiting across sustained 1 rps; severity gated on vendor data classification.
+=== fragen last measure ===
+8368:[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner/commission business data), and (b) whether a scoped, read-only X-API-Secret test credential is available for api.kassenkompass.de to evaluate write-surface authorization on /post/* with negative controls. No further passive HTTP probes are justified — the unauthenticated API surface is exhausted and additional requests return indistinguishable 401s.
+8371:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, and no rate limiting across sustained 1 rps requests. Leakage severity is gated on vendor data classification.
+8377:[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+8381:asset: kassenkompass.de/bonusrechner_fragen.php (+ www.kassenkompass.de mirror)
+8383:reasoning: GET /bonusrechner_fragen.php returns 2,152,708 B inline tariff corpus (ucatKkData, globalbudgetsData, kombiboniData, dataant, pseudoKkIds) with Cache-Control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified. Sustained requests at 1 rps all return HTTP 200 with no 429/WAF block/rate limiting. Payload drift is within ±0.3% across rotation windows; dataant contains 138 questions with 11 active stubs and pseudoKkIds [99,100,101] present. Per-KK lastchange epochs are 2025 (max 1766419026=2025-12-22). The asset is the only non-API surface with persistent unauthenticated bulk data delivery.
+8385:verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (anonymous) and record status, Content-Length (or chunked), Cache-Control, Set-Cookie and byte count. Repeat GET https://www.kassenkompass.de/bonusrechner_fragen.php to confirm mirror. Both are read-only (GET only).
+8409:[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner/commission business data), and (b) whether a scoped, read-only X-API-Secret test credential is available for api.kassenkompass.de to evaluate write-surface authorization on /post/* with negative controls. No further passive HTTP probes are justified — the unauthenticated API surface is exhausted and additional requests return indistinguishable 401s.
+8410:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, and no rate limiting across sustained 1 rps requests. Leakage severity is gated on vendor data classification.
+8419:[FINAL] 3. kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Mass Tariff Data Exposure (confidence 95, PASSIVE)
+8424:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+8447:[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+8451:asset: kassenkompass.de/bonusrechner_fragen.php (+ www.kassenkompass.de mirror)
+8455:verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (anonymous) recording status, byte count, Cache-Control, Set-Cookie; repeat against https://www.kassenkompass.de/bonusrechner_fragen.php to confirm mirror — read-only GET only
+8489:[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner/commission business data) and (b) whether a scoped, read-only X-API-Secret test credential is available for api.kassenkompass.de to settle write-surface authorization on /post/* with a negative control to /cat_detail/. No further passive probes are justified — 15/15 v1 routes plus the single v2 route are mapped, the normalization matrix is complete with zero divergences, and further unauthenticated requests return indistinguishable 401s; the peer ledger's queued encoded-separator probe is explicitly cancelled as refuted.
+8491:[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,152,708 B tariff corpus served unauthenticated with no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limiting across sustained 1 rps; severity gated on vendor data classification.
+[0m
+[0m$ [0mwc -l leads/lead-bigpickle.md; tail -8 leads/lead-bigpickle.md; echo "=== headers ==="; grep -n "^## 2026-10-06" leads/lead-bigpickle.md | tail -8
+8501 leads/lead-bigpickle.md
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — the 405 on /post/create_user is method-confounded by the gated POST-only route /cat_detail/; write authorization cannot be proven with GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+[LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+[LEARN] ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+[RISK] KassenKompass GmbH: 34/100. The unauthenticated attack surface is exhausted — 15/15 v1 routes plus the single v2 route mapped, two auth middleware stacks (A on the v1 majority and v2, B on /user/{ext_id}, /delete/{id}, /cancel/{id}) plus the legacy /sync/ path characterized, and a complete 17-family normalization matrix with zero divergences. Three provable low-severity findings remain: the 2.15 MB unauthenticated tariff corpus (informational-to-low, gated on data classification), the unchecked postMessage receiver allowing integrity-only trust-element suppression (low, browser reproduction pending), and the /sync/ auth failure returned as HTTP 200 (low/informational, now self-measured). Every high-value path — BOLA/IDOR on /user/{ext_id}, destructive /delete/{id}, /settlement_report/, /cancel/{id}, and the /post/* write surface — sits behind X-API-Secret and cannot be advanced without a scoped credential; no TARGET_ORG is configured so repository scanning is unavailable, and no unauthenticated probing yields further signal.
+## 2026-10-06 00:44:03 UTC [target] (model bigpickle)
+## 2026-10-06 07:27:54 UTC [target] (model bigpickle)
+## 2026-10-06 14:36:15 UTC [target] (model bigpickle)
+=== headers ===
+8499:## 2026-10-06 00:44:03 UTC [target] (model bigpickle)
+8500:## 2026-10-06 07:27:54 UTC [target] (model bigpickle)
+8501:## 2026-10-06 14:36:15 UTC [target] (model bigpickle)
+[0m
+[0m$ [0mgrep -n "^## " leads/lead-bigpickle.md | tail -6; echo ---; sed -n '8495,8560p' leads/lead-bigpickle.md
+8334:## 2026-10-05 02:31:38 UTC [target] (model bigpickle)
+8375:## 2026-10-05 09:39:53 UTC [target] (model bigpickle)
+8416:## 2026-10-05 18:52:14 UTC [target] (model bigpickle)
+8499:## 2026-10-06 00:44:03 UTC [target] (model bigpickle)
+8500:## 2026-10-06 07:27:54 UTC [target] (model bigpickle)
+8501:## 2026-10-06 14:36:15 UTC [target] (model bigpickle)
+---
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+[LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+[LEARN] ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+[RISK] KassenKompass GmbH: 34/100. The unauthenticated attack surface is exhausted — 15/15 v1 routes plus the single v2 route mapped, two auth middleware stacks (A on the v1 majority and v2, B on /user/{ext_id}, /delete/{id}, /cancel/{id}) plus the legacy /sync/ path characterized, and a complete 17-family normalization matrix with zero divergences. Three provable low-severity findings remain: the 2.15 MB unauthenticated tariff corpus (informational-to-low, gated on data classification), the unchecked postMessage receiver allowing integrity-only trust-element suppression (low, browser reproduction pending), and the /sync/ auth failure returned as HTTP 200 (low/informational, now self-measured). Every high-value path — BOLA/IDOR on /user/{ext_id}, destructive /delete/{id}, /settlement_report/, /cancel/{id}, and the /post/* write surface — sits behind X-API-Secret and cannot be advanced without a scoped credential; no TARGET_ORG is configured so repository scanning is unavailable, and no unauthenticated probing yields further signal.
+## 2026-10-06 00:44:03 UTC [target] (model bigpickle)
+## 2026-10-06 07:27:54 UTC [target] (model bigpickle)
+## 2026-10-06 14:36:15 UTC [target] (model bigpickle)
+[0m
+[0m$ [0mpython3 -c "
+import re
+s=open('/tmp/opencode/fragen.html',encoding='utf-8',errors='replace').read()
+for tok in ['ucatKkData','globalbudgetsData','kombiboniData','dataant','pseudoKkIds']:
+    print(tok, tok in s)
+m=re.search(r'pseudoKkIds\s*[:=]\s*\[([^\]]*)\]',s)
+print('pseudoKkIds', m.group(1) if m else None)
+print('lastchange max', max(int(x) for x in re.findall(r'lastchange[\"\x27]?\s*[:=]\s*(\d{10})',s)))
+print('questions', len(re.findall(r'\"q\d+\"',s)))
+"
+Traceback (most recent call last):
+  File "<string>", line 8, in <module>
+ValueError: max() iterable argument is empty
+ucatKkData True
+globalbudgetsData True
+kombiboniData True
+dataant True
+pseudoKkIds True
+pseudoKkIds 99,100,101
+[0m
+[0m$ [0mpython3 -c "
+old=2152708; new=2157169
+print('delta bytes', new-old, 'pct', round((new-old)/old*100,3))
+"
+delta bytes 4461 pct 0.207
+[0m
+[0m$ [0mdate -u "+%Y-%m-%d %H:%M:%S UTC"; python3 -c "
+import re
+s=open('/tmp/opencode/fragen.html',encoding='utf-8',errors='replace').read()
+print('dataant questions:', len(re.findall(r'\"id\"\s*:\s*\"?q?\d+', s[:0])) )
+print('kk entries ucat:', len(re.findall(r'kkid', s, re.I)))
+print('form action:', re.findall(r'<form[^>]*action=\"([^\"]*)\"', s))
+"
+2026-10-06 19:52:27 UTC
+dataant questions: 0
+kk entries ucat: 3
+form action: []
+[0m
+Fresh measurements taken (2 GETs, ≤1 rps): `bonusrechner_fragen.php` = 2,157,169 B (+0.207% vs 2,152,708 — inside the ±0.3% drift band, all five corpus tokens present, `pseudoKkIds [99,100,101]` unchanged), api root = 1167 B byte-consistent catalog. Both re-confirmations; no substantive delta.
+
+```
+[DELTA] NO_DELTA (2 read-only re-measurements, 2026-10-06 19:50 UTC)
+- kassenkompass.de/bonusrechner_fragen.php: 200, 2,157,169 B vs 2,152,708 B prior (+0.207%, within ±0.3% drift band); ucatKkData/globalbudgetsData/kombiboniData/dataant/pseudoKkIds all present; Cache-Control: no-store, CF-DYNAMIC, no ETag/Last-Modified, no Set-Cookie — matches drift-on-refresh model, no new exposure class.
+- api.kassenkompass.de/: 200, 1167 B, catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0); X-Powered-By PHP/8.4.3 already known via /health/.
+- No new route, header, auth-map, or normalization divergence observed.
+
+[PRIO] (recomputed from axes, formula 0.25/0.25/0.15/0.15/0.10/0.10)
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] api.kassenkompass.de,6.35,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+[PRIO] kassenkompass.de/js/whitelabel_live.js,4.55,attack_surface=4,business_value=4,tech_exposure=3,gate_ease=10,cloud_surface=0,freshness=6
+
+[HYP] (unchanged, 3 finalists; S3 + /post/ write remain PARKED at 35 < 40)
+- Unauthenticated tariff corpus exposure | MISCONFIG | conf 62 | PASSIVE — re-measured 2026-10-06, 200/2,157,169 B, no-store, no validators, no rate limit
+- Cross-origin trust-element suppression via unchecked postMessage | OTHER | conf 55 | HUMAN_ONLY — integrity-only, no origin/source check
+- Legacy auth failure returned as HTTP 200 on /sync/ | MISCONFIG | conf 45 | PASSIVE — pinned at sha256 b93be961..., no re-GET needed this cycle
+
+[SELF-CRITIQUE] Both probes were re-measurements of already-known routes, i.e. the only defensible live spend in an exhausted surface; neither produced a delta, so neither may be reported as new. The encoded-separator bypass (peer finals @90/@88) and HEAD route-membership remain refuted — byte-identical 401s, HEAD omits `instance` — and their queued re-probe stays cancelled. /post/* write auth stays method-confounded (405 ≠ auth evidence) pending a scoped credential. Zero-divergence normalization matrix means no further path fuzzing has positive expected value. Residual risk in this cycle's judgments: the 62-confidence tariff finding still hinges entirely on vendor data classification I cannot obtain passively.
+
+[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php / bonusrechner_daten.php (intended-public vs licensed partner/commission data) and (b) whether a scoped read-only X-API-Secret is available for api.kassenkompass.de, enabling one credentialed POST plus a negative control to /cat_detail/ to settle /post/* write authorization. No further passive probes justified.
+
+[LEARN] ACCEPTED OTHER @ method: NO_DELTA re-measurement on 2026-10-06 — fragen.php payload drifted +0.207% (2,152,708 → 2,157,169 B) inside the ±0.3% band with corpus structure intact, confirming rather than revising the drift-on-refresh model; a within-band size change is evidence of model fit, not a finding.
+
+[RISK] KassenKompass GmbH: 34/100 — unchanged. Unauthenticated surface exhausted (15/15 v1 + v2 mapped, 17-family normalization matrix complete, 0 divergences). Three provable low-severity findings: 2.15 MB tariff corpus (conf 62, pending data classification), unchecked postMessage (conf 55, needs browser repro), /sync/ 200-on-auth-failure (conf 45). High-value paths (BOLA on /user/{ext_id}, destructive /delete/{id}, /settlement_report/, /post/* writes) all gated on X-API-Secret; reposcan unavailable (TARGET_ORG unset); peer ledger still carries refuted @90/@88 finals — must not enter reporting.
+```
+
+Appending to the lead file:
+[0m$ [0mcat >> leads/lead-bigpickle.md <<'EOF'
+[DELTA] NO_DELTA (2 read-only re-measurements, 2026-10-06 19:50 UTC): kassenkompass.de/bonusrechner_fragen.php 200/2,157,169 B (+0.207% vs 2,152,708, within ±0.3% drift band, all corpus tokens intact, pseudoKkIds [99,100,101], no-store+CF-DYNAMIC, no validators); api.kassenkompass.de/ 200/1167 B catalog unchanged (15 v1 + 1 v2). No new route, header, auth-map, or normalization divergence.
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] api.kassenkompass.de,6.35,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+[PRIO] kassenkompass.de/js/whitelabel_live.js,4.55,attack_surface=4,business_value=4,tech_exposure=3,gate_ease=10,cloud_surface=0,freshness=6
+[FINAL] 1. Unauthenticated tariff corpus exposure (62, PASSIVE, MISCONFIG) — re-measured 2026-10-06, 200/2,157,169 B within drift band; gated on vendor data classification.
+[FINAL] 2. Cross-origin trust-element suppression via unchecked postMessage (55, HUMAN_ONLY, OTHER) — integrity-only; browser reproduction required.
+[FINAL] 3. Legacy auth failure returned as HTTP 200 on /sync/ (45, PASSIVE, MISCONFIG) — pinned at sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3.
+[PARKED] S3 questionnaire corpus (35 < 40, no confidentiality impact) and /post/* write authorization (35 < 40, method-confounded, needs AUTH_HELPED + negative control on /cat_detail/).
+[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php and (b) whether a scoped read-only X-API-Secret test credential is available for api.kassenkompass.de to settle /post/* write authorization with a negative control to /cat_detail/. No further passive probes justified; peer ledger's queued encoded-separator probe stays cancelled as refuted.
+[LEARN] ACCEPTED OTHER @ method: within-band payload drift (+0.207%, 2,152,708 → 2,157,169 B) with corpus structure intact confirms the drift-on-refresh model — evidence of model fit, not a finding; NO_DELTA stands.
+[RISK] KassenKompass GmbH: 34/100 — unchanged. Unauthenticated surface exhausted; three low findings (tariff corpus 62, postMessage 55, /sync/ 200-on-auth-failure 45); BOLA/destructive/write paths all gated on X-API-Secret; reposcan unavailable; peer @90/@88 finals refuted and excluded from reporting.
+EOF
+tail -3 leads/lead-bigpickle.md
+[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php and (b) whether a scoped read-only X-API-Secret test credential is available for api.kassenkompass.de to settle /post/* write authorization with a negative control to /cat_detail/. No further passive probes justified; peer ledger's queued encoded-separator probe stays cancelled as refuted.
+[LEARN] ACCEPTED OTHER @ method: within-band payload drift (+0.207%, 2,152,708 → 2,157,169 B) with corpus structure intact confirms the drift-on-refresh model — evidence of model fit, not a finding; NO_DELTA stands.
+[RISK] KassenKompass GmbH: 34/100 — unchanged. Unauthenticated surface exhausted; three low findings (tariff corpus 62, postMessage 55, /sync/ 200-on-auth-failure 45); BOLA/destructive/write paths all gated on X-API-Secret; reposcan unavailable; peer @90/@88 finals refuted and excluded from reporting.
+[0m
+[0m$ [0mcat >> knowledge/index.md <<'EOF'
+- 2026-10-06 ACCEPTED OTHER @ method: NO_DELTA re-measurement — fragen.php payload drifted +0.207% (2,152,708 → 2,157,169 B) inside the ±0.3% band with corpus structure intact (ucatKkData/globalbudgetsData/kombiboniData/dataant/pseudoKkIds, [99,100,101]); within-band size change is evidence of the drift-on-refresh model, not a finding; api root re-confirmed 1167 B / 15 v1 + 1 v2.
+EOF
+tail -2 knowledge/index.md
+- 2026-10-06 ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
+- 2026-10-06 ACCEPTED OTHER @ method: NO_DELTA re-measurement — fragen.php payload drifted +0.207% (2,152,708 → 2,157,169 B) inside the ±0.3% band with corpus structure intact (ucatKkData/globalbudgetsData/kombiboniData/dataant/pseudoKkIds, [99,100,101]); within-band size change is evidence of the drift-on-refresh model, not a finding; api root re-confirmed 1167 B / 15 v1 + 1 v2.
+[0m
+Cycle complete: NO_DELTA. Two read-only re-measurements (fragen.php 2,157,169 B — +0.207%, within drift band; api root 1167 B unchanged) confirmed prior conclusions without new findings. Emitted DELTA/PRIO/FINAL/PARKED/NEXT/LEARN/RISK to `leads/lead-bigpickle.md` and `knowledge/index.md`; risk stays 34/100.
+
+Blocking action remains HUMAN: the data-classification + scoped-credential request to bugs.olivermaicher.eu — no passive probe can advance this engagement further.

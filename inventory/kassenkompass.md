@@ -1603,3 +1603,13 @@ www.kassenkompass.de
 ## 2026-10-06 07:28:05 UTC
 
 ## 2026-10-06 14:36:27 UTC
+
+## 2026-10-06 19:53:22 UTC
+- CHANGED api.kassenkompass.de/sync/ re-measured 2026-10-05 18:51 UTC (single anonymous GET): HTTP/2 200, 67 B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3, body {"table":401,"succes
+- CHANGED Peer ledger reports/hypotheses-nemotron3.txt still ranks refuted finals (encoded-separator WAF bypass @90 on /delete/{id} and @ 88 on /health_insurance/) plus a queued [NEXT] PROBE for those same enco
+- CHANGED Live probes at 14:36 UTC confirm zero drift: bonusrechner_fragen.php (200, 2.1MB) on apex+www; api.kassenkompass.de/post/help (405), /post/ (405), /post/create_user (405); /delete/1 (401), v2/insuranc
+- CHANGED Peer pipeline 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new peer signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough) stable and drift-free
+- CHANGED Encoded-separator bypass hypotheses REJECTED by fresh measurements: /delete%2f1%2fextra ≡ /delete/1/extra (401/189B, same sha256), /health_insurance%2f1%2fextra ≡ /health_insurance/1/extra (401/241B, 
+- CHANGED HEAD methodology REJECTED for route-membership — HEAD returns CL:0 and omits `instance` field; GET with body comparison required
+- CHANGED Normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`)
