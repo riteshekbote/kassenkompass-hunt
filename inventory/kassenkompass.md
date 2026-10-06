@@ -1591,3 +1591,11 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences); three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+
+## 2026-10-06 00:44:15 UTC
+- CHANGED api.kassenkompass.de: encoded-separator access-control bypass hypotheses REJECTED — `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189 B, same sha256), same for `/health_insurance%2f1
+- CHANGED api.kassenkompass.de: HEAD methodology REJECTED for route-membership — HEAD returns `content-length: 0` and omits `instance` field; GET with body comparison required
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences); three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable

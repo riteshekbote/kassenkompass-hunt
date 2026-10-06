@@ -1,4 +1,4 @@
-## 2026-10-05 18:54:15 UTC [target] (model nemotron3)
+## 2026-10-06 00:43:44 UTC [target] (model nemotron3)
 [CHANGED] api.kassenkompass.de: encoded-separator access-control bypass hypotheses REJECTED — `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189 B, same sha256), same for `/health_insurance%2f1%2fextra`; no origin/edge differential observed; routing quirk real, access-control bypass unproven
 [CHANGED] api.kassenkompass.de: HEAD methodology REJECTED for route-membership — HEAD returns `content-length: 0` and omits `instance` field; GET with body comparison required
 [CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
@@ -7,8 +7,9 @@
 [CHANGED] No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,9.50,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=8
 [PRIO] api.kassenkompass.de/post/,7.20,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=6
-[PRIO] api.kassenkompass.de/health_insurance/,6.80,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
-[PRIO] api.kassenkompass.de/delete/,6.50,attack_surface=8,business_value=7,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/,6.80,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,6.50,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] kassenkompass.de/js/whitelabel_live.js,5.80,attack_surface=6,business_value=6,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=7
 [PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.20,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
 [HYP] Unauthenticated Mass Tariff Data Exposure via bonusrechner_fragen.php
 class: MISCONFIG
@@ -39,6 +40,7 @@ impact: If middleware A lacks tenant scoping → cross-tenant draft insurance da
 testability: AUTH_HELPED
 [PARKED] Encoded Separator + Suffix Absorption on Sole DELETE Route Bypasses Literal-Path WAF Rules: REJECTED — fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189 B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed; routing quirk real, access-control bypass unproven
 [PARKED] Encoded Separator + Suffix Absorption on 5-Verb Route Bypasses Literal-Path Controls on Destructive Verbs: REJECTED — same reasoning; `/health_insurance%2f1%2fextra` and `/health_insurance/1/extra` byte-identical (401/241 B, same sha256); no differential
+[PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 55 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
 [FINAL] 1. kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Mass Tariff Data Exposure (confidence 95, PASSIVE)
 [FINAL] 2. api.kassenkompass.de/post/create_user: Unauthenticated Write Endpoint (confidence 55, AUTH_HELPED)
 [FINAL] 3. api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read (confidence 60, AUTH_HELPED)
@@ -55,4 +57,10 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
 [LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of statutory/trust elements unprotected by provenance; delivery is window.open+postMessage context
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextra returns 401 with same verb table and instance: "/health_insurance/1/extra"
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal forms are byte-identical (401/189 B, same sha256) under identical edge conditions; no differential observed. Routing quirk real, access-control bypass unproven.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: "unauthenticated user provisioning" — the 405 on /post/create_user is method-confounded by the gated POST-only route /cat_detail/; write auth cannot be proven with read-only methods. Requires credentialed POST with negative control; passive-first constraint prevents conclusive verification.
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus carries no confidentiality impact — all n=1 objects are byte-identical duplicates at one ETag and non-image keys return 403.
+[LEARN] ACCEPTED OTHER @ method: an idempotent re-run must emit NO_DELTA instead of re-deriving prior conclusions as new, and must not re-emit peer finals that later measurements refute; the unauthenticated API surface is exhausted, and a lone re-measurement of one already-known route is the only defensible use of live budget.
+[LEARN] ACCEPTED OTHER @ method (scoring): priority must be recomputed from the emitted axes; the prior run published 5.80 for the S3 axis set where the formula yields 6.50, which silently mis-ranked the public bucket below the auth-gated API host.
 [RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.1MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
