@@ -8907,3 +8907,43 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method-override ignored on /post app; GET/HEAD divergence on /cat_detail/ proves method-check order differs by route.
 [LEARN] ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); single-level decode only (double-encode fails); unauthenticated envelopes also normalize.
 [RISK] KassenKompass GmbH: 34/100. Unauthenticated API surface exhausted (15/15 v1 + v2 mapped, 17-family normalization matrix complete with zero divergences, encoded-separator behavior characterized as routing normalization). Two auth middleware stacks (A majority+v2, B on /user/{ext_id}, /delete/{id}, /cancel/{id}) plus legacy /sync/ (200-on-auth-failure) fully characterized. Three provable low-severity findings: 2.15 MB tariff corpus (informational-to-low, pending data classification), unchecked postMessage (low, integrity-only, browser reproduction pending), /sync/ 200-on-auth-failure (low/informational). High-value paths (BOLA/IDOR on /user/{ext_id}, destructive /delete/{id}, /cancel/{id}, /post/* writes) require X-API-Secret credential and cannot be advanced passively. No TARGET_ORG configured (reposcan unavailable); peer signal zero for 25+ triage cycles.
+## 2026-10-07 23:37:06 UTC [target] (model bigpickle)
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] api.kassenkompass.de,6.35,attack_surface=7,business_value=7,tech_exposure=7,gate_ease=4,cloud_surface=6,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=0,freshness=6
+[PRIO] kassenkompass.de/js/whitelabel_live.js,4.55,attack_surface=4,business_value=4,tech_exposure=3,gate_ease=10,cloud_surface=0,freshness=6
+[HYP] Anonymous questionnaire image corpus enumeration via object existence oracle
+class: MISCONFIG
+asset: kk-s3-01.s3.eu-central-1.amazonaws.com
+confidence: 35
+reasoning: S3 bucket existence oracle established (HTTP 200 indicates public-readable object; HTTP 403 indicates absent object). qid axis confirmed 1..180 (6 IDs beyond page-referenced set), all byte-identical duplicates at n=1 (ETag 52f04d11..., 747,082 B). n-dimension extends (qid 60 n=2 = 1,051,319 B, distinct ETag). Non-image keys return 403 AccessDenied; uploads/ returns 200 as zero-byte marker. No customer/credential/contract data exposed.
+evidence_needed: Confirmation that enumerated paths do not contain confidential data and exposure is intended; verification of impact boundary.
+verify_steps: HEAD https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/1/1.png (check 200/403); HEAD https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/180/1.png (200); HEAD https://kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/181/1.png (403). All read-only, <=1 rps.
+impact: Enumeration of publicly accessible image objects via existence oracle. No confidentiality impact demonstrated; low informational severity.
+testability: PASSIVE
+[HYP] Legacy auth failure transported as HTTP 200 on sync endpoint
+class: MISCONFIG
+asset: api.kassenkompass.de/sync/
+confidence: 45
+reasoning: GET/HEAD/POST to /sync/ without/with invalid/missing X-API-Secret returns HTTP/2 200 with body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67 B, pinned sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3), allow-methods POST,OPTIONS. Only legacy envelope among three response shapes on the host; other gated endpoints return proper 401/403 RFC 9457 problem+json. Auth gate genuinely enforced, but status code incorrect for automated scanners.
+evidence_needed: None passively (reproduced, pinned hash). Optional: confirm POST variant same envelope.
+verify_steps: GET https://api.kassenkompass.de/sync/ (no X-API-Secret header); GET https://api.kassenkompass.de/sync/ with X-API-Secret: invalid (e.g. test-invalid-123). Inspect status code and body. All read-only, <=1 rps.
+impact: Behavioral misconfiguration bypassing automated status-code-based auth checks/scanners. No demonstrated auth bypass or data exposure. Severity low/informational.
+testability: PASSIVE
+[HYP] Unauthenticated 2.15 MB tariff corpus exposure
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 62
+reasoning: Live GETs confirm unauthenticated HTTP 200 returning ~2.157 MB inline tariff data (no-store, CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps). Corpus includes ucatKkData (1.79 MB), globalbudgetsData, kombiboniData, dataant (138 questions / 285 answers / 375 category rule edges). Data freshness ≤2025-12-22 (2025 lastchange epochs). www.kassenkompass.de mirror identical. Payload drift within ±0.3% band confirms drift-on-refresh.
+evidence_needed: Vendor data classification (intended-public tariff content vs licensed partner/commission data). Confirmation of retention/distribution constraints.
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (single GET, <=1 rps); GET https://www.kassenkompass.de/bonusrechner_fragen.php. Compare content-length and first/last 32 bytes of body. No mutating requests.
+impact: Confidentiality exposure of commercial tariff/bonus/rating decision-engine fields if not intended public. Severity low/informational pending vendor classification; no credential compromise asserted.
+testability: PASSIVE
+[PARKED] Anonymous questionnaire image corpus enumeration via object existence oracle: confidence 35 < 40; no demonstrated confidentiality impact; evidence suggests informational enumeration only.
+[FINAL] Unauthenticated 2.15 MB tariff corpus exposure (62, PASSIVE, MISCONFIG) — informational-to-low pending vendor data classification
+[FINAL] Legacy auth failure transported as HTTP 200 on sync endpoint (45, PASSIVE, MISCONFIG) — low/informational
+[NEXT] HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intended-public tariff content vs licensed partner/commission data) and (b) whether a scoped read-only X-API-Secret test credential is available for api.kassenkompass.de to settle /post/* write authorization with a negative control to /cat_detail/. No further passive probes justified.
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire image corpus carries no confidentiality impact (byte-identical duplicates at n=1, non-image keys return 403); existence oracle established but impact insufficient to clear confidence threshold.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: auth verdict transported as HTTP 200 on legacy code path (67B pinned hash) — behavioral misconfiguration for scanner status-code checks; no auth bypass or data exposure demonstrated.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.15 MB tariff corpus with no-store headers and no rate limiting; severity gated on vendor data classification (intended public vs licensed partner data).
+[RISK] KassenKompass GmbH: 34/100. Unauthenticated API surface exhausted; auth map fully characterized. Three provable low-severity findings: 2.15 MB tariff corpus (informational-to-low pending data classification), legacy /sync/ returns 200-on-auth-error (low/informational). High-value paths (BOLA/IDOR on /user/{ext_id}, destructive routes /delete/{id}, /cancel/{id}, /post/* writes) require X-API-Secret credential and cannot be advanced passively. No TARGET_ORG configured; peer signal consistently zero.

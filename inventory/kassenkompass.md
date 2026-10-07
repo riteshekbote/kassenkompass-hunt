@@ -1651,3 +1651,9 @@ www.kassenkompass.de
 - CHANGED 24h smoke rotation window for `bonusrechner_fragen.php` next due ≥2026-10-08 12:00 UTC (last measurement 12:00 10-07 at 2,158,719 B ±0.3% band)
 - CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough) stable and 
+
+## 2026-10-07 23:37:18 UTC
+- CHANGED Time advanced ~4.5h since last KB aggregation (2026-10-07 18:52 → 2026-10-07 23:32 UTC); all major surfaces stable per last live probes at 12:00 UTC
+- CHANGED 24h smoke rotation window for `bonusrechner_fragen.php` next due ≥2026-10-08 12:00 UTC (last measurement 12:00 10-07 at 2,158,719 B ±0.3% band)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough) stable and 
