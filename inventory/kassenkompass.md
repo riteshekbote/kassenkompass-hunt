@@ -1640,3 +1640,8 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: 2,157,169 B tariff corpus within ±0.3% drift band (2,152,708→2,157,169, +0.207%), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1
 - CHANGED api.kassenkompass.de: /sync/ returns HTTP/2 200 with auth error body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f
 - CHANGED api.kassenkompass.de/post/: separately mounted application outside X-API-Secret dependency for prefix (200/344B JSON at /post/, 200/0B text/html for unknown sub-paths); closed at exactly 2 members (he
+
+## 2026-10-07 12:19:42 UTC
+- NEW 2026-10-07 12:00 UTC live probes confirm zero drift: api.kassenkompass.de/ 200 1167B (catalog, accurate CL), bonusrechner_fragen.php 200 2,158,719B apex+www identical (±0.3% band), v2/insurance_info/1
+- CHANGED tariff payload size drifted +0.07% (2,157,169→2,158,719 B) within established ±0.3% drift-on-refresh model; all auth maps, v2 enumeration, funnel surfaces stable since 2026-09-07
+- NEW No new attack surface introduced since 2026-09-07 — all major surfaces stable per live probes
