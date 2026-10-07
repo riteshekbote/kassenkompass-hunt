@@ -4483,3 +4483,34 @@
 - LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
 - LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; supp
 - LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+
+## RANKED HYPOTHESES 2026-10-07 19:12:14 UTC
+- [95] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Mass Tariff Data Exposure via bonusrechner_fragen.php (from art/lead_nemotron3.txt)
+- [62] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated 2.15 MB tariff corpus exposure (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intende
+- NEXT(hypotheses-nemotron3.txt): HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intende
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emitted NO_DELTA — standing scores recomputed from emitted axes and verified formula-consistent (S3 6.50, api 6.35, f
+- LEARN: REJECTED OTHER @ method: re-probe of api.kassenkompass.de within hours of the 2026-10-07 05:44/12:00 batches — no drift window elapsed; single re-measurement of
+- LEARN: REJECTED OTHER @ method: re-probe of api.kassenkompass.de within hours of the 2026-10-07 05:44 batch — no drift window elapsed (last live measurements <12h old)
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emitted NO_DELTA — standing scores recomputed from emitted axes and verified formula-consistent (S3 6.50, api 6.35, f
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,157,169 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified,
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; su
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961f0da5e
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,719 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified,
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transp
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; supp
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r

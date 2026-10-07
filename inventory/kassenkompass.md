@@ -1645,3 +1645,9 @@ www.kassenkompass.de
 - NEW 2026-10-07 12:00 UTC live probes confirm zero drift: api.kassenkompass.de/ 200 1167B (catalog, accurate CL), bonusrechner_fragen.php 200 2,158,719B apex+www identical (±0.3% band), v2/insurance_info/1
 - CHANGED tariff payload size drifted +0.07% (2,157,169→2,158,719 B) within established ±0.3% drift-on-refresh model; all auth maps, v2 enumeration, funnel surfaces stable since 2026-09-07
 - NEW No new attack surface introduced since 2026-09-07 — all major surfaces stable per live probes
+
+## 2026-10-07 19:12:14 UTC
+- CHANGED Time advanced ~6.5h since last KB aggregation (2026-10-07 12:19 → 2026-10-07 18:52 UTC); all major surfaces stable per last live probes at 12:00 UTC
+- CHANGED 24h smoke rotation window for `bonusrechner_fragen.php` next due ≥2026-10-08 12:00 UTC (last measurement 12:00 10-07 at 2,158,719 B ±0.3% band)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough) stable and 
