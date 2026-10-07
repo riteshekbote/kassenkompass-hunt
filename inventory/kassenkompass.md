@@ -1629,3 +1629,14 @@ www.kassenkompass.de
 - CHANGED kassenkompass.net: blanket 302 on every app-handled path (.php and non-.php) — no existence oracle; cannot be used for origin-bypass differential testing; cookies host-only (.net→302→.de, host-only) s
 - CHANGED kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 (6 beyond page-refs 175-180), all byte-identical duplicates at n=1 (ETag 52f04d11..., 747082 B, 2025-10-28); n-dimension extends (qid 60 n=2 = 1
 - CHANGED Pipeline/observability: peer leads header-only/stub for 25+ consecutive triage cycles (observability gap persists); no new attack surface introduced since 2026-09-07; reposcan unavailable (TARGET_ORG 
+
+## 2026-10-07 05:44:42 UTC
+- NEW api.kassenkompass.de: encoded-separator decode + host-wide percent-decode-before-match confirmed (normalisation matrix complete for 17 route families), three pre-auth canonicalisation oracles (401 ins
+- NEW kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only), forces wl-active, suppresses 5 real statutory/trust elements via textContent;
+- NEW kassenkompass.de/js/param_passthrough.js: harvests 16 URL params (length cap 128) into sessionStorage kkweb_pass_params, re-injects into same-host funnel anchors/onclick CTAs; marketing-site/app split
+- NEW kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — parses data_sparsum from cookie and adds to computed savings (sink #resulteuro via textContent), setCookie commented o
+- NEW kassenkompass.de/htmlincludes/: directory web-addressable by filename (listing denied 403 IIS-style); exactly one include path disclosed (whitelabel_styles.php → 200/0B).
+- NEW kassenkompass.net: blanket 302 on every app-handled path (.php and non-.php) — no existence oracle; cannot be used for origin-bypass differential testing; host-only cookies.
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: 2,157,169 B tariff corpus within ±0.3% drift band (2,152,708→2,157,169, +0.207%), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1
+- CHANGED api.kassenkompass.de: /sync/ returns HTTP/2 200 with auth error body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f
+- CHANGED api.kassenkompass.de/post/: separately mounted application outside X-API-Secret dependency for prefix (200/344B JSON at /post/, 200/0B text/html for unknown sub-paths); closed at exactly 2 members (he

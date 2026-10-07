@@ -4427,3 +4427,30 @@
 - LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of s
 - LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
 - LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextr
+
+## RANKED HYPOTHESES 2026-10-07 05:44:42 UTC
+- [95] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Mass Tariff Data Exposure via bonusrechner_fragen.php (from art/lead_nemotron3.txt)
+- [62] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated 2.15 MB tariff corpus exposure (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intende
+- NEXT(hypotheses-nemotron3.txt): HUMAN: Send one request to bugs.olivermaicher.eu asking (a) data classification for kassenkompass.de/bonusrechner_fragen.php and bonusrechner_daten.php (intende
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,157,169 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified,
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; su
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961f0da5e
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` are byt
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: `/health_insurance%2f1%2fextra` and `/health_insurance/1/extra` byte-identi
+- LEARN: REJECTED (methodology) HEAD for route-membership testing @ api.kassenkompass.de: HEAD returns `content-length: 0` and omits the `instance` field entirely on the
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth ca
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (s
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/d
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; d
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: ACCEPTED OTHER @ kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 confirmed via HEAD (6 beyond page-refs), all duplicates at n=1 (ETag 52f04d11...); n-di
+- LEARN: ACCEPTED OTHER @ kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check; guard is type-and-shape only. Integrity of s
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/health_insurance/: percent-decode-before-match composes with unbounded suffix absorption; /health_insurance%2f1%2fextr
