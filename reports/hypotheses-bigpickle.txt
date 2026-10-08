@@ -1,25 +1,4 @@
-## 2026-10-08 10:25:19 UTC [target] (model bigpickle)
-[HYP] v2 Insurance Info BOLA Cross-Tenant Read
-class: IDOR
-asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
-confidence: 60
-reasoning: v2 insurance_info returns draft categories + resolved references (widest per-request data surface); ucatKkData on bonusrechner_fragen.php publicly replicates this domain — value downgraded to unpublished-draft-only; greedy segment match confirmed (/v2/insurance_info/1/extra → 401 middleware A); kk_id not validated at routing; no credentialed access to confirm cross-tenant isolation; v2 enumeration saturated at 42 names (insurance_info sole route)
-evidence_needed: Valid X-API-Secret to test cross-tenant kk_id access; or proof that middleware A enforces tenant scoping on resolved kk_id
-verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1 (401 baseline); GET https://api.kassenkompass.de/v2/insurance_info/999 (401); GET https://api.kassenkompass.de/v2/insurance_info/1/extra (401, instance: "/v2/insurance_info/1/extra") — all at ≤1 rps; requires AUTH_HELPED for cross-tenant test
-impact: If middleware A lacks tenant scoping → cross-tenant draft insurance data read; MEDIUM (draft data only, live data publicly replicated)
-testability: AUTH_HELPED
-[HYP] Write Auth Status Unproven on /post/ Namespace
-class: AUTH
-asset: api.kassenkompass.de/post/create_user
-confidence: 50
-reasoning: /post/ is a separately mounted application outside X-API-Secret dependency — proven by calibrated HEAD differential: HEAD /delete/1 → 401, HEAD /state/ → 401 (gated v1), HEAD /post/ → 405, HEAD /post/create_user → 405 (both /post app); GET /post/help returns 200 / 344 B application/json advertising `POST /post/create_user` ("Erstellt einen neuen User. Erwartet JSON im Body."); the write itself is unassessed and was deliberately not sent; 405 on /cat_detail/ (middleware-A gated, POST-only) proves 405 is method-confounded not auth evidence; auth status of POST /post/create_user remains UNKNOWN (not proven unauthenticated, not proven gated)
-evidence_needed: Credentialed POST to /post/create_user with valid X-API-Secret to confirm auth requirement; or valid secret acquisition path
-verify_steps: GET https://api.kassenkompass.de/post/help (200, 344 B, application/json); HEAD https://api.kassenkompass.de/delete/1 (401); HEAD https://api.kassenkompass.de/post/ (405); HEAD https://api.kassenkompass.de/post/create_user (405) — all at ≤1 rps
-impact: If POST /post/create_user accepts unauthenticated writes → unauthenticated user provisioning; if auth-gated → no vuln; CRITICAL if unauthenticated, UNKNOWN until proven
-testability: AUTH_HELPED
-[PARKED] Encoded Separator + Suffix Absorption Access-Control Bypass: REJECTED — fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189 B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed; routing quirk real, access-control bypass unproven
-[PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 50 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
-[PARKED] CORS-based postMessage Exploit via whitelabel_live.js: guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified; integrity-only suppression of 5 trust elements measured, not XSS
+## 2026-10-08 17:41:19 UTC [target] (model bigpickle)
 [PARKED] Client-side Cookie Stuffing → data_sparsum Forgery via live-calculation.js: orphaned read/write asymmetry confirmed (reads data_sparsum from cookie, adds to savings display, setCookie commented out), but param_passthrough.js PASS_PARAMS excludes data_sparsum; no param-to-that-cookie mapping exists
 [FINAL] 1. kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Mass Tariff Data Exposure (confidence 95, PASSIVE)
 [FINAL] 2. api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read (confidence 60, AUTH_HELPED)

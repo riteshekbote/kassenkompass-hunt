@@ -1665,3 +1665,5 @@ www.kassenkompass.de
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough) stable and 
 
 ## 2026-10-08 10:25:30 UTC
+
+## 2026-10-08 17:41:33 UTC
