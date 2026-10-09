@@ -1669,3 +1669,15 @@ www.kassenkompass.de
 ## 2026-10-08 17:41:33 UTC
 
 ## 2026-10-08 22:30:25 UTC
+
+## 2026-10-09 02:36:37 UTC
+- NEW api.kassenkompass.de/ root content-length now consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0
+- NEW kassenkompass.de/bonusrechner_fragen.php tariff payload drift confirmed within ±0.3% band (2,152,708→2,158,719 B, +0.207%) — drift-on-refresh model confirmed stable; www mirror identical
+- NEW api.kassenkompass.de normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instanc
+- NEW api.kassenkompass.de /post/ write namespace confirmed as separately mounted app outside X-API-Secret dependency for prefix (HEAD /delete/1→401, HEAD /state/→401, HEAD /post/→405, HEAD /post/create_use
+- NEW api.kassenkompass.de /cat_detail/ auth state OBSERVED (HEAD→401) not INFERRED; GET/HEAD divergence proven (GET 405 pre-auth, HEAD 401 post-auth)
+- NEW kassenkompass.de/bonusrechner_abschluss.php GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on valid form POST; server validates Account-ID on submission, not page re
+- NEW kk-s3-01.s3.eu-central-1.amazonaws.com: qid axis 1..180 fully enumerated via HEAD (6 IDs beyond page-refs 175-180), all byte-identical duplicates (ETag 52f04d11...); n-dimension extends (qid 60 n=2 = 
+- NEW kassenkompass.net: blanket 302 on all app-handled paths confirmed — no existence oracle for origin-bypass testing
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable per last live probes at 2026-10-08 22:30 UTC
