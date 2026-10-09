@@ -1685,3 +1685,9 @@ www.kassenkompass.de
 ## 2026-10-09 09:39:21 UTC
 
 ## 2026-10-09 16:53:22 UTC
+
+## 2026-10-09 21:20:38 UTC
+- NEW NO_NEW_SURFACE — no endpoint/host/cookie/route added since 2026-09-07; all listed surfaces re-confirmed live
+- CHANGED kassenkompass.de/bonusrechner_fragen.php fresh GET 2026-10-09 ~21:2x: 2,158,671 B (prior 2,158,719; −48 B / −0.0022%, inside ±0.3% band), sha256 27bca3ef…, no-store + CF-DYNAMIC + cloudflare unchanged
+- CHANGED apex vs www mirror: same length 2,158,671 B but differ by exactly ONE byte (offset 711) = cache-buster `/js/standard.js?v=1791580693` vs `…695`; refines prior "byte-identical" to "identical modulo dyn
+- CHANGED api.kassenkompass.de/ 1167 B sha256 644b1ec7… and /sync/ 67 B sha256 b93be961… reproduce prior hashes exactly across the gap — zero drift on catalog/legacy envelope

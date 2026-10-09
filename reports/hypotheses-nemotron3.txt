@@ -1,11 +1,11 @@
-## 2026-10-09 16:40:09 UTC [target] (model nemotron3)
+## 2026-10-09 21:20:29 UTC [target] (model nemotron3)
 [PRIO] kassenkompass.de/bonusrechner_fragen.php,9.05,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=8
 [PRIO] api.kassenkompass.de/v2/insurance_info/,7.00,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
-[PRIO] api.kassenkompass.de/post/create_user,6.75,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=5,cloud_surface=4,freshness=6
 [PRIO] kassenkompass.de/js/whitelabel_live.js,6.95,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=10,cloud_surface=3,freshness=7
 [PRIO] kassenkompass.de/js/param_passthrough.js,6.80,attack_surface=8,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=3,freshness=7
-[PRIO] api.kassenkompass.de/,6.35,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/post/create_user,6.75,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=5,cloud_surface=4,freshness=6
 [PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[PRIO] api.kassenkompass.de/,6.35,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=6
 [HYP] Unauthenticated Mass Tariff Data Exposure via bonusrechner_fragen.php
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -56,4 +56,7 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
 [LEARN] REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-images, kk-docs) but all deny s3:ListBucket (403 on nonexistent-key probes, zero content returned) and none is referenced by any in-scope asset, DNS record or public source → no anonymous enumeration path exists; ownership attribution is a HUMAN gate, not a probe gate
 [LEARN] ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distinguishes from 404 NoSuchBucket); `s3:ListBucket` posture is readable without touching content via HEAD/GET of a nonexistent key (403 = private listing, 404 NoSuchKey = public listing)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167 B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.30 and /post/create_user 6.75→6.55; all other stored scores reproduce exactly. Priority must always be re-derived from emitted axes.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14 h probe gap (root 644b1ec7…; /sync/ 67 B b93be961…) — confirms no drift on the legacy envelope or catalog since 2026-10-09 02:36 UTC.
 [RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.1MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
