@@ -1706,3 +1706,14 @@ https://api.kassenkompass.de/post/help -> HTTP 405
 https://api.kassenkompass.de/delete/1 -> HTTP 401
 https://api.kassenkompass.de/post/ -> HTTP 405
 https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-09 16:53:39 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/post/ -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
