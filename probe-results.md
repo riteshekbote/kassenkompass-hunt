@@ -1767,3 +1767,17 @@ https://api.kassenkompass.de/post/create_user -> HTTP 405
 https://kassenkompass.de/bonusrechner_fragen.php` -> HTTP 404
 https://api.kassenkompass.de/v2/insurance_info/1` -> HTTP 401
 https://api.kassenkompass.de/post/help` -> 200 len=?
+
+## 2026-10-10 18:30:57 UTC
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/post/ -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/post/help` -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php` -> HTTP 404
+https://kassenkompass.de/php/mark_read.php` -> HTTP 404
