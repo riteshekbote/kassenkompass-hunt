@@ -1,4 +1,4 @@
-## 2026-10-10 07:19:50 UTC [target] (model bigpickle)
+## 2026-10-10 13:54:36 UTC [target] (model bigpickle)
 [HYP] Unauthenticated 2.16 MB tariff + decision-engine corpus on public funnel page
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -26,3 +26,32 @@ evidence_needed: credentialed POST (or explicit confirmation that writes are una
 verify_steps: `curl -s https://api.kassenkompass.de/post/help`; then with scoped credential `curl -s -X POST https://api.kassenkompass.de/post/create_user` and the identical request without `X-API-Secret` as control; do not create real accounts on live data.
 impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
 testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus on public funnel page
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: unauth GET → 2,158,671 B, `no-store`+`cf-cache-status: DYNAMIC`, no ETag/Last-Modified, no rate limit at sustained 1 rps; carries per-KK resolved references + questionnaire/rule graph; apex/www differ only by one cache-buster byte.
+evidence_needed: vendor ruling — intended-public marketing content vs licensed partner/commission tariff data.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php | wc -c`; `curl -s -D- -o /dev/null https://kassenkompass.de/bonusrechner_fragen.php`.
+impact: competitor/marketing obtains full rating + decision engine and per-KK references without auth; HIGH if non-public, else informational.
+testability: PASSIVE
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: sole versioned route on middleware A (X-API-Secret header sole channel); greedy-segment match, `kk_id` unvalidated at routing; 42-name enumeration saturated; draft value downgraded because `ucatKkData` replicates the domain publicly.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` separately mounted app closed at exactly 2 members (`help`, `create_user`); `/post/help` (200/344 B JSON) advertises `POST /post/create_user`; unauth GET→405, method-confounded by gated POST-only `/cat_detail/`; both `/post/*` now advertise `X-API-Secret` in allow-headers.
+evidence_needed: credentialed POST plus identical request without `X-API-Secret` as control; explicit confirmation writes are unauthenticated.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; with scoped credential `curl -s -X POST .../post/create_user` and same without header; never create real accounts.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
+[NEXT] HUMAN: submit one request to bugs.olivermaicher.eu asking (a) data classification for `bonusrechner_fragen.php`+`bonusrechner_daten.php`; (b) issuance of a scoped read-only X-API-Secret to settle `/post/*` write auth and v2 `{kk_id}` tenant isolation; (c) ownership of `kk-assets`/`kk-uploads`/`kk-backup`/`kk-images`/`kk-docs` S3 buckets.
+[RISK] kassenkompass: 32 — all three FINALs human-gated; live surfaces drift-free; no new attack surface since 2026-09-07; 24h smoke not yet due (last 2026-10-09 21:2x, next ≥21:2x).
