@@ -9935,3 +9935,49 @@ impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly 
 testability: AUTH_HELPED
 [NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` and ask whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-secret + S3-ownership asks.
 [RISK] kassenkompass: 38 — new unauthenticated state-changing endpoint (`/php/mark_all_read.php`) raises prior 32; impact still gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+## 2026-10-10 22:01:44 UTC [target] (model bigpickle)
+[NEW] `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B), while sibling `mark_read.php` returns `{"success":false,"message":"Nicht angemeldet"}` (46 B) — the auth gate exists in the codebase but is absent on this handler's action router (pre-auth dispatch confirmed at HTTP level).
+[NEW] Endpoint reachable identically on apex + `www` + `kassenkompass.net` (`.net` root still 302→`.de`); lead previously noted apex+www only.
+[CHANGED] `/php/` 403 body is the IIS `403 - Forbidden: Access is denied.` directory-listing denial (iso-8859-1, 1233 B); responses set `AWSALB`/`AWSALBCORS` + `PHPSESSID` → the `.de`/`.net` PHP app is IIS-origin behind an AWS ALB + Cloudflare, not a plain PHP host.
+[CHANGED] `OPTIONS` on both handlers → 200 with no `Allow` and no `ACAO` (no method advertisement).
+[PRIO] `kassenkompass.de/php/mark_all_read.php` 4.6 (a3 b4 t2 g9 c3 f9)
+[PRIO] `kassenkompass.de/bonusrechner_fragen.php` 4.35 (a3 b5 t1 g10 c2 f5)
+[PRIO] `api.kassenkompass.de/v2/insurance_info/{kk_id}` 3.05 (a2 b4 t3 g4 c2 f3)
+[HYP] Unauthenticated notification read-state modification
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php (also www + kassenkompass.net)
+confidence: 70
+reasoning: `mark_read.php` requires a session (`Nicht angemeldet`); `mark_all_read.php` runs its action dispatcher before that gate (invalid action → 59 B `Ungültige Action` pre-auth on GET and POST). Lead records `POST action=mark_all_read&kk_id=<int>` → 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no credential. `kk_id` is intval-cast (no SQLi).
+evidence_needed: unauthenticated POST returns success AND flips another tenant's read/unread flag; determine whether the flag is global or per-user (scopes severity/IDOR).
+verify_steps: `curl -s 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'` → 59 B `Ungültige Action` (done, passive); `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php` (state-changing → requires human/owned-id approval).
+impact: unauthenticated integrity tampering with other users' notification read state; in a health-insurance portal this can suppress user-facing notifications. Medium, high if kk_id is enumerable and the flag is user-scoped.
+testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: ~2.1 MB unauthenticated response embedding `ucatKkData` (1.79 MB), `dataant` (138 Q/285 A), `globalbudgetsData`, `kombiboniData`, `pseudoKkIds=[99,100,101]`; no-store + CF-DYNAMIC, no rate limit; data ≤2025-12-22.
+evidence_needed: vendor confirmation the corpus is non-public/confidential; retrieval itself is already proven.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php -o /tmp/f.json` (done); HUMAN classification.
+impact: disclosure of internal pricing/underwriting decision parameters; severity gated on confidentiality classification.
+testability: HUMAN_ONLY
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: v2 route takes a `kk_id` path segment; per-object authorization unverified (v1 gated by `X-API-Secret`, v2 scope unknown). Draft domain is already replicated in public `fragen.php`, limiting value to unpublished drafts.
+evidence_needed: with a scoped secret, request a foreign `kk_id` and observe cross-tenant rows.
+verify_steps: `curl -s -H 'X-API-Secret: <scoped>' https://api.kassenkompass.de/v2/insurance_info/<other_id>`.
+impact: cross-tenant read of unpublished insurance-draft data.
+testability: AUTH_HELPED
+[PARKED] `PHPSESSID` missing SameSite/Secure: REJECTED class (cookie flags on non-sensitive anonymous session).
+[PARKED] `OPTIONS` 200 / no `Allow`: REJECTED class (OPTIONS enabled).
+[PARKED] `/php/` IIS 403 page: REJECTED class (descriptive / known-directory denial, no data leak).
+[PARKED] `AWSALB`/`AWSALBCORS` cookies: infra cookies, non-sensitive → REJECTED.
+[FINAL] 1. mark_all_read.php unauth state change (conf 70, prio 4.6) — new, gate_ease=9.
+[FINAL] 2. bonusrechner_fragen.php mass corpus (conf 90, prio 4.35) — human-gated classification.
+[FINAL] 3. v2 insurance_info/{kk_id} BOLA (conf 60, prio 3.05) — needs scoped secret.
+[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm the endpoint is intended to be unauthenticated and state whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-read-only-secret + S3-ownership asks.
+[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de/php/: IIS directory-listing denial only; no information disclosure.
+[RISK] kassenkompass: 38 — unauthenticated state-changing endpoint structurally confirmed pre-auth across apex/www/.net; impact gated on vendor clarification of read-state scoping; all other surfaces drift-free.

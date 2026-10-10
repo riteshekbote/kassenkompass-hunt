@@ -1699,3 +1699,9 @@ www.kassenkompass.de
 ## 2026-10-10 13:55:22 UTC
 
 ## 2026-10-10 18:30:35 UTC
+
+## 2026-10-10 22:02:37 UTC
+- NEW `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige
+- NEW Endpoint reachable identically on apex + `www` + `kassenkompass.net` (`.net` root still 302→`.de`); lead previously noted apex+www only.
+- CHANGED `/php/` 403 body is the IIS `403 - Forbidden: Access is denied.` directory-listing denial (iso-8859-1, 1233 B); responses set `AWSALB`/`AWSALBCORS` + `PHPSESSID` → the `.de`/`.net` PHP app is IIS-orig
+- CHANGED `OPTIONS` on both handlers → 200 with no `Allow` and no `ACAO` (no method advertisement).
