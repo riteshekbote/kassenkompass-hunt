@@ -1,11 +1,11 @@
-## 2026-10-09 21:20:29 UTC [target] (model nemotron3)
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.05,attack_surface=10,business_value=10,tech_exposure=9,gate_ease=10,cloud_surface=4,freshness=8
-[PRIO] api.kassenkompass.de/v2/insurance_info/,7.00,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
+## 2026-10-10 01:03:23 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de/v2/insurance_info/,7.30,attack_surface=9,business_value=8,tech_exposure=8,gate_ease=1,cloud_surface=7,freshness=7
 [PRIO] kassenkompass.de/js/whitelabel_live.js,6.95,attack_surface=7,business_value=6,tech_exposure=8,gate_ease=10,cloud_surface=3,freshness=7
 [PRIO] kassenkompass.de/js/param_passthrough.js,6.80,attack_surface=8,business_value=5,tech_exposure=7,gate_ease=10,cloud_surface=3,freshness=7
-[PRIO] api.kassenkompass.de/post/create_user,6.75,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=5,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=5,cloud_surface=4,freshness=6
 [PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
-[PRIO] api.kassenkompass.de/,6.35,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] api.kassenkompass.de/,7.30,attack_surface=8,business_value=7,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=9,business_value=9,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=7
 [HYP] Unauthenticated Mass Tariff Data Exposure via bonusrechner_fragen.php
 class: MISCONFIG
 asset: kassenkompass.de/bonusrechner_fragen.php
@@ -59,4 +59,8 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167 B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
 [LEARN] ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.30 and /post/create_user 6.75→6.55; all other stored scores reproduce exactly. Priority must always be re-derived from emitted axes.
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14 h probe gap (root 644b1ec7…; /sync/ 67 B b93be961…) — confirms no drift on the legacy envelope or catalog since 2026-10-09 02:36 UTC.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster".
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671 B measurement (−48 B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; no-store+CF-DYNAMIC, no ETag/Last-Modified, unauthenticated.
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root (1167 B / 644b1ec7…) and /sync/ (67 B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy auth-envelope byte-frozen since 2026-10-09 02:36 UTC.
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167 B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
 [RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.1MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
