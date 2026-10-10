@@ -1693,3 +1693,5 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de/ 1167 B sha256 644b1ec7… and /sync/ 67 B sha256 b93be961… reproduce prior hashes exactly across the gap — zero drift on catalog/legacy envelope
 
 ## 2026-10-10 01:04:35 UTC
+
+## 2026-10-10 07:20:01 UTC

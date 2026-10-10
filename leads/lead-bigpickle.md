@@ -9791,3 +9791,31 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root (1167 B / 644b1ec7…) and /sync/ (67 B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy auth-envelope byte-frozen since 2026-10-09 02:36 UTC.
 [RISK] KassenKompass GmbH: 32/100. Unauthenticated surface exhausted and stable — 15/15 v1 + 1 v2 mapped, 17-family normalization matrix zero-divergence, auth map and /sync/ envelope byte-frozen, version-prefix discovery closed at v2. This cycle added no attack surface; it only refreshed the one live measurement (fragen.php within band) and corrected the mirror claim to one-byte cache-buster drift. All three FINALs remain escalation-blocked by HUMAN gates (classification ruling; scoped credential), not technical ones. Peer signal zero for 27+ consecutive cycles; reposcan unavailable (TARGET_ORG unset).
 ## 2026-10-10 01:04:25 UTC [target] (model bigpickle)
+## 2026-10-10 07:19:50 UTC [target] (model bigpickle)
+[HYP] Unauthenticated 2.16 MB tariff + decision-engine corpus on public funnel page
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: Unauthenticated GET → 2,158,671 B sha256 `27bca3ef…`, `no-store`+`cf-cache-status: DYNAMIC`, no ETag/Last-Modified, no rate limit across sustained 1 rps; payload carries `ucatKkData` (~1.79 MB / 5,209 rows per-KK resolved references), `dataant` (138 questions / 285 answers / 375 rule edges), `globalbudgetsData`, `kombiboniData`, `pseudoKkIds=[99,100,101]`; www mirror differs only by one cache-buster byte at offset 711.
+evidence_needed: vendor ruling — intended-public marketing content vs licensed partner/commission tariff data.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php | wc -c`; `curl -s -D- -o /dev/null https://kassenkompass.de/bonusrechner_fragen.php`.
+impact: competitor/marketing obtains full rating + decision engine and per-KK references without auth; HIGH if non-public, else informational.
+testability: PASSIVE
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: v2 is sole versioned route on middleware A (X-API-Secret header sole channel); greedy-segment match with `kk_id` unvalidated at routing; 42-name enumeration saturated; catalog promises draft categories + resolved references. Value downgraded because `ucatKkData` publicly replicates the same domain.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` values and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' https://api.kassenkompass.de/v2/insurance_info/1` and `/2`; negative control `POST /cat_detail/` to separate method from auth.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` is a separately mounted app outside the X-API-Secret dependency, closed at exactly 2 members; `/post/help` (200/344 B JSON) advertises `POST /post/create_user` "Erstellt einen neuen User"; unauth GET/HEAD → 405, which is method-confounded by the gated POST-only `/cat_detail/`.
+evidence_needed: credentialed POST (or explicit confirmation that writes are unauthenticated) plus an unauthenticated negative control.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; then with scoped credential `curl -s -X POST https://api.kassenkompass.de/post/create_user` and the identical request without `X-API-Secret` as control; do not create real accounts on live data.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
