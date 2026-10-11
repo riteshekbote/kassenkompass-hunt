@@ -66264,3 +66264,74 @@ sibling set check: mark_all_read=200/59 mark_read=200/46 send_message=200/46 loa
 - **POST probing not performed** (would violate the no-mutating rule); H1/H2 remain open pending approval.
 
 **ASK**: approve the single benign POST action-probe or a scoped test account to resolve H1/H2?
+===== ANALYST bigpickle 2026-10-11 22:46:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcurl -s -o /tmp/kk_login.html -w '%{http_code} %{size_download}\n' -m 20 'https://kassenkompass.de/login_kd.php'; grep -o 'php/[a-z_]*\.php' /tmp/kk_login.html | sort -u; echo '---cripts---'; grep -oE 'src="[^"]+\.js[^"]*"' /tmp/kk_login.html | sort -u
+200 3881
+---cripts---
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/js/standard.js?v=1791758730"
+[0m
+## Objective
+- Run a passive-first bug bounty hunt against KassenKompass GmbH (report channel: bugs.olivermaicher.eu) across in-scope assets, currently in phase POC with target `api.kassenkompass.de`.
+- Produce structured analyst output (DELTA → PRIO → HYP → SELF-CRITIQUE → NEXT → LEARN → RISK) with high-value classes chained toward real impact.
+
+## Important Details
+- In scope: all KassenKompass GmbH infrastructure — `api.kassenkompass.de`, `kassenkompass.de`, `www.kassenkompass.de`, `kassenkompass.net`, `awv.kassenkompass.de`, `load.awv.kassenkompass.de`, `kk-s3-01.s3.eu-central-1.amazonaws.com`, funnel PHP app, `/php/` handlers, `/js/` bundles.
+- Rejected classes: network/account-lockout DoS, descriptive errors/headers, robots.txt/public files, outdated libs, OPTIONS/TRACE, CSRF on anonymous forms, cookie flags on non-sensitive data, self-XSS, scanner reports without POC, mail config, SSL/TLS, clickjacking without exploit, login user enumeration, brute-force/rate-limit policy.
+- Discipline: passive-first; live probes GET/HEAD/OPTIONS only, ≤1 rps; no mutating/auth-bypass tests against live customer data; sha256 any secret; 2026-09-11 burst (~14 req) triggered transient WAF IP-block — pace strictly ≤1 rps.
+- Known chain-limiting fact: KassenKompass frontend never calls the API (0 fetch/XHR across ~72 KB client JS) — API-side reflection has no DOM path (XSS class closed).
+- Auth model: `X-API-Secret` header only (query/cookie source-merge closed); middleware A (8 routes), middleware B = {`/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`}, `/cat_detail/` method-checked-first, no-credential = {`/health/`, `/sync/`, `/post/*`}.
+- Response-envelope facts: root v1 catalog 1167 B (sha256 `644b1ec7…`) 15 endpoints ver 1.0; v2 sole route `insurance_info` ver 2.0; `/sync/` 67 B (sha256 `b93be961…`) HTTP 200 with auth-error body; `/health/` 22 B; `/v2/insurance_info/1` 401/236 B.
+- Router facts: percent-decode-before-match host-wide (single-level; `/delete%2f1` ≡ `/delete/1`, `/delete%252f1` → 404 static 1245 B); case-sensitive; encoded separators decode; suffix absorption composes with decode on `/health_insurance/` and `/delete/`.
+- Funnel facts: 7 mirror entries (bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php); `lizenz`→`afilcode` (non-HttpOnly), `jid`→`customerid`, `agn`/`connectionnumber`→`agenturnummer` (dual-alias duplicate), `ppn`→`poolpartnernummer`, `employeenumber`→1yr Max-Age; GET render does not consume stuffed cookies.
+- Tariff corpus `bonusrechner_fragen.php`: ~2.15 MB unauthenticated, no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limit at 100 req/1 rps; drift within ±0.3% band; data freshness ≤2025-12-22; www mirror identical modulo 1-byte cache-buster.
+- `/php/` finding: `mark_all_read.php` evaluates `action` pre-auth — unauth returns 59 B `"Fehler: Ungültige Action"` vs siblings `mark_read.php`/`send_message.php`/`load_messages.php` returning 46 B `"Nicht angemeldet"`; confirmed on apex+www+net; `action` is POST-only (GET 0-differential).
+- `/post/*`: separately mounted app, closed at exactly 2 members (`help`, `create_user`); `GET /post/help` 200/344 B advertises `POST /post/create_user`; unauth write hypothesis downgraded to ~50 (405 method-confounded by gated POST-only `/cat_detail/`); requires credentialed POST + negative control (HUMAN_ONLY).
+- `kk-s3-01` bucket: qid axis 1..180 (6 beyond page-refs), n-dimension extends (qid 60 n=2 = 1,051,319 B), non-image keys all 403; anonymous PNG corpus no confidentiality impact (REJECTED).
+- Pipeline observability: 25+ consecutive empty triage cycles — peer leads header-only/stub (laguna/ling3/longcat timestamp-only, mimo empty, nemotron3 reprint); effectively single-writer.
+
+## Work State
+### Completed
+- API surface fully mapped: 15/15 v1 verb+auth matrix, v2 sole-route saturation (42 names), `/post/` namespace closed at 2 members, normalization matrix complete for 17 route families (0 divergences), 3 pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- Funnel stuffing surface mapped (7 entries, divergent alias maps); GET branch closed 7/7 (no stuffed-cookie consumption at render).
+- `bonusrechner_fragen.php` 2.1 MB tariff leak + production debug API (7 `window.*` functions) confirmed; client-side rating engine.
+- `/js/` analysis: `param_passthrough.js` (16 params → sessionStorage → anchor/CTA reinjection), `whitelabel_live.js` (postMessage, no origin/source check, integrity-only), `live-calculation.js` (orphaned `data_sparsum` read/write asymmetry, textContent sink — display forgery not XSS).
+- S3 bucket oracle established (200 = public object, 403 = absent); `.net` no existence oracle (blanket 302); `.de` `/api/` dir-denied 403, `/trace.axd` ASP.NET 4.0 banner.
+- `/php/` missing-auth primitive confirmed apex+www+net; 4 handlers mapped (`mark_read`, `mark_all_read`, `send_message`, `load_messages`).
+- False positives killed: Host-header vhost, CORS (api/net/funnel), encoded-separator WAF bypass, HEAD route-membership methodology.
+- Multiple priority recomputations from emitted axes (S3 6.50, api 6.35→7.30, etc.).
+
+### Active
+- `mark_all_read.php` pre-auth action router: confidence ~80, priority 5.45; POST action contract unknown (siblings gate first); `"valid action → 46 B"` claim falsified.
+- `bonusrechner_fragen.php` tariff leak: confidence 90, priority 4.35; severity gated on vendor classification of the corpus (HUMAN_ONLY).
+- `/php/` messaging subsystem (`send_message` + `load_messages`): confidence 45, IDOR follow-up pending a session (AUTH_HELPED).
+- `v2/insurance_info/{kk_id}` BOLA: confidence 60, priority ~3.05; needs scoped read-only secret (AUTH_HELPED).
+- 24h smoke rotation discipline maintained across many windows; next rotations scheduled off last measurements.
+
+### Blocked
+- Credentialed POST to `/post/create_user` and `mark_all_read.php` action branch illegal under passive-first constraint (HUMAN_ONLY/AUTH_HELPED).
+- `/php/` IDOR and v2 BOLA need a session/scoped secret.
+- Tariff-leak severity needs vendor data classification.
+- S3 sibling ownership attribution is a HUMAN gate (all 403, none in-scope-referenced).
+- Peer pipeline observability gap — 25+ empty triage cycles, zero peer signal.
+
+## Next Move
+1. HUMAN: extend the bugs.olivermaicher.eu request for `kassenkompass.de/php/mark_all_read.php` — ask (a) whether the action dispatcher is intended to run unauthenticated (siblings gate first), (b) the valid POST action value and whether the read/unread flag is global or per-user, (c) intended authorization of `/php/` message handlers; include the 4-handler list; keep existing data-classification + scoped-read-only-secret + S3-ownership asks.
+2. Hold all live probes to schedule (≤1 rps); re-measure standing surfaces only when a rotation window is genuinely due; emit NO_DELTA rather than re-deriving known conclusions.
+
+## Relevant Files
+- `inventory/kassenkompass.md`: host/asset inventory + timestamped passive-recon deltas (apex/www/api/net/awv/load.awv/kk-s3-01).
+- `reports/hypotheses-nemotron3.txt`: peer hypothesis ledger; still ranks refuted finals (encoded-separator WAF bypass @90/88) — do not re-emit.
+- `state_bigpickle.json` / `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}`.
+- `art/lead_nemotron3.txt`: source of the `mark_all_read.php` pre-auth action-router lead.
+- `probe-results.md`: raw probe outputs (harness artifacts noted, e.g. 2026-09-28 17:03 `GET /post/help -> HTTP 405` false positive).
+- `/js/whitelabel_live.js` (11,359 B), `/js/param_passthrough.js` (v=web1.0.1), `/js/live-calculation.js` (36,499 B): client-side source of the XSS/BUSLOGIC findings.
+- `kassenkompass.de/php/mark_all_read.php`, `mark_read.php`, `send_message.php`, `load_messages.php`: `/php/` app; the missing-auth ordering anomaly plus 3 gated siblings.
+- `api.kassenkompass.de/` (root catalog), `/sync/`, `/health/`, `/post/help`, `/v2/insurance_info/{kk_id}`: core API surface for any follow-up probes.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mecho '=== login_kd.php ==='; cat /tmp/kk_login.html | tr '>' '>\n' | grep -iE 'form|action|input|php|kunde|portal' | head -60 failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.

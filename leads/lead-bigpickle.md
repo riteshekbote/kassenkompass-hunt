@@ -10146,3 +10146,4 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167 B catalog, /sync/ 67 B, /health/ 22 B, /v2/insurance_info/1 401/236 B, fragen 2,158,671 B).
 [RISK] kassenkompass: 40 — new /php/ message handlers expand the authenticated attack surface; mark_all_read.php remains the only pre-auth ordering anomaly but its exploitability is unproven (POST contract unknown, prior success claim falsified); all API/funnel surfaces drift-free.
 ## 2026-10-11 18:47:32 UTC [target] (model bigpickle)
+## 2026-10-11 22:45:53 UTC [target] (model bigpickle)

@@ -1845,3 +1845,14 @@ https://api.kassenkompass.de/post/help -> HTTP 405
 https://api.kassenkompass.de/delete/1 -> HTTP 401
 https://api.kassenkompass.de/post/ -> HTTP 405
 https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-11 22:46:58 UTC
+https://kassenkompass.de/php/mark_all_read.php?action=invalid -> 200 len=0
+https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read -> 200 len=0
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/delete/1 -> HTTP 401
+https://api.kassenkompass.de/post/ -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405

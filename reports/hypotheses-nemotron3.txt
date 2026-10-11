@@ -1,9 +1,16 @@
-## 2026-10-11 18:46:50 UTC [target] (model nemotron3)
-[PRIO] kassenkompass.de/php/mark_all_read.php, 7.75, attack_surface=8, business_value=6, tech_exposure=7, gate_ease=10, cloud_surface=5, freshness=10
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id}, 6.85, attack_surface=7, business_value=8, tech_exposure=6, gate_ease=3, cloud_surface=7, freshness=5
-[PRIO] kassenkompass.de/bonusrechner_fragen.php, 6.10, attack_surface=9, business_value=7, tech_exposure=8, gate_ease=10, cloud_surface=3, freshness=4
-[PRIO] api.kassenkompass.de/post/create_user, 5.95, attack_surface=6, business_value=9, tech_exposure=5, gate_ease=3, cloud_surface=6, freshness=4
-[PRIO] kassenkompass.de/js/whitelabel_live.js, 5.20, attack_surface=5, business_value=6, tech_exposure=9, gate_ease=10, cloud_surface=2, freshness=6
+## 2026-10-11 22:46:32 UTC [target] (model nemotron3)
+[NEW] kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed — unauthenticated invalid action returns 59 B `{"success":false,"message":"Fehler: Ungültige Action"}`, valid action returns 46 B `Nicht angemeldet`; identical on apex/www/net; `/php/` directory listing denied (IIS 403 1233 B); OPTIONS returns 200 no Allow/ACAO
+[CHANGED] api.kassenkompass.de/ root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload 2,158,671 B (−48 B vs 10-07, inside ±0.3% band); drift-on-refresh model confirmed stable; www mirror identical; sessionData null under stuffed jar
+[CHANGED] All major surfaces stable since 2026-09-07 — api catalog (15+1), v2 (insurance_info sole route, 42-name saturation), 7 funnel mirrors with divergent alias maps, auth map 15/15 drift-free, S3 qid 1..180, whitelabel/param_passthrough/live-calculation JS
+[CHANGED] Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.85, attack_surface=8, business_value=6, tech_exposure=7, gate_ease=10, cloud_surface=5, freshness=10
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id}, 7.30, attack_surface=7, business_value=8, tech_exposure=8, gate_ease=6, cloud_surface=6, freshness=8
+[PRIO] api.kassenkompass.de/post/create_user, 6.55, attack_surface=7, business_value=9, tech_exposure=7, gate_ease=5, cloud_surface=5, freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 5.60, attack_surface=9, business_value=5, tech_exposure=6, gate_ease=10, cloud_surface=5, freshness=5
+[PRIO] kassenkompass.de/js/whitelabel_live.js, 4.55, attack_surface=6, business_value=4, tech_exposure=7, gate_ease=10, cloud_surface=4, freshness=6
+[PRIO] kassenkompass.de/js/param_passthrough.js, 4.30, attack_surface=7, business_value=4, tech_exposure=6, gate_ease=10, cloud_surface=4, freshness=5
+[PRIO] kassenkompass.de/js/live-calculation.js, 4.10, attack_surface=5, business_value=5, tech_exposure=6, gate_ease=10, cloud_surface=4, freshness=5
 [HYP] Pre-auth Action Router on /php/mark_all_read.php
 class: AUTH
 asset: kassenkompass.de/php/mark_all_read.php

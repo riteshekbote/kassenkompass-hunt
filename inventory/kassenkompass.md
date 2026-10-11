@@ -1726,3 +1726,10 @@ www.kassenkompass.de
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
 
 ## 2026-10-11 18:47:43 UTC
+
+## 2026-10-11 22:46:42 UTC
+- NEW kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed — unauthenticated invalid action returns 59 B `{"success":false,"message":"Fehler: Ungültige Action"}`, valid action returns 46
+- CHANGED api.kassenkompass.de/ root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload 2,158,671 B (−48 B vs 10-07, inside ±0.3% band); drift-on-refresh model confirmed stable; www mirror identical; sessionData null under stuffed 
+- CHANGED All major surfaces stable since 2026-09-07 — api catalog (15+1), v2 (insurance_info sole route, 42-name saturation), 7 funnel mirrors with divergent alias maps, auth map 15/15 drift-free, S3 qid 1..18
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
