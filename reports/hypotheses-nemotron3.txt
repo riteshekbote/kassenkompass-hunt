@@ -1,16 +1,10 @@
-## 2026-10-11 13:58:36 UTC [target] (model nemotron3)
-[NEW] kassenkompass.de/php/mark_all_read.php: action parameter evaluated pre-auth — unauthenticated GET/POST with invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B) vs valid action returns `{"success":false,"message":"Nicht angemeldet"}` (46 B); reachable on apex, www, .net (302→.de); /php/ directory returns IIS 403 directory-listing denial (1233 B, iso-8859-1); OPTIONS returns 200 no Allow/ACAO
-[CHANGED] api.kassenkompass.de/ root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
-[CHANGED] kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
-[CHANGED] api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match host-wide
-[CHANGED] Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
-[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable
-[PRIO] kassenkompass.de/php/mark_all_read.php,7.55,attack_surface=8,business_value=6,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=10
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.05,attack_surface=9,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=4
-[PRIO] kassenkompass.de/bonusrechner.php,6.75,attack_surface=8,business_value=6,tech_exposure=7,gate_ease=10,cloud_surface=4,freshness=3
-[PRIO] api.kassenkompass.de/post/create_user,6.35,attack_surface=6,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=5,freshness=6
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.10,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=3,cloud_surface=5,freshness=5
-[HYP] Unauthenticated Action Router on /php/mark_all_read.php
+## 2026-10-11 18:46:50 UTC [target] (model nemotron3)
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.75, attack_surface=8, business_value=6, tech_exposure=7, gate_ease=10, cloud_surface=5, freshness=10
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id}, 6.85, attack_surface=7, business_value=8, tech_exposure=6, gate_ease=3, cloud_surface=7, freshness=5
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 6.10, attack_surface=9, business_value=7, tech_exposure=8, gate_ease=10, cloud_surface=3, freshness=4
+[PRIO] api.kassenkompass.de/post/create_user, 5.95, attack_surface=6, business_value=9, tech_exposure=5, gate_ease=3, cloud_surface=6, freshness=4
+[PRIO] kassenkompass.de/js/whitelabel_live.js, 5.20, attack_surface=5, business_value=6, tech_exposure=9, gate_ease=10, cloud_surface=2, freshness=6
+[HYP] Pre-auth Action Router on /php/mark_all_read.php
 class: AUTH
 asset: kassenkompass.de/php/mark_all_read.php
 confidence: 85
@@ -41,12 +35,15 @@ testability: AUTH_HELPED
 [PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 50 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
 [PARKED] CORS-based postMessage Exploit via whitelabel_live.js: guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified; integrity-only suppression of 5 trust elements measured, not XSS
 [PARKED] Client-side Cookie Stuffing → data_sparsum Forgery via live-calculation.js: orphaned read/write asymmetry confirmed (reads data_sparsum from cookie, adds to savings display, setCookie commented out), but param_passthrough.js PASS_PARAMS excludes data_sparsum; no param-to-that-cookie mapping exists
-[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Unauthenticated Action Router (confidence 85, PASSIVE)
+[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Pre-auth Action Router (confidence 85, PASSIVE)
 [FINAL] 2. api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read (confidence 60, AUTH_HELPED)
 [FINAL] 3. api.kassenkompass.de/post/create_user: Write Auth Status Unproven (confidence 50, AUTH_HELPED)
 [NEXT] PROBE: GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read and GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (both ≤1 rps) to confirm pre-auth action evaluation differential; repeat on www.kassenkompass.de
-[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — reproducible missing-auth primitive
-[LEARN] REJECTED MISCONFIG @ kassenkompass.de/php/: IIS directory-listing denial only; no information disclosure
+[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth action-router ordering confirmed on apex+www+net — unauthenticated 59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param is POST-only (GET 0-differential)
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B; the recorded POST success response was never observed
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2 handlers" corrected
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167 B catalog, /sync/ 67 B, /health/ 22 B, /v2/insurance_info/1 401/236 B, fragen 2,158,671 B)
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps; payload drift within ±0.3% band (model fit), data freshness ≤2025-12-22; www mirror identical; sessionData null under stuffed jar
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 [LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transported as 2xx on legacy path

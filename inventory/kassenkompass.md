@@ -1724,3 +1724,5 @@ www.kassenkompass.de
 - CHANGED api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match ho
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+
+## 2026-10-11 18:47:43 UTC
