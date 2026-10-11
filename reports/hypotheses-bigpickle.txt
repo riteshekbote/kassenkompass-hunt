@@ -1,4 +1,77 @@
-## 2026-10-10 22:01:44 UTC [target] (model bigpickle)
+## 2026-10-11 00:53:48 UTC [target] (model bigpickle)
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` separately mounted app closed at exactly 2 members (`help`, `create_user`); `/post/help` (200/344 B JSON) advertises `POST /post/create_user`; unauth GET→405, method-confounded by gated POST-only `/cat_detail/`; both `/post/*` now advertise `X-API-Secret` in allow-headers.
+evidence_needed: credentialed POST plus identical request without `X-API-Secret` as control; explicit confirmation writes are unauthenticated.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; with scoped credential `curl -s -X POST .../post/create_user` and same without header; never create real accounts.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
+[NEXT] HUMAN: submit one request to bugs.olivermaicher.eu asking (a) data classification for `bonusrechner_fragen.php`+`bonusrechner_daten.php`; (b) issuance of a scoped read-only X-API-Secret to settle `/post/*` write auth and v2 `{kk_id}` tenant isolation; (c) ownership of `kk-assets`/`kk-uploads`/`kk-backup`/`kk-images`/`kk-docs` S3 buckets.
+[RISK] kassenkompass: 32 — all three FINALs human-gated; live surfaces drift-free; no new attack surface since 2026-09-07; 24h smoke not yet due (last 2026-10-09 21:2x, next ≥21:2x).
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: sole versioned route on middleware A (X-API-Secret header sole channel); greedy-segment match, `kk_id` unvalidated at routing; 42-name enumeration saturated; draft value downgraded because `ucatKkData` replicates the domain publicly.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` separately mounted app closed at exactly 2 members (`help`, `create_user`); `/post/help` (200/344 B JSON) advertises `POST /post/create_user`; unauth GET→405, method-confounded by gated POST-only `/cat_detail/`; both `/post/*` now advertise `X-API-Secret` in allow-headers.
+evidence_needed: credentialed POST plus identical request without `X-API-Secret` as control; explicit confirmation writes are unauthenticated.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; with scoped credential `curl -s -X POST .../post/create_user` and same without header; never create real accounts.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
+[NEXT] HUMAN: submit one request to bugs.olivermaicher.eu asking (a) data classification for `bonusrechner_fragen.php`+`bonusrechner_daten.php`; (b) issuance of a scoped read-only X-API-Secret to settle `/post/*` write auth and v2 `{kk_id}` tenant isolation; (c) ownership of `kk-assets`/`kk-uploads`/`kk-backup`/`kk-images`/`kk-docs` S3 buckets.
+[RISK] kassenkompass: 32 — all three FINALs human-gated; live surfaces drift-free; no new attack surface since 2026-09-07; 24h smoke not yet due (last 2026-10-09 21:2x, next ≥21:2x).
+[HYP] Unauthenticated state-changing endpoint (missing authentication)
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 72
+reasoning: `POST action=mark_all_read&kk_id=<int>` returns 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no session/credential on apex + www; sibling `mark_read.php` returns `Nicht angemeldet`, so the gate exists in the codebase but is absent on this action. `kk_id` intval-cast (quote/non-numeric → identical result; `[]=1`→1) ⇒ no SQLi; GET ignores `action` (POST-only); no ACAO. `/php/`=403, exactly 2 handlers.
+evidence_needed: whether the read/unread row is global or per-user (affected_rows:0 on all tested ids); a valid kk_id carrying unread rows would confirm a global write.
+verify_steps: `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php`; `curl -s https://kassenkompass.de/php/mark_read.php`; `curl -s -o /dev/null -w '%{http_code}' https://kassenkompass.de/php/`.
+impact: unauthenticated attacker toggles read-state of insurer notifications for arbitrary kk_id → notification suppression / integrity loss; LOW-MED if user-scoped, MED if global. Proven: unauth request executes a state-changing function.
+testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: unauth GET → 2,158,671 B, `no-store`+CF-DYNAMIC, no ETag/Last-Modified, no rate limit at 1 rps; carries `ucatKkData` (5,209 rows) + `dataant` (138 questions / 285 answers; ids 5/20/152/161/240 active) + `globalbudgetsData`/`kombiboniData`; apex/www differ only by cache-buster.
+evidence_needed: vendor ruling — intended-public marketing content vs licensed partner/commission data.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php | wc -c`; `curl -s -D- -o /dev/null https://kassenkompass.de/bonusrechner_fragen.php`.
+impact: competitor obtains full rating + decision engine and per-KK references without auth; HIGH if non-public else informational.
+testability: PASSIVE
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: sole v2 route on middleware A (X-API-Secret header sole channel); greedy-segment match, `kk_id` unvalidated at routing; 42-name enumeration saturated; draft value downgraded because `ucatKkData` publicly replicates the domain.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` and ask whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-secret + S3-ownership asks.
+[RISK] kassenkompass: 38 — new unauthenticated state-changing endpoint (`/php/mark_all_read.php`) raises prior 32; impact still gated on vendor clarification of read-state scoping; all other surfaces drift-free.
 [NEW] `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B), while sibling `mark_read.php` returns `{"success":false,"message":"Nicht angemeldet"}` (46 B) — the auth gate exists in the codebase but is absent on this handler's action router (pre-auth dispatch confirmed at HTTP level).
 [NEW] Endpoint reachable identically on apex + `www` + `kassenkompass.net` (`.net` root still 302→`.de`); lead previously noted apex+www only.
 [CHANGED] `/php/` 403 body is the IIS `403 - Forbidden: Access is denied.` directory-listing denial (iso-8859-1, 1233 B); responses set `AWSALB`/`AWSALBCORS` + `PHPSESSID` → the `.de`/`.net` PHP app is IIS-origin behind an AWS ALB + Cloudflare, not a plain PHP host.

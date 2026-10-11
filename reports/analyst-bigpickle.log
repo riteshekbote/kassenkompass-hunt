@@ -64290,3 +64290,359 @@ testability: AUTH_HELPED
 [LEARN] REJECTED MISCONFIG @ kassenkompass.de/php/: IIS directory-listing denial only; no information disclosure.
 
 [RISK] kassenkompass: 38 — unauthenticated state-changing endpoint structurally confirmed pre-auth across apex/www/.net; impact gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+===== ANALYST bigpickle 2026-10-11 00:54:51 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mls -la; echo "---"; ls -la art 2>/dev/null; echo "---"; ls -la reports 2>/dev/null; echo "---"; ls -la inventory 2>/dev/null
+total 1280
+drwxr-xr-x 12 runner runner   4096 Oct 11 00:52 .
+drwxr-xr-x  3 runner runner   4096 Oct 11 00:52 ..
+drwxr-xr-x  7 runner runner   4096 Oct 11 00:52 .git
+drwxr-xr-x  3 runner runner   4096 Oct 11 00:52 .github
+-rw-r--r--  1 runner runner   1767 Oct 11 00:52 README.md
+-rw-r--r--  1 runner runner     32 Oct 11 00:52 analyst-out.txt
+-rw-r--r--  1 runner runner 559817 Oct 11 00:52 analyst-prompt.txt
+-rw-r--r--  1 runner runner 555999 Oct 11 00:52 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 leads
+-rw-r--r--  1 runner runner  91231 Oct 11 00:52 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 reports
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 11 00:52 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 scripts
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 11 00:52 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 11 00:52 triage
+---
+---
+total 9388
+drwxr-xr-x  2 runner runner    4096 Oct 11 00:52 .
+drwxr-xr-x 12 runner runner    4096 Oct 11 00:52 ..
+-rw-r--r--  1 runner runner 5575279 Oct 11 00:52 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   47089 Oct 11 00:52 analyst-laguna.log
+-rw-r--r--  1 runner runner   46872 Oct 11 00:52 analyst-ling3.log
+-rw-r--r--  1 runner runner   47306 Oct 11 00:52 analyst-longcat.log
+-rw-r--r--  1 runner runner 3119762 Oct 11 00:52 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5540 Oct 11 00:52 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 11 00:52 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 11 00:52 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 11 00:52 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   13682 Oct 11 00:52 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  788022 Oct 11 00:52 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Oct 11 00:52 valid-bugs.md
+---
+total 232
+drwxr-xr-x  2 runner runner   4096 Oct 11 00:52 .
+drwxr-xr-x 12 runner runner   4096 Oct 11 00:52 ..
+-rw-r--r--  1 runner runner 226866 Oct 11 00:52 kassenkompass.md
+[0m
+[0m$ [0mfind . -maxdepth 3 -type f \( -name "*.txt" -o -name "*.md" -o -name "*.yml" -o -name "*.json" \) 2>/dev/null | head -100
+./leads/lead-mimo.md
+./leads/lead-laguna.md
+./leads/lead-ling3.md
+./leads/lead-longcat.md
+./leads/reposcan-kassenkompass.md
+./leads/lead-bigpickle.md
+./leads/lead-nemotron3.md
+./scope.yml
+./state_ling3.json
+./state_laguna.json
+./analyst-out.txt
+./state_bigpickle.json
+./probe-results.md
+./reports/hypotheses.md
+./reports/hypotheses-ling3.txt
+./reports/hypotheses-laguna.txt
+./reports/valid-bugs.md
+./reports/hypotheses-bigpickle.txt
+./reports/hypotheses-nemotron3.txt
+./reports/hypotheses-longcat.txt
+./.github/workflows/sync-issues.yml
+./.github/workflows/triage.yml
+./.github/workflows/reposcan.yml
+./.github/workflows/hunt.yml
+./recon-notes/DEDICATED-DEEP.md
+./state_mimo.json
+./ctx.txt
+./state_longcat.json
+./knowledge/index.md
+./README.md
+./reposcan-raw/summary.txt
+./inventory/kassenkompass.md
+./triage/run-2026-09-30-01-51.md
+./triage/run-2026-10-04-09-24.md
+./triage/run-2026-10-03-17-36.md
+./triage/run-2026-09-19-13-23.md
+./triage/run-2026-09-10-19-47.md
+./triage/run-2026-10-04-21-54.md
+./triage/run-2026-09-19-00-36.md
+./triage/run-2026-10-02-07-04.md
+./triage/run-2026-09-24-01-29.md
+./triage/run-2026-10-06-09-05.md
+./triage/run-2026-09-09-06-39.md
+./triage/run-2026-09-13-23-14.md
+./triage/run-2026-09-29-00-50.md
+./triage/run-2026-09-16-18-56.md
+./triage/run-2026-09-20-21-11.md
+./triage/run-2026-09-22-17-03.md
+./triage/run-2026-09-11-17-35.md
+./triage/run-2026-09-14-06-26.md
+./triage/run-2026-09-23-23-07.md
+./triage/run-2026-09-02-23-33.md
+./triage/run-2026-09-06-22-44.md
+./triage/run-2026-10-05-21-51.md
+./triage/run-2026-10-10-19-20.md
+./triage/run-2026-10-07-14-15.md
+./triage/run-2026-09-11-13-48.md
+./triage/run-2026-09-07-20-46.md
+./triage/run-2026-09-14-18-43.md
+./triage/run-2026-09-07-17-23.md
+./triage/run-2026-09-04-16-46.md
+./triage/run-2026-10-03-20-11.md
+./triage/run-2026-09-06-18-25.md
+./triage/run-2026-09-18-04-30.md
+./triage/run-2026-09-15-15-36.md
+./triage/run-2026-10-01-09-24.md
+./triage/run-2026-09-13-16-28.md
+./triage/run-2026-09-23-12-10.md
+./triage/run-2026-09-27-04-03.md
+./triage/run-2026-09-13-06-17.md
+./triage/run-2026-09-19-19-12.md
+./triage/run-2026-09-18-13-39.md
+./triage/run-2026-09-12-00-39.md
+./triage/run-2026-10-09-23-09.md
+./triage/run-2026-09-23-20-28.md
+./triage/run-2026-09-16-21-57.md
+./triage/run-2026-09-06-05-06.md
+./triage/run-2026-10-02-23-02.md
+./triage/run-2026-09-15-00-43.md
+./triage/run-2026-09-27-22-18.md
+./triage/run-2026-09-27-19-02.md
+./triage/run-2026-09-15-05-54.md
+./triage/run-2026-09-10-17-02.md
+./triage/run-2026-09-18-19-42.md
+./triage/run-2026-09-17-14-46.md
+./triage/run-2026-10-04-14-57.md
+./triage/run-2026-09-24-12-34.md
+./triage/run-2026-09-08-06-01.md
+./triage/run-2026-09-30-23-32.md
+./triage/run-2026-09-16-00-32.md
+./triage/run-2026-09-29-22-51.md
+./triage/run-2026-09-05-18-24.md
+./triage/run-2026-09-05-20-44.md
+./triage/run-2026-09-15-22-19.md
+./triage/run-2026-09-19-23-30.md
+./triage/run-2026-09-28-06-21.md
+./triage/run-2026-10-08-13-42.md
+./triage/run-2026-09-08-11-27.md
+./triage/run-2026-09-08-23-39.md
+./triage/run-2026-10-08-00-15.md
+[0m
+## Objective
+- Act as senior bug-bounty analyst for the KassenKompass GmbH program (report channel: bugs.olivermaicher.eu): produce the 8-step structured block output (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT ACTION → LEARNING → RISK) against only in-scope assets.
+- Emit only structured blocks; no filler; passive-first probes; every claim traceable to context or own read-only probes.
+
+## Important Details
+- Scope: all company-owned KassenKompass infrastructure/domains; inventory seed hosts: `api.kassenkompass.de`, `kassenkompass.de`, `www.kassenkompass.de` (+ discovered `awv.kassenkompass.de`, `load.awv.kassenkompass.de`, `kassenkompass.net`, `kk-s3-01.s3.eu-central-1.amazonaws.com`).
+- Constraints: ≤1 rps; GET/HEAD/OPTIONS only for passive probes; no auth-bypass/mutating tests on live customer data; sha256 any secret; scanner output requires manual validation; state-changing tests require HUMAN/owned-id approval.
+- Priority formula: `0.25a + 0.25b + 0.15t + 0.15g + 0.10c + 0.10f` (attack_surface, business_value, tech_exposure, gate_ease, cloud_surface, freshness).
+- Out-of-scope REJECTED classes include: descriptive errors/headers, OPTIONS/TRACE, cookie flags on non-sensitive data, rate-limit policy, CSRF on anonymous forms, scanner reports without POC.
+- Standing session state: `{"phase": "POC", "target": "api"}`.
+- High-value classes to prioritize: broken auth/session, IDOR/BOLA, SSRF-to-metadata, mass assignment, JWT confusion, OAuth flaws, money/auth-flow business logic, upload, GraphQL, subdomain takeover.
+- Key methodology rules established: HEAD cannot close route-membership on this host (catch-all returns CL:0 on HEAD — GET + body comparison required); a 405 is never evidence about credentials on api.kassenkompass.de; an injective discriminator is required (access-control-allow-methods is disjoint per handler).
+
+## Work State
+### Completed
+- api.kassenkompass.de fully mapped: 15 v1 + 1 v2 endpoints; auth map 15/15 — middleware A (v1 majority + v2, "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"), middleware B = {`/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`} ("X-API-Secret Header fehlt"), `/sync/` legacy HTTP-200 envelope (67 B, sha256 `b93be961…`), `/health/` sole fully unprotected endpoint (22 B `{"status":"ok"}`, `x-powered-by: PHP/8.4.3`), `/post/` separately-mounted app outside X-API-Secret (`/post/help` 200/344 B advertising `POST /post/create_user`; `/post/` and `/post/create_user` 405 POST-only).
+- v2 enumeration saturated at 42 names (only `insurance_info`); percent-decode-before-match host-wide; normalization matrix complete for 17 route families (0 divergences); encoded separators decode (`/delete%2f1` ≡ `/delete/1`, single decode level); three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- kassenkompass.de funnel: 7 mirror entries (`bonusrechner.php`, `bonusrechner_daten.php`, `bonusrechner_fragen.php`, `bonusrechner_suche.php`, `bonusrechner_vergleich2.php`, `bonusrechner_abschluss.php`, `termin.php`) with divergent alias maps; `lizenz→afilcode` (non-HttpOnly), `jid→customerid`, `agn|connectionnumber→agenturnummer` (dual-alias duplicate), `ppn→poolpartnernummer`, `employeenumber`; `vergleich2` sole emitter of `device_id`.
+- `bonusrechner_fragen.php` unauthenticated ~2.15 MB tariff/decision corpus (2,152,708 B, ±0.3% drift band), no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limit (100-req 1-rps sustained); www mirror identical modulo 1-byte cache-buster.
+- kk-s3-01 bucket: existence oracle established (200=readable, 403 AccessDenied=absent); qid axis 1..180, n-dimension extends; non-image/sensitive keys all 403.
+- Negative/rejected classes: encoded-separator access-control bypass (no differential), HEAD-membership methodology, Host-header FP (Cloudflare edge routing), CORS (api + .net + funnel), SSRF, JWT_ALG_CONFUSION, CRED_REUSE (`KKX3382745`/`X8372`), credential-reuse on API, XSS on API (client JS never calls the API), one-shot stuffing→register auto-create (refuted).
+- Client-side: `whitelabel_live.js` postMessage receiver lacks `event.origin`/`event.source` (integrity-only, not XSS); `param_passthrough.js` harvests 16 params into sessionStorage `kkweb_pass_params`; `live-calculation.js` orphaned `data_sparsum` read (setCookie commented at line 642).
+- NEW major primitive (latest): `kassenkompass.de/php/mark_all_read.php` action router executes pre-auth (59 B `{"success":false,"message":"Fehler: Ungültige Action"}` vs sibling `mark_read.php` 46 B `Nicht angemeldet`), reachable apex+www+.net; lead records `POST action=mark_all_read&kk_id=<int>` → 200 success with no credential.
+
+### Active
+- Emitting current cycle's 8-step blocks. Latest ranked hypotheses: `[95] kassenkompass.de/bonusrechner_fragen.php` unauth mass tariff exposure; `[70] kassenkompass.de/php/mark_all_read.php` unauth state change.
+- Top hypotheses with confidence: mark_all_read.php unauth notification read-state modification (conf 70, prio 4.6, class AUTH, `kk_id` intval-cast, no SQLi); bonusrechner_fragen.php mass corpus (conf 90, prio 4.35, class MISCONFIG, HUMAN-gated classification); v2 `insurance_info/{kk_id}` BOLA (conf 60, prio 3.05, class IDOR, needs scoped X-API-Secret, draft domain already publicly replicated by `ucatKkData`).
+- `[RISK] kassenkompass: 38` (raised from 32) — new unauthenticated state-changing endpoint; impact gated on vendor clarification of read-state scoping.
+
+### Blocked
+- `mark_all_read.php` state-changing POST (`action=mark_all_read&kk_id=999999999`) requires human/owned-id approval (mutating live customer data prohibited).
+- v2 BOLA requires scoped read-only X-API-Secret (AUTH_HELPED).
+- `/post/create_user` write auth unprovable without credentialed POST + negative control.
+- bonusrechner_fragen.php severity gated on vendor data classification (HUMAN_ONLY).
+- Reposcan unavailable: "TARGET_ORG not configured; skipping".
+- Peer pipeline: 25+ consecutive triage cycles with header-only/stub leads — effectively single-writer.
+
+## Next Move
+1. `[NEXT] HUMAN`: extend pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm endpoint is intended to be unauthenticated and whether the notification read/unread flag is global or per-user (sizes missing-auth impact); keep existing data-classification + scoped-read-only-secret + S3-ownership asks.
+2. Emit the exact passive probes for verification, e.g. `curl -s 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'` (expect 59 B `Ungültige Action`); `curl -s https://kassenkompass.de/bonusrechner_fragen.php | wc -c`; `curl -s -H 'X-API-Secret: <scoped>' https://api.kassenkompass.de/v2/insurance_info/<other_id>` (AUTH_HELPED).
+
+## Relevant Files
+- `scope.yml`: authoritative in-scope asset list (must confirm ownership/in-scope before active testing).
+- `inventory/kassenkompass.md`: host inventory + chronological passive recon log (2026-09-02 → 2026-10-10).
+- `reports/hypotheses-nemotron3.txt`: peer lead file (still ranks refuted encoded-separator bypass finals @90/@88).
+- `reports/hypotheses-bigpickle.txt`: peer lead file (source of mark_all_read.php NEXT/HUMAN action).
+- `art/lead_nemotron3.txt`, `art/lead_bigpickle.txt`: latest lead artifacts feeding ranked hypotheses.
+- `state_bigpickle.json`, `state_nemotron3.json`: session state (`{"phase":"POC","target":"api"}`).
+- `probe-results.md`: raw passive probe results (line refs e.g. 119, 126, 128-131, 140).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m→ [0mRead README.md
+[0m→ [0mRead analyst-out.txt
+[0m
+[0m$ [0mfor f in state_*.json; do echo "== $f =="; cat "$f"; echo; done
+== state_bigpickle.json ==
+{"phase": "POC", "target": "api"}
+== state_laguna.json ==
+{"phase": "POC", "target": "api"}
+== state_ling3.json ==
+{"phase": "POC", "target": "api"}
+== state_longcat.json ==
+{"phase": "POC", "target": "api"}
+== state_mimo.json ==
+{"phase": "POC", "target": "api"}
+== state_nemotron3.json ==
+{"phase": "POC", "target": "api"}
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead leads/lead-bigpickle.md
+[0m→ [0mRead leads/lead-nemotron3.md
+[0m→ [0mRead reports/valid-bugs.md
+[0m
+[0m$ [0mwc -l leads/lead-bigpickle.md; echo "=== TAIL bigpickle ==="; tail -120 leads/lead-bigpickle.md
+9983 leads/lead-bigpickle.md
+=== TAIL bigpickle ===
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` separately mounted app closed at exactly 2 members (`help`, `create_user`); `/post/help` (200/344 B JSON) advertises `POST /post/create_user`; unauth GET→405, method-confounded by gated POST-only `/cat_detail/`; both `/post/*` now advertise `X-API-Secret` in allow-headers.
+evidence_needed: credentialed POST plus identical request without `X-API-Secret` as control; explicit confirmation writes are unauthenticated.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; with scoped credential `curl -s -X POST .../post/create_user` and same without header; never create real accounts.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
+[NEXT] HUMAN: submit one request to bugs.olivermaicher.eu asking (a) data classification for `bonusrechner_fragen.php`+`bonusrechner_daten.php`; (b) issuance of a scoped read-only X-API-Secret to settle `/post/*` write auth and v2 `{kk_id}` tenant isolation; (c) ownership of `kk-assets`/`kk-uploads`/`kk-backup`/`kk-images`/`kk-docs` S3 buckets.
+[RISK] kassenkompass: 32 — all three FINALs human-gated; live surfaces drift-free; no new attack surface since 2026-09-07; 24h smoke not yet due (last 2026-10-09 21:2x, next ≥21:2x).
+## 2026-10-10 18:30:24 UTC [target] (model bigpickle)
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: sole versioned route on middleware A (X-API-Secret header sole channel); greedy-segment match, `kk_id` unvalidated at routing; 42-name enumeration saturated; draft value downgraded because `ucatKkData` replicates the domain publicly.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare tenant authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[HYP] /post/create_user write authorization unproven
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 55
+reasoning: `/post/` separately mounted app closed at exactly 2 members (`help`, `create_user`); `/post/help` (200/344 B JSON) advertises `POST /post/create_user`; unauth GET→405, method-confounded by gated POST-only `/cat_detail/`; both `/post/*` now advertise `X-API-Secret` in allow-headers.
+evidence_needed: credentialed POST plus identical request without `X-API-Secret` as control; explicit confirmation writes are unauthenticated.
+verify_steps: `curl -s https://api.kassenkompass.de/post/help`; with scoped credential `curl -s -X POST .../post/create_user` and same without header; never create real accounts.
+impact: if open, unauthenticated user provisioning (HIGH); otherwise none.
+testability: AUTH_HELPED
+[NEXT] HUMAN: submit one request to bugs.olivermaicher.eu asking (a) data classification for `bonusrechner_fragen.php`+`bonusrechner_daten.php`; (b) issuance of a scoped read-only X-API-Secret to settle `/post/*` write auth and v2 `{kk_id}` tenant isolation; (c) ownership of `kk-assets`/`kk-uploads`/`kk-backup`/`kk-images`/`kk-docs` S3 buckets.
+[RISK] kassenkompass: 32 — all three FINALs human-gated; live surfaces drift-free; no new attack surface since 2026-09-07; 24h smoke not yet due (last 2026-10-09 21:2x, next ≥21:2x).
+[HYP] Unauthenticated state-changing endpoint (missing authentication)
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 72
+reasoning: `POST action=mark_all_read&kk_id=<int>` returns 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no session/credential on apex + www; sibling `mark_read.php` returns `Nicht angemeldet`, so the gate exists in the codebase but is absent on this action. `kk_id` intval-cast (quote/non-numeric → identical result; `[]=1`→1) ⇒ no SQLi; GET ignores `action` (POST-only); no ACAO. `/php/`=403, exactly 2 handlers.
+evidence_needed: whether the read/unread row is global or per-user (affected_rows:0 on all tested ids); a valid kk_id carrying unread rows would confirm a global write.
+verify_steps: `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php`; `curl -s https://kassenkompass.de/php/mark_read.php`; `curl -s -o /dev/null -w '%{http_code}' https://kassenkompass.de/php/`.
+impact: unauthenticated attacker toggles read-state of insurer notifications for arbitrary kk_id → notification suppression / integrity loss; LOW-MED if user-scoped, MED if global. Proven: unauth request executes a state-changing function.
+testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: unauth GET → 2,158,671 B, `no-store`+CF-DYNAMIC, no ETag/Last-Modified, no rate limit at 1 rps; carries `ucatKkData` (5,209 rows) + `dataant` (138 questions / 285 answers; ids 5/20/152/161/240 active) + `globalbudgetsData`/`kombiboniData`; apex/www differ only by cache-buster.
+evidence_needed: vendor ruling — intended-public marketing content vs licensed partner/commission data.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php | wc -c`; `curl -s -D- -o /dev/null https://kassenkompass.de/bonusrechner_fragen.php`.
+impact: competitor obtains full rating + decision engine and per-KK references without auth; HIGH if non-public else informational.
+testability: PASSIVE
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: sole v2 route on middleware A (X-API-Secret header sole channel); greedy-segment match, `kk_id` unvalidated at routing; 42-name enumeration saturated; draft value downgraded because `ucatKkData` publicly replicates the domain.
+evidence_needed: scoped read-only X-API-Secret to request two distinct `{kk_id}` and compare authorization.
+verify_steps: with scoped secret `curl -H 'X-API-Secret: <scoped>' .../v2/insurance_info/1` vs `/2`; negative control `POST /cat_detail/`.
+impact: cross-tenant read of unpublished draft `insurance_info` beyond publicly replicated data; MEDIUM (draft-only residual).
+testability: AUTH_HELPED
+[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` and ask whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-secret + S3-ownership asks.
+[RISK] kassenkompass: 38 — new unauthenticated state-changing endpoint (`/php/mark_all_read.php`) raises prior 32; impact still gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+## 2026-10-10 22:01:44 UTC [target] (model bigpickle)
+[NEW] `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B), while sibling `mark_read.php` returns `{"success":false,"message":"Nicht angemeldet"}` (46 B) — the auth gate exists in the codebase but is absent on this handler's action router (pre-auth dispatch confirmed at HTTP level).
+[NEW] Endpoint reachable identically on apex + `www` + `kassenkompass.net` (`.net` root still 302→`.de`); lead previously noted apex+www only.
+[CHANGED] `/php/` 403 body is the IIS `403 - Forbidden: Access is denied.` directory-listing denial (iso-8859-1, 1233 B); responses set `AWSALB`/`AWSALBCORS` + `PHPSESSID` → the `.de`/`.net` PHP app is IIS-origin behind an AWS ALB + Cloudflare, not a plain PHP host.
+[CHANGED] `OPTIONS` on both handlers → 200 with no `Allow` and no `ACAO` (no method advertisement).
+[PRIO] `kassenkompass.de/php/mark_all_read.php` 4.6 (a3 b4 t2 g9 c3 f9)
+[PRIO] `kassenkompass.de/bonusrechner_fragen.php` 4.35 (a3 b5 t1 g10 c2 f5)
+[PRIO] `api.kassenkompass.de/v2/insurance_info/{kk_id}` 3.05 (a2 b4 t3 g4 c2 f3)
+[HYP] Unauthenticated notification read-state modification
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php (also www + kassenkompass.net)
+confidence: 70
+reasoning: `mark_read.php` requires a session (`Nicht angemeldet`); `mark_all_read.php` runs its action dispatcher before that gate (invalid action → 59 B `Ungültige Action` pre-auth on GET and POST). Lead records `POST action=mark_all_read&kk_id=<int>` → 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no credential. `kk_id` is intval-cast (no SQLi).
+evidence_needed: unauthenticated POST returns success AND flips another tenant's read/unread flag; determine whether the flag is global or per-user (scopes severity/IDOR).
+verify_steps: `curl -s 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'` → 59 B `Ungültige Action` (done, passive); `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php` (state-changing → requires human/owned-id approval).
+impact: unauthenticated integrity tampering with other users' notification read state; in a health-insurance portal this can suppress user-facing notifications. Medium, high if kk_id is enumerable and the flag is user-scoped.
+testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: ~2.1 MB unauthenticated response embedding `ucatKkData` (1.79 MB), `dataant` (138 Q/285 A), `globalbudgetsData`, `kombiboniData`, `pseudoKkIds=[99,100,101]`; no-store + CF-DYNAMIC, no rate limit; data ≤2025-12-22.
+evidence_needed: vendor confirmation the corpus is non-public/confidential; retrieval itself is already proven.
+verify_steps: `curl -s https://kassenkompass.de/bonusrechner_fragen.php -o /tmp/f.json` (done); HUMAN classification.
+impact: disclosure of internal pricing/underwriting decision parameters; severity gated on confidentiality classification.
+testability: HUMAN_ONLY
+[HYP] v2 insurance_info cross-tenant read (BOLA)
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: v2 route takes a `kk_id` path segment; per-object authorization unverified (v1 gated by `X-API-Secret`, v2 scope unknown). Draft domain is already replicated in public `fragen.php`, limiting value to unpublished drafts.
+evidence_needed: with a scoped secret, request a foreign `kk_id` and observe cross-tenant rows.
+verify_steps: `curl -s -H 'X-API-Secret: <scoped>' https://api.kassenkompass.de/v2/insurance_info/<other_id>`.
+impact: cross-tenant read of unpublished insurance-draft data.
+testability: AUTH_HELPED
+[PARKED] `PHPSESSID` missing SameSite/Secure: REJECTED class (cookie flags on non-sensitive anonymous session).
+[PARKED] `OPTIONS` 200 / no `Allow`: REJECTED class (OPTIONS enabled).
+[PARKED] `/php/` IIS 403 page: REJECTED class (descriptive / known-directory denial, no data leak).
+[PARKED] `AWSALB`/`AWSALBCORS` cookies: infra cookies, non-sensitive → REJECTED.
+[FINAL] 1. mark_all_read.php unauth state change (conf 70, prio 4.6) — new, gate_ease=9.
+[FINAL] 2. bonusrechner_fragen.php mass corpus (conf 90, prio 4.35) — human-gated classification.
+[FINAL] 3. v2 insurance_info/{kk_id} BOLA (conf 60, prio 3.05) — needs scoped secret.
+[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm the endpoint is intended to be unauthenticated and state whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-read-only-secret + S3-ownership asks.
+[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+[LEARN] REJECTED MISCONFIG @ kassenkompass.de/php/: IIS directory-listing denial only; no information disclosure.
+[RISK] kassenkompass: 38 — unauthenticated state-changing endpoint structurally confirmed pre-auth across apex/www/.net; impact gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+[0m
+[0m→ [0mRead triage/run-2026-10-10-19-20.md
+[0m→ [0mRead reports/hypotheses-bigpickle.txt
+[93m[1m! [0mpermission requested: external_directory (/tmp/*); auto-rejecting
+[0m✗ [0mcurl -s -o /tmp/f.json -w 'HTTP %{http_code} size=%{size_download} type=%{content_type}\n' https://kassenkompass.de/bonusrechner_fragen.php; sleep 1; curl -s -o /tmp/mar.txt -w 'HTTP %{http_code} size=%{size_download}\n' 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'; sleep 1; curl -s -o /tmp/mr.txt -w 'HTTP %{http_code} size=%{size_download}\n' 'https://kassenkompass.de/php/mark_read.php'; echo '--- mar body ---'; cat /tmp/mar.txt; echo; echo '--- mr body ---'; cat /tmp/mr.txt; echo failed
+[91m[1mError: [0mThe user rejected permission to use this specific tool call.
