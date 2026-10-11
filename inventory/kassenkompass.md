@@ -1714,3 +1714,5 @@ www.kassenkompass.de
 - NEW kassenkompass.de/php/mark_all_read.php: action parameter evaluated pre-auth — unauthenticated GET/POST with invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B) vs un
 - NEW kassenkompass.de/php/ directory: 403 returns IIS "Access is denied" (1233 B, iso-8859-1); responses set AWSALB/AWSALBCORS + PHPSESSID — confirms IIS origin behind ALB
 - CHANGED OPTIONS on mark_read/mark_all_read → 200 with no Allow header and no ACAO — no method advertisement
+
+## 2026-10-11 06:59:33 UTC

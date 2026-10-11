@@ -1,21 +1,16 @@
-## 2026-10-11 00:54:42 UTC [target] (model nemotron3)
-[NEW] kassenkompass.de/php/mark_all_read.php: action parameter evaluated pre-auth — unauthenticated GET/POST with invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B) vs unauthenticated valid action returns `{"success":false,"message":"Nicht angemeldet"}` (46 B); reachable on apex + www + kassenkompass.net (302→.de)
-[NEW] kassenkompass.de/php/ directory: 403 returns IIS "Access is denied" (1233 B, iso-8859-1); responses set AWSALB/AWSALBCORS + PHPSESSID — confirms IIS origin behind ALB
-[CHANGED] OPTIONS on mark_read/mark_all_read → 200 with no Allow header and no ACAO — no method advertisement
-[PRIO] kassenkompass.de/php/mark_all_read.php,6.85,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=2,freshness=10
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.35,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=6
-[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
-[PRIO] api.kassenkompass.de/post/create_user,6.40,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=3,cloud_surface=4,freshness=5
-[PRIO] kassenkompass.de/js/param_passthrough.js,6.00,attack_surface=6,business_value=5,tech_exposure=6,gate_ease=10,cloud_surface=2,freshness=6
-[PRIO] kassenkompass.de/js/whitelabel_live.js,5.85,attack_surface=5,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=2,freshness=6
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},5.75,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=3,cloud_surface=4,freshness=5
+## 2026-10-11 06:59:25 UTC [target] (model nemotron3)
+[PRIO] kassenkompass.de/php/mark_all_read.php, 8.15, attack_surface=8 business_value=6 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id}, 6.55, attack_surface=7 business_value=8 tech_exposure=6 gate_ease=3 cloud_surface=4 freshness=7
+[PRIO] api.kassenkompass.de/post/create_user, 5.65, attack_surface=6 business_value=7 tech_exposure=5 gate_ease=3 cloud_surface=4 freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 5.60, attack_surface=7 business_value=5 tech_exposure=5 gate_ease=10 cloud_surface=3 freshness=8
+[PRIO] kassenkompass.de/js/whitelabel_live.js, 4.55, attack_surface=4 business_value=3 tech_exposure=4 gate_ease=10 cloud_surface=2 freshness=7
 [HYP] Unauthenticated Action Router on /php/mark_all_read.php
 class: AUTH
 asset: kassenkompass.de/php/mark_all_read.php
 confidence: 85
-reasoning: Action router evaluates `action` parameter before session check — invalid action returns 59 B error unauthenticated, while valid action returns 46 B "Nicht angemeldet"; identical behavior on apex, www, and .net (302→.de); /php/ directory listing denied (IIS 403); OPTIONS returns 200 no Allow/ACAO
+reasoning: Action router evaluates `action` parameter before session check — invalid action returns 59 B error unauthenticated ("Fehler: Ungültige Action"), valid action returns 46 B "Nicht angemeldet"; identical on apex, www, .net (302→.de); /php/ directory listing denied (IIS 403); OPTIONS returns 200 no Allow/ACAO
 evidence_needed: Valid action names accepted by router; whether valid action + valid session performs state change
-verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
+verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (expect 200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (expect 200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
 impact: If valid action exists that modifies notification read-state without auth → unauthenticated state modification on user data; MEDIUM (notification data only)
 testability: PASSIVE
 [HYP] v2 Insurance Info Cross-Tenant Read via BOLA

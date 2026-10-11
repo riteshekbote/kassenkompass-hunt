@@ -10100,3 +10100,4 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
 [LEARN] REJECTED MISCONFIG @ kassenkompass.de/php/: IIS directory-listing denial only; no information disclosure.
 [RISK] kassenkompass: 38 — unauthenticated state-changing endpoint structurally confirmed pre-auth across apex/www/.net; impact gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+## 2026-10-11 06:58:57 UTC [target] (model bigpickle)
