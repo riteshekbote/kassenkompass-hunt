@@ -1716,3 +1716,11 @@ www.kassenkompass.de
 - CHANGED OPTIONS on mark_read/mark_all_read → 200 with no Allow header and no ACAO — no method advertisement
 
 ## 2026-10-11 06:59:33 UTC
+
+## 2026-10-11 14:03:49 UTC
+- NEW kassenkompass.de/php/mark_all_read.php: action parameter evaluated pre-auth — unauthenticated GET/POST with invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B) vs va
+- CHANGED api.kassenkompass.de/ root: content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de normalization matrix COMPLETE for 17 route families — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode-before-match ho
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable

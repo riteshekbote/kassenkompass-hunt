@@ -64730,3 +64730,995 @@ Discipline-compliant next step is **[NEXT] HUMAN**, not a live probe:
 The passive evidence already stands: `mark_all_read.php?action=<invalid>` returns 59 B `"Fehler: Ungültige Action"` vs the sibling `mark_read.php` returning 46 B `"Nicht angemeldet"` — pre-auth action dispatch. Closing precedence needs a valid-action call, which is the mutation-gated step above.
 
 Want me to run only the **passive** subset (invalid action, no-action, sibling comparison) to reconfirm exact bytes, or hold entirely until the human reply?
+===== ANALYST bigpickle 2026-10-11 14:03:49 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcd /tmp/opencode && for u in \
+"https://kassenkompass.de/php/mark_all_read.php?action=invalid" \
+"https://kassenkompass.de/php/mark_read.php?action=invalid" \
+"https://kassenkompass.de/php/mark_all_read.php" \
+"https://kassenkompass.de/php/mark_read.php" ; do
+  echo "=== $u ==="
+  curl -s -o /tmp/opencode/body.txt -w "HTTP=%{http_code} LEN=%{size_download} CT=%{content_type}\n" "$u"
+  echo "--- body ---"; cat /tmp/opencode/body.txt; echo
+  sleep 1.3
+done
+=== https://kassenkompass.de/php/mark_all_read.php?action=invalid ===
+HTTP=200 LEN=59 CT=application/json
+--- body ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== https://kassenkompass.de/php/mark_read.php?action=invalid ===
+HTTP=200 LEN=46 CT=application/json
+--- body ---
+{"success":false,"message":"Nicht angemeldet"}
+=== https://kassenkompass.de/php/mark_all_read.php ===
+HTTP=200 LEN=59 CT=application/json
+--- body ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== https://kassenkompass.de/php/mark_read.php ===
+HTTP=200 LEN=46 CT=application/json
+--- body ---
+{"success":false,"message":"Nicht angemeldet"}
+[0m
+## Objective
+- Bug bounty hunt on the KassenKompass GmbH program (report channel: bugs.olivermaicher.eu) — passive-first recon to find high-value flaws in scoped assets (broken auth/session, IDOR/BOLA, SSRF, mass assignment, business logic on money/auth flows, etc.), chaining where possible.
+- Current phase: **POC**, active target: **api**.
+
+## Important Details
+- Scope: all KassenKompass GmbH infrastructure — comparison platforms, customer portals, APIs, websites, mobile apps, domains.
+- Constraints/directives: passive-first; **≤1 rps**; live probes GET/HEAD/OPTIONS only; no auth-bypass or mutating tests against live customer data; sha256 any secret; no REJECTED classes; facts vs hypotheses strictly separated.
+- Out-of-scope (REJECTED): network/account-lockout DoS, descriptive errors/headers only, robots.txt/known public files, outdated libs, OPTIONS/TRACE, CSRF on logout/anonymous forms, cookie flags on non-sensitive data, self-XSS, scanner reports w/o POC, username enumeration, brute-force/rate-limit policy, SSL/TLS best practice, clickjacking w/o exploit, mail config, password-recovery policy, public login panels, session control during email/password change.
+- 2026-09-11 transient WAF IP-block after ~14-request burst; maintain ≤1 rps discipline.
+- v1 auth map (15/15): 8 middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"), 3 middleware B ("Ungültiger X-API-Secret" — {user/{ext_id}, delete/{id}, cancel/{id}}), 1 method-checked-first (/cat_detail/), 3 no credential check (/health/, /sync/, /post/).
+- `/sync/` legacy envelope: HTTP 200 + 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3).
+- api root: 200, `content-length: 0`-with-body cosmetic class (CL:0→absent→accurate), 15 v1 + 1 v2 catalog (sha256 644b1ec74036ec90).
+- api routing: percent-decode-before-match host-wide (v1+v2), single-level decode, case-sensitive, greedy segment match, encoded separators decode; three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- `/post/` separately mounted app outside X-API-Secret; closed at 2 members (help, create_user); 30 candidate sub-names → 200/0B/text/html.
+- kassenkompass.de/.net PHP app = IIS origin behind AWS ALB + Cloudflare (sets AWSALB/AWSALBCORS + PHPSESSID; /php/ 403 = IIS "Access is denied" 1233 B).
+- Bonusrechner_fragen.php tariff payload: latest 2,158,671 B (drift-on-refresh ±0.3% model); no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limit; apex+www differ by 1 byte (cache-buster); data freshness ≤2025-12-22.
+- 7 funnel cookie-stuffing mirrors: bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php (divergent alias maps).
+- Peer pipeline: 25+ consecutive empty/header-only triage cycles (observability gap); single-writer depth beats sweeps.
+
+## Work State
+### Completed
+- api.kassenkompass.de fully mapped: 15 v1 + 1 v2 endpoints, auth map 15/15, v2 enumeration saturated (42 names → insurance_info sole route), normalization matrix complete (17 route families, 0 divergences), 4 response-envelope fingerprints.
+- Marked REJECTED: encoded-separator access-control bypass (encoded≡literal 401, same sha256); HEAD for route-membership (CL:0, no `instance`); unauthenticated user provisioning via /post/create_user (405 method-confounded); Host-header vhost FP (Cloudflare edge routing); CORS on .net + funnel; XSS on whitelabel_live.js (textContent, integrity-only); cookie-spoofing chain on fragen funnel (static page, 0 egress primitives).
+- S3 kk-s3-01: existence oracle established (200 = public-readable, 403 AccessDenied = absent); qid axis 1..180 (all dupes, ETag 52f04d11…); n-dimension extends (qid 60 n=2 = 1,051,319 B); sensitive non-image keys 403.
+- kassenkompass.net: no existence oracle (blanket 302 on all app-handled paths).
+- Cookie-stuffing/knowledge: abschluss.php GET vs POST differential ("Account-ID nicht gefunden" ONLY on valid POST → lead gate); vergleich2.php sole emitter of device_id.
+- **NEW this cycle**: `kassenkompass.de/php/mark_all_read.php` evaluates `action` param pre-auth — unauth GET/POST invalid action → 59 B `{"success":false,"message":"Fehler: Ungültige Action"}` vs sibling mark_read.php 46 B `{"success":false,"message":"Nicht angemeldet"}`; reachable apex + www + kassenkompass.net; kk_id intval-cast (no SQLi); OPTIONS → 200 no Allow/ACAO.
+- Public client JS analyzed: whitelabel_live.js (no origin/source check), param_passthrough.js (16 params→sessionStorage kkweb_pass_params), live-calculation.js (data_sparsum read/write asymmetry, sink #resulteuro textContent).
+
+### Active
+- [FINAL] 1. mark_all_read.php unauth state change (conf 70, prio 4.6, gate_ease 9) — structurally confirmed pre-auth; impact gated on vendor clarification (global vs per-user flag).
+- [FINAL] 2. bonusrechner_fragen.php mass tariff corpus (conf 90, prio 4.35) — human-gated data classification.
+- [FINAL] 3. v2 insurance_info/{kk_id} BOLA (conf 60, prio 3.05) — needs scoped read-only X-API-Secret.
+- [HYP] Unauth notification read-state modification @ mark_all_read.php (AUTH, conf 70, AUTH_HELPED).
+- [HYP] Unauth mass tariff + decision-engine corpus @ bonusrechner_fragen.php (MISCONFIG, conf 90, HUMAN_ONLY).
+- [HYP] v2 insurance_info cross-tenant read (IDOR, conf 60, AUTH_HELPED).
+- [HYP] Unauthenticated user provisioning @ /post/create_user — REJECTED (method-confounded).
+
+### Blocked
+- mark_all_read.php state-changing POST (would flip another tenant's flag) requires human/owned-id approval — not sent.
+- v2 BOLA requires scoped X-API-Secret (AUTH_HELPED).
+- fragen.php severity requires vendor data-classification confirmation.
+- S3 sibling bucket ownership = HUMAN gate, not probe gate.
+- Peer pipeline observability gap (25+ empty triage cycles); reposcan "TARGET_ORG not configured; skipping".
+
+## Next Move
+1. **HUMAN**: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm the endpoint is intended to be unauthenticated and whether the notification read/unread flag is **global or per-user** (sizes missing-auth impact); keep existing data-classification + scoped-secret + S3-ownership asks.
+2. If approved, emit PROBE: `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php` (owned-id only) to confirm unauth state change.
+
+## Relevant Files
+- `inventory/kassenkompass.md`: host/asset inventory with dated passive-recon log.
+- `scope.yml`: defines eligible in-scope assets.
+- `state_bigpickle.json`, `state_nemotron3.json`: peer agent state (`{"phase": "POC", "target": "api"}`).
+- `reports/hypotheses-nemotron3.txt`: peer lead ledger (still ranks some refuted finals).
+- `art/lead_nemotron3.txt`: source of the mark_all_read.php lead.
+- `probe-results.md`: live probe record (harness artifacts noted).
+- `kassenkompass.de/php/mark_all_read.php`: current top finding (unauth action router).
+- `kassenkompass.de/bonusrechner_fragen.php`: 2.1 MB unauth tariff corpus.
+- `api.kassenkompass.de/v2/insurance_info/{kk_id}`: BOLA candidate.
+- `kassenkompass.de/js/whitelabel_live.js`, `kassenkompass.de/js/param_passthrough.js`, `kassenkompass.de/js/live-calculation.js`: analyzed client JS.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && for a in mark_all_read all read_all markAllRead mark_all 1 true markRead mark; do
+  echo "=== action=$a ==="
+  curl -s -o /tmp/opencode/b.txt -w "HTTP=%{http_code} LEN=%{size_download}\n" "https://kassenkompass.de/php/mark_all_read.php?action=$a"
+  cat /tmp/opencode/b.txt; echo
+  sleep 1.3
+done
+=== action=mark_all_read ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=all ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=read_all ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=markAllRead ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=mark_all ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=1 ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=true ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=markRead ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+=== action=mark ===
+HTTP=200 LEN=59
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -rn "mark_all_read\|mark_read\|markAllRead" . 2>/dev/null | head -50; echo "=== files ==="; ls -la
+./leads/lead-bigpickle.md:9911:asset: kassenkompass.de/php/mark_all_read.php
+./leads/lead-bigpickle.md:9913:reasoning: `POST action=mark_all_read&kk_id=<int>` returns 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no session/credential on apex + www; sibling `mark_read.php` returns `Nicht angemeldet`, so the gate exists in the codebase but is absent on this action. `kk_id` intval-cast (quote/non-numeric → identical result; `[]=1`→1) ⇒ no SQLi; GET ignores `action` (POST-only); no ACAO. `/php/`=403, exactly 2 handlers.
+./leads/lead-bigpickle.md:9915:verify_steps: `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php`; `curl -s https://kassenkompass.de/php/mark_read.php`; `curl -s -o /dev/null -w '%{http_code}' https://kassenkompass.de/php/`.
+./leads/lead-bigpickle.md:9936:[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` and ask whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-secret + S3-ownership asks.
+./leads/lead-bigpickle.md:9937:[RISK] kassenkompass: 38 — new unauthenticated state-changing endpoint (`/php/mark_all_read.php`) raises prior 32; impact still gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+./leads/lead-bigpickle.md:9939:[NEW] `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B), while sibling `mark_read.php` returns `{"success":false,"message":"Nicht angemeldet"}` (46 B) — the auth gate exists in the codebase but is absent on this handler's action router (pre-auth dispatch confirmed at HTTP level).
+./leads/lead-bigpickle.md:9943:[PRIO] `kassenkompass.de/php/mark_all_read.php` 4.6 (a3 b4 t2 g9 c3 f9)
+./leads/lead-bigpickle.md:9948:asset: kassenkompass.de/php/mark_all_read.php (also www + kassenkompass.net)
+./leads/lead-bigpickle.md:9950:reasoning: `mark_read.php` requires a session (`Nicht angemeldet`); `mark_all_read.php` runs its action dispatcher before that gate (invalid action → 59 B `Ungültige Action` pre-auth on GET and POST). Lead records `POST action=mark_all_read&kk_id=<int>` → 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no credential. `kk_id` is intval-cast (no SQLi).
+./leads/lead-bigpickle.md:9952:verify_steps: `curl -s 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'` → 59 B `Ungültige Action` (done, passive); `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php` (state-changing → requires human/owned-id approval).
+./leads/lead-bigpickle.md:9977:[FINAL] 1. mark_all_read.php unauth state change (conf 70, prio 4.6) — new, gate_ease=9.
+./leads/lead-bigpickle.md:9980:[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm the endpoint is intended to be unauthenticated and state whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-read-only-secret + S3-ownership asks.
+./leads/lead-bigpickle.md:9981:[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+./leads/lead-bigpickle.md:10031:asset: kassenkompass.de/php/mark_all_read.php
+./leads/lead-bigpickle.md:10033:reasoning: `POST action=mark_all_read&kk_id=<int>` returns 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no session/credential on apex + www; sibling `mark_read.php` returns `Nicht angemeldet`, so the gate exists in the codebase but is absent on this action. `kk_id` intval-cast (quote/non-numeric → identical result; `[]=1`→1) ⇒ no SQLi; GET ignores `action` (POST-only); no ACAO. `/php/`=403, exactly 2 handlers.
+./leads/lead-bigpickle.md:10035:verify_steps: `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php`; `curl -s https://kassenkompass.de/php/mark_read.php`; `curl -s -o /dev/null -w '%{http_code}' https://kassenkompass.de/php/`.
+./leads/lead-bigpickle.md:10056:[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` and ask whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-secret + S3-ownership asks.
+./leads/lead-bigpickle.md:10057:[RISK] kassenkompass: 38 — new unauthenticated state-changing endpoint (`/php/mark_all_read.php`) raises prior 32; impact still gated on vendor clarification of read-state scoping; all other surfaces drift-free.
+./leads/lead-bigpickle.md:10058:[NEW] `kassenkompass.de/php/mark_all_read.php` evaluates its `action` parameter before any session check: unauthenticated GET/POST of an invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B), while sibling `mark_read.php` returns `{"success":false,"message":"Nicht angemeldet"}` (46 B) — the auth gate exists in the codebase but is absent on this handler's action router (pre-auth dispatch confirmed at HTTP level).
+./leads/lead-bigpickle.md:10062:[PRIO] `kassenkompass.de/php/mark_all_read.php` 4.6 (a3 b4 t2 g9 c3 f9)
+./leads/lead-bigpickle.md:10067:asset: kassenkompass.de/php/mark_all_read.php (also www + kassenkompass.net)
+./leads/lead-bigpickle.md:10069:reasoning: `mark_read.php` requires a session (`Nicht angemeldet`); `mark_all_read.php` runs its action dispatcher before that gate (invalid action → 59 B `Ungültige Action` pre-auth on GET and POST). Lead records `POST action=mark_all_read&kk_id=<int>` → 200 `{"success":true,"message":"Erfolgreich als gelesen markiert","affected_rows":N}` with no credential. `kk_id` is intval-cast (no SQLi).
+./leads/lead-bigpickle.md:10071:verify_steps: `curl -s 'https://kassenkompass.de/php/mark_all_read.php?action=__x__'` → 59 B `Ungültige Action` (done, passive); `curl -s -X POST --data 'action=mark_all_read&kk_id=999999999' https://kassenkompass.de/php/mark_all_read.php` (state-changing → requires human/owned-id approval).
+./leads/lead-bigpickle.md:10096:[FINAL] 1. mark_all_read.php unauth state change (conf 70, prio 4.6) — new, gate_ease=9.
+./leads/lead-bigpickle.md:10099:[NEXT] HUMAN: extend the pending bugs.olivermaicher.eu request with `kassenkompass.de/php/mark_all_read.php` — confirm the endpoint is intended to be unauthenticated and state whether the notification read/unread flag is global or per-user (sizes the missing-auth impact); keep the existing data-classification + scoped-read-only-secret + S3-ownership asks.
+./leads/lead-bigpickle.md:10100:[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+./leads/lead-nemotron3.md:12101:[NEW] kassenkompass.de/php/mark_all_read.php: action parameter evaluated pre-auth — unauthenticated GET/POST with invalid action returns `{"success":false,"message":"Fehler: Ungültige Action"}` (59 B) vs unauthenticated valid action returns `{"success":false,"message":"Nicht angemeldet"}` (46 B); reachable on apex + www + kassenkompass.net (302→.de)
+./leads/lead-nemotron3.md:12103:[CHANGED] OPTIONS on mark_read/mark_all_read → 200 with no Allow header and no ACAO — no method advertisement
+./leads/lead-nemotron3.md:12104:[PRIO] kassenkompass.de/php/mark_all_read.php,6.85,attack_surface=7,business_value=6,tech_exposure=6,gate_ease=10,cloud_surface=2,freshness=10
+./leads/lead-nemotron3.md:12111:[HYP] Unauthenticated Action Router on /php/mark_all_read.php
+./leads/lead-nemotron3.md:12113:asset: kassenkompass.de/php/mark_all_read.php
+./leads/lead-nemotron3.md:12117:verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
+./leads/lead-nemotron3.md:12142:[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Unauthenticated Action Router (confidence 85, PASSIVE)
+./leads/lead-nemotron3.md:12145:[NEXT] PROBE: GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read and GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (both ≤1 rps) to confirm pre-auth action evaluation differential; repeat on www.kassenkompass.de
+./leads/lead-nemotron3.md:12146:[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — reproducible missing-auth primitive
+./leads/lead-nemotron3.md:12172:[PRIO] kassenkompass.de/php/mark_all_read.php, 8.15, attack_surface=8 business_value=6 tech_exposure=7 gate_ease=10 cloud_surface=5 freshness=9
+./leads/lead-nemotron3.md:12177:[HYP] Unauthenticated Action Router on /php/mark_all_read.php
+./leads/lead-nemotron3.md:12179:asset: kassenkompass.de/php/mark_all_read.php
+./leads/lead-nemotron3.md:12183:verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (expect 200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (expect 200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
+./leads/lead-nemotron3.md:12208:[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Unauthenticated Action Router (confidence 85, PASSIVE)
+./leads/lead-nemotron3.md:12211:[NEXT] PROBE: GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read and GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (both ≤1 rps) to confirm pre-auth action evaluation differential; repeat on www.kassenkompass.de
+./leads/lead-nemotron3.md:12212:[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — reproducible missing-auth primitive
+./analyst-out.txt:5:"https://kassenkompass.de/php/mark_all_read.php?action=invalid" \
+./analyst-out.txt:6:"https://kassenkompass.de/php/mark_read.php?action=invalid" \
+./analyst-out.txt:7:"https://kassenkompass.de/php/mark_all_read.php" \
+./analyst-out.txt:8:"https://kassenkompass.de/php/mark_read.php" ; do
+./analyst-out.txt:14:=== https://kassenkompass.de/php/mark_all_read.php?action=invalid ===
+./analyst-out.txt:18:=== https://kassenkompass.de/php/mark_read.php?action=invalid ===
+./analyst-out.txt:22:=== https://kassenkompass.de/php/mark_all_read.php ===
+./analyst-out.txt:26:=== https://kassenkompass.de/php/mark_read.php ===
+=== files ===
+total 1304
+drwxr-xr-x 12 runner runner   4096 Oct 11 13:55 .
+drwxr-xr-x  3 runner runner   4096 Oct 11 13:55 ..
+drwxr-xr-x  7 runner runner   4096 Oct 11 13:55 .git
+drwxr-xr-x  3 runner runner   4096 Oct 11 13:55 .github
+-rw-r--r--  1 runner runner   1767 Oct 11 13:55 README.md
+-rw-r--r--  1 runner runner   9901 Oct 11 13:56 analyst-out.txt
+-rw-r--r--  1 runner runner 567845 Oct 11 13:55 analyst-prompt.txt
+-rw-r--r--  1 runner runner 564027 Oct 11 13:55 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 leads
+-rw-r--r--  1 runner runner  92562 Oct 11 13:55 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 reports
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 11 13:55 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 11 13:55 scripts
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 11 13:55 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 11 13:55 triage
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && cat README.md; echo "=== state ==="; for f in state_*.json; do echo -n "$f: "; cat "$f"; echo; done; echo "=== scope ==="; cat scope.yml
+# kassenkompass-hunt
+
+24/7 deep multi-model bug-hunting automation for **KassenKompass GmbH** (Oliver Maicher bug-bounty hub).
+
+Scope: All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH
+(full exclusion + rules list in `scope.yml`)
+
+Pipeline (all workflows run every 20 minutes):
+
+- **Deep Hunt** (`hunt.yml`): analyst hunts the discovered inventory + hypotheses, emits structured
+  leads, chains primitives, self-critiques. Models: mimo.
+- **Triager** (`triage.yml`): second-model 7-Question Gate validation + live passive probe; keeps
+  running count in `reports/valid-bugs.md`.
+- **Reposcan** (`reposcan.yml`): deep source scan of any public GitHub org (if configured).
+- **Sync Issues** (`sync-issues.yml`): mirrors leads to GitHub issues.
+
+Testing discipline: rate-limited (1 rps), no DoS/account-lockout, writes only on non-prod/test
+assets, no exposure of customer/employee/financial/auth data, secrets committed only as hashes.
+
+> IMPORTANT: the pipeline produces CANDIDATE leads. A reportable, validated finding requires
+> human triage + proof against the program's gate. No finding is fabricated; scanner output alone
+> is never accepted. Active testing is gated behind the in-scope hosts in `inventory/kassenkompass.md` and
+> must stay within the program's published scope.
+
+Artifacts:
+
+| Artifact | Purpose |
+|---|---|
+| `leads/` | Candidate findings (UNVALIDATED) |
+| `triage/` | Validation verdicts |
+| `reports/valid-bugs.md` | Validated findings + running count |
+| `scope.yml` | Program scope and exclusions (edit to adjust) |
+
+Program description: German health insurance comparison and switching platform for statutory health insurance providers
+=== state ===
+state_bigpickle.json: {"phase": "POC", "target": "api"}
+state_laguna.json: {"phase": "POC", "target": "api"}
+state_ling3.json: {"phase": "POC", "target": "api"}
+state_longcat.json: {"phase": "POC", "target": "api"}
+state_mimo.json: {"phase": "POC", "target": "api"}
+state_nemotron3.json: {"phase": "POC", "target": "api"}
+=== scope ===
+programs:
+  kassenkompass:
+    name: KassenKompass GmbH Bug Bounty
+    disclosure_policy: via bugs.olivermaicher.eu (Oliver Maicher private program) - report + PoC + contact + payment
+    assets:
+      - name: "All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH"
+        priority: In
+    out_of_scope:
+- "Network level Denial of Service attacks"
+      - "Application Denial of Service by locking user accounts"
+      - "Descriptive error messages or headers (e.g. Stack Traces, banner grabbing)"
+      - "Disclosure of known public files or directories (e.g. robots.txt)"
+      - "Outdated software / library versions"
+      - "OPTIONS / TRACE HTTP method enabled"
+      - "CSRF on logout"
+      - "CSRF on forms that are available to anonymous users"
+      - "Cookies that lack HTTP Only or Secure settings for non-sensitive data"
+      - "Self-XSS and issues exploitable only through Self-XSS"
+      - "Reports resulting from automated scanning utilities without additional details or a POC demonstrating a specific exploit"
+      - "Attacks requiring physical access to a user's device"
+      - "Attacks dependent upon social engineering of employees or vendors"
+      - "Username enumeration based on login or forgot password pages"
+      - "Enforcement policies for brute force, rate limiting, or account lockout"
+      - "SSL/TLS best practices"
+      - "SSL attacks such as BEAST, BREACH, Renegotiation attack"
+      - "Clickjacking, without additional details demonstrating a specific exploit"
+      - "Mail configuration issues including SPF, DKIM, DMARC settings"
+      - "Use of a known-vulnerable library without a description of an exploit specific to our implementation"
+      - "Password and account recovery policies"
+      - "Presence of autocomplete functionality in form fields"
+      - "Publicly accessible login panels"
+      - "Lack of email address verification during account registration or account invitation"
+      - "Lack of email address verification password restore"
+      - "Session control during email/password changes"
+      - "Social engineering, physical attacks, and DoS/DDoS testing (per program notes)"
+      - "Exposure of customer/employee/financial/authentication data during testing (per program notes)"
+    github_orgs:
+      - none-configured
+
+rules:
+  passive_first: false          # deep-hunt agent: active probes allowed when scoped
+  max_requests_per_second: 1    # never hammer live infra
+  no_doom: true                 # no DoS/DDoS, no account-lockout attacks
+  account_creation: restricted  # only on test/sandbox assets, never live customer data
+  no_data_modification: true    # no writes/deletes on live customer data
+  no_pre_disclosure: true       # never disclose before program response
+  poc_required: true            # scanner output alone is REJECTED
+  redact_secrets_in_commits: true
+
+models:
+  - { id: opencode/big-pickle, name: bigpickle }
+  - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+  - { id: opencode/longcat-2.0-free, name: longcat }
+  - { id: opencode/ling-3.0-flash-free, name: ling3 }
+  - { id: opencode/laguna-s-2.1-free, name: laguna }
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -n "Erfolgreich als gelesen\|affected_rows\|mark_all_read" probe-results.md knowledge/*.md triage/* 2>/dev/null | head -40
+probe-results.md:1782:https://kassenkompass.de/php/mark_all_read.php` -> HTTP 404
+probe-results.md:1795:https://kassenkompass.de/php/mark_all_read.php?action=__x__'` -> 200 len=0
+probe-results.md:1796:https://kassenkompass.de/php/mark_all_read.php` -> HTTP 404
+probe-results.md:1800:https://kassenkompass.de/php/mark_all_read.php?action=invalid -> 200 len=0
+probe-results.md:1801:https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read -> 200 len=0
+probe-results.md:1810:https://kassenkompass.de/php/mark_all_read.php` -> HTTP 404
+probe-results.md:1814:https://kassenkompass.de/php/mark_all_read.php?action=invalid -> 200 len=0
+probe-results.md:1815:https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read -> 200 len=0
+knowledge/index.md:1252:- 2026-10-10 ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+knowledge/index.md:1255:- 2026-10-11 ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — a reproducible missing-auth primitive.
+knowledge/index.md:1257:- 2026-10-11 ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: shared `/php/` code path gates `mark_read` on session but not `mark_all_read`; action router executes pre-auth (59 B `Ungültige Action` vs 46 B `Nicht angemeldet`) — reproducible missing-auth primitive
+[0m
+[0m→ [0mRead probe-results.md[90m [offset=1760, limit=80][0m
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -o -n "GET/HEAD/OPTIONS[^\"]\{0,120\}\|GET/HEAD[^\"]\{0,100\}\|1 rps[^\"]\{0,60\}\|no_data_modification[^\"]\{0,80\}\|mutating[^\"]\{0,100\}" analyst-prompt.txt | head -30
+308:1 rps strictly next session.
+344:1 rps discipline; no further burst probes planned.
+496:mutating.
+1038:1 rps. Leakage severity is gated on vendor data classification, n
+1042:1 rps requests. Leakage severity is gated on vendor data classifi
+1061:1 rps; severity gated on vendor data classification.
+1064:GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+1093:1 rps; severity gated on vendor data classification.
+1096:GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+1097:GET/HEAD/OPTIONS, so the claim stays unproven pending a credentialed POST with negative control.
+1101:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1105:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control.
+1107:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route.
+1109:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1113:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control.
+1115:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route.
+1132:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1146:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1153:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+1155:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+1162:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1169:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+1171:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+1183:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+1185:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+1191:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1198:GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+1200:GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+1205:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+1206:1 rps; payload drift within ±0.3% band (model fit), data freshnes
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -n "^#\|^##\|ROLE\|OBJECTIVE\|METHOD\|RULES\|DISCIPLINE\|OUTPUT FORMAT\|LEAD SCHEMA\|You are\|Your task\|instructions:" analyst-prompt.txt | head -60
+2:# Knowledge Base (seed)
+789:- 2026-09-27 REJECTED OTHER @ api.kassenkompass.de/post/: "a method-override header can reach the POST branch" — killed by its own control. `X-HTTP-Method-Override: DELETE` on `GET /post/help` returned the byte-identical baseline 200/344 B, so the app reads `REQUEST_METHOD` directly. The auth question is HUMAN_ONLY by necessity, not by budget.
+842:- 2026-09-28 REJECTED OTHER @ api.kassenkompass.de/post/: "a method-override header can reach the POST branch" — killed by its own control. X-HTTP-Method-Override: DELETE on GET /post/help returned the byte-identical baseline 200/344 B, so the app reads REQUEST_METHOD directly. The auth question is HUMAN_ONLY by necessity, not by budget.
+886:- 2026-09-29 REJECTED OTHER @ api.kassenkompass.de/post/: "a method-override header can reach the POST branch" — killed by its own control. X-HTTP-Method-Override: DELETE on GET /post/help returned the byte-identical baseline 200/344 B, so the app reads REQUEST_METHOD directly. The auth question is HUMAN_ONLY by necessity, not by budget.
+1343:## 2026-10-11 06:58:57 UTC [target] (model bigpickle)
+1358:## RANKED HYPOTHESES 2026-10-11 06:59:33 UTC
+1386:# KassenKompass GmbH inventory (discovery seed 2026-09-02)
+1387:# NOTE: hosts below are discovery candidates from passive DNS/CT; confirm in-scope vs program scope before active testing.
+1392:## PASSIVE RECON 2026-09-02 (read-only, non-intrusive)
+1401:## 2026-09-02 21:45:31 UTC
+1403:## 2026-09-02 23:58:49 UTC
+1405:## 2026-09-03 04:13:45 UTC
+1407:## 2026-09-03 09:04:36 UTC
+1409:## 2026-09-03 13:34:54 UTC
+1411:## 2026-09-03 17:32:49 UTC
+1417:## 2026-09-03 20:02:53 UTC
+1426:## 2026-09-03 22:32:22 UTC
+1451:## 2026-09-04 00:35:39 UTC
+1459:## 2026-09-04 05:10:14 UTC
+1465:## 2026-09-04 09:51:41 UTC
+1471:## 2026-09-04 14:21:08 UTC
+1473:## 2026-09-04 17:44:02 UTC
+1475:## 2026-09-04 20:04:27 UTC
+1477:## 2026-09-04 22:21:25 UTC
+1479:## 2026-09-05 00:22:25 UTC
+1488:## 2026-09-05 04:47:18 UTC
+1498:## 2026-09-05 08:46:09 UTC
+1511:## 2026-09-05 12:14:55 UTC
+1515:## 2026-09-05 15:32:54 UTC
+1523:## 2026-09-05 17:47:27 UTC
+1530:## 2026-09-05 19:37:36 UTC
+1543:## 2026-09-05 21:47:42 UTC
+1558:## 2026-09-05 23:48:57 UTC
+1582:## 2026-09-06 04:12:41 UTC
+1591:## 2026-09-06 08:51:55 UTC
+1603:## 2026-09-06 12:51:34 UTC
+1605:## 2026-09-06 16:14:12 UTC
+1615:## 2026-09-06 18:32:22 UTC
+1617:## 2026-09-06 20:53:42 UTC
+1630:## 2026-09-06 22:53:40 UTC
+1642:## 2026-09-07 00:53:46 UTC
+1657:## 2026-09-07 05:58:14 UTC
+1668:## 2026-09-07 12:16:46 UTC
+1679:## 2026-09-07 18:00:41 UTC
+1686:## 2026-09-07 21:29:13 UTC
+1693:## 2026-09-07 23:48:01 UTC
+1695:## 2026-09-08 04:14:37 UTC
+1697:## 2026-09-08 09:16:02 UTC
+1700:## 2026-09-08 13:49:29 UTC
+1730:## 2026-09-08 17:45:17 UTC
+1746:## 2026-09-08 20:23:43 UTC
+1762:## 2026-09-08 22:50:10 UTC
+1764:## 2026-09-09 01:14:07 UTC
+1769:## 2026-09-09 06:12:53 UTC
+1779:## 2026-09-09 11:43:00 UTC
+1781:## 2026-09-09 15:36:36 UTC
+1792:## 2026-09-09 18:47:54 UTC
+1801:## 2026-09-09 21:39:23 UTC
+1811:## 2026-09-09 23:35:38 UTC
+1813:## 2026-09-10 01:32:22 UTC
+[0m
+[0m→ [0mRead analyst-prompt.txt[90m [offset=1300, limit=90][0m
+[0m→ [0mRead analyst-prompt.txt[90m [offset=2980, limit=152][0m
+[0m→ [0mRead analyst-prompt.txt[90m [offset=3131, limit=2][0m
+[0m→ [0mRead inventory/kassenkompass.md
+Let me do a fresh delta sweep and look for the notification-handler's client-side caller.
+[0m
+[0m$ [0mcd /tmp/opencode && for u in \
+"https://api.kassenkompass.de/" \
+"https://api.kassenkompass.de/sync/" \
+"https://api.kassenkompass.de/health/" \
+"https://api.kassenkompass.de/v2/insurance_info/1" \
+"https://kassenkompass.de/" ; do
+  echo "=== $u ==="
+  curl -s -o /tmp/opencode/r.txt -w "HTTP=%{http_code} LEN=%{size_download} CT=%{content_type}\n" "$u"
+  sleep 1.3
+done
+echo "=== fragen size ==="
+curl -s -o /tmp/opencode/f.json -w "HTTP=%{http_code} LEN=%{size_download}\n" "https://kassenkompass.de/bonusrechner_fragen.php"
+sleep 1.3
+echo "=== scripts on home ==="
+curl -s "https://kassenkompass.de/" -o /tmp/opencode/home.html -w "HOME HTTP=%{http_code} LEN=%{size_download}\n"
+grep -oE 'src="[^"]+\.js[^"]*"|href="[^"]+\.js[^"]*"' /tmp/opencode/home.html | sort -u | head -40
+=== https://api.kassenkompass.de/ ===
+HTTP=200 LEN=1167 CT=application/json; charset=utf-8
+=== https://api.kassenkompass.de/sync/ ===
+HTTP=200 LEN=67 CT=application/json; charset=utf-8
+=== https://api.kassenkompass.de/health/ ===
+HTTP=200 LEN=22 CT=application/json; charset=utf-8
+=== https://api.kassenkompass.de/v2/insurance_info/1 ===
+HTTP=401 LEN=236 CT=application/problem+json; charset=utf-8
+=== https://kassenkompass.de/ ===
+HTTP=200 LEN=38435 CT=text/html; charset=UTF-8
+=== fragen size ===
+HTTP=200 LEN=2158671
+=== scripts on home ===
+HOME HTTP=200 LEN=38435
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+src="/js/param_passthrough.js?v=web1.0.1"
+src="/js/standard.js?v=1791727076"
+src="js/faq_accordion.js"
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== api bodies ==="; curl -s "https://api.kassenkompass.de/" ; echo; curl -s "https://api.kassenkompass.de/sync/"; echo; curl -s "https://api.kassenkompass.de/health/"; echo; sleep 1.3
+for u in "https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1" "https://kassenkompass.de/js/standard.js" "https://kassenkompass.de/js/faq_accordion.js"; do
+  n=$(basename "${u%%\?*}"); echo "=== $n ==="
+  curl -s -o "/tmp/opencode/$n" -w "HTTP=%{http_code} LEN=%{size_download}\n" "$u"; sleep 1.3
+done
+echo "=== grep notif/mark/gelesen in fetched js ==="
+grep -iE "mark[_-]?all|mark[_-]?read|notif|gelesen|ungelesen|readstate|read_state" /tmp/opencode/*.js 2>/dev/null | head -30
+=== api bodies ===
+{
+    "api_info": "KK API - REST",
+    "version": "1.0",
+    "authentication": "X-API-Secret header required",
+    "endpoints": {
+        "GET \/health_insurance\/": "API Krankenkassen",
+        "GET \/state\/": "API Bundesländer",
+        "GET \/health\/": "API- und Datenbank-Status (Health Check)",
+        "GET \/sync\/": "API Datensynchronisation",
+        "GET \/question_tree\/": "API Fragebaum",
+        "GET \/detail_comparison\/": "API Detailvergleich",
+        "GET \/health_insurance_savings\/": "API Krankenkasseneinsparungen",
+        "GET \/health_insurance_comparison\/": "API Krankenkassenvergleich",
+        "POST \/post\/": "API Datenempfang (POST)",
+        "DELETE \/delete\/{id}": "API Benutzerdaten löschen",
+        "POST \/cancel\/{id}": "API FG-Wechsel-Storno (delegiert an kk_webapp)",
+        "GET \/user\/{ext_id}": "Userdaten abrufen",
+        "GET \/cat_detail\/": "API Detaillierte Kategorien-Informationen",
+        "GET \/insurance_info\/{kk_id}": "API Kategorien und Leistungswerte einer Krankenkasse",
+        "GET \/settlement_report\/{year}\/{month}": "API Abrechnungs-Report (Cassatis Prime, CSV-Download bzw. \/json)"
+    }
+}
+{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}
+{
+    "status": "ok"
+}
+=== param_passthrough.js ===
+HTTP=200 LEN=5449
+=== standard.js ===
+HTTP=200 LEN=67969
+=== faq_accordion.js ===
+HTTP=200 LEN=2719
+=== grep notif/mark/gelesen in fetched js ===
+[0m
+The public JS doesn't reference the notification handler. Let me enumerate sibling `/php/` handlers — `mark_all_read.php` was itself found by enumeration, so the namespace may not be saturated.
+[0m$ [0mcd /tmp/opencode && base="https://kassenkompass.de/php"
+for n in mark_read.php mark_all_read.php mark_unread.php mark_all_unread.php read_all.php mark_all.php \
+notification.php notifications.php get_notifications.php get_notification.php \
+message.php messages.php get_messages.php post_message.php delete_message.php send_message.php \
+inbox.php outbox.php unread.php unseen.php seen.php \
+benachrichtigungen.php nachrichten.php mitteilungen.php badge.php badge_count.php \
+user.php users.php delete_user.php get_user.php update_user.php session.php logout.php; do
+  code=$(curl -s -o /tmp/opencode/p.txt -w "%{http_code}:%{size_download}" "$base/$n")
+  echo "$n -> $code :: $(head -c 90 /tmp/opencode/p.txt | tr -d '\n')"
+  sleep 1.15
+done
+mark_read.php -> 200:46 :: {"success":false,"message":"Nicht angemeldet"}
+mark_all_read.php -> 200:59 :: {"success":false,"message":"Fehler: Ung\u00fcltige Action"}
+mark_unread.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+mark_all_unread.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+read_all.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+mark_all.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+notification.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+notifications.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+get_notifications.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+get_notification.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+message.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+messages.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+get_messages.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+post_message.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+delete_message.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+send_message.php -> 200:46 :: {"success":false,"message":"Nicht angemeldet"}
+inbox.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+outbox.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+unread.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+unseen.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+seen.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+benachrichtigungen.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+nachrichten.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+mitteilungen.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+badge.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+badge_count.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+user.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+users.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+delete_user.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+get_user.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+update_user.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+session.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+logout.php -> 404:8377 :: <!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+<meta name="viewport" content="w
+[0m
+`send_message.php` exists (200, auth-gated) — a third handler, contradicting the prior "exactly 2 handlers" claim. Enumerating the messaging namespace further.
+[0m$ [0mcd /tmp/opencode && base="https://kassenkompass.de/php"
+for n in reply.php reply_message.php message_send.php new_message.php compose.php \
+message_create.php create_message.php load_messages.php fetch_messages.php messages_load.php \
+list_messages.php load_conversation.php conversation.php chat.php chat_load.php poll_messages.php \
+mark_message.php mark_messages_read.php delete.php get_message.php read_message.php \
+get_notification_count.php notification_count.php unread_count.php count.php get_count.php \
+api.php ajax.php handler.php action.php process.php mail.php email.php contact.php; do
+  code=$(curl -s -o /tmp/opencode/p.txt -w "%{http_code}:%{size_download}" "$base/$n")
+  if [ "$code" != "404:8377" ]; then echo "*** $n -> $code :: $(head -c 90 /tmp/opencode/p.txt | tr -d '\n')"; fi
+  sleep 1.15
+done
+echo "done"
+*** load_messages.php -> 200:46 :: {"success":false,"message":"Nicht angemeldet"}
+done
+[0m
+Two more: `send_message.php` and `load_messages.php`. A whole messaging subsystem exists. Continuing enumeration.
+[0m$ [0mcd /tmp/opencode && base="https://kassenkompass.de/php"
+for n in load_notifications.php notifications_load.php get_unread.php unread_messages.php \
+message_count.php count_messages.php count_unread.php save_message.php create_conversation.php \
+conversations.php threads.php thread.php load_thread.php load_messages_thread.php \
+get_message_thread.php delete_conversation.php archive.php archive_message.php \
+mark_read_message.php set_notifications_read.php clear_notifications.php \
+load_user.php load_data.php load_json.php get_json.php data.php \
+markallread.php mark_all_as_read.php markasread.php set_read.php update_read.php \
+messages_read.php notifications_read.php get_alerts.php load_alerts.php; do
+  code=$(curl -s -o /tmp/opencode/p.txt -w "%{http_code}:%{size_download}" "$base/$n")
+  if [ "$code" != "404:8377" ]; then echo "*** $n -> $code :: $(head -c 90 /tmp/opencode/p.txt | tr -d '\n')"; fi
+  sleep 1.15
+done
+echo "done"
+done
+[0m
+[0m$ [0mcd /tmp/opencode && base="https://kassenkompass.de/php"
+echo "### OPTIONS/HEAD on found handlers ###"
+for n in mark_read.php mark_all_read.php send_message.php load_messages.php; do
+  echo "--- $n OPTIONS ---"; curl -s -D - -o /dev/null -X OPTIONS "$base/$n" | grep -iE "^HTTP|allow|access-control"; sleep 1.15
+  echo "--- $n HEAD ---"; curl -s -D - -o /dev/null -I "$base/$n" | grep -iE "^HTTP|content-length|content-type"; sleep 1.15
+done
+echo "### more enumeration ###"
+for n in load_message.php poll.php get_history.php load_history.php history.php list.php \
+messages_get.php get_all_messages.php message_read.php get_chat.php update.php \
+notification_read.php notifications.php get_notifications_list.php \
+send.php submit_message.php message.php; do
+  code=$(curl -s -o /tmp/opencode/p.txt -w "%{http_code}:%{size_download}" "$base/$n")
+  if [ "$code" != "404:8377" ]; then echo "*** $n -> $code :: $(head -c 90 /tmp/opencode/p.txt | tr -d '\n')"; fi
+  sleep 1.15
+done
+echo done
+### OPTIONS/HEAD on found handlers ###
+--- mark_read.php OPTIONS ---
+HTTP/2 200 
+--- mark_read.php HEAD ---
+HTTP/2 200 
+content-type: application/json
+content-length: 0
+x-content-type-options: nosniff
+--- mark_all_read.php OPTIONS ---
+HTTP/2 200 
+--- mark_all_read.php HEAD ---
+HTTP/2 200 
+content-type: application/json
+content-length: 0
+x-content-type-options: nosniff
+--- send_message.php OPTIONS ---
+HTTP/2 200 
+--- send_message.php HEAD ---
+HTTP/2 200 
+content-type: application/json
+content-length: 0
+x-content-type-options: nosniff
+--- load_messages.php OPTIONS ---
+HTTP/2 200 
+--- load_messages.php HEAD ---
+HTTP/2 200 
+content-type: application/json
+content-length: 0
+x-content-type-options: nosniff
+### more enumeration ###
+done
+[0m
+Only 4 handlers found; `mark_all_read.php` is uniquely pre-auth (all siblings gate first). Probing the param/action surface and mirrors.
+[0m$ [0mcd /tmp/opencode && base="https://kassenkompass.de/php"
+echo "### mirror differential ###"
+for h in "https://www.kassenkompass.de/php/mark_all_read.php?action=mark_all_read" "https://www.kassenkompass.de/php/mark_all_read.php?action=xx" "https://kassenkompass.net/php/mark_all_read.php?action=mark_all_read" "https://kassenkompass.net/php/mark_all_read.php?action=xx"; do
+  echo "--- $h ---"; curl -s -w " [%{http_code}:%{size_download}]\n" "$h"; sleep 1.15
+done
+echo "### alternate param names (apex) ###"
+for p in do cmd op func method mode a type task a action action_name funcname action_type; do
+  r=$(curl -s -w "|%{size_download}" "$base/mark_all_read.php?$p=mark_all_read")
+  echo "$p -> $r"; sleep 1.15
+done
+echo done
+### mirror differential ###
+--- https://www.kassenkompass.de/php/mark_all_read.php?action=mark_all_read ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"} [200:59]
+--- https://www.kassenkompass.de/php/mark_all_read.php?action=xx ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"} [200:59]
+--- https://kassenkompass.net/php/mark_all_read.php?action=mark_all_read ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"} [200:59]
+--- https://kassenkompass.net/php/mark_all_read.php?action=xx ---
+{"success":false,"message":"Fehler: Ung\u00fcltige Action"} [200:59]
+### alternate param names (apex) ###
+do -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+cmd -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+op -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+func -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+method -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+mode -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+a -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+type -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+task -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+a -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+action -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+action_name -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+funcname -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+action_type -> {"success":false,"message":"Fehler: Ung\u00fcltige Action"}|59
+done
+[0m
+The GET action-differential is confirmed **nonexistent** (all mirrors return 59 B regardless of action). Let me look for the authenticated portal's JS that calls the notification handler.
+[0m$ [0mcd /tmp/opencode && for u in login_auswahl.php login_kd.php mein_bereich.php profil.php konto.php dashboard.php uebersicht.php home.php; do
+  code=$(curl -s -o "/tmp/opencode/$u.html" -w "%{http_code}:%{size_download}" "https://kassenkompass.de/$u")
+  echo "$u -> $code"
+  sleep 1.15
+done
+echo "=== script refs across fetched pages ==="
+grep -ohE '(src|href)="[^"]*\.js[^"]*"' /tmp/opencode/*.html 2>/dev/null | sort -u
+echo "=== notif/mark refs ==="
+grep -ilE "mark_all_read|mark_read|notif|gelesen" /tmp/opencode/*.html 2>/dev/null
+login_auswahl.php -> 200:3876
+login_kd.php -> 200:3881
+mein_bereich.php -> 404:8377
+profil.php -> 404:8377
+konto.php -> 404:8377
+dashboard.php -> 404:8377
+uebersicht.php -> 404:8377
+home.php -> 404:8377
+=== script refs across fetched pages ===
+src="//js-eu1.hs-scripts.com/146866466.js"
+src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
+src="/js/param_passthrough.js?v=web1.0.1"
+src="/js/standard.js?v=1791727076"
+src="/js/standard.js?v=1791727356"
+src="/js/standard.js?v=1791727357"
+src="/js/standard.js?v=1791727359"
+src="/js/standard.js?v=1791727360"
+src="/js/standard.js?v=1791727361"
+src="/js/standard.js?v=1791727363"
+src="/js/standard.js?v=1791727364"
+src="/js/standard.js?v=1791727365"
+src="js/faq_accordion.js"
+=== notif/mark refs ===
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && ls .github/workflows && echo "---" && cat .github/workflows/*.yml 2>/dev/null | head -120
+hunt.yml
+reposcan.yml
+sync-issues.yml
+triage.yml
+---
+name: Deep Hunt (KassenKompass GmbH)
+
+on:
+  schedule:
+    - cron: "*/20 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+env:
+  PROBE_ALLOW: "kassenkompass.de"
+
+jobs:
+  analyst:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: hunt-kassenkompass-${{ matrix.model.name }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        model:
+          - { id: opencode/big-pickle, name: bigpickle }
+          - { id: opencode/nemotron-3-ultra-free, name: nemotron3 }
+          - { id: opencode/longcat-2.0-free, name: longcat }
+          - { id: opencode/ling-3.0-flash-free, name: ling3 }
+          - { id: opencode/laguna-s-2.1-free, name: laguna }
+    env:
+      MODEL_ID: ${{ matrix.model.id }}
+      OPENCODE_REASONING: xhigh
+      MODEL_NAME: ${{ matrix.model.name }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install OpenCode
+        run: |
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          if command -v opencode >/dev/null 2>&1; then opencode --version; exit 0; fi
+          npm install -g opencode-ai 2>/dev/null || npm install -g --prefix "$HOME/.npm-global" opencode-ai 2>/dev/null || true
+          if ! command -v opencode >/dev/null 2>&1; then
+            for i in 1 2 3; do
+              curl -fsSL https://opencode.ai/install | bash && break
+              echo "opencode.ai installer attempt $i failed, retrying in 15s..."
+              sleep 15
+            done
+          fi
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          opencode --version
+
+      - name: Prepare context (RAG + state + inventory + last cycle)
+        run: |
+          mkdir -p knowledge inventory leads reports
+          [ -f knowledge/index.md ] || echo "# Knowledge Base (seed)" > knowledge/index.md
+          [ -f state_${MODEL_NAME}.json ] || echo '{"phase":"RECON","target":"api"}' > state_${MODEL_NAME}.json
+          {
+            echo "=== KNOWLEDGE BASE ==="
+            cat knowledge/index.md
+            echo "=== MY STATE ==="
+            cat state_${MODEL_NAME}.json
+            echo "=== MY LAST LEADS (tail) ==="
+            tail -60 leads/lead-${MODEL_NAME}.md 2>/dev/null || echo none
+            echo "=== AGGREGATED HYPOTHESES (tail) ==="
+            tail -40 reports/hypotheses.md 2>/dev/null || echo none
+            echo "=== INVENTORY kassenkompass ==="
+            cat inventory/kassenkompass.md 2>/dev/null || echo none
+          } > ctx.txt
+
+      - name: Analyst run (deep-hunt methodology)
+        run: |
+          cat ctx.txt > analyst-prompt.txt
+          cat >> analyst-prompt.txt << 'PROMPT_EOF'
+          You are a senior bug bounty hunter ANALYST for the KassenKompass GmbH program (report channel: bugs.olivermaicher.eu).
+          Eligible in-scope assets (ONLY these, from scope.yml + inventory/kassenkompass.md): All company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications, and domains operated by KassenKompass GmbH
+          Deep-hunt directives:
+          - Prioritize HIGH-VALUE classes: broken auth/session, IDOR/BOLA, SSRF-to-cloud-metadata (169.254.169.254), mass assignment, JWT alg/key confusion, OAuth redirect_uri/state flaws, business logic on money/auth flows, file upload, GraphQL introspection+mutations, subdomain takeover.
+          - CHAIN aggressively: open redirect -> OAuth code theft -> ATO; IDOR -> cross-tenant PII dump; SSRF -> metadata -> keys; XSS -> session theft -> ATO.
+          - Request-level reasoning: exact METHOD path params headers body, expected vs actual status. No filler.
+          - Breadth over the full inventory for anomalies (odd status codes, id/uid/email/user_id params, versioned /api/v1|v2|beta|internal, debug/test flags, swagger/openapi/json), then depth on top-3 anomalies.
+          - If a hypothesis needs live confirmation you cannot do passively, emit [NEXT] PROBE with the EXACT read-only request.
+          OUT OF SCOPE (REJECTED classes): network DoS, account-lockout DoS, descriptive errors/headers only, robots.txt / known public files, outdated library versions, OPTIONS/TRACE, CSRF on logout or anonymous forms, cookie flags on non-sensitive data, self-XSS, scanner reports without POC, physical access, social engineering of employees/vendors, username enumeration on login/forgot-password, brute-force/rate-limit/lockout policy, SSL/TLS best practice, SSL attacks, clickjacking without demonstrated exploit, mail config (SPF/DKIM/DMARC), known-vulnerable library without program-specific exploit, password/account-recovery policy, autocomplete in fields, public login panels, lack of email verification, session control during email/password change, and any exposure of customer/employee/financial/authentication data during testing (program note). Focus on real logic flaws in scoped assets.
+          Your job is NOT to invent vulnerabilities. Run the 8 steps and output ONLY structured blocks.
+
+          STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface. [NEW]/[CHANGED] one line each, or NO_DELTA.
+          STEP 2 — PRIORITIZE: score top new (or existing) assets 0-10 on attack_surface, business_value, tech_exposure (GraphQL/OAuth/JWT/upload/admin/uncommon), gate_ease (10=no auth), cloud_surface, freshness. priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f. Emit [PRIO] asset,score,axis.
+          STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema, one field per line under [HYP] title line:
+          [HYP] <title>
+          class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+          asset: <host/endpoint>
+          confidence: <0-100>
+          reasoning: <facts only>
+          evidence_needed: <what proves it>
+          verify_steps: <passive-first concrete HTTP requests>
+          impact: <what attacker gets + severity>
+          testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+          Never put fields inline in the [HYP] title.
+          STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+          STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+          STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+          STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+          RULES: facts vs hypotheses strictly separated; no endpoint-map-only; no REJECTED class; sha256 any secret; all claims trace to context or your own read-only probes; passive-first, <=1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; any scanner output requires manual validation.
+          PROMPT_EOF
+          export PATH="$HOME/.opencode/bin:$HOME/.local/bin:$HOME/.npm-global/bin:$PATH"
+          timeout -k 15 20m opencode run --model "$MODEL_ID" < analyst-prompt.txt > analyst-out.txt 2>&1 || true
+          cp analyst-out.txt analyst-${MODEL_NAME}.out
+          grep -E '^\[(NEW|CHANGED|PRIO|HYP|PARKED|FINAL|NEXT|LEARN|RISK)\]|^class:|^confidence:|^asset:|^impact:|^testability:|^verify_steps:|^reasoning:|^evidence_needed:' analyst-out.txt > lead.txt || true
+          {
+            echo "## $(date -u +'%Y-%m-%d %H:%M:%S UTC') [target] (model ${MODEL_NAME})"
+            cat lead.txt
+          } > lead_${MODEL_NAME}.txt
+          echo "lead bytes: $(wc -c < lead.txt) | raw bytes: $(wc -c < analyst-out.txt)"
+
+      - name: Upload model artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: analyst-${{ matrix.model.name }}
+          path: |
+[0m
+[PRIO] kassenkompass.de/php/mark_all_read.php,5.45,attack_surface=5,business_value=5,tech_exposure=3,gate_ease=10,cloud_surface=2,freshness=8
+[PRIO] kassenkompass.de/php/send_message.php+load_messages.php,4.4,attack_surface=6,business_value=5,tech_exposure=3,gate_ease=2,cloud_surface=2,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,4.35,attack_surface=3,business_value=5,tech_exposure=1,gate_ease=10,cloud_surface=2,freshness=5
+
+[HYP] Pre-auth action router in mark_all_read.php (missing-auth ordering primitive)
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php (also www.kassenkompass.de + kassenkompass.net)
+confidence: 80
+reasoning: siblings mark_read.php/send_message.php/load_messages.php all return 46 B "Nicht angemeldet" for unauthenticated GET (auth gate first); mark_all_read.php instead returns 59 B "Fehler: Ungültige Action" for unauthenticated GET on every action value and every alternate param name (do/cmd/op/func/method/mode/a/type/task/action_name/action_type), identically on apex+www+net — its dispatcher runs before any session check. The recorded "valid action → 46 B Nicht angemeldet" was never observed; action is POST-only (GET 0-differential).
+evidence_needed: an unauthenticated POST reaching a real action branch (not the 59 B invalid-action error) with a state delta; whether the read/unread flag is global or per-user.
+verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=__x__ -> 200/59 B "Ungültige Action" (done, passive, apex+www+net); POST body 'action=<valid>' is state-changing and outside GET/HEAD, requires human/owned-id approval.
+impact: if the dispatcher lacks the session gate its siblings have, an unauthenticated caller drives an action handler with no credential; medium, high if the read flag is global or kk_id is enumerable.
+testability: AUTH_HELPED
+
+[HYP] Unauthenticated messaging handler on /php/ (send_message + load_messages)
+class: IDOR
+asset: kassenkompass.de/php/send_message.php, kassenkompass.de/php/load_messages.php
+confidence: 45
+reasoning: NEW handlers found by enumeration; both return 46 B "Nicht angemeldet" for GET (auth-gated), so no unauth primitive is shown. Their existence proves a session/sender-keyed message store whose per-object authorization is unverified, and mark_all_read.php's broken ordering shows inconsistent gating across the same subsystem.
+evidence_needed: with a session, load_messages.php with a foreign conversation/user id returns cross-tenant messages; send_message.php accepts a spoofed sender.
+verify_steps: GET https://kassenkompass.de/php/load_messages.php -> 200/46 B (done); authenticated GET load_messages.php?id=<other> (AUTH_HELPED).
+impact: cross-tenant message read / spoofing in a health-insurance member portal; medium-high if authorization is session-only.
+testability: AUTH_HELPED
+
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: 2,158,671 B unauthenticated response re-confirmed this cycle (byte-identical size to prior KB); embeds ucatKkData/globalbudgetsData/kombiboniData; no-store + CF-DYNAMIC.
+evidence_needed: vendor classification of the corpus as non-public/confidential.
+verify_steps: curl -s https://kassenkompass.de/bonusrechner_fragen.php -o /tmp/f.json (done).
+impact: disclosure of internal pricing/underwriting parameters; severity gated on confidentiality.
+testability: HUMAN_ONLY
+
+[PARKED] "valid action → 46 B Nicht angemeldet" @ mark_all_read.php: refuted by this cycle's probes (all action values/param names -> 59 B); sub-claim removed, pre-auth ordering primitive (59 B vs sibling 46 B) stands.
+[PARKED] v2 insurance_info/{kk_id} BOLA: still AUTH_HELPED; payload domain already replicated by public fragen.php (draft only) — unchanged at 60.
+[PARKED] Messaging-handler IDOR (send_message/load_messages): no unauth primitive observable, GET gate confirmed — 45 pending a session.
+[FINAL] 1. mark_all_read.php pre-auth action router (conf 80, prio 5.45) — reproducible apex/www/net; impact gated on the unknown POST action contract.
+[FINAL] 2. bonusrechner_fragen.php mass corpus (conf 90, prio 4.35) — retrieval proven, human-gated classification.
+[FINAL] 3. /php/ messaging subsystem (send_message + load_messages) (conf 45) — new auth-gated surface for follow-up.
+
+[NEXT] HUMAN: extend the bugs.olivermaicher.eu request for kassenkompass.de/php/mark_all_read.php — ask (a) whether its action dispatcher is intended to run unauthenticated (siblings mark_read.php/send_message.php/load_messages.php all gate first), (b) the valid POST action value and whether the read/unread flag is global or per-user, (c) intended authorization of the newly found /php/ message handlers; include the 4-handler list. Read-only GET cannot exercise it.
+
+[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth action-router ordering confirmed on apex+www+net — unauthenticated 59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param is POST-only (GET 0-differential).
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B; the recorded POST success response was never observed.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2 handlers" corrected.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages).
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167 B catalog, /sync/ 67 B, /health/ 22 B, /v2/insurance_info/1 401/236 B, fragen 2,158,671 B).
+
+[RISK] kassenkompass: 40 — new /php/ message handlers expand the authenticated attack surface; mark_all_read.php remains the only pre-auth ordering anomaly but its exploitability is unproven (POST contract unknown, prior success claim falsified); all API/funnel surfaces drift-free.

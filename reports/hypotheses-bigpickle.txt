@@ -1,1 +1,44 @@
-## 2026-10-11 06:58:57 UTC [target] (model bigpickle)
+## 2026-10-11 14:03:39 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/php/mark_all_read.php,5.45,attack_surface=5,business_value=5,tech_exposure=3,gate_ease=10,cloud_surface=2,freshness=8
+[PRIO] kassenkompass.de/php/send_message.php+load_messages.php,4.4,attack_surface=6,business_value=5,tech_exposure=3,gate_ease=2,cloud_surface=2,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,4.35,attack_surface=3,business_value=5,tech_exposure=1,gate_ease=10,cloud_surface=2,freshness=5
+[HYP] Pre-auth action router in mark_all_read.php (missing-auth ordering primitive)
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php (also www.kassenkompass.de + kassenkompass.net)
+confidence: 80
+reasoning: siblings mark_read.php/send_message.php/load_messages.php all return 46 B "Nicht angemeldet" for unauthenticated GET (auth gate first); mark_all_read.php instead returns 59 B "Fehler: Ungültige Action" for unauthenticated GET on every action value and every alternate param name (do/cmd/op/func/method/mode/a/type/task/action_name/action_type), identically on apex+www+net — its dispatcher runs before any session check. The recorded "valid action → 46 B Nicht angemeldet" was never observed; action is POST-only (GET 0-differential).
+evidence_needed: an unauthenticated POST reaching a real action branch (not the 59 B invalid-action error) with a state delta; whether the read/unread flag is global or per-user.
+verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=__x__ -> 200/59 B "Ungültige Action" (done, passive, apex+www+net); POST body 'action=<valid>' is state-changing and outside GET/HEAD, requires human/owned-id approval.
+impact: if the dispatcher lacks the session gate its siblings have, an unauthenticated caller drives an action handler with no credential; medium, high if the read flag is global or kk_id is enumerable.
+testability: AUTH_HELPED
+[HYP] Unauthenticated messaging handler on /php/ (send_message + load_messages)
+class: IDOR
+asset: kassenkompass.de/php/send_message.php, kassenkompass.de/php/load_messages.php
+confidence: 45
+reasoning: NEW handlers found by enumeration; both return 46 B "Nicht angemeldet" for GET (auth-gated), so no unauth primitive is shown. Their existence proves a session/sender-keyed message store whose per-object authorization is unverified, and mark_all_read.php's broken ordering shows inconsistent gating across the same subsystem.
+evidence_needed: with a session, load_messages.php with a foreign conversation/user id returns cross-tenant messages; send_message.php accepts a spoofed sender.
+verify_steps: GET https://kassenkompass.de/php/load_messages.php -> 200/46 B (done); authenticated GET load_messages.php?id=<other> (AUTH_HELPED).
+impact: cross-tenant message read / spoofing in a health-insurance member portal; medium-high if authorization is session-only.
+testability: AUTH_HELPED
+[HYP] Unauthenticated mass tariff + decision-engine corpus
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 90
+reasoning: 2,158,671 B unauthenticated response re-confirmed this cycle (byte-identical size to prior KB); embeds ucatKkData/globalbudgetsData/kombiboniData; no-store + CF-DYNAMIC.
+evidence_needed: vendor classification of the corpus as non-public/confidential.
+verify_steps: curl -s https://kassenkompass.de/bonusrechner_fragen.php -o /tmp/f.json (done).
+impact: disclosure of internal pricing/underwriting parameters; severity gated on confidentiality.
+testability: HUMAN_ONLY
+[PARKED] "valid action → 46 B Nicht angemeldet" @ mark_all_read.php: refuted by this cycle's probes (all action values/param names -> 59 B); sub-claim removed, pre-auth ordering primitive (59 B vs sibling 46 B) stands.
+[PARKED] v2 insurance_info/{kk_id} BOLA: still AUTH_HELPED; payload domain already replicated by public fragen.php (draft only) — unchanged at 60.
+[PARKED] Messaging-handler IDOR (send_message/load_messages): no unauth primitive observable, GET gate confirmed — 45 pending a session.
+[FINAL] 1. mark_all_read.php pre-auth action router (conf 80, prio 5.45) — reproducible apex/www/net; impact gated on the unknown POST action contract.
+[FINAL] 2. bonusrechner_fragen.php mass corpus (conf 90, prio 4.35) — retrieval proven, human-gated classification.
+[FINAL] 3. /php/ messaging subsystem (send_message + load_messages) (conf 45) — new auth-gated surface for follow-up.
+[NEXT] HUMAN: extend the bugs.olivermaicher.eu request for kassenkompass.de/php/mark_all_read.php — ask (a) whether its action dispatcher is intended to run unauthenticated (siblings mark_read.php/send_message.php/load_messages.php all gate first), (b) the valid POST action value and whether the read/unread flag is global or per-user, (c) intended authorization of the newly found /php/ message handlers; include the 4-handler list. Read-only GET cannot exercise it.
+[LEARN] ACCEPTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth action-router ordering confirmed on apex+www+net — unauthenticated 59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param is POST-only (GET 0-differential).
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B; the recorded POST success response was never observed.
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2 handlers" corrected.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages).
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167 B catalog, /sync/ 67 B, /health/ 22 B, /v2/insurance_info/1 401/236 B, fragen 2,158,671 B).
+[RISK] kassenkompass: 40 — new /php/ message handlers expand the authenticated attack surface; mark_all_read.php remains the only pre-auth ordering anomaly but its exploitability is unproven (POST contract unknown, prior success claim falsified); all API/funnel surfaces drift-free.
