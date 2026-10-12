@@ -1,25 +1,9 @@
-## 2026-10-12 02:14:33 UTC [target] (model nemotron3)
-[CHANGED] kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed live on apex+www+.net — invalid action returns 59 B unauthenticated error, valid action returns 46 B "Nicht angemeldet"; 4 handlers in /php/ namespace (mark_read, mark_all_read, send_message, load_messages)
-[CHANGED] api.kassenkompass.de: Normalization matrix COMPLETE for 17 route families (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); percent-decode-before-match host-wide; encoded separators decode; single-level decode only
-[CHANGED] kassenkompass.de/bonusrechner_fragen.php: Tariff payload 2,158,671 B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo cache-buster; sessionData null under stuffed jar
-[CHANGED] api.kassenkompress.de root: content-length consistently accurate 1167 matching body (cosmetic CL drift class resolved); catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
-[CHANGED] Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
-[CHANGED] No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
-[PRIO] kassenkompass.de/php/mark_all_read.php, 7.85, attack_surface=8, business_value=7, tech_exposure=6, gate_ease=10, cloud_surface=5, freshness=9
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id}, 6.70, attack_surface=7, business_value=8, tech_exposure=7, gate_ease=3, cloud_surface=6, freshness=8
-[PRIO] kassenkompass.de/bonusrechner_fragen.php, 6.55, attack_surface=9, business_value=6, tech_exposure=8, gate_ease=10, cloud_surface=4, freshness=7
-[PRIO] api.kassenkompress.de/post/create_user, 5.95, attack_surface=6, business_value=9, tech_exposure=5, gate_ease=3, cloud_surface=5, freshness=6
-[PRIO] kassenkompass.de/js/whitelabel_live.js, 5.20, attack_surface=6, business_value=5, tech_exposure=7, gate_ease=10, cloud_surface=3, freshness=5
-[PRIO] kassenkompass.de/js/param_passthrough.js, 4.95, attack_surface=7, business_value=5, tech_exposure=6, gate_ease=10, cloud_surface=3, freshness=5
-[HYP] Pre-auth Action Router Enables Unauthenticated State Modification
-class: AUTH
-asset: kassenkompass.de/php/mark_all_read.php
-confidence: 85
-reasoning: Action parameter evaluated before session check — invalid action returns 59 B unauthenticated error ("Fehler: Ungültige Action"), valid action returns 46 B "Nicht angemeldet"; identical on apex, www, .net (302→.de); /php/ directory listing denied (IIS 403); OPTIONS returns 200 no Allow/ACAO; 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages)
-evidence_needed: Valid action names accepted by router that perform state changes; whether valid action + valid session modifies notification read-state without additional auth
-verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (expect 200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (expect 200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
-impact: If valid action exists that modifies notification read-state without auth → unauthenticated state modification on user data; MEDIUM (notification data only)
-testability: PASSIVE
+## 2026-10-12 09:28:00 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},7.30,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=6,cloud_surface=7,freshness=7
+[PRIO] kassenkompass.de/php/mark_all_read.php,6.80,attack_surface=7,business_value=5,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=7,business_value=7,tech_exposure=6,gate_ease=5,cloud_surface=6,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=6,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=5
+[PRIO] kassenkompass.de/js/whitelabel_live.js,4.55,attack_surface=5,business_value=4,tech_exposure=5,gate_ease=10,cloud_surface=3,freshness=5
 [HYP] v2 Insurance Info Cross-Tenant Read via BOLA
 class: IDOR
 asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
@@ -29,6 +13,15 @@ evidence_needed: Valid X-API-Secret to test cross-tenant kk_id access; or proof 
 verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1 (401 baseline); GET https://api.kassenkompass.de/v2/insurance_info/999 (401); GET https://api.kassenkompass.de/v2/insurance_info/1/extra (401, instance: "/v2/insurance_info/1/extra"); requires AUTH_HELPED for cross-tenant test with valid secret
 impact: If middleware A lacks tenant scoping → cross-tenant draft insurance data read; MEDIUM (draft data only, live data publicly replicated)
 testability: AUTH_HELPED
+[HYP] Pre-auth Action Router Enables Unauthenticated State Modification
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 85
+reasoning: Action parameter evaluated before session check — invalid action returns 59 B unauthenticated error ("Fehler: Ungültige Action"), valid action returns 46 B "Nicht angemeldet"; identical on apex, www, .net (302→.de); /php/ directory listing denied (IIS 403); OPTIONS returns 200 no Allow/ACAO; 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages)
+evidence_needed: Valid action names accepted by router that perform state changes; whether valid action + valid session modifies notification read-state without additional auth
+verify_steps: GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (expect 200, 59 B error); GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read (expect 200, 46 B "Nicht angemeldet"); repeat on www.kassenkompass.de and kassenkompass.net; POST same params; enumerate action names via wordlist at ≤1 rps
+impact: If valid action exists that modifies notification read-state without auth → unauthenticated state modification on user data; MEDIUM (notification data only)
+testability: PASSIVE
 [HYP] Write Auth Status Unproven on /post/create_user
 class: AUTH
 asset: api.kassenkompass.de/post/create_user
@@ -42,7 +35,7 @@ testability: AUTH_HELPED
 [PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 50 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
 [PARKED] CORS-based postMessage Exploit via whitelabel_live.js: guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified; integrity-only suppression of 5 trust elements measured, not XSS
 [PARKED] Client-side Cookie Stuffing → data_sparsum Forgery via live-calculation.js: orphaned read/write asymmetry confirmed (reads data_sparsum from cookie, adds to savings display, setCookie commented out), but param_passthrough.js PASS_PARAMS excludes data_sparsum; no param-to-that-cookie mapping exists
-[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Pre-auth Action Router (confidence 85, PASSIVE)
+[FINAL] 1. kassenkompass.de/php/mark_all_read.php: Pre-auth Action Router Enables Unauthenticated State Modification (confidence 85, PASSIVE)
 [FINAL] 2. api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read (confidence 60, AUTH_HELPED)
 [FINAL] 3. api.kassenkompass.de/post/create_user: Write Auth Status Unproven (confidence 50, AUTH_HELPED)
 [NEXT] PROBE: GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read and GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (both ≤1 rps) to confirm pre-auth action evaluation differential; repeat on www.kassenkompass.de

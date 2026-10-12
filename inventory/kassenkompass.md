@@ -1741,3 +1741,5 @@ www.kassenkompass.de
 - CHANGED api.kassenkompress.de root: content-length consistently accurate 1167 matching body (cosmetic CL drift class resolved); catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-12 09:28:12 UTC
