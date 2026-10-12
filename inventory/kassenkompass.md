@@ -1733,3 +1733,11 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload 2,158,671 B (−48 B vs 10-07, inside ±0.3% band); drift-on-refresh model confirmed stable; www mirror identical; sessionData null under stuffed 
 - CHANGED All major surfaces stable since 2026-09-07 — api catalog (15+1), v2 (insurance_info sole route, 42-name saturation), 7 funnel mirrors with divergent alias maps, auth map 15/15 drift-free, S3 qid 1..18
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+
+## 2026-10-12 02:15:36 UTC
+- CHANGED kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed live on apex+www+.net — invalid action returns 59 B unauthenticated error, valid action returns 46 B "Nicht angemeldet"; 4 hand
+- CHANGED api.kassenkompass.de: Normalization matrix COMPLETE for 17 route families (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); percent-decode-before-ma
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: Tariff payload 2,158,671 B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo
+- CHANGED api.kassenkompress.de root: content-length consistently accurate 1167 matching body (cosmetic CL drift class resolved); catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)

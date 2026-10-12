@@ -10147,3 +10147,4 @@ testability: HUMAN_ONLY
 [RISK] kassenkompass: 40 — new /php/ message handlers expand the authenticated attack surface; mark_all_read.php remains the only pre-auth ordering anomaly but its exploitability is unproven (POST contract unknown, prior success claim falsified); all API/funnel surfaces drift-free.
 ## 2026-10-11 18:47:32 UTC [target] (model bigpickle)
 ## 2026-10-11 22:45:53 UTC [target] (model bigpickle)
+## 2026-10-12 02:15:24 UTC [target] (model bigpickle)
