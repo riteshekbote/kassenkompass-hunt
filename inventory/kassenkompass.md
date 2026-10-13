@@ -1771,3 +1771,7 @@ www.kassenkompass.de
 - CHANGED `api.kassenkompass.de/` root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; no drift since 2026-10-09
 - CHANGED `kassenkompass.de/bonusrechner_fragen.php` tariff payload 2,158,667B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo
 - CHANGED `kassenkompass.de/php/` directory listing denied — 403/1233B IIS "Access is denied" behind Cloudflare+ALB; confirms IIS origin
+
+## 2026-10-13 01:33:35 UTC
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):

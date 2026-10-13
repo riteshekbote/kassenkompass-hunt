@@ -1892,3 +1892,12 @@ https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://api.kassenkompass.de/user/1 -> HTTP 401
 https://api.kassenkompass.de/user/100 -> HTTP 401
 https://api.kassenkompass.de/sync/ -> 200 len=0
+
+## 2026-10-13 01:33:49 UTC
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/user/999 -> HTTP 401
+https://api.kassenkompass.de/user/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0

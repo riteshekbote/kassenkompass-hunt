@@ -10307,3 +10307,6 @@ testability: AUTH_HELPED
 [HYP] Unprotected API documentation disclosure at catch-all routes
 class: MISCONFIG
 asset: api.kassenkompass.de
+## 2026-10-13 01:32:09 UTC [target] (model bigpickle)
+[CHANGED] none
+[NEW] /post-app auth-ordering differential (HEAD, controlled set):

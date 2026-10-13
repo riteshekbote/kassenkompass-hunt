@@ -68767,3 +68767,156 @@ www.kassenkompass.de
 - **Next steps:** Ask for human clarification on `/php/mark_all_read.php` (valid POST `action` values, whether notification read/unread is global vs per-user) and intended auth/cross-tenant controls for `/php/send_message.php` and `/php/load_messages.php`. 
 - **Auth-needed:** With a scoped read-only `X-API-Secret`, I can safely test `/v2/insurance_info/{kk_id}` for cross-kk_id access; with a valid session, I can test `/php/load_messages.php?id=<other>` for horizontal auth — no unauthenticated POSTs to write endpoints. 
 - **Status:** Passive leads exhausted (surfaces stable since 2026-09-07). Await clarification before proceeding.
+===== ANALYST bigpickle 2026-10-13 01:33:35 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll run a minimal read-only confirmation of the one analytically fresh claim (the HEAD differential), then produce the structured analysis.
+[0m$ [0mfor p in "/post/create_user" "/cat_detail/" "/post/help" "/user/1"; do echo "=== HEAD $p ==="; curl -sS -I --max-time 15 "https://api.kassenkompass.de$p" 2>&1 | tr -d '\r' | grep -iE '^(HTTP|allow|access-control-allow|content-type|content-length|server)'; sleep 1.5; done
+=== HEAD /post/create_user ===
+HTTP/2 405 
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+=== HEAD /cat_detail/ ===
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+access-control-allow-methods: POST, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+=== HEAD /post/help ===
+HTTP/2 405 
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+=== HEAD /user/1 ===
+HTTP/2 401 
+content-type: application/problem+json; charset=utf-8
+content-length: 0
+server: cloudflare
+access-control-allow-methods: GET, OPTIONS
+access-control-allow-headers: X-API-Secret, Content-Type
+[0m
+## Objective
+- Act as senior bug-bounty ANALYST for KassenKompass GmbH (report channel: bugs.olivermaicher.eu); run the fixed 8-step loop (DELTA→PRIORITIZE→HYPOTHESES→SELF-CRITIQUE→NEXT→LEARN→RISK) and emit ONLY structured blocks per the template in the prompt.
+- Passive-first hunting on in-scope KassenKompass infra; find real logic flaws (IDOR/BOLA, broken auth, business logic on money/auth flows) — do not invent vulns.
+
+## Important Details
+- Scope: all KassenKompass-owned infra/domains. Confirmed live hosts: `api.kassenkompass.de`, `kassenkompass.de`, `www.kassenkompass.de`, `awv.kassenkompass.de`, `load.awv.kassenkompass.de` (CF-challenged 403), `kassenkompass.net` (IIS/10.0+PHP 8.4.3, blanket 302 on all app paths), `kk-s3-01.s3.eu-central-1.amazonaws.com`.
+- REJECTED classes (do not re-report): network/lockout DoS, descriptive errors/headers only, robots.txt/public files, outdated libs, OPTIONS/TRACE, CSRF on logout/anon forms, cookie flags on non-sensitive data, self-XSS, scanner output w/o POC, username enumeration, brute-force/rate-limit policy, TLS best practice, clickjacking w/o exploit, mail config, password-recovery policy, autocomplete, public login panels, missing email verification, session control during email/pw change, any exposure of customer/employee/financial/auth data during testing.
+- Discipline: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; sha256 any secret; a 09-11 ~14-request burst triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt").
+- Methodology rules learned: a 405 on this host is never evidence about credentials (method-confounded); only a 401 is. Closure needs an INJECTIVE discriminator (`access-control-allow-methods` works; status+type and content-type+length collide). HEAD structurally cannot close route-membership (catch-all returns `content-length: 0`; GET body comparison required). Idempotent re-runs must emit NO_DELTA, and priority must be re-derived from emitted axes (stale fixes: api root 6.35→7.30, /post/create_user 6.75→6.55).
+- api.kassenkompass.de auth map: 8 routes middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"), 3 middleware B ("Ungültiger X-API-Secret"/"Header fehlt" = `{user/{ext_id}, delete/{id}, cancel/{id}}`), 1 method-checked-first (`/cat_detail/`), 3 no credential check (`/health/`, `/sync/`, `/post/`). X-API-Secret is the sole auth channel (header only; query/cookie both 401).
+- `/sync/` legacy: HTTP 200 + 67 B body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, sha256 `b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3`.
+- Root catalog: 1167 B, 15 v1 endpoints ver 1.0 + 1 v2 (insurance_info) ver 2.0, sha256 `644b1ec74036ec90`; content-length drift class CL:0→absent→accurate is cosmetic; `/v3/` = byte-identical v1 catch-all (no v3 router).
+- Normalization: percent-decode-before-match is host-wide (v1+v2), single-level decode, case-sensitive; three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`); encoded separators decode (`/delete%2f1`→401/182B/`46bd50c0c679e09f`). This is a routing quirk, NOT an access-control/WAF bypass (byte-identical literal vs encoded — no differential).
+- `/post/` is a separately mounted app outside X-API-Secret; closed at exactly 2 members: `/post/help` (200/344 B json, sha256 `b59b3549e204e996`) and `/post/create_user` (405 POST-only). Write auth UNPROVEN (HUMAN_ONLY).
+- kassenkompass.de funnel: 7 cookie-mirror entries (bonusrechner.php, _daten, _fragen, _suche, _vergleich2, _abschluss, termin.php) — raw params → 1-yr cookies, no validation; `lizenz`→`afilcode` (non-HttpOnly), jid→customerid, agn/connectionnumber→agenturnummer (dual-alias dup), ppn, employeenumber. `vergleich2` sole emitter of `device_id`.
+- `bonusrechner_fragen.php`: 2.1 MB unauthenticated tariff corpus (drift-on-refresh ±0.3%, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps); data freshness ≤2025-12-22; `sessionData` all-null anon.
+- `bonusrechner_abschluss.php`: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid POST; registration is server-side lead-gated. One-shot stuffing→register auto-create was REFUTED.
+- `kassenkompass.de/php/mark_all_read.php`: pre-auth action router — unauthenticated invalid action → 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}`; valid action → 46 B "Nicht angemeldet"; confirmed on apex+www+.net; 4 handlers (mark_read, mark_all_read, send_message, load_messages). Note: "valid action → 46 B" itself was REFUTED earlier (all values returned 59 B).
+- `whitelabel_live.js` (11,359 B, bonusrechner.php only): postMessage receiver, no event.origin/event.source check, forces wl-active, suppresses 5 real trust elements; NOT XSS (textContent). `param_passthrough.js`: 16 params, sessionStorage `kkweb_pass_params`. `live-calculation.js`: orphaned data_sparsum read (sink textContent at #resulteuro) — no egress.
+- Peer pipeline is effectively single-writer / broken — 25+ consecutive triage cycles with header-only/stub leads; per-session budget better spent on 2-3 decisive artifacts.
+
+## Work State
+### Completed
+- Full passive surface mapping of api.kassenkompass.de (15/15 verb+auth matrix, v2 42-name enumeration saturated at `insurance_info`, normalization matrix complete for 17 route families).
+- 7 funnel mirror entries + alias maps confirmed; S3 existence oracle established (`kk-s3-01`: qid 1..180, all n=1 duplicates ETag `52f04d11...`/747,082 B; n-axis extends qid 60 n=2 = 1,051,319 B; non-image keys 403).
+- `awv.kassenkompass.de` SGTM fully read: Stape `ahcfuvbcz`, GA4 `G-RXB3GJEMRT`, FB `360390300088445`, purchase 128 EUR.
+- Numerous negatives closed: SSRF, JWT alg confusion, CORS (api + .net + funnel), CRED_REUSE (`KKX3382745`/`X8372`), Host-header false positive, encoded-separator bypass, callback/parser differentials.
+
+### Active
+- Phase=POC, target=api. Current ranked hypotheses: [62] IDOR `GET /user/{ext_id}` cross-user PII (AUTH_HELPED); [60] v2 `insurance_info/{kk_id}` BOLA cross-tenant read (value downgraded — domain publicly replicated by `fragen.php` ucatKkData).
+- Standing accepted (low/informational): root catalog disclosure w/o auth; `/sync/` HTTP-200 legacy auth envelope; `/health/` unprotected (22 B, PHP 8.4.3); v2 greedy-segment routing; funnel cookie mirroring.
+
+### Blocked
+- All high-value api findings are AUTH_HELPED — require a valid `X-API-Secret` (no credentialed request exists). `/post/create_user` write auth is HUMAN_ONLY by necessity.
+- Peer/self lead pipeline producing empty payloads (observability gap); reposcan unavailable ("TARGET_ORG not configured; skipping").
+
+## Next Move
+1. [NEXT] PROBE: `GET https://api.kassenkompass.de/user/1` (no auth) then `GET /user/100` to reconfirm clean 401 vs data (baseline known 401; per bigpickle hypothesis) — read-only, 1 rps.
+2. [NEXT] PROBE (nemotron3): alternate `GET https://kassenkompass.de/bonusrechner_fragen.php` and `GET https://www.kassenkompass.de/bonusrechner_fragen.php` 20× at 1 rps for drift/rate-limit confirmation.
+
+## Relevant Files
+- `reports/hypotheses-bigpickle.txt`: current top IDOR hypothesis + NEXT probe.
+- `reports/hypotheses-nemotron3.txt`: v2 BOLA hypothesis + alternating 1-rps NEXT.
+- `state_bigpickle.json` / `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}`.
+- `inventory/kassenkompass.md`: host inventory + per-timestamp passive-recon log (all surfaces above).
+- `scope.yml`: authoritative in-scope asset list.
+- `probe-results.md`: raw probe evidence referenced throughout (e.g. :119,:126,:128-131,:140).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+HEAD differential confirmed: gated routes answer HEAD with 401 (`/cat_detail/`, `/user/1`), while both `/post/` routes answer HEAD with 405 — no credential challenge. Let me capture the `/post/help` body to characterize the advertised write contract.
+[0m$ [0mecho "=== GET /post/help ==="; curl -sS --max-time 15 -D - "https://api.kassenkompass.de/post/help" 2>&1 | tr -d '\r' | grep -viE '^(date|report-to|nel|cf-|vary|alt-svc|server-timing|x-)' | head -40
+=== GET /post/help ===
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 344
+server: cloudflare
+access-control-allow-methods: POST, GET, OPTIONS
+access-control-allow-headers: Content-Type, X-API-Secret
+referrer-policy: strict-origin-when-cross-origin
+strict-transport-security: max-age=31536000; includeSubDomains
+permissions-policy: camera=(), microphone=(), geolocation=()
+
+{"success":true,"message":"API-Hilfe für \/post","data":{"info":"Dies ist die Hilfeseite für die \/post\/create_user API.","usage":{"POST \/post\/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET \/post\/help":"Zeigt diese Hilfeseite an.","POST \/post\/help":"Zeigt diese Hilfeseite an (kann später erweitert werden)."}}}
+[0m
+## DELTA
+
+5 read-only requests this session (4× HEAD, 1× GET), ~1.5 s spacing, no WAF signal.
+
+```
+[CHANGED] none
+[NEW] /post-app auth-ordering differential (HEAD, controlled set):
+  HEAD /cat_detail/     -> 401  allow-methods: POST, OPTIONS        (gated; challenges HEAD)
+  HEAD /user/1          -> 401  allow-methods: GET, OPTIONS         (gated; challenges HEAD)
+  HEAD /post/create_user-> 405  allow-methods: POST, GET, OPTIONS   (NO credential challenge)
+  HEAD /post/help       -> 405  allow-methods: POST, GET, OPTIONS   (NO credential challenge)
+  GET  /post/help       -> 200 / 344 B, unchanged
+[NO_DELTA] all other catalogued surfaces
+```
+
+`GET /post/help` body (200, no secret) explicitly documents the write contract:
+`{"success":true,...,"data":{"info":".../post/create_user API","usage":{"POST /post/create_user":"Erstellt einen neuen User. Erwartet JSON im Body.","GET /post/help":"...","POST /post/help":"..."}}}`
+
+Key new fact: on this host the X-API-Secret middleware challenges HEAD with **401** even when the method is not in the route's allow-list (`/cat_detail/` is method-check-first yet HEAD→401). The `/post` app instead answers HEAD with **405** on both of its routes and serves `GET /post/help`=200 with no secret — so `/post/*` is **outside** the global credential middleware.
+
+## PRIORITIZE
+```
+api.kassenkompass.de/post/      -> 7.45  [attack 8, biz 9, tech 8, gate 8, cloud 3, fresh 5]
+api.kassenkompass.de/user/{ext_id} -> 6.65  [7,9,7,6,3,4]
+api.kassenkompass.de/v2/insurance_info -> 5.60  [5,8,5,6,3,4]
+kassenkompass.de/php/ (mark_all_read)  -> 5.35  [6,6,4,7,2,5]
+```
+
+## HYPOTHESES (3)
+
+**H1 — Broken auth: unauthenticated user provisioning at `POST /post/create_user`** — CONF 65, testability **HUMAN_ONLY (POST)**.
+Evidence: `/post` routes are outside the global X-API-Secret middleware (HEAD 405, no 401); `GET /post/help` returns 200 with no secret and advertises `POST /post/create_user` as a JSON-body write. The endpoint is thus reachable pre-auth by method dispatch; whether the POST handler itself enforces the secret is the sole open question.
+`[VERIFY]` HEAD `https://api.kassenkompass.de/post/create_user` → 405 (no `_pending` key); requires an authorized single benign POST to close.
+
+**H2 — IDOR: `GET /user/{ext_id}` cross-user PII** — CONF 62, **AUTH_HELPED** (baseline 401).
+
+**H3 — BOLA: `GET /v2/insurance_info/{kk_id}` cross-tenant read** — CONF 58, **AUTH_HELPED**; business value capped because the same domain is publicly replicated by `bonusrechner_fragen.php`.
+
+## SELF-CRITIQUE
+- H1 is not proven. `allow-headers` on `/post/*` still advertise `X-API-Secret`, and HEAD-405 only proves the *method* check precedes auth — a POST-only route legitimately 405s HEAD regardless of gating, while `/cat_detail/` shows method and HEAD can diverge (GET→405 pre-auth, HEAD→401 post-auth). What survives: `/post` is not behind the global middleware. Per-handler auth on `create_user` remains unproven; do **not** report as a confirmed unauthenticated write.
+- H2/H3 parked: zero anonymous signal can move them; they need `X-API-Secret`. Do not overclaim proximity to PII/financial data you have not accessed.
+
+## NEXT
+`[NEXT] HUMAN` — request a scoped, non-production `X-API-Secret` (or explicit authorization for one benign authenticated request) to close H1–H3:
+- `POST /post/create_user` with an intentionally invalid body (validation-reject only, no real user created);
+- `GET /user/{ext_id}` with two different ids (IDOR);
+- `DELETE /delete/{id}` cross-id;
+- `GET /v2/insurance_info/{kk_id}` cross-tenant.
+No read-only anonymous probe remains that is decisive.
+
+## LEARN
+On this host auth is method-conditioned: gated routes challenge HEAD (401) even when the method is disallowed, so HEAD status is usable as an auth-ordering oracle — but only to prove a route is *outside* the global middleware, never that a specific method is unauthenticated. Only an allow-listed method (or the write itself) can prove per-handler auth.
+
+## RISK
+No mutating tests, no auth-bypass, no customer data accessed; 5 read-only requests at ≤1 rps; no lockout/WAF signal. Rejected-adjacent classes (error/header disclosure, OPTIONS, enumerated paths) avoided.
