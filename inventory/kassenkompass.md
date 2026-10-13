@@ -1775,3 +1775,18 @@ www.kassenkompass.de
 ## 2026-10-13 01:33:35 UTC
 - CHANGED none
 - NEW /post-app auth-ordering differential (HEAD, controlled set):
+
+## 2026-10-13 08:28:20 UTC
+- CHANGED `kassenkompass.de/php/mark_all_read.php` pre-auth action router confirmed LIVE — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated; valid actions 
+- CHANGED `api.kassenkompass.de/` root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; no drift since 2026-10-09
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php` tariff payload 2,158,667B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo
+- CHANGED `kassenkompass.de/php/` directory listing denied — 403/1233B IIS "Access is denied" behind Cloudflare+ALB; confirms IIS origin
+- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):

@@ -1,20 +1,19 @@
-## 2026-10-13 01:33:24 UTC [target] (model nemotron3)
-[PRIO] api.kassenkompass.de/user/{ext_id},7.30,attack_surface=8,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
-[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},7.15,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=7
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,6.35,attack_surface=9,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
-[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=7,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=6
-[PRIO] kassenkompass.de/php/mark_all_read.php,5.80,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=5,freshness=8
-[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
-[HYP] IDOR on /user/{ext_id} — Cross-User PII Access
+## 2026-10-13 08:28:10 UTC [target] (model nemotron3)
+[PRIO] api.kassenkompass.de/user/{ext_id},7.75,attack_surface=8,business_value=9,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},7.30,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=6,freshness=6
+[PRIO] kassenkompass.de/php/mark_all_read.php,6.55,attack_surface=6,business_value=7,tech_exposure=8,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=4,freshness=6
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,5.60,attack_surface=6,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=7
+[HYP] api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access
 class: IDOR
 asset: api.kassenkompass.de/user/{ext_id}
 confidence: 62
-reasoning: /user/{ext_id} uses middleware B ("Ungültiger X-API-Secret" + instance echo) distinct from middleware A used by 8 other endpoints; middleware B = kk_webapp-delegation stack {user, cancel}; greedy segment match on /user/ (empty segment routes to B); no tenant scoping proven on resolved ext_id; catalog documents GET /user/{ext_id}
+reasoning: Middleware B ("Ungültiger X-API-Secret" + instance echo) distinct from middleware A used by 8 endpoints; B = kk_webapp-delegation stack {user, delete, cancel}; greedy segment match on /user/ (empty segment routes to B); catalog documents GET /user/{ext_id}; no tenant scoping proven on resolved ext_id
 evidence_needed: Valid X-API-Secret to test cross-ext_id access; or proof middleware B enforces tenant scoping on resolved ext_id
 verify_steps: GET https://api.kassenkompass.de/user/1 (401 baseline); GET https://api.kassenkompass.de/user/999 (401); GET https://api.kassenkompass.de/user/1/extra (401, instance: "/user/1/extra"); requires AUTH_HELPED for cross-tenant test with valid secret
 impact: If middleware B lacks tenant scoping → cross-user PII read (customer data, insurance info); HIGH
 testability: AUTH_HELPED
-[HYP] v2 Insurance Info BOLA — Cross-Tenant Draft Data Read
+[HYP] api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Draft Data Read
 class: IDOR
 asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
 confidence: 60
@@ -23,13 +22,13 @@ evidence_needed: Valid X-API-Secret to test cross-tenant kk_id access; or proof 
 verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1 (401 baseline); GET https://api.kassenkompass.de/v2/insurance_info/999 (401); GET https://api.kassenkompass.de/v2/insurance_info/1/extra (401, instance: "/v2/insurance_info/1/extra"); requires AUTH_HELPED for cross-tenant test with valid secret
 impact: If middleware A lacks tenant scoping → cross-tenant draft insurance data read; MEDIUM (draft data only, live data publicly replicated)
 testability: AUTH_HELPED
-[HYP] Pre-Auth Action Router — Unauthenticated State Mutation via /php/mark_all_read.php
+[HYP] kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Unauthenticated State Mutation
 class: AUTH
 asset: kassenkompass.de/php/mark_all_read.php
 confidence: 55
 reasoning: Action parameter evaluated before session check — unauthenticated invalid action returns 59 B "Ungültige Action", valid action returns 46 B "Nicht angemeldet" (pre-auth differential); 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); IIS origin behind ALB; action param POST-only (GET 0-differential); reachable identically on apex/www/net
 evidence_needed: Discovery of valid action name that reaches session check without auth; or proof all action values fail pre-auth validation
-verify_steps: POST https://kassenkompass.de/php/mark_all_read.php action=mark_all_read (46 B "Nicht angemeldet" expected); POST https://kassenkompass.de/php/mark_all_read.php action=invalid (59 B "Ungültige Action" confirmed); enumerate action values via wordlist (PASSIVE ≤1 rps)
+verify_steps: POST https://kassenkompass.de/php/mark_all_read.php action=mark_all_read (46 B "Nicht angemeldet" expected); POST https://kassenkompass.de/php/mark_all_read.php action=mark_read (46 B expected); POST https://kassenkompass.de/php/mark_all_read.php action=send_message (46 B expected); POST https://kassenkompass.de/php/mark_all_read.php action=load_messages (46 B expected); enumerate action values via wordlist (PASSIVE ≤1 rps)
 impact: If valid action reaches session logic pre-auth → unauthenticated state modification (message read marking, send_message); MEDIUM
 testability: PASSIVE
 [PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 50 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
