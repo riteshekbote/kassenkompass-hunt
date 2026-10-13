@@ -1929,3 +1929,9 @@ https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
 https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
 https://kassenkompass.de/js/standard.js -> 200 len=67969
+
+## 2026-10-13 21:35:49 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?

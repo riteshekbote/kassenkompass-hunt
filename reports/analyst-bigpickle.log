@@ -71531,3 +71531,183 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
 
 [RISK] KassenKompass GmbH: 88 — unauthenticated 2.15 MB partner tariff/bonus corpus sustained-scrapable at 1 rps with the full client-side rating model exposed; funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points and divergent alias maps; sensitive API endpoints (cross-user PII, deletion, cancellation, financial reports) all gated behind a single custom header secret that may be recoverable from public assets; two-tier auth middleware implies scoping complexity delegated to the internal webapp; v2 exposes an unpublished draft-data router with greedy segment matching; 429-free edge (no rate limit) across the corpus; triage pipeline has produced 30+ consecutive error/empty cycles (observability gap)
+===== ANALYST bigpickle 2026-10-13 21:35:42 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do curl -s -o "$f" -w "%{http_code} %{size_download} $f\n" --max-time 20 "https://kassenkompass.de/js/$f"; sleep 1; done
+200 67969 standard.js
+200 37225 live-calculation.js
+200 5449 param_passthrough.js
+200 11359 whitelabel_live.js
+[0m
+## Objective
+- Continue the KassenKompass GmbH bug-bounty engagement (report channel bugs.olivermaicher.eu) as a passive-first analyst: run the 8-step delta/prioritize/hypothesize/critique/next/learn/risk pipeline against in-scope assets (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com).
+- Unblock the AUTH_HELPED finals by recovering the `X-API-Secret` (or any credible derivation path) via the one remaining passive route: source-map / embedded-secret audit of the public JS bundles.
+
+## Important Details
+- Program rules: read-only probes only — GET/HEAD/OPTIONS, ≤1 rps; no auth-bypass, no mutating tests, no customer/employee/financial/auth data exposure during testing. 2026-09-11 prior WAF IP-block ("Ihre IP wurde voruebergehend gesperrt") from a ~14-req burst → pace discipline mandatory.
+- OUT OF SCOPE / REJECTED classes: network & account-lockout DoS, descriptive errors/headers only, robots.txt/public files, outdated libraries, OPTIONS/TRACE, CSRF on logout/anon forms, cookie flags on non-sensitive data, self-XSS, scanner reports without POC, physical/social, username enumeration, brute-force/rate-limit policy, TLS best practice, clickjacking without exploit, mail config, password-recovery policy, autocomplete, public login panels, lack of email verification, session control during email/password change.
+- Methodological rules earned across sessions (KB "LEARN" entries):
+  - A closure claim needs an **injective** discriminator. `access-control-allow-methods` works on the API host; status+content-type collided on `/cat_detail/` (405), content-type+length collided on bodyless 200s.
+  - A 405 on api.kassenkompass.de is **never** evidence about credentials; only a 401 is (method-confound from GET/OPTIONS on POST-only routes).
+  - HEAD cannot close route-membership: root catch-all returns `content-length: 0` on HEAD; GET + body comparison required.
+  - No ACAO is **not** a defence against a cross-origin **write** (form-encoded POST = Fetch simple request, no preflight).
+  - Priority must be re-derived from emitted axes; peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED endpoints, inflating them. Corrected: `/user/{ext_id}` 7.75→6.90; `/v2/insurance_info` 7.15→6.55; S3 5.80→6.50; `api.kassenkompass.de/` 6.35→7.30; `/post/create_user` 6.75→6.55.
+  - An idempotent re-run must emit NO_DELTA, not re-derive prior conclusions; must not re-emit refuted peer finals.
+  - Composition claims (suffix absorption + percent-decode) need both axes on the **same** request.
+- Peer pipeline: 25+ consecutive triage cycles consumed empty/header-only/stub leads (laguna/ling3/longcat timestamp stubs, mimo 18 B, nemotron3 reprint) — observability gap, zero signal; 4 of 5 peer leads empty → effectively single-writer.
+- Key accepted facts (KB-anchored, stable since 2026-09-07 unless noted):
+  - API root `/`: 200, 1167 B, sha256 `644b1ec74036ec90`, 15 v1 endpoints ver 1.0; content-length has drifted CL:0→absent→accurate 1167 (cosmetic only).
+  - `/sync/`: 200 (not 401) with 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, sha256 `b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3`, allow-methods POST,OPTIONS.
+  - `/health/`: only fully unauthenticated v1 route, 200/22 B `{"status":"ok"}`, `GET, POST, OPTIONS`, x-powered-by PHP/8.4.3, no `access-control-allow-headers` group.
+  - v2: single route `GET /v2/insurance_info/{kk_id}` (401 middleware A, 236 B), enumeration saturated at 42 names; greedy segment match, kk_id unvalidated at routing; v1 prefix/greedy matching host-wide.
+  - Auth map: 8 routes middleware A ("Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt"), 3 middleware B = {`/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`} ("X-API-Secret Header fehlt", instance-first), 1 method-checked-first (`/cat_detail/` 405 pre-auth / HEAD 401 post-auth), 3 with no credential check (`/health/`, `/sync/`, `/post/`).
+  - `/post/` is a separately mounted app outside the X-API-Secret dependency; closed at exactly 2 members: `help` (200/344 B application/json, sha256 `b59b3549e204e996`) and `create_user` (405 POST-only); 30 candidate sub-names return `200 / 0 B / text/html` (sha256 `e3b0c442…`).
+  - Percent-decode-before-match host-wide (v1+v2), single decode level (`/delete%252f1` → 404/1245 B sha256 `dc1d54dab6ec8c00`), case-sensitive; encoded separators decode (`/delete%2f1` → 401/182 B `46bd50c0c679e09f`, instance `/delete/1`); normalization matrix complete 17 families 0 divergences; three pre-auth canonicalisation oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+  - `bonusrechner_fragen.php`: ~2.15 MB tariff corpus unauthenticated, no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limit (100-req 1-rps test clean), drift-on-refresh ±0.3% band; apex+www independent renders differing only by `/js/standard.js?v=<unix>` cache-buster; per-KK `lastchange` epochs are 2025 (max 1766419026=2025-12-22); `sessionData` all-null under stuffed jar; production debug API (7 `window.*` fns + `pseudoKkIds`) and full client-side rating engine; `dataant` = 138 questions (ids 5..246).
+  - Funnel stuffing: 7 mirror entries with divergent alias maps (`bonusrechner.php`, `_daten.php`, `_fragen.php`, `_suche.php`, `_vergleich2.php`, `_abschluss.php`, `termin.php`); lizenz→afilcode (non-HttpOnly) is bonusrechner-specific; `frab` dropped; `bonusrechner_vergleich2.php` sole emitter of `device_id` (1yr Secure HttpOnly SameSite=Lax) and force-deletes `catoint`; GET-branch closed 7/7 (no reflection).
+  - `bonusrechner_abschluss.php`: GET vs POST differential — "Account-ID nicht gefunden" only on valid form POST; lead-gated, one-shot stuffing→register chain REFUTED (prior 85→65).
+  - `kassenkompass.de/php/mark_all_read.php`: pre-auth action-router on apex+www+.net — invalid action 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}`; siblings (`mark_read`, `send_message`, `load_messages`) 46 B `Nicht angemeldet`; action param is POST-only → router is HUMAN_ONLY under read-only rules. `/php/` = 403/1233 B IIS "Access is denied".
+  - JS findings: `/js/whitelabel_live.js` (11,359 B) postMessage receiver has no `event.origin`/`event.source` check, forces `wl-active`, suppresses 5 real trust elements via `textContent` (integrity-only, NOT XSS), wildcard `targetOrigin '*'`, not loaded on bonusrechner.php; `/js/param_passthrough.js` (web1.0.1) harvests 16 params (len ≤128) → sessionStorage `kkweb_pass_params`, re-injects into same-host funnel anchors/CTAs, no host/scheme escape; `/js/live-calculation.js` (36,499 B) orphaned unsigned `data_sparsum` read (line 624 → `#resulteuro` textContent) with `setCookie` commented out (line 642), 0 egress primitives.
+  - Rejected classes confirmed: SSRF, JWT_ALG_CONFUSION, CORS (api v1/v2, `/post/`, .net, funnel), CRED_REUSE (magic `KKX3382745`, `X8372`), encoded-separator WAF/access-control bypass (byte-identical 401s), Host-header vhost misconfig (false positive, 51-byte nonce diff), wider S3 footprint (5 sibling buckets all deny ListBucket).
+  - kk-s3-01: existence oracle (200 = public object, 403 AccessDenied = absent); qid axis 1..180 (6 beyond page-refs), all n=1 byte-identical duplicates ETag `52f04d114ad9a1ab359ff47d672bbd0b` / 747,082 B / 2025-10-28; qid 60 n=2 = 1,051,319 B ETag `baa5a9…`; non-image keys all 403; `?versionId=null` → 403.
+  - kassenkompass.net: blanket 302 on every app-handled path (.php and non-.php) → no existence oracle; IIS/10.0 + PHP 8.4.3 backend; host-only cookies; 302→.de carries no params.
+
+## Work State
+### Completed
+- Full passive map of api.kassenkompass.de: 15/15 verb+auth matrix, 15+1 catalogue, v2 42-name saturation, normalization matrix (17 families), four response-envelope fingerprints, three canonicalisation oracles.
+- Full funnel map: 7 cookie-mirror entries, alias maps, 7/7 GET-branch closure, POST lead gate confirmation.
+- S3 bucket layout mapped; existence oracle and listing-posture oracle established.
+- Public-JS corpus read (standard.js 67,969 B; live-calculation.js 36,499 B; param_passthrough.js web1.0.1; whitelabel_live.js 11,359 B) with negative closure of reflection/XSS and server-side cookie-spoof chains.
+- Prior findings retired correctly: encoded-separator bypass (peer finals 90/88), HEAD route-membership methodology, Host-header false positive, `/post/` unauth-provisioning claim, one-shot stuffing→register chain.
+- Latest live cycle (2,159,139 B apex+www fragen.php, +0.022% inside ±0.3% band) re-confirmed drift-on-refresh; api root/sync/health byte-stable.
+
+### Active
+- Waiting on the source-map/embedded-secret audit of the 3 public JS bundles — the only passive route to the `X-API-Secret` and to unblocking every AUTH_HELPED final. No such audit exists anywhere in the KB despite 30+ carried cycles.
+- Standing 24h smoke on `bonusrechner_fragen.php` (drift-on-refresh model validation).
+
+### Blocked
+- All AUTH_HELPED findings blocked on `X-API-Secret`: IDOR `/user/{ext_id}` cross-user PII (62), v2 `insurance_info` BOLA (downgraded — draft-only value, publicly replicated by fragen.php `ucatKkData`), `/post/create_user` write auth (unprovable with read-only methods).
+- `kassenkompass.de/php/mark_all_read.php` is HUMAN_ONLY (action param POST-only; read-only rules forbid POST).
+- Peer pipeline produces zero signal for 25+ consecutive cycles; reposcan unavailable ("TARGET_ORG not configured").
+
+## Next Move
+1. `[NEXT] RAG`: GET (≤1 rps) `https://kassenkompass.de/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`, `/js/whitelabel_live.js` and each `.map` (`standard.js.map`, `live-calculation.js.map`, `param_passthrough.js.map`, `whitelabel_live.js.map`); grep bodies for `X-API-Secret`, `sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens.
+2. On positive secret recovery → re-verify `GET https://api.kassenkompass.de/user/1` vs `/user/2` vs `/user/999` for tenant scoping (IDOR/BOLA), with matching negative control (invalid secret).
+
+## Relevant Files
+- `state_bigpickle.json` / `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}` — peer state stubs.
+- `reports/hypotheses-nemotron3.txt`: still ranks refuted finals (encoded-separator WAF bypass @90 `/delete/{id}`, @88 `/health_insurance/`) plus a queued NEXT for the same refuted probes — do not re-emit.
+- `inventory/kassenkompass.md`: host inventory + timestamped recon log (api/www/.net/awv + `load.awv`); Live HTTP count 3.
+- `scope.yml`: in-scope definition (all company-owned infrastructure, comparison platforms, portals, APIs, websites, mobile apps, domains).
+- Public bundles (analysis targets, not local files): `kassenkompass.de/js/standard.js` (67,969 B), `/js/live-calculation.js` (36,499 B), `/js/param_passthrough.js` (web1.0.1), `/js/whitelabel_live.js` (11,359 B).
+- Key endpoints: `api.kassenkompass.de/` (1167 B catalogue), `/sync/` (67 B legacy envelope), `/health/` (22 B), `/v2/insurance_info/{kk_id}`, `/post/help` (344 B), `kassenkompass.de/bonusrechner_fragen.php` (~2.15 MB leak), `kassenkompass.de/php/mark_all_read.php`, `kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/{qid}/{n}.png`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do echo "=== $f ==="; grep -oaE "sourceMappingURL=[^ ]+|X-API-Secret|api[_-]?secret|Bearer [A-Za-z0-9._-]+|secret[\"']?\s*[:=]\s*[\"'][^\"']+" "$f" || echo "(no marker)"; done
+=== standard.js ===
+(no marker)
+=== live-calculation.js ===
+(no marker)
+=== param_passthrough.js ===
+(no marker)
+=== whitelabel_live.js ===
+(no marker)
+[0m
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do curl -s -o "$f.map" -w "%{http_code} %{size_download} $f.map\n" --max-time 20 "https://kassenkompass.de/js/$f.map"; sleep 1; done
+404 8377 standard.js.map
+404 8377 live-calculation.js.map
+404 8377 param_passthrough.js.map
+404 8377 whitelabel_live.js.map
+[0m
+[0m$ [0mcd /tmp/opencode && echo "--- api refs ---"; grep -oaE "https?://[a-z0-9.-]*kassenkompass[a-z0-9./_-]*" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | sort -u; echo "--- high-entropy tokens (>=24 chars b64/hex) ---"; grep -oaE "[A-Za-z0-9+/_-]{24,}={0,2}" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | grep -vaE "function|document|undefined|prototype|addEventListener|querySelector|createElement|textContent|application" | sort -u | head -40
+--- api refs ---
+standard.js:https://awv.kassenkompass.de
+standard.js:https://load.awv.kassenkompass.de
+--- high-entropy tokens (>=24 chars b64/hex) ---
+live-calculation.js:Monatsbeitrag-Berechnung
+live-calculation.js:Nicht-Numerisches/Negatives
+live-calculation.js:berechneKrankenkassenWert
+live-calculation.js:checkIntervalRequirements
+live-calculation.js:getAktuelleKrankenkasseId
+live-calculation.js:getCurrentDisplayedSavings
+live-calculation.js:getVerfuegbareKrankenkassen
+live-calculation.js:removeSelectedCategories
+param_passthrough.js:Fragebaum-/Direktmodus-Steuerung
+param_passthrough.js:Partner-/Kampagnen-Attribution
+standard.js:EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+standard.js:Versicherungsstatus-Ticket
+standard.js:_hjIncludedInPageviewSample
+standard.js:_hjIncludedInSessionSample
+standard.js:arbeitgeber_daten_eingabe
+standard.js:berufsgruppe_id/berufsgruppe_name
+standard.js:checkForExistingFragenElements
+standard.js:cookie-category-description
+standard.js:cookie-category-required
+standard.js:cookie-modal-btn-primary
+standard.js:cookie-modal-btn-secondary
+standard.js:createTrackingTestButton
+standard.js:createTrackingTestButtonDaten
+standard.js:createTrackingTestButtonFragen
+standard.js:debounceTrackBerufsdaten
+standard.js:debounceTrackKrankenkasse
+standard.js:initBonusrechnerAbschlussDataLayer
+standard.js:initBonusrechnerDataLayer
+standard.js:initBonusrechnerDatenDataLayer
+standard.js:initBonusrechnerFragenDataLayer
+standard.js:initBonusrechnerSucheDataLayer
+standard.js:initBonusrechnerVergleich2DataLayer
+standard.js:initBonusrechnerWechsel2DataLayer
+standard.js:initPageSpecificDataLayer
+standard.js:persoenliche_daten_eingabe
+standard.js:setupBonusrechnerDatenTracking
+standard.js:setupBonusrechnerFragenTracking
+standard.js:setupBonusrechnerTracking
+standard.js:setupGenderButtonsTracking
+standard.js:showTrackingFeedbackDaten
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oaE ".{80}EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{80}" standard.js
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oaE ".{120}EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{40}" standard.js; echo "--- try both-side-free ---"; grep -oaE "EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{120}" standard.js
+--- try both-side-free ---
+[0m
+[0m$ [0mcd /tmp/opencode && grep -abo "EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8" standard.js
+6478:EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+[0m
+[0m$ [0mcd /tmp/opencode && dd if=standard.js bs=1 skip=6300 count=360 2>/dev/null | cat -v
+==e?void 0:e.textContent}^M
+            var e=window,t=document,r="script",n="dataLayer",o="https://awv.kassenkompass.de",a="https://load.awv.kassenkompass.de",i="ahcfuvbcz",c="b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D",g="stapeUserId",v="",E="",d=!1;^M
+            try{^M
+                var d=!!g&&(m=navigator.userAgent,!!(m=new RegExp("Vers
+[0m
+[0m$ [0mcd /tmp/opencode && echo "--- secret-ish keywords ---"; grep -oaiE "(api[_-]?key|secret|token|authorization)[\"']?\s*[:=]\s*[\"'][^\"']{4,}" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | sort -u | head -30; echo "--- fetch/XHR/websocket usage ---"; grep -oaiE "fetch\(|XMLHttpRequest|WebSocket|\.send\(|axios" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | sort | uniq -c
+--- secret-ish keywords ---
+--- fetch/XHR/websocket usage ---
+[0m
+Probes complete — the decisive result this cycle. All read-only GET, ≤1 rps, 8 requests.
+
+## [DELTA]
+- Fetched the 4 public bundles: `standard.js` 67,969 B, `live-calculation.js` 37,225 B, `param_passthrough.js` 5,449 B, `whitelabel_live.js` 11,359 B.
+  - `live-calculation.js` drifted **36,499 → 37,225 B (+726 B)** vs the KB figure. New, unrecorded.
+- All 4 `.map` → **404, 8377 B** (generic 404 body). No `sourceMappingURL` in any bundle. **Source-map route closed.**
+- Zero `fetch(` / `XMLHttpRequest` / `WebSocket` / `.send(` / `axios` across all 4 bundles. Zero `api_key`/`secret`/`token`/`authorization` constants.
+- Only external hosts referenced: `awv.kassenkompass.de`, `load.awv.kassenkompass.de` → Stape server-side GTM loader. **`api.kassenkompass.de` is not called from any client bundle.**
+- Sole high-entropy candidate `EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8=` (standard.js offset 6478) resolves to the Stape loader `b=` container-config param (`stapeUserId`, `dataLayer`), **not `X-API-Secret`**.
+
+## [HYPOTHESIZE → CRITIQUE]
+- Hypothesis "public JS bundles leak or derive `X-API-Secret`": **REFUTED** on all axes — no literal, no source map, no egress primitive that would even transmit it, no client reference to the API host. Injective closure (absence across the complete bundle set + all maps).
+
+## [LEARN]
+- The last passive route to `X-API-Secret` is now exhausted. AUTH_HELPED finals (`/user/{ext_id}` IDOR, `/v2/insurance_info` BOLA, `/post/create_user` write-auth) are **unprovable under read-only rules without the program supplying the secret**. Record as terminal, do not carry another cycle.
+
+## [RISK]
+- None. Read-only, ≤1 rps, no mutating tests, no out-of-scope classes touched.
+
+## [NEXT] — decision point, stopping to confirm
+No remaining passive probe can unblock the post-auth findings. Pick one:
+1. Request `X-API-Secret` from the program (or a test credential) to finish the IDOR/BOLA verification.
+2. Finalize post-auth items as unprovable-by-POC and pivot to the unauthenticated surfaces (`bonusrechner_fragen.php` corpus, `mark_all_read.php` — still HUMAN_ONLY under read-only).
+3. Authorize a scoped POST test (only path that advances `mark_all_read.php`).
+
+Which direction?
