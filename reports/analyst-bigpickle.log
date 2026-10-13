@@ -70533,3 +70533,1001 @@ probe GET https://api.kassenkompass.de/user/1
 sleep 1
 probe GET https://api.kassenkompass.de/user/100 failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-10-13 16:28:51 UTC =====
+[0m
+> build · big-pickle
+[0m
+I'll start by examining the workspace to ground my analysis in the actual program artifacts.
+[0m$ [0mls -la; echo "---"; find . -maxdepth 2 -type d | head -50
+total 1368
+drwxr-xr-x 12 runner runner   4096 Oct 13 16:26 .
+drwxr-xr-x  3 runner runner   4096 Oct 13 16:26 ..
+drwxr-xr-x  7 runner runner   4096 Oct 13 16:26 .git
+drwxr-xr-x  3 runner runner   4096 Oct 13 16:26 .github
+-rw-r--r--  1 runner runner   1767 Oct 13 16:26 README.md
+-rw-r--r--  1 runner runner    125 Oct 13 16:26 analyst-out.txt
+-rw-r--r--  1 runner runner 602000 Oct 13 16:26 analyst-prompt.txt
+-rw-r--r--  1 runner runner 598182 Oct 13 16:26 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 leads
+-rw-r--r--  1 runner runner  97527 Oct 13 16:26 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 reports
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 13 16:26 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 scripts
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 13 16:26 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 13 16:26 triage
+---
+.
+./leads
+./.git
+./.git/objects
+./.git/refs
+./.git/hooks
+./.git/logs
+./.git/info
+./reports
+./.github
+./.github/workflows
+./recon-notes
+./scripts
+./knowledge
+./reposcan-raw
+./inventory
+./triage
+[0m
+## Objective
+- Act as senior bug-bounty analyst for KassenKompass GmbH (report channel bugs.olivermaicher.eu); run the 8-step analysis loop and emit only structured blocks ([NEW]/[CHANGED], [PRIO], [HYP], [PARKED]/[FINAL], [NEXT], [LEARN], [RISK]) from passive-first, read-only recon against scoped assets.
+
+## Important Details
+- Scope: all KassenKompass GmbH-owned infra/APIs/portals/domains; primary hosts: api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com.
+- Constraints: passive-first; ≤1 rps (2026-09-11 ~14-request burst triggered transient WAF IP-block); live probes GET/HEAD/OPTIONS only; no auth-bypass/mutating tests against live customer data; sha256 any secret; reject network-DoS, lockout-DoS, descriptive-error-only, cookie-flags-on-non-sensitive, brute-force, clickjacking-without-POC, etc.
+- Rejected-class reminders: SSRF, JWT_ALG_CONFUSION (custom X-API-Secret header, not JWT), CORS (no ACAO reflection on API, .net, or funnel), HEAD-for-route-membership (returns `content-length: 0`, omits `instance`), encoded-separator access-control bypass (encoded vs literal byte-identical → routing quirk only), "unauthenticated user provisioning" via /post/create_user (405 method-confounded by gated POST-only /cat_detail/), S3 anonymous corpus (no confidentiality impact), Host-header vhost false positive.
+- api.kassenkompass.de facts: root = 200 / 1167 B JSON catalog, 15 v1 endpoints (ver 1.0) + 1 v2 endpoint `insurance_info` (ver 2.0); cosmetic content-length drift class CL:0→absent→accurate resolved; auth map 15/15 (8 middleware A "Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt", 3 middleware B = {/user/{ext_id}, /delete/{id}, /cancel/{id}} "X-API-Secret Header fehlt", /cat_detail/ method-checked-first, 3 no-credential-check = /health/, /sync/, POST /post/); `/sync/` returns HTTP 200 + 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3); `/health/` = 200 / 22 B `{"status":"ok"}` + `x-powered-by: PHP/8.4.3`, server: cloudflare.
+- X-API-Secret is the sole auth channel (query-string AND cookie both missing-header 401 on A/B/v2); percent-decode-before-match host-wide (v1+v2), single decode level, case-sensitive; normalization matrix complete for 17 route families (0 divergences); three pre-auth canonicalisation oracles (401 `instance`, 405 `instance`, v2 404 `detail`); `/post/` closed at exactly 2 members (help 200/344 B, create_user 405 POST-only); `access-control-allow-methods` is the route-table authority, not status codes.
+- kassenkompass.de funnel: 7 stuffing mirrors (bonusrechner.php, bonusrechner_daten.php, bonusrechner_fragen.php, bonusrechner_suche.php, bonusrechner_vergleich2.php, bonusrechner_abschluss.php, termin.php) with divergent alias maps (lizenz→afilcode non-HttpOnly; jid→customerid; agn/connectionnumber→agenturnummer dual-alias duplicate; ppn→poolpartnernummer; employeenumber); 1-year unvalidated cookies.
+- `bonusrechner_fragen.php`: unauthenticated ~2.15 MB tariff corpus (drift-on-refresh model, ±0.3% band, latest 2,158,667 B), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit (100-request 1-rps sustained), www mirror identical modulo cache-buster byte; client-side rating engine (ucatKkData/globalbudgetsData/kombiboniData/dataant, pseudoKkIds=[99,100,101]); data freshness ≤2025-12-22; sessionData null under stuffed jar.
+- `bonusrechner_abschluss.php`: GET vs POST differential — "Account-ID nicht gefunden" only on valid POST; lead gate confirmed; prior 85-confidence "automated verification surface" corrected to 65 (stuffing persistence 80 real, automated chain closed).
+- `bonusrechner_vergleich2.php`: sole funnel step emitting `device_id` (1 yr Secure HttpOnly SameSite=Lax); catoint force-deleted.
+- JS findings: `/js/whitelabel_live.js` postMessage receiver no event.origin/event.source check (type-and-shape only), forces wl-active, suppresses 5 real statutory/trust elements, wildcard targetOrigin, not XSS (textContent + allowlists); `/js/param_passthrough.js` 16 params → sessionStorage kkweb_pass_params re-injected into same-host anchors/onclick, not loaded on bonusrechner.php; `/js/live-calculation.js` orphaned data_sparsum read/write asymmetry (setCookie commented at line 642).
+- `kassenkompass.de/php/mark_all_read.php`: pre-auth action router (59 B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated vs 46 B `"Nicht angemeldet"`), reachable apex+www+.net; 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "valid action → 46 B" claim REJECTED (never observed).
+- kk-s3-01: existence oracle (200 present / 403 absent), qid 1..180 (6 beyond page refs, duplicates ETag 52f04d11…, 747,082 B), n-dimension extends (qid 60 n=2 = 1,051,319 B, ETag baa5a9…), non-image keys 403, `?versionId=null` → 403; 5 sibling buckets (kk-assets/kk-uploads/kk-backup/kk-images/kk-docs) all deny ListBucket, unattributed → HUMAN gate.
+- Pipeline: peer leads header-only/stub for 25+ consecutive triage cycles (observability gap, zero signal); reposcan "TARGET_ORG not configured; skipping"; standing scores ~ api 7.30, S3 6.50, fragen 5.60, whitelabel 4.55; risk ~85-91.
+- Target drifted little since 2026-09-07: API catalog, v2 (42-name enumeration saturated), 7 funnel mirrors, auth map 15/15 all drift-free.
+
+## Work State
+### Completed
+- api.kassenkompass.de fully mapped: 15/15 verb+auth matrix, middleware A/B split, /sync/ legacy 200-envelope, /health/ sole unprotected route, v2 single-route + saturation, /post/ app isolation, percent-decode/canonicalisation oracle, greedy prefix + suffix absorption on /health_insurance/ (only PUT+DELETE-concealing cell).
+- kassenkompass.de funnel: 7 mirrors + divergent alias maps, cookie attribute asymmetry, GET-branch closed 7/7 (no HTML reflection), `frab`/`lizzen` corrections (afilcode param is `lizenz`), duplicate Set-Cookie classes, parser differential .de vs .net negative.
+- kassenkompass.net: canonical IIS/10.0 + PHP 8.4.3 backend, blanket 302 (no existence oracle), host-only cookies, CRLF injection impossible, parser differential negative.
+- Static JS corpus read: whitelabel_live.js, param_passthrough.js, live-calculation.js findings above; xss/api-reflection closed (no fetch sinks in client JS).
+- S3 kk-s3-01 existence oracle + axis enumeration; sibling-bucket sweep negative.
+- php/ namespace: pre-auth action router, 4 handlers, IIS 403 origin confirmation.
+- All standing smoke checks: bonusrechner_fragen.php 200/2.15 MB apex+www; API root 1167 B; /sync/ 67 B; auth map drift-free.
+
+### Active
+- Phase POC, target api (MY STATE: `{"phase": "POC", "target": "api"}`).
+- Open threads: PII IDOR on `/user/{ext_id}` and destructive IDOR on `/delete/{id}` — both AUTH_HELPED (need valid X-API-Secret + negative control); no drift window currently due for re-probes.
+- Peer-lead dependency remains zero-signal; single-writer depth is the working strategy.
+
+### Blocked
+- AUTH_HELPED hypotheses unverifiable passively: /user/{ext_id} cross-user PII read; /delete/{id} unauthorized deletion; /post/create_user write auth.
+- Destructive-verb reachability on `/health_insurance/` (PUT/DELETE): reachability proven, authorization not asserted; needs credential or HUMAN gate.
+- S3 sibling-bucket ownership attribution: HUMAN gate, not probe gate.
+- Triage/peer pipeline observability gap persists (25+ empty cycles).
+
+## Next Move
+1. `[NEXT] RAG`: read complete whitelabel_live.js + live-calculation.js + param_passthrough.js offline to map remaining client-side sinks/consumers — highest leverage per prior sessions vs. live sweeps.
+2. `[NEXT] PROBE` only when a rotation window opens (≈24 h since last fragen measurement): single ≥1 rps GET `https://kassenkompass.de/bonusrechner_fragen.php` and `https://www.kassenkompass.de/bonusrechner_fragen.php`, compare length vs 2,158,667 B ±0.3%; no other live probing until window due.
+
+## Relevant Files
+- inventory/kassenkompass.md: cumulative inventory + dated recon entries (hosts, funnel mirrors, S3, awv, php/ namespace).
+- reports/hypotheses-nemotron3.txt: peer ledger; still ranks refuted finals (encoded-separator WAF bypass @90 /delete/{id}, @88 /health_insurance/) and queues stale encoded-separator probe — do not re-emit.
+- probe-results.md: raw probe log tail (approximate; referenced for 18:50 09-12 batch and 17:03 09-28 harness artifact).
+- scope.yml: authoritative in-scope asset list.
+- state_bigpickle.json / state_nemotron3.json: both `{"phase": "POC", "target": "api"}`.
+- api.kassenkompass.de/: root (1167 B catalog), /sync/, /health/, /post/, /user/{ext_id}, /delete/{id}, /cancel/{id}, /cat_detail/, /health_insurance/, /v2/insurance_info/{kk_id}.
+- kassenkompass.de/bonusrechner_fragen.php (+ /js/whitelabel_live.js, /js/param_passthrough.js, /js/live-calculation.js, /php/mark_all_read.php).
+- kk-s3-01.s3.eu-central-1.amazonaws.com: public image corpus + existence oracle.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m→ [0mRead analyst-out.txt
+[0m→ [0mRead README.md
+[0m
+[0m$ [0mecho "=== state_bigpickle ==="; cat state_bigpickle.json; echo; echo "=== all states ==="; for f in state_*.json; do echo -n "$f: "; cat "$f"; echo; done; echo "=== scripts ==="; ls -la scripts; echo "=== knowledge ==="; ls -la knowledge; echo "=== leads ==="; ls -la leads; echo "=== reports ==="; ls -la reports; echo "=== recon-notes ==="; ls -la recon-notes
+=== state_bigpickle ===
+{"phase": "POC", "target": "api"}
+=== all states ===
+state_bigpickle.json: {"phase": "POC", "target": "api"}
+state_laguna.json: {"phase": "POC", "target": "api"}
+state_ling3.json: {"phase": "POC", "target": "api"}
+state_longcat.json: {"phase": "POC", "target": "api"}
+state_mimo.json: {"phase": "POC", "target": "api"}
+state_nemotron3.json: {"phase": "POC", "target": "api"}
+=== scripts ===
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner  4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner 16987 Oct 13 16:26 sync-issues.py
+=== knowledge ===
+total 348
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner   4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner 346675 Oct 13 16:26 index.md
+=== leads ===
+total 4244
+drwxr-xr-x  2 runner runner    4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner    4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner 1782297 Oct 13 16:26 lead-bigpickle.md
+-rw-r--r--  1 runner runner   11577 Oct 13 16:26 lead-laguna.md
+-rw-r--r--  1 runner runner   11350 Oct 13 16:26 lead-ling3.md
+-rw-r--r--  1 runner runner   11804 Oct 13 16:26 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct 13 16:26 lead-mimo.md
+-rw-r--r--  1 runner runner 2473505 Oct 13 16:26 lead-nemotron3.md
+-rw-r--r--  1 runner runner   33838 Oct 13 16:26 reposcan-kassenkompass.md
+=== reports ===
+total 10196
+drwxr-xr-x  2 runner runner    4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner    4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner 6118912 Oct 13 16:26 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   49259 Oct 13 16:26 analyst-laguna.log
+-rw-r--r--  1 runner runner   49032 Oct 13 16:26 analyst-ling3.log
+-rw-r--r--  1 runner runner   49486 Oct 13 16:26 analyst-longcat.log
+-rw-r--r--  1 runner runner 3276135 Oct 13 16:26 analyst-nemotron3.log
+-rw-r--r--  1 runner runner   57869 Oct 13 16:26 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 13 16:26 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 13 16:26 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 13 16:26 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   14128 Oct 13 16:26 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  856239 Oct 13 16:26 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Oct 13 16:26 valid-bugs.md
+=== recon-notes ===
+total 12
+drwxr-xr-x  2 runner runner 4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner 4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner  828 Oct 13 16:26 DEDICATED-DEEP.md
+[0m
+[0m→ [0mRead scope.yml
+[0m→ [0mRead reports/valid-bugs.md
+[0m→ [0mRead recon-notes/DEDICATED-DEEP.md
+[0m
+[0m$ [0mecho "=== triage listing ==="; ls -la triage | head -60; echo "=== triage count ==="; ls triage | wc -l; echo "=== inventory ==="; ls -la inventory; echo "=== reposcan-raw ==="; ls -la reposcan-raw; echo "=== .github/workflows ==="; ls -la .github/workflows
+=== triage listing ===
+total 1092
+drwxr-xr-x  2 runner runner 16384 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner  4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner     0 Oct 13 16:26 .gitkeep
+-rw-r--r--  1 runner runner   212 Oct 13 16:26 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Oct 13 16:26 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Oct 13 16:26 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Oct 13 16:26 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Oct 13 16:26 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Oct 13 16:26 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Oct 13 16:26 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Oct 13 16:26 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Oct 13 16:26 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Oct 13 16:26 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Oct 13 16:26 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Oct 13 16:26 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Oct 13 16:26 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Oct 13 16:26 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Oct 13 16:26 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Oct 13 16:26 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Oct 13 16:26 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Oct 13 16:26 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Oct 13 16:26 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Oct 13 16:26 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Oct 13 16:26 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Oct 13 16:26 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Oct 13 16:26 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Oct 13 16:26 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Oct 13 16:26 run-2026-09-05-22-41.md
+-rw-r--r--  1 runner runner   888 Oct 13 16:26 run-2026-09-06-00-38.md
+-rw-r--r--  1 runner runner 15500 Oct 13 16:26 run-2026-09-06-05-06.md
+-rw-r--r--  1 runner runner   219 Oct 13 16:26 run-2026-09-06-09-30.md
+-rw-r--r--  1 runner runner   310 Oct 13 16:26 run-2026-09-06-13-06.md
+-rw-r--r--  1 runner runner   237 Oct 13 16:26 run-2026-09-06-16-20.md
+-rw-r--r--  1 runner runner   208 Oct 13 16:26 run-2026-09-06-18-25.md
+-rw-r--r--  1 runner runner   149 Oct 13 16:26 run-2026-09-06-20-48.md
+-rw-r--r--  1 runner runner   232 Oct 13 16:26 run-2026-09-06-22-44.md
+-rw-r--r--  1 runner runner  1088 Oct 13 16:26 run-2026-09-07-00-43.md
+-rw-r--r--  1 runner runner   172 Oct 13 16:26 run-2026-09-07-05-44.md
+-rw-r--r--  1 runner runner   189 Oct 13 16:26 run-2026-09-07-11-45.md
+-rw-r--r--  1 runner runner   229 Oct 13 16:26 run-2026-09-07-17-23.md
+-rw-r--r--  1 runner runner   221 Oct 13 16:26 run-2026-09-07-20-46.md
+-rw-r--r--  1 runner runner 11019 Oct 13 16:26 run-2026-09-07-23-19.md
+-rw-r--r--  1 runner runner   162 Oct 13 16:26 run-2026-09-08-01-15.md
+-rw-r--r--  1 runner runner  1005 Oct 13 16:26 run-2026-09-08-06-01.md
+-rw-r--r--  1 runner runner   218 Oct 13 16:26 run-2026-09-08-11-27.md
+-rw-r--r--  1 runner runner   155 Oct 13 16:26 run-2026-09-08-15-18.md
+-rw-r--r--  1 runner runner   165 Oct 13 16:26 run-2026-09-08-18-48.md
+-rw-r--r--  1 runner runner 13734 Oct 13 16:26 run-2026-09-08-21-38.md
+-rw-r--r--  1 runner runner   215 Oct 13 16:26 run-2026-09-08-23-39.md
+-rw-r--r--  1 runner runner   386 Oct 13 16:26 run-2026-09-09-01-32.md
+-rw-r--r--  1 runner runner   143 Oct 13 16:26 run-2026-09-09-06-39.md
+-rw-r--r--  1 runner runner   259 Oct 13 16:26 run-2026-09-09-11-52.md
+-rw-r--r--  1 runner runner   147 Oct 13 16:26 run-2026-09-09-16-02.md
+-rw-r--r--  1 runner runner   194 Oct 13 16:26 run-2026-09-09-19-19.md
+-rw-r--r--  1 runner runner   201 Oct 13 16:26 run-2026-09-09-21-46.md
+-rw-r--r--  1 runner runner  5059 Oct 13 16:26 run-2026-09-09-23-51.md
+-rw-r--r--  1 runner runner   182 Oct 13 16:26 run-2026-09-10-03-25.md
+-rw-r--r--  1 runner runner 13289 Oct 13 16:26 run-2026-09-10-08-24.md
+-rw-r--r--  1 runner runner   852 Oct 13 16:26 run-2026-09-10-13-06.md
+=== triage count ===
+237
+=== inventory ===
+total 240
+drwxr-xr-x  2 runner runner   4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner   4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner 236583 Oct 13 16:26 kassenkompass.md
+=== reposcan-raw ===
+total 12
+drwxr-xr-x  2 runner runner 4096 Oct 13 16:26 .
+drwxr-xr-x 12 runner runner 4096 Oct 13 16:26 ..
+-rw-r--r--  1 runner runner   76 Oct 13 16:26 summary.txt
+=== .github/workflows ===
+total 44
+drwxr-xr-x 2 runner runner  4096 Oct 13 16:26 .
+drwxr-xr-x 3 runner runner  4096 Oct 13 16:26 ..
+-rw-r--r-- 1 runner runner 14325 Oct 13 16:26 hunt.yml
+-rw-r--r-- 1 runner runner  5398 Oct 13 16:26 reposcan.yml
+-rw-r--r-- 1 runner runner  1032 Oct 13 16:26 sync-issues.yml
+-rw-r--r-- 1 runner runner  6520 Oct 13 16:26 triage.yml
+[0m
+[0m→ [0mRead .github/workflows/hunt.yml
+[0m
+[0m$ [0mecho "=== latest triage files ==="; ls -t triage/*.md | head -8 | while read f; do echo "===== $f ====="; cat "$f"; echo; done
+=== latest triage files ===
+===== triage/run-2026-10-08-13-42.md =====
+
+===== TRIAGE 2026-10-08 13:42:47 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_fff718df"
+  }
+}
+
+===== triage/run-2026-10-08-19-41.md =====
+
+===== TRIAGE 2026-10-08 19:41:34 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_da0ae23b"
+  }
+}
+
+===== triage/run-2026-10-09-00-09.md =====
+
+===== TRIAGE 2026-10-09 00:09:47 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_12670579"
+  }
+}
+
+===== triage/run-2026-10-09-06-19.md =====
+
+===== TRIAGE 2026-10-09 06:19:00 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_e497a4e6"
+  }
+}
+
+===== triage/run-2026-10-09-13-30.md =====
+
+===== TRIAGE 2026-10-09 13:30:05 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_d0663b03"
+  }
+}
+
+===== triage/run-2026-10-09-18-58.md =====
+
+===== TRIAGE 2026-10-09 18:58:51 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_d8690f9b"
+  }
+}
+
+===== triage/run-2026-10-09-23-09.md =====
+
+===== TRIAGE 2026-10-09 23:09:08 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_8fe6c801"
+  }
+}
+
+===== triage/run-2026-10-10-02-24.md =====
+
+===== TRIAGE 2026-10-10 02:24:46 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_d0054fa1"
+  }
+}
+[0m
+[0m$ [0mecho "=== git log ==="; git log --oneline -15; echo; echo "=== lead-bigpickle tail ==="; tail -80 leads/lead-bigpickle.md; echo; echo "=== lead-mimo ==="; cat leads/lead-mimo.md
+=== git log ===
+69597f9 triage 2026-10-13-16-25
+
+=== lead-bigpickle tail ===
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transported as 2xx on legacy path
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edge conditions; percent-decode-before-match is routing normalization quirk, not access-control/WAF bypass
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounded; GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1, non-image keys 403). Existence oracle established but impact insufficient
+[LEARN] ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method-override ignored on /post app; GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+[LEARN] ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); single-level decode only (double-encode fails); unauthenticated envelopes also normalize
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; suppresses 5 real statutory/trust elements via textContent (integrity-only, not XSS); wildcard targetOrigin '*'; not loaded on bonusrechner.php
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-images, kk-docs) but all deny s3:ListBucket (403 on nonexistent-key probes, zero content returned) and none is referenced by any in-scope asset, DNS record or public source → no anonymous enumeration path exists; ownership attribution is a HUMAN gate, not a probe gate
+[LEARN] ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distinguishes from 404 NoSuchBucket); `s3:ListBucket` posture is readable without touching content via HEAD/GET of a nonexistent key (403 = private listing, 404 NoSuchKey = public listing)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.30 and /post/create_user 6.75→6.55; all other stored scores reproduce exactly. Priority must always be re-derived from emitted axes
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on the legacy envelope or catalog since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; no-store+CF-DYNAMIC, no ETag/Last-Modified, unauthenticated
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy auth-envelope byte-frozen since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.15MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+verify_steps: PASSIVE: None - requires API secret (auth_helped). WITH AUTH: GET /user/1, GET /user/2, GET /user/3 with valid X-API-Secret header; compare response bodies for different users.
+impact: Attacker with valid API secret reads any user's personal data (PII: name, insurance, email, address). Severity: HIGH (GDPR-relevant PII breach).
+testability: AUTH_HELPED
+[HYP] IDOR on /delete/{id} - unauthorized user data deletion
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 55
+reasoning: DELETE /delete/{id} accepts numeric id parameter, described as "Benutzerdaten löschen" (delete user data). Same X-API-Secret auth as other endpoints. If auth is a global key, any caller can delete any user's data. This is a destructive endpoint without apparent ownership verification.
+evidence_needed: Response from DELETE /delete/{id} with different id values under a valid API secret; confirm 200/204 vs 403/404 for different users.
+verify_steps: WITH AUTH: DELETE /delete/1 with valid X-API-Secret; observe status code and body. Repeat with sequential ids.
+impact: Attacker with valid API secret mass-deletes user accounts/data. Severity: HIGH (data integrity destruction).
+testability: AUTH_HELPED
+[HYP] Unauthenticated API documentation disclosure at catch-all routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 88
+reasoning: Any path on api.kassenkompass.de returns the full API documentation JSON including endpoint map, descriptions, version info, and auth requirements — no auth needed. Paths tested: /, /admin/, /debug/, /docs/, /swagger/, /openapi.json, /api/, /robots.txt. The catch-all route handler returns the same JSON regardless of path. This reveals the full API surface to any unauthenticated scanner.
+evidence_needed: Already confirmed via GET /api.kassenkompass.de/ (returns full endpoint map).
+verify_steps: PASSIVE: GET /nonexistent-path-12345 — confirm same JSON response. Done.
+impact: Attacker maps complete API surface without auth, enabling targeted attacks on /user/{ext_id}, /delete/{id}, /cancel/{id}. Severity: LOW-MEDIUM (information disclosure enabling further attack).
+testability: PASSIVE
+[FINAL] 1. Unauthenticated API docs disclosure (MISCONFIG, 88)
+[FINAL] 2. IDOR on /user/{ext_id} (IDOR, 62)
+[FINAL] 3. IDOR on /delete/{id} (IDOR, 55)
+[NEXT] PROBE: GET https://api.kassenkompass.de/user/1 with no auth header — confirm whether /user/{ext_id} returns data or clean 401 (the sync endpoint returned a structured JSON error `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` so different endpoints may have different unauth behavior). Then GET https://api.kassenkompass.de/user/100 to compare.
+[RISK] kassenkompass: 35/100. API auth gate limits passive-only findings; no public source code for deeper analysis; Cloudflare WAF fronting adds defense layer. Main value is in auth-helped IDOR testing on api.kassenkompass.de.
+[NEW] `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+[NEW] `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+[NEW] All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+[NEW] Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+[NEW] `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+[NEW] No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+[CHANGED] API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+[PRIO] api.kassenkompass.de,8.85,attack_surface=9 business_value=10 tech_exposure=10 cloud_surface=4 gate_ease=8 freshness=9
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[PRIO] www.kassenkompass.de,5.15,attack_surface=5 business_value=6 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[HYP] IDOR on /user/{ext_id} - cross-user PII access
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+reasoning: GET /user/{ext_id} accepts ext_id path parameter, described as "Userdaten abrufen" (retrieve user data). Endpoint requires X-API-Secret but no indication of user-scoping or ownership check within the secret's authorization boundary. If the API secret is a global/shared key (common in MVP APIs), any valid secret could query any user by ext_id. The ext_id naming (external ID) suggests an incrementing or enumerable identifier from a connected system. Unauth test returned 401 (confirmed auth gate), but auth boundary is unknown without valid key.
+evidence_needed: HTTP response body from GET /user/{ext_id} with sequential ext_id values (1,2,3...) under a valid API secret to confirm PII exposure across users.
+verify_steps: PASSIVE: None - requires API secret (auth_helped). WITH AUTH: GET /user/1, GET /user/2, GET /user/3 with valid X-API-Secret header; compare response bodies for different users.
+impact: Attacker with valid API secret reads any user's personal data (PII: name, insurance, email, address). Severity: HIGH (GDPR-relevant PII breach).
+testability: AUTH_HELPED
+[HYP] Missing CSRF tokens on all login and password-reset forms enable session fixation via cross-site request
+class: AUTH
+asset: kassenkompass.de
+confidence: 65
+reasoning: All four forms (/login_kd.php, /login_kk.php, /login_partner.php, /pw_reset_partner.php) use POST with no CSRF token in the form body or as a cookie-based token. An attacker can craft a page that auto-submits a POST with victim's email/password if they can intercept credentials via a MITM on the same origin (no SameSite on cookies is unconfirmed). The "Eingeloggt bleiben" (remember me) checkbox on customer and partner logins increases session persistence risk. The client-side-only validation (email length >= 3) provides no server-side CSRF mitigation.
+evidence_needed: Confirm Set-Cookie lacks SameSite attribute on login response; confirm session cookie is not HttpOnly; test if POST /login_kd.php from cross-origin accepts valid credentials.
+verify_steps: PASSIVE: Already confirmed no CSRF token in form HTML. WITH AUTH: POST login_kd.php with valid credentials and observe Set-Cookie headers; check SameSite attribute.
+impact: Attacker tricks victim into visiting a page that auto-submits login form, potentially performing account takeover or session fixation. Severity: MEDIUM (requires social engineering but enables credential theft).
+testability: AUTH_HELPED
+[HYP] Unprotected API documentation disclosure at catch-all routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+[CHANGED] none
+[NEW] /post-app auth-ordering differential (HEAD, controlled set):
+
+=== lead-mimo ===
+# Lead log (seed)
+[0m
+[0m→ [0mRead reports/hypotheses-nemotron3.txt
+[0m
+[0m$ [0mecho "=== lead-bigpickle last 130 lines ==="; tail -130 leads/lead-bigpickle.md; echo; echo "=== lead file line count ==="; wc -l leads/lead-bigpickle.md
+=== lead-bigpickle last 130 lines ===
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.15MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[PRIO] api.kassenkompass.de/user/{ext_id},7.30,attack_surface=8,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},7.15,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,6.35,attack_surface=9,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=7,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=5,freshness=6
+[PRIO] kassenkompass.de/php/mark_all_read.php,5.80,attack_surface=6,business_value=7,tech_exposure=5,gate_ease=10,cloud_surface=5,freshness=8
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] IDOR on /user/{ext_id} — Cross-User PII Access
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: /user/{ext_id} uses middleware B ("Ungültiger X-API-Secret" + instance echo) distinct from middleware A used by 8 other endpoints; middleware B = kk_webapp-delegation stack {user, cancel}; greedy segment match on /user/ (empty segment routes to B); no tenant scoping proven on resolved ext_id; catalog documents GET /user/{ext_id}
+evidence_needed: Valid X-API-Secret to test cross-ext_id access; or proof middleware B enforces tenant scoping on resolved ext_id
+verify_steps: GET https://api.kassenkompass.de/user/1 (401 baseline); GET https://api.kassenkompass.de/user/999 (401); GET https://api.kassenkompass.de/user/1/extra (401, instance: "/user/1/extra"); requires AUTH_HELPED for cross-tenant test with valid secret
+impact: If middleware B lacks tenant scoping → cross-user PII read (customer data, insurance info); HIGH
+testability: AUTH_HELPED
+[HYP] v2 Insurance Info BOLA — Cross-Tenant Draft Data Read
+class: IDOR
+asset: api.kassenkompass.de/v2/insurance_info/{kk_id}
+confidence: 60
+reasoning: v2 returns draft categories + resolved references (widest per-request data surface); ucatKkData on bonusrechner_fragen.php publicly replicates this domain — value downgraded to unpublished-draft-only; greedy segment match confirmed (/v2/insurance_info/1/extra → 401 middleware A); kk_id not validated at routing; percent-decode-before-match host-wide; no credentialed access to confirm tenant scoping in middleware A; v2 enumeration saturated at 42 names
+evidence_needed: Valid X-API-Secret to test cross-tenant kk_id access; or proof middleware A enforces tenant scoping on resolved kk_id
+verify_steps: GET https://api.kassenkompass.de/v2/insurance_info/1 (401 baseline); GET https://api.kassenkompass.de/v2/insurance_info/999 (401); GET https://api.kassenkompass.de/v2/insurance_info/1/extra (401, instance: "/v2/insurance_info/1/extra"); requires AUTH_HELPED for cross-tenant test with valid secret
+impact: If middleware A lacks tenant scoping → cross-tenant draft insurance data read; MEDIUM (draft data only, live data publicly replicated)
+testability: AUTH_HELPED
+[HYP] Pre-Auth Action Router — Unauthenticated State Mutation via /php/mark_all_read.php
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 55
+reasoning: Action parameter evaluated before session check — unauthenticated invalid action returns 59 B "Ungültige Action", valid action returns 46 B "Nicht angemeldet" (pre-auth differential); 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); IIS origin behind ALB; action param POST-only (GET 0-differential); reachable identically on apex/www/net
+evidence_needed: Discovery of valid action name that reaches session check without auth; or proof all action values fail pre-auth validation
+verify_steps: POST https://kassenkompass.de/php/mark_all_read.php action=mark_all_read (46 B "Nicht angemeldet" expected); POST https://kassenkompass.de/php/mark_all_read.php action=invalid (59 B "Ungültige Action" confirmed); enumerate action values via wordlist (PASSIVE ≤1 rps)
+impact: If valid action reaches session logic pre-auth → unauthenticated state modification (message read marking, send_message); MEDIUM
+testability: PASSIVE
+[PARKED] Unauthenticated User Provisioning via /post/create_user: confidence 50 but AUTH_HELPED only — cannot verify without valid X-API-Secret; passive read-only methods method-confounded by /cat_detail/ 405; parked until credentialed test possible
+[PARKED] Encoded Separator + Suffix Absorption Access-Control Bypass: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed; routing quirk real, access-control bypass unproven
+[PARKED] CORS-based postMessage Exploit via whitelabel_live.js: guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified; integrity-only suppression of 5 trust elements measured, not XSS
+[PARKED] Client-side Cookie Stuffing → data_sparsum Forgery via live-calculation.js: orphaned read/write asymmetry confirmed (reads data_sparsum from cookie, adds to savings display, setCookie commented out), but param_passthrough.js PASS_PARAMS excludes data_sparsum; no param-to-that-cookie mapping exists
+[PARKED] S3 Bucket Anonymous Enumeration via qid Axis: qid 1..180 confirmed, all byte-identical duplicates (questionnaire PNGs); no confidentiality impact demonstrated; non-image keys 403; listing AccessDenied; LOW impact
+[FINAL] 1. api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access (confidence 62, AUTH_HELPED)
+[FINAL] 2. api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read (confidence 60, AUTH_HELPED)
+[FINAL] 3. kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Unauthenticated State Mutation (confidence 55, PASSIVE)
+[NEXT] PROBE: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid actions at ≤1 rps to confirm pre-auth differential reaches session check
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B "Ungültige Action"; the recorded POST success response was never observed
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2 handlers" corrected
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167B catalog, /sync/ 67B, /health/ 22B, /v2/insurance_info/1 401/236B, fragen 2,158,671B)
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps; payload drift within ±0.3% band (model fit), data freshness ≤2025-12-22; www mirror identical; sessionData null under stuffed jar
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transported as 2xx on legacy path
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edge conditions; percent-decode-before-match is routing normalization quirk, not access-control/WAF bypass
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounded; GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1, non-image keys 403). Existence oracle established but impact insufficient
+[LEARN] ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method-override ignored on /post app; GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+[LEARN] ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); single-level decode only (double-encode fails); unauthenticated envelopes also normalize
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; suppresses 5 real statutory/trust elements via textContent (integrity-only, not XSS); wildcard targetOrigin '*'; not loaded on bonusrechner.php
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-images, kk-docs) but all deny s3:ListBucket (403 on nonexistent-key probes, zero content returned) and none is referenced by any in-scope asset, DNS record or public source → no anonymous enumeration path exists; ownership attribution is a HUMAN gate, not a probe gate
+[LEARN] ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distinguishes from 404 NoSuchBucket); `s3:ListBucket` posture is readable without touching content via HEAD/GET of a nonexistent key (403 = private listing, 404 NoSuchKey = public listing)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.30 and /post/create_user 6.75→6.55; all other stored scores reproduce exactly. Priority must always be re-derived from emitted axes
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on the legacy envelope or catalog since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; no-store+CF-DYNAMIC, no ETag/Last-Modified, unauthenticated
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy auth-envelope byte-frozen since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.15MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+verify_steps: PASSIVE: None - requires API secret (auth_helped). WITH AUTH: GET /user/1, GET /user/2, GET /user/3 with valid X-API-Secret header; compare response bodies for different users.
+impact: Attacker with valid API secret reads any user's personal data (PII: name, insurance, email, address). Severity: HIGH (GDPR-relevant PII breach).
+testability: AUTH_HELPED
+[HYP] IDOR on /delete/{id} - unauthorized user data deletion
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 55
+reasoning: DELETE /delete/{id} accepts numeric id parameter, described as "Benutzerdaten löschen" (delete user data). Same X-API-Secret auth as other endpoints. If auth is a global key, any caller can delete any user's data. This is a destructive endpoint without apparent ownership verification.
+evidence_needed: Response from DELETE /delete/{id} with different id values under a valid API secret; confirm 200/204 vs 403/404 for different users.
+verify_steps: WITH AUTH: DELETE /delete/1 with valid X-API-Secret; observe status code and body. Repeat with sequential ids.
+impact: Attacker with valid API secret mass-deletes user accounts/data. Severity: HIGH (data integrity destruction).
+testability: AUTH_HELPED
+[HYP] Unauthenticated API documentation disclosure at catch-all routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+confidence: 88
+reasoning: Any path on api.kassenkompass.de returns the full API documentation JSON including endpoint map, descriptions, version info, and auth requirements — no auth needed. Paths tested: /, /admin/, /debug/, /docs/, /swagger/, /openapi.json, /api/, /robots.txt. The catch-all route handler returns the same JSON regardless of path. This reveals the full API surface to any unauthenticated scanner.
+evidence_needed: Already confirmed via GET /api.kassenkompass.de/ (returns full endpoint map).
+verify_steps: PASSIVE: GET /nonexistent-path-12345 — confirm same JSON response. Done.
+impact: Attacker maps complete API surface without auth, enabling targeted attacks on /user/{ext_id}, /delete/{id}, /cancel/{id}. Severity: LOW-MEDIUM (information disclosure enabling further attack).
+testability: PASSIVE
+[FINAL] 1. Unauthenticated API docs disclosure (MISCONFIG, 88)
+[FINAL] 2. IDOR on /user/{ext_id} (IDOR, 62)
+[FINAL] 3. IDOR on /delete/{id} (IDOR, 55)
+[NEXT] PROBE: GET https://api.kassenkompass.de/user/1 with no auth header — confirm whether /user/{ext_id} returns data or clean 401 (the sync endpoint returned a structured JSON error `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` so different endpoints may have different unauth behavior). Then GET https://api.kassenkompass.de/user/100 to compare.
+[RISK] kassenkompass: 35/100. API auth gate limits passive-only findings; no public source code for deeper analysis; Cloudflare WAF fronting adds defense layer. Main value is in auth-helped IDOR testing on api.kassenkompass.de.
+[NEW] `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+[NEW] `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+[NEW] All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+[NEW] Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+[NEW] `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+[NEW] No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+[CHANGED] API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+[PRIO] api.kassenkompass.de,8.85,attack_surface=9 business_value=10 tech_exposure=10 cloud_surface=4 gate_ease=8 freshness=9
+[PRIO] kassenkompass.de,5.55,attack_surface=5 business_value=8 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[PRIO] www.kassenkompass.de,5.15,attack_surface=5 business_value=6 tech_exposure=3 cloud_surface=2 gate_ease=8 freshness=8
+[HYP] IDOR on /user/{ext_id} - cross-user PII access
+class: IDOR
+asset: api.kassenkompass.de
+confidence: 62
+reasoning: GET /user/{ext_id} accepts ext_id path parameter, described as "Userdaten abrufen" (retrieve user data). Endpoint requires X-API-Secret but no indication of user-scoping or ownership check within the secret's authorization boundary. If the API secret is a global/shared key (common in MVP APIs), any valid secret could query any user by ext_id. The ext_id naming (external ID) suggests an incrementing or enumerable identifier from a connected system. Unauth test returned 401 (confirmed auth gate), but auth boundary is unknown without valid key.
+evidence_needed: HTTP response body from GET /user/{ext_id} with sequential ext_id values (1,2,3...) under a valid API secret to confirm PII exposure across users.
+verify_steps: PASSIVE: None - requires API secret (auth_helped). WITH AUTH: GET /user/1, GET /user/2, GET /user/3 with valid X-API-Secret header; compare response bodies for different users.
+impact: Attacker with valid API secret reads any user's personal data (PII: name, insurance, email, address). Severity: HIGH (GDPR-relevant PII breach).
+testability: AUTH_HELPED
+[HYP] Missing CSRF tokens on all login and password-reset forms enable session fixation via cross-site request
+class: AUTH
+asset: kassenkompass.de
+confidence: 65
+reasoning: All four forms (/login_kd.php, /login_kk.php, /login_partner.php, /pw_reset_partner.php) use POST with no CSRF token in the form body or as a cookie-based token. An attacker can craft a page that auto-submits a POST with victim's email/password if they can intercept credentials via a MITM on the same origin (no SameSite on cookies is unconfirmed). The "Eingeloggt bleiben" (remember me) checkbox on customer and partner logins increases session persistence risk. The client-side-only validation (email length >= 3) provides no server-side CSRF mitigation.
+evidence_needed: Confirm Set-Cookie lacks SameSite attribute on login response; confirm session cookie is not HttpOnly; test if POST /login_kd.php from cross-origin accepts valid credentials.
+verify_steps: PASSIVE: Already confirmed no CSRF token in form HTML. WITH AUTH: POST login_kd.php with valid credentials and observe Set-Cookie headers; check SameSite attribute.
+impact: Attacker tricks victim into visiting a page that auto-submits login form, potentially performing account takeover or session fixation. Severity: MEDIUM (requires social engineering but enables credential theft).
+testability: AUTH_HELPED
+[HYP] Unprotected API documentation disclosure at catch-all routes
+class: MISCONFIG
+asset: api.kassenkompass.de
+[CHANGED] none
+[NEW] /post-app auth-ordering differential (HEAD, controlled set):
+
+=== lead file line count ===
+10605 leads/lead-bigpickle.md
+[0m
+[0m$ [0mecho "=== inventory: awv / sgtm / load ==="; grep -niE 'awv|sgtm|server-side|gtm|load\.' inventory/kassenkompass.md | tail -40; echo; echo "=== inventory last 40 lines ==="; tail -40 inventory/kassenkompass.md
+=== inventory: awv / sgtm / load ===
+343:- CHANGED awv.kassenkompass.de: "GTM proxy" label superseded by SGTM (server-side GTM via Stape)
+350:- NEW awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+353:- NEW kassenkompass.de: Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+359:- CHANGED awv.kassenkompass.de: "GTM proxy" label superseded by SGTM (server-side GTM via Stape)
+366:- NEW awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+369:- NEW kassenkompass.de: Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+375:- CHANGED awv.kassenkompass.de: "GTM proxy" label superseded by SGTM (server-side GTM via Stape)
+385:- NEW awv.kassenkompass.de root returns 404 (not 400) with no body — SGTM container confirmed via Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid; 
+397:- NEW awv.kassenkompass.de root confirmed 404 (not 400) with SGTM container fully characterized (Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid)
+444:- CHANGED Current date 2026-09-10 11:58 UTC vs last KB probe entry 2026-09-09 23:35 UTC — ~12h gap since last automated probes; potential ephemeral changes (deployments, WAF rules, SGTM container updates) not c
+511:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+518:- NEW ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+524:- NEW ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+535:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+542:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+549:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+554:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+562:- CHANGED ~24h gap since last automated probes (2026-09-11 22:29 UTC → 2026-09-12) — potential ephemeral changes (deployments, WAF rules, SGTM container updates) not captured
+591:- CHANGED awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+594:- CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+610:- CHANGED awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+613:- CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+626:- CHANGED awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+629:- CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+639:- CHANGED awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+642:- CHANGED Subdomain sweep ~80 names complete — only api/www/awv + load.awv exist; kk_webapp delegation is internal app-name, not hostname; no new inventory
+736:- NEW awv.kassenkompass.de SGTM container fully characterized per KB — Stape ahcfuvbcz, GA4 G-RXB3GJEMRT, FB 360390300088445, purchase 128 EUR, /g/collect 400-on-invalid
+1135:- NEW (2026-09-27, this agent) Server-side cookie-spoofing chain on the fragen funnel is materially weakened: `GET /bonusrechner_fragen.php` is a static page whose entire answer/rating engine executes clien
+1152:- NEW Server-side cookie-spoofing chain on fragen funnel materially weakened: GET /bonusrechner_fragen.php is static page with entire answer/rating engine executing client-side; live-calculation.js:642 has 
+1176:- CHANGED Server-side cookie-spoofing chain on fragen funnel materially weakened: GET /bonusrechner_fragen.php is static page with entire answer/rating engine executing client-side; live-calculation.js:642 has 
+1196:- NEW Server-side cookie-spoofing chain on fragen funnel materially weakened: `GET /bonusrechner_fragen.php` is static page; entire answer/rating engine executes client-side; `live-calculation.js:642` has c
+1223:- NEW kassenkompass.de/bonusrechner_fragen.php: Server-side cookie-spoofing chain materially weakened — GET is static page, entire answer/rating engine executes client-side; live-calculation.js:642 has comm
+1245:- NEW kassenkompass.de/bonusrechner_fragen.php: Server-side cookie-spoofing chain materially weakened — GET is static page, entire answer/rating engine executes client-side; live-calculation.js:642 has comm
+1343:- NEW kassenkompass.de/htmlincludes/ — server-side include directory is web-addressable by filename; listing denied 403
+1370:- NEW live-calculation.js contains 0 sendBeacon / XMLHttpRequest / fetch / Image-src egress primitives — re-confirms the programme's first true negative (no server-side cookie-spoofing chain) with a byte co
+1371:- CHANGED awv.kassenkompass.de root returns 400 to a default-curl UA, not 404 as my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation (li
+1377:- NEW awv.kassenkompass.de root returns 400 to a default-curl UA, not the 404 my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation, n
+1384:- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+1395:- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+1398:- NEW awv.kassenkompass.de root returns 400 to default-curl UA (not 404 per prior lead); no Set-Cookie, only ALB cookies (AWSALB, AWSALBCORS)
+
+=== inventory last 40 lines ===
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+- NEW kassenkompass.de — live frontend, Cloudflare-fronted, insurance comparison platform with customer/partner/insurer logins
+- NEW www.kassenkompass.de — mirrors kassenkompass.de
+- CHANGED Inventory Live HTTP count: 0 → 3 (all three hosts serve HTTP)
+- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- CHANGED `kassenkompass.de/php/mark_all_read.php` pre-auth action router confirmed LIVE — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated; valid actions 
+- CHANGED `api.kassenkompass.de/` root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; no drift since 2026-10-09
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php` tariff payload 2,158,667B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo
+- CHANGED `kassenkompass.de/php/` directory listing denied — 403/1233B IIS "Access is denied" behind Cloudflare+ALB; confirms IIS origin
+
+## 2026-10-13 01:33:35 UTC
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+
+## 2026-10-13 08:28:20 UTC
+- CHANGED `kassenkompass.de/php/mark_all_read.php` pre-auth action router confirmed LIVE — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated; valid actions 
+- CHANGED `api.kassenkompass.de/` root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; no drift since 2026-10-09
+- CHANGED `kassenkompass.de/bonusrechner_fragen.php` tariff payload 2,158,667B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo
+- CHANGED `kassenkompass.de/php/` directory listing denied — 403/1233B IIS "Access is denied" behind Cloudflare+ALB; confirms IIS origin
+- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+[0m
+[0m$ [0mecho "=== hypotheses.md RANKED tail ==="; grep -n '^## RANKED HYPOTHESES' reports/hypotheses.md | tail -5; echo "--- last ranked block ---"; awk '/^## RANKED HYPOTHESES/{n=NR} END{print n}' reports/hypotheses.md | while read n; do sed -n "${n},$((n+20))p" reports/hypotheses.md; done
+=== hypotheses.md RANKED tail ===
+5170:## RANKED HYPOTHESES 2026-10-12 02:15:36 UTC
+5201:## RANKED HYPOTHESES 2026-10-12 09:28:12 UTC
+5232:## RANKED HYPOTHESES 2026-10-12 19:30:16 UTC
+5268:## RANKED HYPOTHESES 2026-10-13 01:33:35 UTC
+5298:## RANKED HYPOTHESES 2026-10-13 08:28:20 UTC
+--- last ranked block ---
+## RANKED HYPOTHESES 2026-10-13 08:28:20 UTC
+- [62] api.kassenkompass.de/user/{ext_id}: api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access (from art/lead_nemotron3.txt)
+- [60] api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info Cross-Tenant Read via BOLA (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): PROBE: GET https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read and GET https://kassenkompass.de/php/mark_all_read.php?action=invalid (both ≤1 rp
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid actio
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167 B catalog, /sync/ 67 B, /health/ 22 B, /
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671 B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified,
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict trans
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompress.de: encoded and literal composed forms byte-identical (401) under identical ed
+- LEARN: REJECTED OTHER @ api.kassenkompress.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confound
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; supp
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-imag
+- LEARN: ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distin
+[0m
+[0m$ [0mecho "=== htmlincludes references ==="; grep -niE 'htmlincludes' inventory/kassenkompass.md | head -20; echo; echo "=== inventory lines 1340-1410 ==="; sed -n '1340,1410p' inventory/kassenkompass.md
+=== htmlincludes references ===
+1343:- NEW kassenkompass.de/htmlincludes/ — server-side include directory is web-addressable by filename; listing denied 403
+1368:- NEW htmlincludes/ evidence closed: across both public JS files (whitelabel_live.js 11,359 B, standard.js 67,969 B) exactly ONE include path is ever disclosed — htmlincludes/whitelabel/whitelabel_styles.ph
+1384:- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+1395:- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+1548:- NEW kassenkompass.de/htmlincludes/: exactly one include path disclosed (whitelabel_styles.php → 200/0B); standard.js discloses none; listing denied 403 (IIS-style)
+1638:- NEW kassenkompass.de/htmlincludes/: directory web-addressable by filename (listing denied 403 IIS-style); exactly one include path disclosed (whitelabel_styles.php → 200/0B).
+
+=== inventory lines 1340-1410 ===
+- NEW www.kassenkompass.de — mirrors kassenkompass.de
+- CHANGED Inventory Live HTTP count: 0 → 3 (all three hosts serve HTTP)
+- NEW kassenkompass.de/js/whitelabel_live.js — 11,359 B public whitelabel live-preview postMessage receiver, absent from inventory, only on bonusrechner.php
+- NEW kassenkompass.de/htmlincludes/ — server-side include directory is web-addressable by filename; listing denied 403
+- NEW 403 error body is IIS-style "Access is denied" behind Cloudflare + ALB — origin is likely Windows/IIS
+- CHANGED reflection class closed 7/7 — bonusrechner.php, bonusrechner_suche.php, termin.php measured, zero cookie->script reflections on all three
+- CHANGED whitelabel_live.js: zero origin validation, only "origin" occurrence is the comment claiming the control
+- CHANGED whitelabel_live.js: handler force-adds wl-active to body, defeating the tenant CSS gate
+- CHANGED whitelabel_live.js: NOT XSS — textContent write + full value allowlisting, integrity-only finding
+- CHANGED whitelabel_live.js: empty brand {} still emits the unconditional ~20-selector trust/legal/footer display:none block
+- CHANGED whitelabel_live.js: postMessage({type:'wl-preview-ready'}, '*') wildcard targetOrigin leaks frame-ready timing cross-origin
+- CHANGED http sink path 301 -> HTTPS, 167 B, zero Set-Cookie — plain-HTTP delivery route closed a second time
+- CHANGED bonusrechner.php: AWSALB without Secure/HttpOnly/SameSite, rejected as non-sensitive + HSTS includeSubDomains
+- CHANGED bonusrechner.php: 27,803 B of inline script, 42,990 B total
+- CHANGED whitelabel_styles.php returns 200/0 B — the mirrored PHP renderer executes when called directly
+- CHANGED peer pipeline 26th consecutive header-only/stub cycle, zero new peer signal
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- CHANGED api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- CHANGED api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (
+
+## 2026-09-30 21:25:41 UTC
+- NEW api.kassenkompass.de/ — the destructive-verb cell re-read as a *routing* fact, not an auth fact: /health_insurance/ is the only route on the host whose access-control-allow-methods is "GET, POST, PUT,
+- CHANGED kassenkompass.de/bonusrechner.php — whitelabel postMessage impact is now MEASURED, not inferred. Of the 19 unconditional display:none selectors in whitelabel_live.js, exactly 5 exist as real class att
+- CHANGED My own wording "removes every trust element" is WITHDRAWN. Measured suppression is: the whole "Sicher wechseln & sofort sparen" statutory-benefit block, the "4,8 auf Google" rating element, the "Mehr 
+- NEW The one-click variant is CLOSED, negatively. whitelabel_live.js contains zero occurrences of document.cookie, URLSearchParams, location.search, location.hash, fetch(, XMLHttpRequest, getAttribute('dat
+- CHANGED whitelabel_live.js:227-231 — the guard is type-and-shape only. Neither event.origin NOR event.source is read; only data.type !== 'wl-preview' and typeof data.brand. My last lead said "zero origin vali
+- NEW htmlincludes/ evidence closed: across both public JS files (whitelabel_live.js 11,359 B, standard.js 67,969 B) exactly ONE include path is ever disclosed — htmlincludes/whitelabel/whitelabel_styles.ph
+- NEW kassenkompass.de/js/live-calculation.js (36,499 B) — the "reflection class closed 7/7" claim was measured by grepping server HTML and is structurally blind to client-side sinks. This file contains a c
+- NEW live-calculation.js contains 0 sendBeacon / XMLHttpRequest / fetch / Image-src egress primitives — re-confirms the programme's first true negative (no server-side cookie-spoofing chain) with a byte co
+- CHANGED awv.kassenkompass.de root returns 400 to a default-curl UA, not 404 as my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation (li
+- CHANGED The data_sparsum delivery precondition is CLOSED, negatively. param_passthrough.js:29-35 declares the complete forwardable set (PASS_PARAMS = lizenz, utm_source, utm_medium, utm_campaign, utm_content,
+- CHANGED The previously-accepted param-to-cookie mirror finding is now mechanistically explained and materially wider than "the funnel mirrors URL params to cookies". param_passthrough.js harvests 16 attacker-
+- NEW param_passthrough.js is NOT loaded on the funnel entry page (0 occurrences in the 42,990 B bonusrechner.php), which confirms the marketing-site/app split its header documents: the funnel receives thes
+- NEW Two forwardable params, fra and direkt, have NO consumer anywhere in the local corpus. The single "direkt" hit in bonusrechner.php is the insurer name "BIG direkt gesund" and the live.js:845 hit is no
+- NEW Four verified negatives in the rewriter that I specifically tested for injection and did not find: the host check is a strict same-host comparison against window.location.host (line 77); the funnel pa
+- NEW awv.kassenkompass.de root returns 400 to a default-curl UA, not the 404 my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation, n
+- NEW api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instan
+- NEW api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- NEW api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, `instance: "/delete/1"`, verb table `DELETE, OPTIONS`
+- NEW kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- NEW api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- NEW kassenkompass.de/js/whitelabel_live.js: 11,359 B public whitelabel live-preview postMessage receiver, absent from inventory, only on bonusrechner.php — zero origin validation, handler force-adds wl-ac
+- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+
+## 2026-10-01 00:53:02 UTC
+- NEW api.kassenkompass.de: encoded-separator decode + host-wide percent-decode-before-match confirmed (normalisation matrix complete for 17 route families), three pre-auth canonicalisation oracles (401 ins
+- NEW kassenkompass.de/js/whitelabel_live.js: cross-origin window.postMessage receiver with no event.origin/event.source check present (guard is type-and-shape only); forces wl-active and can suppress 5 mea
+- CHANGED api.kassenkompass.de/post/: confirmed as separately mounted application (200/344 B JSON at prefix, 200/0 B text/html for unknown sub-paths); the prior claim that "/post/ also requires X-API-Secret" wa
+- CHANGED kassenkompass.de/js/param_passthrough.js: harvests 16 unvalidated params from location.search into sessionStorage (kkweb_pass_params) and re-injects them into every same-host funnel anchor and onclick
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload drift confirmed (2,152,258 B live vs 2,158,150 B baseline, −0.27%) and data freshness is ≤2025-12-22 (lastchange epochs 2025) — "byte-static" c
+- NEW kassenkompass.de/js/whitelabel_live.js: 11,359 B public postMessage receiver with zero origin validation, handler force-adds wl-active, wildcard targetOrigin leaks frame-ready timing, NOT XSS (textCon
+- NEW kassenkompass.de/htmlincludes/: server-side include directory web-addressable by filename; listing denied 403 (IIS-style "Access is denied" behind Cloudflare+ALB)
+- NEW kassenkompass.de/js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from cookie, line 624 adds to computed savings before animating into #result
+- NEW kassenkompass.de/js/param_passthrough.js: propagation mechanism of param-to-cookie mirror — 16 params harvested from location.search (v.length <= 128), persisted in sessionStorage under kkweb_pass_par
+- NEW awv.kassenkompass.de root returns 400 to default-curl UA (not 404 per prior lead); no Set-Cookie, only ALB cookies (AWSALB, AWSALBCORS)
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance,
+- CHANGED api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- CHANGED api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+- CHANGED kassenkompass.de/bonusrechner_fragen.php: tariff payload byte-frozen 10+ consecutive rotation windows (09-18→09-29) at 2,152,708 B ±0.3%; drift-on-refresh model confirmed stable; www mirror identical
+- CHANGED api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+- CHANGED Peer pipeline: 25th+ consecutive triage cycle consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced anywhere since 2026-09-07 — all major surfaces stable
+
+## 2026-10-01 07:10:16 UTC
+- NEW api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (baseline + encoded pair each, 0 divergences) — three pre-auth canonicalization oracles confirmed (401 instance, 405 instance,
+- NEW api.kassenkompass.de: unauthenticated envelopes also normalize — `/%68ealth/` ≡ `/health/`, `/%73ync/` ≡ `/sync/`, `/%70ost/` ≡ `/post/` (separately mounted app discriminable at two path depths)
+- NEW api.kassenkompass.de: encoded separators decode — `/delete%2f1` → 401/182B/`46bd50c0c679e09f`, byte-identical to `/delete/1`, instance: "/delete/1", verb table DELETE,OPTIONS
+[0m
+[0m$ [0mecho "=== search unresolved/unknown/todo/open across notes ==="; grep -rniE 'unresolved|not yet|todo|open question|unknown|untested|needs?' inventory/kassenkompass.md | tail -30
+=== search unresolved/unknown/todo/open across notes ===
+98:- NEW api.kassenkompass.de: magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths incl. previously-untested middleware-B and v2 — CRED_REUSE closed comp
+140:- NEW kassenkompass.de: Funnel probes active — `bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` and `bonusrechner.php?jid=X&customerid=Y` return 200; Set-Cookie headers not yet captured in probe-resul
+150:- CHANGED `frab` param set NO cookie on bonusrechner this cycle (probe `frab=fr33` → no Set-Cookie) — prior session alias map includes frab; needs recheck (possibly only on other entries).
+156:- CHANGED kassenkompass.de: Funnel probes active — `bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` and `bonusrechner.php?jid=X&customerid=Y` return 200; Set-Cookie headers not yet captured (probe-results
+159:- NEW Identified two untested api channels: `X-API-Secret=` as query-string/cookie (prior "sole channel" proof only covered header names + `api_key` query) — source-merge oracle never tested.
+171:- CHANGED kassenkompass.de: Funnel probes active — `bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` and `bonusrechner.php?jid=X&customerid=Y` return 200; Set-Cookie headers not yet captured
+195:- CHANGED kassenkompass.de: Funnel probes active — `bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789` and `bonusrechner.php?jid=X&customerid=Y` return 200; Set-Cookie headers not yet captured
+683:- CHANGED fragen.php 24h smoke: due after 22:47 09-15; last measurement 22:47 09-14 — window NOT yet met; hold.
+796:- NEW `www.kassenkompass.de/bonusrechner_fragen.php` confirmed identical 2,152,708 B tariff payload at 23:25 09-18 — leak surface doubled apex+www, independent rate-limit buckets untested
+861:- CHANGED Time 05:26 UTC vs last probes 00:24 09-20 — 5h quiet; 24h fragen smoke rotation due window ≥22:33 UTC 09-20 not yet reached
+866:- CHANGED www.kassenkompass.de/bonusrechner_fragen.php: identical 2,152,708 B payload confirmed — mirror surface doubled, independent rate-limit buckets untested
+872:- CHANGED 24h fragen smoke rotation not yet due — last measurement 2,152,708 B @22:33 09-19; window opens ≥22:33 UTC 09-20 (~12h away); hold.
+883:- CHANGED 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC (per 09-19 22:33 measurement at 2,152,708 B) — not yet reached (11 min away)
+889:- CHANGED 24h smoke rotation window for bonusrechner_fragen.php opens ≥22:33 UTC (per 09-19 22:33 measurement at 2,152,708 B) — not yet reached (11 min away)
+1103:- NEW GET /post/zzz_unknown_9f2/ → 200, 0 B, text/html, sha256 e3b0c442… (empty string). The /post/ sub-application does NOT fall through to the v1 catch-all: unregistered sub-paths return 200 + zero-byte t
+1154:- CHANGED Blanket CORS on /post/* is app-level: emits allow-methods POST,GET,OPTIONS and allow-headers Content-Type,X-API-Secret for known and unknown sub-paths; no ACAO for any Origin
+1178:- CHANGED Blanket CORS on /post/* is app-level: emits allow-methods POST,GET,OPTIONS and allow-headers Content-Type,X-API-Secret for known and unknown sub-paths; no ACAO for any Origin
+1192:- CHANGED `/post/` and `/post/help` are byte-identical (`200 / 344 B`); `/post/zzz_unknown_9f2/` returns `200 / 0 B` with `content-type: text/html; charset=UTF-8` (uppercase UTF-8) vs `application/json; charset
+1273:- CHANGED Encoded unknown paths do **not** 404: `/zzz%5Funknown_9f2/1` and `/%7Azz_unknown_9f2/1` → 200 / 1167 B / sha256 `644b1ec74036ec90`. Decoding precedes the catch-all, so the static handler never sees an
+1283:- NEW The three previously-untested UNAUTHENTICATED envelopes also normalise: `/%68ealth/` ≡ `/health/` (200/22B), `/%73ync/` ≡ `/sync/` (200/67B), and critically `/%70ost/` ≡ `/post/` (200/344B) — the sepa
+1371:- CHANGED awv.kassenkompass.de root returns 400 to a default-curl UA, not 404 as my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation (li
+1377:- NEW awv.kassenkompass.de root returns 400 to a default-curl UA, not the 404 my own lead from this morning recorded. I did not run the browser-UA control, so this is an unresolved two-valued observation, n
+1391:- CHANGED api.kassenkompass.de/post/: confirmed as separately mounted application (200/344 B JSON at prefix, 200/0 B text/html for unknown sub-paths); the prior claim that "/post/ also requires X-API-Secret" wa
+1439:- NEW /post app has NO route-not-found handler: every unregistered child returns HTTP 200 with a ZERO-LENGTH body and `text/html` — `GET /post/zzz_unknown_9f2/` = 200 / 0 B, `GET /post/create_user_x9/` = 20
+1619:- NEW api.kassenkompass.de: `/post/` is a separately mounted app outside X-API-Secret dependency (prefix returns 200/344B JSON at `/post/`, 200/0B text/html for unknown sub-paths); closed at exactly 2 membe
+1642:- CHANGED api.kassenkompass.de/post/: separately mounted application outside X-API-Secret dependency for prefix (200/344B JSON at /post/, 200/0B text/html for unknown sub-paths); closed at exactly 2 members (he
+[0m
+[0m$ [0mecho "=== source map / .map / sourcemap mentions ==="; grep -rniE 'source ?map|\.js\.map|sourcemap' inventory/kassenkompass.md reports/*.md reports/*.txt 2>/dev/null | head -20; echo; echo "=== secret-search / embedded secret mentions ==="; grep -rniE 'embedded secret|hardcoded secret|secret in js|leaked secret|search.*secret|secret.*search|x-api-secret' inventory/kassenkompass.md | tail -25
+=== source map / .map / sourcemap mentions ===
+
+=== secret-search / embedded secret mentions ===
+1242:- NEW api.kassenkompass.de/v2/insurance_info/1: First-ever audit — 401 middleware A, allow-methods GET,OPTIONS, allow-headers X-API-Secret,Content-Type; v2 catalog duplicates "X-API-Secret header required" 
+1255:- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+1338:- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+1391:- CHANGED api.kassenkompass.de/post/: confirmed as separately mounted application (200/344 B JSON at prefix, 200/0 B text/html for unknown sub-paths); the prior claim that "/post/ also requires X-API-Secret" wa
+1433:- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+1437:- NEW /post/ is a SEPARATELY MOUNTED APP with a THIN middleware chain that does not enforce the global X-API-Secret dependency the root catalog advertises. Discriminating evidence (no credential on any requ
+1491:- NEW `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_user`→405; GET `/post/help
+1493:- NEW v2 `/insurance_info/1` first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+1518:- NEW api.kassenkompress.de: `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_use
+1532:- CHANGED api.kassenkompress.de: `/post/` write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD `/delete/1`→401, HEAD `/state/`→401, HEAD `/post/`→405, HEAD `/post/create_use
+1534:- CHANGED v2 `/insurance_info/1` first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+1537:- NEW api.kassenkompass.de/post/ write namespace confirmed as separately mounted application OUTSIDE X-API-Secret dependency: HEAD /delete/1 → 401, HEAD /state/ → 401, HEAD /post/ → 405, HEAD /post/create_u
+1539:- NEW v2 /insurance_info/1 first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+1571:- CHANGED api.kassenkompass.de/post/ write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD /delete/1→401, HEAD /state/→401, HEAD /post/→405, HEAD /post/create_user→405; GET /
+1573:- CHANGED v2 /insurance_info/1 first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+1619:- NEW api.kassenkompass.de: `/post/` is a separately mounted app outside X-API-Secret dependency (prefix returns 200/344B JSON at `/post/`, 200/0B text/html for unknown sub-paths); closed at exactly 2 membe
+1622:- CHANGED api.kassenkompass.de: `/sync/` returns HTTP/2 200 with `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (67B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349c
+1641:- CHANGED api.kassenkompass.de: /sync/ returns HTTP/2 200 with auth error body {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f
+1642:- CHANGED api.kassenkompass.de/post/: separately mounted application outside X-API-Secret dependency for prefix (200/344B JSON at /post/, 200/0B text/html for unknown sub-paths); closed at exactly 2 members (he
+1677:- NEW api.kassenkompass.de /post/ write namespace confirmed as separately mounted app outside X-API-Secret dependency for prefix (HEAD /delete/1→401, HEAD /state/→401, HEAD /post/→405, HEAD /post/create_use
+1748:- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+1752:- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+1759:- NEW api.kassenkompass.de — live REST API, 16 endpoints enumerated, X-API-Secret auth, `/health/` unprotected, full API docs returned at ALL paths (/, /admin/, /debug/, /swagger/, /openapi.json)
+1763:- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+1784:- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+[0m
+[0m$ [0mecho "=== inventory: magic KKX / credentials section ==="; grep -niE 'KKX3382745|X8372|magic|credential|password reset' inventory/kassenkompass.md | head -30; echo; echo "=== inventory line 90-110 ==="; sed -n '90,115p' inventory/kassenkompass.md
+=== inventory: magic KKX / credentials section ===
+35:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+36:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+38:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+48:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+49:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+51:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+54:- NEW Partner password-reset magic `KKX3382745` does NOT authenticate as API secret (returns "Ungültiger") — no cross-asset credential reuse
+60:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+61:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+63:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+68:- NEW Partner password-reset magic `KKX3382745` does NOT authenticate as API secret — no cross-asset credential reuse
+98:- NEW api.kassenkompass.de: magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths incl. previously-untested middleware-B and v2 — CRED_REUSE closed comp
+107:- NEW api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
+117:- NEW api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
+136:- CHANGED api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
+1169:- CHANGED Auth map final: 8 routes middleware A ("ist erforderlich für den Zugriff auf diese API"), 3 middleware B ("Header fehlt"), 1 method-checked-first (`/cat_detail/` 405), **3 with no credential check at 
+1202:- NEW Auth map final: 8 routes middleware A ("ist erforderlich für den Zugriff auf diese API"), 3 middleware B ("Header fehlt"), 1 method-checked-first (`/cat_detail/` 405), 3 with no credential check at bo
+1219:- NEW api.kassenkompass.de: Auth map final — 8 routes middleware A ("ist erforderlich"), 3 routes middleware B ("Header fehlt"), 1 method-checked-first (/cat_detail/ 405), 3 with no credential check (/healt
+1241:- NEW api.kassenkompass.de: Auth map final — 8 routes middleware A ("ist erforderlich"), 3 routes middleware B ("Header fehlt"), 1 method-checked-first (/cat_detail/ 405), 3 with no credential check (/healt
+1437:- NEW /post/ is a SEPARATELY MOUNTED APP with a THIN middleware chain that does not enforce the global X-API-Secret dependency the root catalog advertises. Discriminating evidence (no credential on any requ
+1551:- CHANGED api.kassenkompass.de auth map final: 8 routes middleware A, 3 middleware B ({user/{ext_id}, delete/{id}, cancel/{id}}), 1 method-checked-first (/cat_detail/), 3 no credential check (/health/, /sync/, 
+1754:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+1755:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+1757:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+1765:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+1766:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+1768:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+1786:- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+1787:- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+1789:- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+
+=== inventory line 90-110 ===
+## 2026-09-04 20:04:27 UTC
+
+## 2026-09-04 22:21:25 UTC
+
+## 2026-09-05 00:22:25 UTC
+- NEW api.kassenkompass.de: v2 route sweep (24 names incl. all 14 v1 endpoints + user/partner/products/config/status/search/offers/rates) → every name router-404 except `insurance_info`; v2 surface confirme
+- NEW api.kassenkompass.de: exact auth-wording map nailed — v1 majority AND v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middlewa
+- NEW api.kassenkompass.de: X-API-Secret is the SOLE auth channel on every path — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all → 401 "erforderlich" on middleware A and B; no alt
+- NEW api.kassenkompass.de: magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths incl. previously-untested middleware-B and v2 — CRED_REUSE closed comp
+- NEW kassenkompass.de: funnel (`bonusrechner.php`) server-side mirrors raw pass-params into 1-year cookies with NO validation — `lizenz`→`afilcode`, `jid`→`customerid`, `agn`|`connectionnumber`→`agenturnum
+- NEW kassenkompass.de: inventory expansion — `awv.kassenkompass.de` (self-hosted GTM proxy, nginx, `/gtm.js?id=GTM-TT4LBVMW`, root=400 noindex) and `load.awv.kassenkompass.de` (Cloudflare-challenged loader
+- NEW kassenkompass.de: funnel entry map (`param_passthrough.js` v=web1.0.0, commented "kk-web-draft" refactor 2026-08-30) — `bonusrechner*.php` + `termin.php` are the only app entry points; server-side "Co
+
+## 2026-09-05 04:47:18 UTC
+- NEW api.kassenkompass.de: v2 router sweep complete — only `insurance_info` registered (24 names tested → router-404 oracle); single-endpoint versioned surface confirmed
+- NEW api.kassenkompass.de: Auth middleware map finalized — v1 majority + v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middleware
+- NEW api.kassenkompass.de: X-API-Secret confirmed SOLE auth channel — `Authorization: Bearer`, `X-API-Key`, `X-Api-Token`, `api_key=` query all return 401 "erforderlich" on middleware A and B; no alternate
+- NEW api.kassenkompass.de: Magic `KKX3382745` (sha256 bc2cb4e9…) and `X8372` (sha256 a4197524…) rejected (403) on ALL three auth paths including middleware-B and v2 — CRED_REUSE closed completely
+- NEW kassenkompass.de: Funnel (`bonusrechner.php`) server-side mirrors raw pass-params into 1-year cookies with NO validation — alias map `jid|customerid→customerid`, `agn|connectionnumber→agenturnummer`, 
+- NEW kassenkompass.de: Two new dedicated hosts discovered via JS — `awv.kassenkompass.de` (self-hosted GTM proxy, nginx, `/gtm.js?id=GTM-TT4LBVMW`, root=400 noindex) + `load.awv.kassenkompass.de` (Cloudfla
+- NEW kassenkompass.de: Funnel entry map from `param_passthrough.js` v=web1.0.0 (commented "kk-web-draft" refactor 2026-08-30) — only `bonusrechner*.php` + `termin.php` are app entry points; server-side coo
+- CHANGED www.kassenkompass.de: Mirror header drift hypothesis dropped — www and apex serve identical security headers (XFO SAMEORIGIN, XCTO nosniff, HSTS includeSubDomains, no CSP); AWS ALB backend confirmed
+
+## 2026-09-05 08:46:09 UTC
+- NEW api.kassenkompass.de: v2 router sweep complete — only `insurance_info` registered (24 names tested → router-404 oracle); single-endpoint versioned surface confirmed
+- NEW api.kassenkompass.de: Auth middleware map finalized — v1 majority + v2 share middleware A (`Der bereitgestellte X-API-Secret ist ungültig oder nicht berechtigt`); only `/user/{ext_id}` uses middleware
+[0m
+I have enough context. Let me run the sanctioned standing smoke probes (GET only, ≤1 rps, spaced) to ground this cycle's DELTA with fresh measurements.
+[0m$ [0mset +e
+probe() { echo "### $1"; curl -sS -o /tmp/kk_body -D /tmp/kk_hdr --max-time 15 -A "Mozilla/5.0 (passive verifier)" "$1" 2>&1; echo "bytes: $(wc -c < /tmp/kk_body)"; grep -iE '^(HTTP/|content-length:|content-type:|server:|cf-cache-status:|cache-control:|etag:|last-modified:|x-powered-by:)' /tmp/kk_hdr; sha256sum /tmp/kk_body | cut -c1-16; echo; }
+probe "https://api.kassenkompass.de/"; sleep 2
+probe "https://api.kassenkompass.de/sync/"; sleep 2
+probe "https://api.kassenkompass.de/health/"; sleep 2
+probe "https://kassenkompass.de/bonusrechner_fragen.php"; sleep 2
+probe "https://www.kassenkompass.de/bonusrechner_fragen.php"
+### https://api.kassenkompass.de/
+bytes: 1167
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 1167
+server: cloudflare
+x-powered-by: PHP/8.4.3
+cf-cache-status: DYNAMIC
+644b1ec74036ec90
+
+### https://api.kassenkompass.de/sync/
+bytes: 67
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 67
+server: cloudflare
+x-powered-by: PHP/8.4.3
+cf-cache-status: DYNAMIC
+b93be961f0da5eb4
+
+### https://api.kassenkompass.de/health/
+bytes: 22
+HTTP/2 200 
+content-type: application/json; charset=utf-8
+content-length: 22
+server: cloudflare
+x-powered-by: PHP/8.4.3
+cf-cache-status: DYNAMIC
+4af26797ca98dbf2
+
+### https://kassenkompass.de/bonusrechner_fragen.php
+bytes: 2159139
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+cf-cache-status: DYNAMIC
+4c1712265b6fe427
+
+### https://www.kassenkompass.de/bonusrechner_fragen.php
+bytes: 2159139
+HTTP/2 200 
+content-type: text/html; charset=UTF-8
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+cf-cache-status: DYNAMIC
+c5de3f25e0a48912
+[0m
+Fresh probes confirm drift-free API surfaces and a new tariff-corpus measurement. Structured cycle output:
+
+[NEW] `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, differing sha256 (`4c171226…` apex vs `c5de3f25…` www) = identical-modulo-cache-buster
+[CHANGED] `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+[CHANGED] Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-only (GET 0-differential)** and program rules allow **GET/HEAD/OPTIONS only** → both queued NEXTs are non-actionable (one inert, one disallowed)
+[CHANGED] No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological blind spot on the only route to the AUTH_HELPED finals
+
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.60,attack_surface=9,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] kassenkompass.de/js (public bundles),7.25,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=8
+[PRIO] api.kassenkompass.de/user/{ext_id},6.90,attack_surface=8,business_value=9,tech_exposure=7,gate_ease=2,cloud_surface=5,freshness=8
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.55,attack_surface=8,business_value=8,tech_exposure=7,gate_ease=2,cloud_surface=5,freshness=7
+
+[HYP] Embedded or derivable X-API-Secret in public client bundles
+class: MISCONFIG
+asset: kassenkompass.de/js/
+confidence: 40
+reasoning: X-API-Secret is the sole auth channel and the only blocker on all AUTH_HELPED finals; funnel and app share a backend (v2 `ucatKkData` domain is publicly replicated on fragen.php); `param_passthrough.js` carries a "kk-web-draft" refactor marker (web1.0.1); no prior KB entry records any grep for the secret or for `.map`/sourcemap artifacts across the 3 bundles
+evidence_needed: Literal secret, base64/hex-encoded secret, or a `.map`/draft-build artifact exposing backend source in any served bundle
+verify_steps: PASSIVE GET https://kassenkompass.de/js/standard.js ; GET /js/live-calculation.js ; GET /js/param_passthrough.js?v=web1.0.1 ; GET /js/whitelabel_live.js ; then GET the same paths with `.map` appended; grep bodies for `X-API-Secret`, `api_secret`, `Bearer`, high-entropy 20+ char tokens, and `sourceMappingURL`
+impact: If a valid secret is recoverable, it unlocks every standing AUTH_HELPED final (cross-user PII read, deletion, cancellation, v2 draft data); CRITICAL chain
+testability: PASSIVE
+
+[HYP] Unauthenticated full tariff/rating corpus disclosure
+class: BUSLOGIC
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: 2,159,139 B tariff corpus served unauthenticated at ≤1 rps, no-store + CF-DYNAMIC, no ETag/Last-Modified, no rate limit; entire rating engine executes client-side (ucatKkData/globalbudgetsData/kombiboniData/dataant); data freshness ≤2025-12-22; apex and www are independent renders serving the same payload
+evidence_needed: none — already measured this cycle; value is business (protected pricing/Bonus data) classification
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (2,159,139 B confirmed) ; GET https://www.kassenkompass.de/bonusrechner_fragen.php (2,159,139 B confirmed)
+impact: Competitor/aggregator scrapes the complete partner tariff + bonus matrix plus the scoring model; MEDIUM-HIGH (business-data exposure)
+testability: PASSIVE
+
+[HYP] IDOR — cross-user PII read on /user/{ext_id}
+class: IDOR
+asset: api.kassenkompass.de/user/{ext_id}
+confidence: 62
+reasoning: middleware B ("…Header fehlt" + `instance` echo) is a distinct webapp-delegation stack from the 8 middleware-A endpoints; no tenant scoping proven on resolved `ext_id`; greedy segment match on `/user/`; every unauthenticated id returns 401, so the auth boundary is unmeasurable passively
+evidence_needed: valid X-API-Secret to compare `/user/1`,`/user/2`,`/user/999` bodies
+verify_steps: GET https://api.kassenkompass.de/user/1 (401 baseline) ; GET /user/999 (401) ; cross-tenant comparison requires AUTH_HELPED
+impact: If middleware B lacks tenant scoping → cross-user PII (name, insurance, email); HIGH/GDPR
+testability: AUTH_HELPED
+
+[PARKED] Pre-Auth Action Router `/php/mark_all_read.php`: 55→parked — action param is POST-only (GET 0-differential) and live probing is restricted to GET/HEAD/OPTIONS, so the router cannot be exercised under program rules; HUMAN_ONLY, not a probe gate
+[PARKED] v2 Insurance Info BOLA: AUTH_HELPED and live data is already publicly replicated by fragen.php → marginal draft-only value; parked with /user/{ext_id} until a secret is recovered
+[PARKED] Encoded-separator / suffix-absorption access-control bypass: already refuted (byte-identical 401s); do not re-emit
+
+[FINAL] 1. Unauthenticated tariff/rating corpus disclosure (BUSLOGIC, 70, PASSIVE)
+[FINAL] 2. Embedded/derivable X-API-Secret in public bundles (MISCONFIG, 40, PASSIVE)
+[FINAL] 3. IDOR /user/{ext_id} cross-user PII (IDOR, 62, AUTH_HELPED — blocked on secret)
+
+[NEXT] RAG: GET (≤1 rps) `https://kassenkompass.de/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`, `/js/whitelabel_live.js` and each `.map` (`standard.js.map`, `live-calculation.js.map`, `param_passthrough.js.map`, `whitelabel_live.js.map`); grep bodies for `X-API-Secret`, `sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens — sole path to unblock all AUTH_HELPED finals
+
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within ±0.3%; independent renders, identical length modulo cache-buster
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+[LEARN] REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's POST variant is disallowed by read-only rules; router is HUMAN_ONLY
+[LEARN] ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen corpus; re-deriving with `gate_ease=2` for credentialed endpoints drops `/user/{ext_id}` 7.75→6.90 and `/v2/insurance_info` 7.15→6.55 below fragen (7.60)
+[LEARN] ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
+
+[RISK] KassenKompass GmbH: 88 — unauthenticated 2.15 MB partner tariff/bonus corpus sustained-scrapable at 1 rps with the full client-side rating model exposed; funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points and divergent alias maps; sensitive API endpoints (cross-user PII, deletion, cancellation, financial reports) all gated behind a single custom header secret that may be recoverable from public assets; two-tier auth middleware implies scoping complexity delegated to the internal webapp; v2 exposes an unpublished draft-data router with greedy segment matching; 429-free edge (no rate limit) across the corpus; triage pipeline has produced 30+ consecutive error/empty cycles (observability gap)

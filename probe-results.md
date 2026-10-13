@@ -1915,3 +1915,17 @@ https://kassenkompass.de/php/mark_all_read.php?action=mark_all_read -> 200 len=0
 https://api.kassenkompass.de/post/help -> HTTP 405
 https://api.kassenkompass.de/delete/1 -> HTTP 401
 https://api.kassenkompass.de/post/ -> HTTP 405
+
+## 2026-10-13 16:29:14 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://api.kassenkompass.de/user/1 -> HTTP 401
+https://api.kassenkompass.de/user/100 -> HTTP 401
+https://api.kassenkompass.de/user/999 -> HTTP 401
+https://api.kassenkompass.de/user/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/999 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://kassenkompass.de/js/standard.js -> 200 len=67969

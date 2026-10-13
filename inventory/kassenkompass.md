@@ -1790,3 +1790,33 @@ www.kassenkompass.de
 - CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
 - CHANGED none
 - NEW /post-app auth-ordering differential (HEAD, controlled set):
+
+## 2026-10-13 16:28:51 UTC
+- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+- NEW `/sync/` returns HTTP 200 + auth error body `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` — status code misconfiguration (should be 401, not 200)
+- NEW `/health/` confirmed unprotected, returns `{"status":"ok"}` + PHP version disclosure (`x-powered-by: PHP/8.4.3`)
+- NEW All login forms (`/login_kd.php`, `/login_kk.php`, `/login_partner.php`) and password reset forms lack CSRF tokens
+- NEW Partner password reset (`/pw_reset_partner.php`) uses hardcoded magic value `KKX3382745`; customer login uses `X8372`
+- NEW `/insurance_info/{kk_id}` returns proper RFC 9457 401 error (unlike `/sync/`), confirming inconsistent error handling across endpoints
+- NEW No password reset for insurer portal (`/pw_reset_kk.php` returns 404)
+- CHANGED API catalog confirmed 15 endpoints; `/health/` is only fully unprotected endpoint
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+- NEW `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, 
+- CHANGED `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+- CHANGED Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-o
+- CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
+- NEW kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed LIVE on apex+www+.net — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated
+- NEW kassenkompass.de/php/ directory listing denied — 403/1233B IIS "Access is denied" behind Cloudflare+ALB; confirms IIS origin behind ALB
+- CHANGED api.kassenkompass.de/ root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; no drift since 2026-10-09
+- CHANGED kassenkompass.de/bonusrechner_fragen.php tariff payload 2,158,667B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo c
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
