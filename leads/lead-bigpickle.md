@@ -11182,3 +11182,4 @@ testability: HUMAN_ONLY
 [LEARN] REJECTED AUTH @ kassenkompass.de/js: no sourceMappingURL/.map and no credential-shaped literals in standard.js (67,969B), live-calculation.js (37,225B), param_passthrough.js (5,449B); only encoded blob is stape sGTM `b=` param — not a secret; sha256 ed43688e.../887b80af.../ea2defad...
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/js/standard.js: server-side GTM via stape.io loads https://awv.kassenkompass.de/{container}.js?b=... with container ahcfuvbcz — confirms known awv proxy origin, no debug/preview surface
 [RISK] KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope informational; no credential compromise or PII exposure observed
+## 2026-10-14 23:15:31 UTC [target] (model bigpickle)
