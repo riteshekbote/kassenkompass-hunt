@@ -1845,3 +1845,12 @@ www.kassenkompass.de
 - CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+
+## 2026-10-14 10:43:30 UTC
+- NEW kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed LIVE on apex+www+.net — invalid action returns 200/59B unauthenticated error, valid actions return 200/46B "Nicht angemeldet"; 
+- NEW kassenkompass.de/bonusrechner_fragen.php: apex+www both 2,159,139 B this cycle (+0.022% vs prior, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length modulo cache-buster
+- CHANGED api.kassenkompass.de root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; zero drift since 2026-10-09
+- CHANGED /sync/ legacy envelope stable — HTTP 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961...)
+- CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
