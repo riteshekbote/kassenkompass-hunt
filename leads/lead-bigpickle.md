@@ -10974,3 +10974,4 @@ evidence_needed: valid `X-API-Secret` + two tenant IDs to compare responses (neg
 verify_steps: GET `https://api.kassenkompass.de/user/{ext_id}` with valid `X-API-Secret` for two distinct tenants
 impact: cross-user PII disclosure if scoping absent; HIGH but AUTH_HELPED
 testability: AUTH_HELPED
+## 2026-10-14 05:30:09 UTC [target] (model bigpickle)

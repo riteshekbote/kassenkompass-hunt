@@ -1835,3 +1835,13 @@ www.kassenkompass.de
 - CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate c
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-14 05:30:20 UTC
+- CHANGED api.kassenkompass.de/user/{ext_id} re-confirmed 401 middleware B (instance-first) at 2026-10-14 00:41
+- CHANGED kassenkompass.de/php/mark_all_read.php pre-auth action router live on apex+www+.net — invalid action 200/59B, valid actions 200/46B "Nicht angemeldet"
+- CHANGED kassenkompass.de/bonusrechner_fragen.php apex+www tariff payload 2,158,671B (±0.3% band, drift-on-refresh stable); no-store+CF-DYNAMIC, no validators, no rate limit
+- CHANGED api.kassenkompass.de root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; zero drift since 2026-10-09
+- CHANGED /sync/ legacy envelope stable — HTTP 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961...)
+- CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
