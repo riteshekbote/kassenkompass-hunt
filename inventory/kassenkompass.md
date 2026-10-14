@@ -1822,3 +1822,16 @@ www.kassenkompass.de
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
 
 ## 2026-10-13 21:35:42 UTC
+
+## 2026-10-14 00:41:23 UTC
+- NEW api.kassenkompass.de: root content-length now consistently accurate 1167 (was CL:0→absent→accurate drift class resolved); catalog substance unchanged 15 v1 + 1 v2
+- NEW kassenkompass.de/php/mark_all_read.php: pre-auth action router confirmed LIVE on apex+www+.net — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated
+- NEW kassenkompass.de/bonusrechner_fragen.php: tariff payload 2,158,671B (±0.3% band, drift-on-refresh model stable); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; www mirror identical modulo 
+- CHANGED api.kassenkompass.de: normalization matrix COMPLETE for 17 route families (0 divergences); three pre-auth canonicalization oracles confirmed (401 instance, 405 instance, v2 404 detail); percent-decode
+- CHANGED api.kassenkompass.de: /post/ write namespace confirmed as separately mounted app outside X-API-Secret dependency (HEAD /delete/1→401, HEAD /state/→401, HEAD /post/→405, HEAD /post/create_user→405; GET
+- CHANGED api.kassenkompass.de: /cat_detail/ auth state moves from INFERRED to OBSERVED — HEAD /cat_detail/→401 problem+json (route is auth-gated); GET /cat_detail/→405 method mismatch; GET/HEAD divergence prov
+- CHANGED api.kassenkompress.de: v2 /insurance_info/1 first-ever audit: 401 middleware A, allow-methods GET,OPTIONS; v2 catalog duplicates "X-API-Secret header required" verbatim from v1
+- CHANGED kassenkompass.de/bonusrechner_vergleich2.php: emits device_id (1yr Secure HttpOnly SameSite=Lax) + catoint force-deleted — sole funnel step emitting device_id
+- CHANGED kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential confirmed — "Account-ID nicht gefunden" div appears ONLY on POST; server validates Account-ID on form submission only, lead gate c
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
