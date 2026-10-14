@@ -1,4 +1,41 @@
-## 2026-10-14 15:49:36 UTC [target] (model bigpickle)
+## 2026-10-14 19:46:11 UTC [target] (model bigpickle)
+[HYP] No candidate repositories identified for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"
+impact: N/A
+verify_steps: N/A - no repos to scan
+[HYP] No candidate repositories identified for source-code audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: cands.txt contains "no org candidates"; scope.yml lists github_orgs: "none-configured"; GitHub API returns 404 for KassenKompass org (case-insensitive); no public GitHub org exists under this name
+impact: N/A — source-code secret scan surface is empty
+verify_steps: N/A — nothing to confirm; the org either has no public GitHub repos or uses a different org name
+[HYP] N/A — No public repos in scope
+class: N/A
+asset: github.com/orgs/KassenKompass-GmbH (0 public repos)
+confidence: 100
+reasoning: GitHub API confirms the org "KassenKompass-GmbH" (id 316947552) exists but has zero public repositories. No source code is publicly available to audit.
+impact: None
+verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → returns empty array []
+[HYP] No public source code available for audit
+class: OTHER
+asset: n/a
+confidence: 100
+reasoning: KassenKompass-GmbH has 0 public repos on GitHub; no candidate org repos exist to clone and grep for secrets/credentials.
+impact: N/A — no source-code secret surface to report
+verify_steps: GET https://api.github.com/orgs/KassenKompass-GmbH/repos → []
+[HYP] No public repositories available for source-code audit
+class: OTHER
+asset: github.com/orgs/KassenKompass-GmbH
+confidence: 100
+reasoning: KassenKompass-GmbH (GitHub org id 316947552) exists but has 0 public repositories. GitHub API confirmed: GET /orgs/KassenKompass-GmbH/repos returns empty []. GET /orgs/KassenKompass/repos returns 404 (no such org). GET /users/olivermaicher/repos returns 404. No candidate source code is publicly accessible for cloning, grep, or static analysis.
+impact: None — source-code secret surface is empty; no hardcoded credentials, API keys, cloud creds, or insecure code patterns can be discovered in repos that do not exist.
+verify_steps: Passively confirmed via unauthenticated GitHub API (no auth token). No repos to clone; no active scan needed.
+[HYP] REPOSCAN-EMPTY
+class: OTHER
 [CHANGED] Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).
 [PRIO] asset: kassenkompass.de/bonusrechner_fragen.php, score: 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
 [PRIO] asset: kassenkompass.de/php/mark_all_read.php, score: 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
@@ -38,3 +75,54 @@ testability: PASSIVE
 [LEARN] ACCEPTED OTHER @ method (scoring integrity): peer [PRIO] lines do not reproduce from their own emitted axes — fragen 9.55 vs formula 8.50, /sync/ 7.60 vs 6.65, api root 7.30 vs 6.40; re-derived and re-ranked this cycle, confirming the standing rule that priority must always be recomputed, never copied.
 [LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B "Ungültige Action"; the recorded POST success response was never observed, so no pre-auth mutation is established.
 [RISK] program: KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope findings are informational; no credential compromise and no PII exposure observed in testing.
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+[HYP] <title>
+class: <IDOR|SSRF|AUTH|XSS|BUSLOGIC|MISCONFIG|OATH|OTHER>
+asset: <host/endpoint>
+confidence: <0-100>
+reasoning: <facts only>
+evidence_needed: <what proves it>
+verify_steps: <passive-first concrete HTTP requests>
+impact: <what attacker gets + severity>
+testability: <PASSIVE|AUTH_HELPED|HUMAN_ONLY>
+[NEW] none really. 
+[CHANGED] kassenkompass.de/js: RAG completed — no sourceMappingURL/.map/credential in 3 bundles; only stape sGTM blob (container ahcfuvbcz); credential hypothesis closed.
+[CHANGED] awv.kassenkompass.de sGTM loader origin confirmed in standard.js L171 — matches known proxy; no debug/preview.
+[CHANGED] kassenkompass.de/js: RAG over standard.js/live-calculation.js/param_passthrough.js completed — zero sourceMappingURL/.map, zero credential literals; last passive route to X-API-Secret is closed
+[CHANGED] kassenkompass.de/js/standard.js: stape.io sGTM loader confirmed (container ahcfuvbcz, origin awv.kassenkompass.de / load.awv...) — matches known proxy, no debug surface
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/sync/, 6.65, axis: attack_surface=7,business_value=8,tech_exposure=8,gate_ease=2,cloud_surface=4,freshness=10
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www both ~2,159,139 B, cache-control: no-store, CF-DYNAMIC, no ETag/Last-Modified; 100 req @1 rps produced no 429/WAF block; payload carries ucatKkData 1.79MB + globalbudgetsData + kombiboniData + 138 questions/375 rule edges + pseudoKkIds
+evidence_needed: vendor data classification (intended-public vs licensed partner data); size/status re-confirmation at next window
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php and https://www.kassenkompass.de/bonusrechner_fragen.php (<=1 rps); record status, size, sha256 first/last 4KB, cache/validator headers
+impact: full tariff corpus + budget/combination rules to any anonymous visitor; MEDIUM-HIGH gated on classification; no PII/auth-tokens observed
+testability: PASSIVE
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauth invalid-action returns 200/59 B "Ungültige Action" while siblings return 46 B "Nicht angemeldet"; every action value and alt param name tested still returns 59 B — action validation runs before session check but no mutation observed
+evidence_needed: a recognized action vocabulary yielding != 59 B pre-auth (requires POST)
+verify_steps: read-only GET variants are inert (0-differential); discriminating POST is disallowed under program rules — human carry only
+impact: router-ordering disclosure now; unauth state mutation only if a valid pre-auth action exists — LOW
+testability: HUMAN_ONLY
+[PARKED] Embedded API Credential / Source-Map Disclosure in JS: now REJECTED — three bundles fetched and grepped, no maps/credentials; confidence 45 -> 0
+[PARKED] sGTM Server Container Route/Config Exposure: confidence 38 < 40; container bodies grepped, no secret material
+[FINAL] survivors: Tariff Leak (70), mark_all_read Router Asymmetry (50, HUMAN_ONLY)
+[NEXT] HUMAN: carry the mark_all_read.php pre-auth action-vocabulary test (POST, action names) to human review — read-only rules forbid the discriminating request; all passive API-credential routes are now exhausted
+[LEARN] REJECTED AUTH @ kassenkompass.de/js: no sourceMappingURL/.map and no credential-shaped literals in standard.js (67,969B), live-calculation.js (37,225B), param_passthrough.js (5,449B); only encoded blob is stape sGTM `b=` param — not a secret; sha256 ed43688e.../887b80af.../ea2defad...
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/standard.js: server-side GTM via stape.io loads https://awv.kassenkompass.de/{container}.js?b=... with container ahcfuvbcz — confirms known awv proxy origin, no debug/preview surface
+[RISK] KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope informational; no credential compromise or PII exposure observed

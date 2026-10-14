@@ -5732,3 +5732,47 @@
 - LEARN: REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's 
 - LEARN: ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen co
 - LEARN: ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycle
+
+## RANKED HYPOTHESES 2026-10-14 19:46:24 UTC
+- [100] n/a: No candidate repositories identified for audit (from art/lead_bigpickle.txt)
+- [95] kassenkompass.de/bonusrechner_fragen.php: kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_nemotron3.txt)
+- NEXT(hypotheses-bigpickle.txt): RAG: fetch https://kassenkompass.de/js/standard.js, https://kassenkompass.de/js/live-calculation.js, https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://kassenkompress.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid acti
+- LEARN: ACCEPTED OTHER @ method (scoring integrity): peer [PRIO] lines do not reproduce from their own emitted axes — fragen 9.55 vs formula 8.50, /sync/ 7.60 vs 6.65, 
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59
+- LEARN: REJECTED AUTH @ kassenkompass.de/js: no sourceMappingURL/.map and no credential-shaped literals in standard.js (67,969B), live-calculation.js (37,225B), param_p
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/standard.js: server-side GTM via stape.io loads https://awv.kassenkompass.de/{container}.js?b=... with container ahcfuvbcz 
+- LEARN: REJECTED OTHER @ api.kassenkompress.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 method-confounded by gated POST-onl
+- LEARN: REJECTED MISCONFIG @ api.kassenkompress.de (encoded separators): encoded and literal composed forms byte-identical (401) under identical edge conditions — routi
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/bonusrechner_fragen.php: unauthenticated 2,159,139 B tariff corpus with no-store+CF-DYNAMIC, no ETag/Last-Modified, no ra
+- LEARN: REJECTED AUTH @ kassenkompress.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 5
+- LEARN: ACCEPTED OTHER @ kassenkompress.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de + kassenkompress.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167B catalog, /sync/ 67B, /health/ 22B, /v
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/bonusrechner_fragen.php: 2,158,671B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified,
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolv
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict trans
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact 
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompress.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompress.de: encoded and literal composed forms byte-identical (401) under identical ed
+- LEARN: REJECTED OTHER @ api.kassenkompress.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confound
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED XSS @ kassenkompress.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; sup
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompress.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, 
+- LEARN: REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-imag
+- LEARN: ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distin
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 r
+- LEARN: ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompress.de/ 6.35→7
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on t
+- LEARN: ACCEPTED OTHER @ kassenkompress.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second s
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model;
+- LEARN: ACCEPTED OTHER @ api.kassenkompress.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompress.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 r
+- LEARN: ACCEPTED MISCONFIG @ kassenkompress.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within
+- LEARN: ACCEPTED OTHER @ api.kassenkompress.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+- LEARN: REJECTED OTHER @ kassenkompress.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's
+- LEARN: ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen co
+- LEARN: ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycle

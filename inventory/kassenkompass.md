@@ -1857,3 +1857,19 @@ www.kassenkompass.de
 
 ## 2026-10-14 15:49:46 UTC
 - CHANGED Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).
+
+## 2026-10-14 19:46:24 UTC
+- CHANGED Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).
+- NEW none really.
+- CHANGED kassenkompass.de/js: RAG completed — no sourceMappingURL/.map/credential in 3 bundles; only stape sGTM blob (container ahcfuvbcz); credential hypothesis closed.
+- CHANGED awv.kassenkompass.de sGTM loader origin confirmed in standard.js L171 — matches known proxy; no debug/preview.
+- CHANGED kassenkompass.de/js: RAG over standard.js/live-calculation.js/param_passthrough.js completed — zero sourceMappingURL/.map, zero credential literals; last passive route to X-API-Secret is closed
+- CHANGED kassenkompass.de/js/standard.js: stape.io sGTM loader confirmed (container ahcfuvbcz, origin awv.kassenkompass.de / load.awv...) — matches known proxy, no debug surface
+- NEW kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed LIVE on apex+www+.net — invalid action returns 200/59B unauthenticated error, valid actions return 200/46B "Nicht angemeldet"; 
+- NEW api.kassenkompress.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+- NEW kassenkompass.de/bonusrechner_fragen.php: apex+www both 2,159,139 B this cycle (+0.022% vs prior, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length modulo cache-buster
+- CHANGED api.kassenkompass.de root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; zero drift since 2026-10-09
+- CHANGED /sync/ legacy envelope stable — HTTP 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961...)
+- CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
