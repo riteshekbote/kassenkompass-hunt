@@ -11014,3 +11014,43 @@ testability: PASSIVE
 [LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (encoded separators): encoded and literal composed forms byte-identical (401) under identical edge conditions — routing normalization quirk, not access-control bypass.
 [LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2,159,139 B tariff corpus with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit observed across sustained 1 rps; drift ±0.3% confirms drift-on-refresh model; severity gated on vendor data classification.
 [RISK] program: KassenKompass GmbH: 70
+## 2026-10-14 15:49:36 UTC [target] (model bigpickle)
+[CHANGED] Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).
+[PRIO] asset: kassenkompass.de/bonusrechner_fragen.php, score: 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] asset: kassenkompass.de/php/mark_all_read.php, score: 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] asset: kassenkompass.de/js/ (source-map / embedded-credential route), score: 6.80, axis: attack_surface=5,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=1,freshness=9
+[PRIO] asset: api.kassenkompass.de/sync/, score: 6.65, axis: attack_surface=7,business_value=8,tech_exposure=8,gate_ease=2,cloud_surface=4,freshness=10
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www both 200 / 2,159,139 B at 2026-10-14 10:43 (+0.022% vs prior, inside ±0.3% band); cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified; 100-request 1-rps sustained scraping produced no 429/WAF block; payload carries ucatKkData 1.79MB, globalbudgetsData, kombiboniData, dataant (138 questions / 375 rule edges), pseudoKkIds=[99,100,101]
+evidence_needed: vendor data classification (intended-public vs licensed partner data); independent status/size confirmation at the next rotation window
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating at <=1 rps (single pair); record status, decompressed size, sha256 of first 4KB and last 4KB, cache-control/ETag/Last-Modified
+impact: full tariff corpus + budget/combination rules + pseudo-KK mapping to any anonymous visitor; competitive-intel leak; MEDIUM-HIGH gated on vendor classification, no PII/auth-tokens observed
+testability: PASSIVE
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action request returns 200 / 59 B `{"success":false,"message":"Fehler: Ungültige Action"}` while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet" on the same request shape — action validation executes before the session check on mark_all_read only; reachable on apex+www+.net; BUT every action value and alternate param name tested still returns 59 B, so no mutation and no post-auth response has ever been observed
+evidence_needed: a recognized action vocabulary that yields anything other than 59 B pre-auth (requires POST, disallowed under read-only rules)
+verify_steps: read-only limit reached — GET variants are inert (action is POST-only, 0-differential) and POST is out of scope for this pass; only HUMAN carry is viable
+impact: if a recognized pre-auth action exists, unauthenticated state mutation on notification reads; currently only router-ordering disclosure — LOW until a mutation is shown
+testability: HUMAN_ONLY
+[HYP] Embedded API Credential or Source-Map Disclosure in Public JS Bundles
+class: AUTH
+asset: kassenkompass.de/js/
+confidence: 45
+reasoning: the X-API-Secret-gated API has been carried as AUTH_HELPED for 30+ cycles with no passive credential route exhausted; no source-map or embedded-secret search has ever been run against standard.js (67,969 B), live-calculation.js (36,499 B) or param_passthrough.js (v=web1.0.1); the 2026-09-07 negative grep covered only specific tokens (X-API-Secret/Bearer/api_key) on the bonusrechner frontend and never checked sourceMappingURL or .map artifacts
+evidence_needed: presence of a sourceMappingURL directive, a reachable .map file, or a credential-shaped literal in any of the three bundles
+verify_steps: GET https://kassenkompass.de/js/standard.js, /js/live-calculation.js, /js/param_passthrough.js?v=web1.0.1 (<=1 rps); grep bodies for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN RSA/OPENSSH/PRIVATE, Bearer, password/token literals; for any sourceMappingURL, GET the resolved target; sha256 any candidate before reporting
+impact: a recovered secret converts every AUTH_HELPED API final (BOLA /user/{ext_id}, /v2/insurance_info, write-namespace auth) into directly testable; HIGH if found, otherwise closes the last passive route to those finals
+testability: PASSIVE
+[PARKED] Pre-Auth Action-Router Ordering Asymmetry: kept at 50 — the "valid action → 46 B Nicht angemeldet" leg is REJECTED in KB (never observed), no mutation exists, and the only discriminating request is POST which read-only rules forbid; carried for HUMAN follow-up, not for probing.
+[PARKED] sGTM Server Container Route/Config Exposure: confidence 38 < 40; container bodies already grepped with no secret material.
+[FINAL] survivors: [HYP] Unauthenticated Competitive Intelligence Tariff Leak (70), [HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path (50, HUMAN_ONLY), [HYP] Embedded API Credential or Source-Map Disclosure in Public JS Bundles (45).
+[NEXT] RAG: fetch https://kassenkompass.de/js/standard.js, https://kassenkompass.de/js/live-calculation.js, https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1 (<=1 rps, GET only) and any sourceMappingURL/.map targets they declare; grep for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN (RSA|OPENSSH|PRIVATE), Bearer, hardcoded password/token literals; sha256 candidates. This is the one unexhausted passive route to the API credential and costs no live-probe budget on the 24h fragen window (next due >=2026-10-15 10:43 UTC).
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): peer [PRIO] lines do not reproduce from their own emitted axes — fragen 9.55 vs formula 8.50, /sync/ 7.60 vs 6.65, api root 7.30 vs 6.40; re-derived and re-ranked this cycle, confirming the standing rule that priority must always be recomputed, never copied.
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B "Ungültige Action"; the recorded POST success response was never observed, so no pre-auth mutation is established.
+[RISK] program: KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope findings are informational; no credential compromise and no PII exposure observed in testing.

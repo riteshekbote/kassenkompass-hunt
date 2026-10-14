@@ -1854,3 +1854,6 @@ www.kassenkompass.de
 - CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable
+
+## 2026-10-14 15:49:46 UTC
+- CHANGED Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).

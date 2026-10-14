@@ -73557,3 +73557,2043 @@ print('SIZE:%d\nH1:%s\nH2:%s'%(sz,h1,h2))
 " > /tmp/probe/www.meta && \
 echo '---' && echo 'APEX_HEADERS:' && cat /tmp/probe/h_apex.txt && echo '---' && cat /tmp/probe/apex.meta && echo '---' && echo 'WWW_HEADERS:' && cat /tmp/probe/h_www.txt && echo '---' && cat /tmp/probe/www.meta failed
 [91m[1mError: [0mThe user rejected permission to use this specific tool call.
+===== ANALYST bigpickle 2026-10-14 15:49:46 UTC =====
+[0m
+> build · big-pickle
+[0m
+## STEP 1 — DELTA
+[CHANGED] Aggregated ranking now carries kassenkompass.de/php/mark_all_read.php at 75 (peer lead_nemotron3), absent from my prior survivor set; its decisive test is POST (read-only-disallowed).
+NO_DELTA — fragen.php apex+www 2,159,139 B, api root 1167 B / `644b1ec7…`, /sync/ 67 B / `b93be961…` all match the 2026-10-14 10:43 KB entries; no new host, route, cookie or handler since 2026-09-07.
+
+## STEP 2 — PRIORITIZE
+[PRIO] asset: kassenkompass.de/bonusrechner_fragen.php, score: 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] asset: kassenkompass.de/php/mark_all_read.php, score: 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] asset: kassenkompass.de/js/ (source-map / embedded-credential route), score: 6.80, axis: attack_surface=5,business_value=8,tech_exposure=7,gate_ease=10,cloud_surface=1,freshness=9
+[PRIO] asset: api.kassenkompass.de/sync/, score: 6.65, axis: attack_surface=7,business_value=8,tech_exposure=8,gate_ease=2,cloud_surface=4,freshness=10
+
+## STEP 3 — HYPOTHESES
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www both 200 / 2,159,139 B at 2026-10-14 10:43 (+0.022% vs prior, inside ±0.3% band); cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified; 100-request 1-rps sustained scraping produced no 429/WAF block; payload carries ucatKkData 1.79MB, globalbudgetsData, kombiboniData, dataant (138 questions / 375 rule edges), pseudoKkIds=[99,100,101]
+evidence_needed: vendor data classification (intended-public vs licensed partner data); independent status/size confirmation at the next rotation window
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php and GET https://www.kassenkompass.de/bonusrechner_fragen.php alternating at <=1 rps (single pair); record status, decompressed size, sha256 of first 4KB and last 4KB, cache-control/ETag/Last-Modified
+impact: full tariff corpus + budget/combination rules + pseudo-KK mapping to any anonymous visitor; competitive-intel leak; MEDIUM-HIGH gated on vendor classification, no PII/auth-tokens observed
+testability: PASSIVE
+
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action request returns 200 / 59 B `{"success":false,"message":"Fehler: Ungültige Action"}` while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet" on the same request shape — action validation executes before the session check on mark_all_read only; reachable on apex+www+.net; BUT every action value and alternate param name tested still returns 59 B, so no mutation and no post-auth response has ever been observed
+evidence_needed: a recognized action vocabulary that yields anything other than 59 B pre-auth (requires POST, disallowed under read-only rules)
+verify_steps: read-only limit reached — GET variants are inert (action is POST-only, 0-differential) and POST is out of scope for this pass; only HUMAN carry is viable
+impact: if a recognized pre-auth action exists, unauthenticated state mutation on notification reads; currently only router-ordering disclosure — LOW until a mutation is shown
+testability: HUMAN_ONLY
+
+[HYP] Embedded API Credential or Source-Map Disclosure in Public JS Bundles
+class: AUTH
+asset: kassenkompass.de/js/
+confidence: 45
+reasoning: the X-API-Secret-gated API has been carried as AUTH_HELPED for 30+ cycles with no passive credential route exhausted; no source-map or embedded-secret search has ever been run against standard.js (67,969 B), live-calculation.js (36,499 B) or param_passthrough.js (v=web1.0.1); the 2026-09-07 negative grep covered only specific tokens (X-API-Secret/Bearer/api_key) on the bonusrechner frontend and never checked sourceMappingURL or .map artifacts
+evidence_needed: presence of a sourceMappingURL directive, a reachable .map file, or a credential-shaped literal in any of the three bundles
+verify_steps: GET https://kassenkompass.de/js/standard.js, /js/live-calculation.js, /js/param_passthrough.js?v=web1.0.1 (<=1 rps); grep bodies for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN RSA/OPENSSH/PRIVATE, Bearer, password/token literals; for any sourceMappingURL, GET the resolved target; sha256 any candidate before reporting
+impact: a recovered secret converts every AUTH_HELPED API final (BOLA /user/{ext_id}, /v2/insurance_info, write-namespace auth) into directly testable; HIGH if found, otherwise closes the last passive route to those finals
+testability: PASSIVE
+
+## STEP 4 — SELF-CRITIQUE
+[PARKED] Pre-Auth Action-Router Ordering Asymmetry: kept at 50 — the "valid action → 46 B Nicht angemeldet" leg is REJECTED in KB (never observed), no mutation exists, and the only discriminating request is POST which read-only rules forbid; carried for HUMAN follow-up, not for probing.
+[PARKED] sGTM Server Container Route/Config Exposure: confidence 38 < 40; container bodies already grepped with no secret material.
+[FINAL] survivors: [HYP] Unauthenticated Competitive Intelligence Tariff Leak (70), [HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path (50, HUMAN_ONLY), [HYP] Embedded API Credential or Source-Map Disclosure in Public JS Bundles (45).
+
+## STEP 5 — NEXT ACTION
+[NEXT] RAG: fetch https://kassenkompass.de/js/standard.js, https://kassenkompass.de/js/live-calculation.js, https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1 (<=1 rps, GET only) and any sourceMappingURL/.map targets they declare; grep for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN (RSA|OPENSSH|PRIVATE), Bearer, hardcoded password/token literals; sha256 candidates. This is the one unexhausted passive route to the API credential and costs no live-probe budget on the 24h fragen window (next due >=2026-10-15 10:43 UTC).
+
+## STEP 6 — LEARN
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): peer [PRIO] lines do not reproduce from their own emitted axes — fragen 9.55 vs formula 8.50, /sync/ 7.60 vs 6.65, api root 7.30 vs 6.40; re-derived and re-ranked this cycle, confirming the standing rule that priority must always be recomputed, never copied.
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B "Ungültige Action"; the recorded POST success response was never observed, so no pre-auth mutation is established.
+
+## STEP 7 — RISK
+[RISK] program: KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope findings are informational; no credential compromise and no PII exposure observed in testing.
+## Objective
+- Act as senior bug bounty analyst for the KassenKompass GmbH program (report channel: bugs.olivermaicher.eu), running the mandated 7-step analysis loop (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARN → RISK) over an evolving knowledge base, producing only structured blocks.
+- Deep-hunt high-value classes (broken auth, IDOR/BOLA, SSRF-to-metadata, mass assignment, business-logic, upload, GraphQL, subdomain takeover) with passive-first, read-only, ≤1 rps discipline.
+
+## Important Details
+- In-scope assets ONLY: company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile apps, domains of KassenKompass GmbH (per scope.yml + inventory/kassenkompass.md).
+- Report channel: bugs.olivermaicher.eu.
+- REJECTED/out-of-scope classes (long list): DoS, descriptive errors only, robots.txt, OPTIONS/TRACE, CSRF on logout/anonymous forms, cookie flags on non-sensitive data, username enumeration, brute-force/rate-limit, TLS best practice, clickjacking w/o exploit, mail config, known-vuln library w/o program exploit, public login panels, and any exposure of customer/employee/financial/auth data during testing.
+- Rules: facts vs hypotheses separated; no REJECTED-class hypotheses; sha256 any secret; passive-first live probes only GET/HEAD/OPTIONS at ≤1 rps; no mutating tests against live customer data; scanner output needs manual validation; [HYP] fields must be one-per-line, never inline in title.
+- My state: `{"phase": "POC", "target": "api"}`.
+- Current date context: 2026-10-14 (~10:43 UTC last KB entry).
+- Key methodology rules learned:
+  - HEAD structurally cannot close route-membership on api.kassenkompass.de (catch-all returns `content-length: 0`, omits `instance`); use GET with body comparison.
+  - 405 on this host is never evidence about credentials; only 401 is (method-confound with gated POST-only `/cat_detail/`).
+  - Encoded-separator / percent-decode-before-match is a routing normalization quirk, NOT an access-control/WAF bypass — REJECTED (retires peer finals @90/88).
+  - `/post/create_user` "unauthenticated user provisioning" REJECTED — unproven until credentialed POST + negative control exists (AUTH_HELPED/HUMAN_ONLY).
+  - Idempotent re-runs must emit NO_DELTA, not re-derive prior conclusions as new.
+  - Priority scores must be recomputed from emitted axes (corrections: api.kassenkompass.de 6.35→7.30, /post/create_user 6.75→6.55; peer `gate_ease=10` on AUTH_HELPED endpoints inflates them — corrected: `/user/{ext_id}` 7.75→6.90, `/v2/insurance_info` 7.15→6.55 below fragen 7.60).
+  - No source-map/embedded-secret search has ever been run on the 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` v=web1.0.1) — methodological blind spot for AUTH_HELPED finals.
+  - WAF IP-block triggered 2026-09-11 by ~14-request burst — maintain ≤1 rps; burst/bucket tests DEFERRED pending ≥2 clean rotations.
+  - Peer pipeline effectively single-writer: 25+ consecutive triage cycles with header-only/stub leads, zero peer signal; reposcan "TARGET_ORG not configured; skipping".
+- Host facts: api.kassenkompass.de (Cloudflare fronting, PHP 8.4.3; 15 v1 + 1 v2 catalog ver 1.0/2.0; 1167 B root sha256 `644b1ec7…`; auth map: 8 middleware A, 3 middleware B {user/{ext_id}, delete/{id}, cancel/{id}}, 1 method-checked-first /cat_detail/, 3 no-credential-check {/health/, /sync/, /post/*}; /sync/ HTTP 200 67 B sha256 `b93be961…`; /health/ 22 B; /post/ app = help + create_user only).
+- kassenkompass.de/www: 7 funnel cookie-mirror entries; bonusrechner_fragen.php ~2.15–2.16 MB unauthenticated tariff corpus (2,159,139 B latest), no-store+CF-DYNAMIC, no rate limit, drift ±0.3%; whitelabel_live.js postMessage no origin check (integrity-only, not XSS); param_passthrough.js 16 params → sessionStorage; /php/mark_all_read.php pre-auth action router (59 B "Ungültige Action" vs 46 B "Nicht angemeldet", action param POST-only — GET variant inert, POST disallowed by read-only rules → HUMAN_ONLY).
+- kk-s3-01.s3.eu-central-1.amazonaws.com: qid 1..180, existence oracle, images-only, no confidentiality impact (REJECTED); sibling buckets deny ListBucket.
+
+## Work State
+### Completed
+- Last full 7-step cycle emitted (2026-10-14 10:43): 3 survivors — [HYP] Unauthenticated Competitive Intelligence Tariff Leak (70), [HYP] Sync Authentication Bypass-By-Status (60), [HYP] API Catalog Unauthenticated Disclosure (60); ranked block shows mark_all_read.php hypothesis at 75 (nemotron3) and fragen leak at 70 (bigpickle).
+- PARKED: /post/ write namespace auth (method-confounded, HUMAN_ONLY); encoded-separator bypass (REJECTED).
+- Aggregated hypotheses and LEARN lines confirmed: fragen payload 2,159,139 B apex+www (+0.022% in band), api root/sync/v2 zero drift since 2026-10-09, mark_all_read router live on apex+www+.net.
+- Standing [PRIO] from peer bigpickle: fragen.php 9.55, /sync/ 7.60, api root 7.30 (note: gate_ease inflation warning applies to AUTH_HELPED lines).
+
+### Active
+- Awaiting next cycle execution of the 7-step loop for 2026-10-14 (post-10:43).
+- Queued contradiction noted: bigpickle queues GET variant of mark_all_read.php (inert, action is POST-only) vs nemotron3 POST variant (disallowed by read-only rules).
+
+### Blocked
+- mark_all_read.php valid-action path: HUMAN_ONLY (POST disallowed under read-only probe rules).
+- /post/create_user write auth: AUTH_HELPED/HUMAN_ONLY — needs credentialed POST + negative control.
+- Source-map/embedded-secret search on 3 public JS bundles: never run (open opportunity).
+- Peer triage observability gap: 25+ empty cycles, no signal.
+
+## Next Move
+1. Run the 7-step cycle: emit [PARKED] for the non-actionable mark_all_read NEXT (GET variant inert, POST disallowed), then identify the one defensible action.
+2. Execute the one passive avenue not yet exhausted: fetch the 3 public JS bundles (`/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`) and grep offline for source-map (`sourceMappingURL`), inline secrets, or X-API-Secret material — this is read-only, no live target probes, and is the only passive route toward the AUTH_HELPED finals.
+
+## Relevant Files
+- (none — analysis operates on the in-conversation knowledge base, inventory, and read-only HTTP probes; peer leads referenced as `art/lead_nemotron3.txt`, `art/lead_bigpickle.txt`, `reports/hypotheses-nemotron3.txt`, `hypotheses-bigpickle.txt`, `state_*.json` peer stubs.)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mls -la
+total 1436
+drwxr-xr-x 12 runner runner   4096 Oct 14 15:29 .
+drwxr-xr-x  3 runner runner   4096 Oct 14 15:29 ..
+drwxr-xr-x  7 runner runner   4096 Oct 14 15:29 .git
+drwxr-xr-x  3 runner runner   4096 Oct 14 15:29 .github
+-rw-r--r--  1 runner runner   1767 Oct 14 15:29 README.md
+-rw-r--r--  1 runner runner  13646 Oct 14 15:35 analyst-out.txt
+-rw-r--r--  1 runner runner 627071 Oct 14 15:29 analyst-prompt.txt
+-rw-r--r--  1 runner runner 623253 Oct 14 15:29 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 leads
+-rw-r--r--  1 runner runner  99549 Oct 14 15:29 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 reports
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 14 15:29 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 scripts
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 14 15:29 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 14 15:29 triage
+[0m
+[0m✱ [0mGlob "**/*.{js,map,yml,md,txt}"[90m 100 matches[0m
+[0m
+[0m$ [0mls -la knowledge leads reports recon-notes 2>/dev/null; ls -la scripts
+knowledge:
+total 368
+drwxr-xr-x  2 runner runner   4096 Oct 14 15:29 .
+drwxr-xr-x 12 runner runner   4096 Oct 14 15:29 ..
+-rw-r--r--  1 runner runner 364735 Oct 14 15:29 index.md
+
+leads:
+total 4392
+drwxr-xr-x  2 runner runner    4096 Oct 14 15:29 .
+drwxr-xr-x 12 runner runner    4096 Oct 14 15:29 ..
+-rw-r--r--  1 runner runner 1849238 Oct 14 15:29 lead-bigpickle.md
+-rw-r--r--  1 runner runner   11832 Oct 14 15:29 lead-laguna.md
+-rw-r--r--  1 runner runner   11600 Oct 14 15:29 lead-ling3.md
+-rw-r--r--  1 runner runner   12064 Oct 14 15:29 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct 14 15:29 lead-mimo.md
+-rw-r--r--  1 runner runner 2556395 Oct 14 15:29 lead-nemotron3.md
+-rw-r--r--  1 runner runner   34398 Oct 14 15:29 reposcan-kassenkompass.md
+
+recon-notes:
+total 12
+drwxr-xr-x  2 runner runner 4096 Oct 14 15:29 .
+drwxr-xr-x 12 runner runner 4096 Oct 14 15:29 ..
+-rw-r--r--  1 runner runner  828 Oct 14 15:29 DEDICATED-DEEP.md
+
+reports:
+total 10564
+drwxr-xr-x  2 runner runner    4096 Oct 14 15:29 .
+drwxr-xr-x 12 runner runner    4096 Oct 14 15:29 ..
+-rw-r--r--  1 runner runner 6402947 Oct 14 15:29 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   50344 Oct 14 15:29 analyst-laguna.log
+-rw-r--r--  1 runner runner   50112 Oct 14 15:29 analyst-ling3.log
+-rw-r--r--  1 runner runner   50576 Oct 14 15:29 analyst-longcat.log
+-rw-r--r--  1 runner runner 3367986 Oct 14 15:29 analyst-nemotron3.log
+-rw-r--r--  1 runner runner    5491 Oct 14 15:29 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 14 15:29 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 14 15:29 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 14 15:29 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner   16805 Oct 14 15:29 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  899568 Oct 14 15:29 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Oct 14 15:29 valid-bugs.md
+total 28
+drwxr-xr-x  2 runner runner  4096 Oct 14 15:29 .
+drwxr-xr-x 12 runner runner  4096 Oct 14 15:29 ..
+-rw-r--r--  1 runner runner 16987 Oct 14 15:29 sync-issues.py
+[0m
+[0m✱ [0mGlob "**/*standard*.js"[90m 0 matches[0m
+[0m✱ [0mGlob "**/*.js"[90m 0 matches[0m
+[0m
+[0m$ [0mgrep -rn "sourceMappingURL" --include=*.md --include=*.txt --include=*.log . | head -50; echo "---COUNT---"; grep -rc "sourceMappingURL" knowledge/index.md reports/hypotheses.md leads/*.md 2>/dev/null
+grep: ./reports/analyst-bigpickle.log: binary file matches
+./leads/lead-bigpickle.md:10831:verify_steps: PASSIVE GET https://kassenkompass.de/js/standard.js ; GET /js/live-calculation.js ; GET /js/param_passthrough.js?v=web1.0.1 ; GET /js/whitelabel_live.js ; then GET the same paths with `.map` appended; grep bodies for `X-API-Secret`, `api_secret`, `Bearer`, high-entropy 20+ char tokens, and `sourceMappingURL`
+./leads/lead-bigpickle.md:10858:[NEXT] RAG: GET (≤1 rps) `https://kassenkompass.de/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`, `/js/whitelabel_live.js` and each `.map` (`standard.js.map`, `live-calculation.js.map`, `param_passthrough.js.map`, `whitelabel_live.js.map`); grep bodies for `X-API-Secret`, `sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens — sole path to unblock all AUTH_HELPED finals
+./analyst-out.txt:39:reasoning: the X-API-Secret-gated API has been carried as AUTH_HELPED for 30+ cycles with no passive credential route exhausted; no source-map or embedded-secret search has ever been run against standard.js (67,969 B), live-calculation.js (36,499 B) or param_passthrough.js (v=web1.0.1); the 2026-09-07 negative grep covered only specific tokens (X-API-Secret/Bearer/api_key) on the bonusrechner frontend and never checked sourceMappingURL or .map artifacts
+./analyst-out.txt:40:evidence_needed: presence of a sourceMappingURL directive, a reachable .map file, or a credential-shaped literal in any of the three bundles
+./analyst-out.txt:41:verify_steps: GET https://kassenkompass.de/js/standard.js, /js/live-calculation.js, /js/param_passthrough.js?v=web1.0.1 (<=1 rps); grep bodies for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN RSA/OPENSSH/PRIVATE, Bearer, password/token literals; for any sourceMappingURL, GET the resolved target; sha256 any candidate before reporting
+./analyst-out.txt:51:[NEXT] RAG: fetch https://kassenkompass.de/js/standard.js, https://kassenkompass.de/js/live-calculation.js, https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1 (<=1 rps, GET only) and any sourceMappingURL/.map targets they declare; grep for sourceMappingURL, X-API-Secret, api[_-]?secret, BEGIN (RSA|OPENSSH|PRIVATE), Bearer, hardcoded password/token literals; sha256 candidates. This is the one unexhausted passive route to the API credential and costs no live-probe budget on the 24h fragen window (next due >=2026-10-15 10:43 UTC).
+./analyst-out.txt:103:2. Execute the one passive avenue not yet exhausted: fetch the 3 public JS bundles (`/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`) and grep offline for source-map (`sourceMappingURL`), inline secrets, or X-API-Secret material — this is read-only, no live target probes, and is the only passive route toward the AUTH_HELPED finals.
+---COUNT---
+knowledge/index.md:0
+reports/hypotheses.md:0
+leads/lead-bigpickle.md:2
+leads/lead-laguna.md:0
+leads/lead-ling3.md:0
+leads/lead-longcat.md:0
+leads/lead-mimo.md:0
+leads/lead-nemotron3.md:0
+leads/reposcan-kassenkompass.md:0
+[0m
+[0m$ [0mgrep -rn "\.js\.map\|standard\.js\|live-calculation\.js\|param_passthrough" knowledge/index.md | head -60
+172:- 2026-09-06 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only, both cfemails decode to service@kassenkompass.de); cookie consumption strictly POST/portal-path.
+210:- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only, both cfemails decode to service@kassenkompass.de); cookie consumption strictly POST/portal-path
+213:- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path.
+233:- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only, both cfemails decode to service@kassenkompass.de); cookie consumption strictly POST/portal-path.
+235:- 2026-09-07 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+251:- 2026-09-08 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+276:- 2026-09-09 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+297:- 2026-09-10 ACCEPTED OTHER @ kassenkompass.de: GET branch closed 7/7 — base-vs-stuffed body differential on fragen/suche/vergleich2/abschluss/termin byte-identical (standard.js?v= cache-buster + cfemail nonce drift only); cookie consumption strictly POST/portal-path
+926:- 2026-09-30 REJECTED MISCONFIG @ kassenkompass.de/bonusrechner.php: "an attacker-crafted link triggers the whitelabel deface" — closed negatively. whitelabel_live.js has 0 occurrences of document.cookie, URLSearchParams, location.search/hash, fetch(, XMLHttpRequest, dataset or data- attributes; bonusrechner.php has no wl_* cookie/param/attribute; standard.js (67,969 B) has no whitelabel sender. Only the private editor sends wl-preview, so delivery is necessarily window.open + postMessage.
+928:- 2026-09-30 ACCEPTED OTHER @ htmlincludes/: exactly one include path is disclosed anywhere in the public JS corpus (whitelabel_styles.php, 200 / 0 B / text/html); standard.js discloses none, so there is no non-guessed filename left to test.
+929:- 2026-09-30 ACCEPTED BUSLOGIC @ /js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from the cookie and line 624 adds it to the computed savings before animating the total into #resulteuro, while the corresponding setCookie is commented out at line 642. Sink is textContent (665, 672): display forgery, not XSS. 0 fetch/XHR/sendBeacon egress primitives in 36,499 B.
+932:- 2026-09-30 ACCEPTED BUSLOGIC @ /js/param_passthrough.js: propagation mechanism of the accepted param-to-cookie mirror, now measured — 16 params harvested from window.location.search with no value validation (only v.length <= 128), persisted in sessionStorage under kkweb_pass_params, re-injected into every same-host funnel a[href] and every onclick CTA; the file's own header names the sink as the funnel's standard.php:29-34 (lizenz/utm_*) and :47-61 (jid/agn/ppn/...), which set cookies plus a linkklick server-side.
+933:- 2026-09-30 REJECTED BUSLOGIC @ /js/param_passthrough.js: "a marketing-page URL parameter can seed the data_sparsum cookie" — closed negatively against the declared PASS_PARAMS set (lizenz, utm_source, utm_medium, utm_campaign, utm_content, utm_term, jid, customerid, agn, connectionnumber, ppn, poolpartnernummer, employeenumber, advisorid, fra, direkt); data_sparsum is absent and every value is capped at 128 chars.
+934:- 2026-09-30 REJECTED OTHER @ /js/param_passthrough.js: href rewriting as an injection or open-redirect vector — no host or scheme reaches the output. decorate() returns only u.pathname + u.search + u.hash, funnelTarget() enforces a strict u.host === window.location.host comparison plus a fully anchored funnel path regex, and !u.searchParams.has(k) makes a link's own param win over the session value.
+935:- 2026-09-30 ACCEPTED OTHER @ kassenkompass.de: architecture confirmed by absence — param_passthrough.js has 0 occurrences in the 42,990 B bonusrechner.php, so the marketing-site/app split its header claims is real and the funnel receives these params in-URL only.
+936:- 2026-09-30 ACCEPTED OTHER @ /js/param_passthrough.js: fra and direkt are documented at line 28 as Fragebaum-/Direktmodus-Steuerung but have no consumer in any local file; the single "direkt" token in bonusrechner.php is the insurer "BIG direkt gesund". Effect is server-side and unmeasured, claimed by comment only.
+937:- 2026-09-30 ACCEPTED OTHER @ kassenkompass.de: awv.kassenkompass.de root responds 400 to a default-curl UA, where my own lead recorded 404; the response carries no Set-Cookie of any kind, and only ALB cookies (AWSALB, AWSALBCORS) appear on param_passthrough.js.
+940:- 2026-10-01 ACCEPTED OTHER @ /js/param_passthrough.js: 16 params harvested with length cap 128, stored in sessionStorage kkweb_pass_params, re-injected into every same-host funnel anchor and onclick CTA for entire tab session; not loaded on bonusrechner.php (marketing-site/app split confirmed).
+941:- 2026-10-01 REJECTED BUSLOGIC @ /js/param_passthrough.js: "marketing-page URL parameter can seed data_sparsum cookie" — closed negatively (PASS_PARAMS excludes data_sparsum; values capped at 128; no value->that-cookie mapping).
+981:- 2026-10-02 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages.
+1005:- 2026-10-03 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1025:- 2026-10-04 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1055:- 2026-10-05 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1079:- 2026-10-06 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1127:- 2026-10-07 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1157:- 2026-10-08 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1173:- 2026-10-08 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1187:- 2026-10-08 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1202:- 2026-10-08 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1217:- 2026-10-09 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1226:- 2026-10-09 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster".
+1242:- 2026-10-10 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1248:- 2026-10-10 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster".
+1271:- 2026-10-11 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1277:- 2026-10-11 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+1284:- 2026-10-11 ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages).
+1289:- 2026-10-12 ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+1303:- 2026-10-12 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1309:- 2026-10-12 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+1331:- 2026-10-13 ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+1345:- 2026-10-13 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1351:- 2026-10-13 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+1386:- 2026-10-14 ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+1400:- 2026-10-14 ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1406:- 2026-10-14 ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+1417:- 2026-10-14 ACCEPTED MISCONFIG @ kassenkompress.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+1431:- 2026-10-14 ACCEPTED BUSLOGIC @ kassenkompress.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+1437:- 2026-10-14 ACCEPTED OTHER @ kassenkompress.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+[0m
+[0m$ [0mgrep -n "sourceMappingURL\|\.js\.map" probe-results.md | head -30; echo "--- map strings in logs ---"; grep -a -c "sourceMappingURL" reports/*.log 2>/dev/null
+--- map strings in logs ---
+reports/analyst-bigpickle.log:21
+reports/analyst-laguna.log:0
+reports/analyst-ling3.log:0
+reports/analyst-longcat.log:0
+reports/analyst-nemotron3.log:0
+[0m
+Executing the queued [NEXT] RAG action — the source-map/credential search on the public JS bundles. First checking whether any prior probe already captured their bodies.
+[0m$ [0mgrep -rn "whitelabel_live.js\|js/standard.js" knowledge/index.md | grep -i "size\|bytes\| B \|sha256" | head -20
+(no output)
+[0m
+[0m$ [0mgrep -a -o "sourceMappingURL[^\"]\{0,80\}" reports/analyst-bigpickle.log | sort -u | head -25
+sourceMappingURL anywhere ===
+sourceMappingURL refs ===
+sourceMappingURL tail)
+sourceMappingURL=[^ */]+' *.js || echo none
+sourceMappingURL=[^ ]+' *.js || echo none
+sourceMappingURL=[^ ]+' || echo 
+sourceMappingURL=[^ ]+|X-API-Secret|api[_-]?secret|Bearer [A-Za-z0-9._-]+|secret[\
+sourceMappingURL=`), embedded `X-API-Secret`/Bearer tokens, hardcoded endpoints, `fetch`/`XHR` t
+sourceMappingURL`
+sourceMappingURL` in any bundle
+sourceMappingURL` in any bundle. **Source-map route closed.**
+sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens — sole path to unblo
+sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens.
+sourceMappingURL`, no `.map` reference, no `X-API-Secret`/`api_key`/`Bearer`/secret literal**. O
+sourceMappingURL`, no secret/token patterns, only public GTM/ad IDs; no passive unlock for AUTH_
+[0m
+[0m$ [0mgrep -a -o "standard\.js\.map[^\"]\{0,60\}\|404.*\.map\|\.map.*404" reports/analyst-bigpickle.log | sort -u | head -25; echo "=== curl presence ==="; grep -a -c "curl" reports/analyst-bigpickle.log
+.map -> 404
+.map` (all 404
+.map` all → 404
+.map` → **404, 8377 B** (generic 404
+.map` → 404
+404 8377 live-calculation.js.map
+404 8377 param_passthrough.js.map
+404 8377 standard.js.map
+404 8377 whitelabel_live.js.map
+standard.js.map -> 404 8377 text/html; charset=UTF-8
+standard.js.map`, `live-calculation.js.map`, `param_passthrough.js.map`, `w
+=== curl presence ===
+942
+[0m
+[0m$ [0mgrep -a -n "sourceMappingURL=`\`.*embedded\|no \`sourceMappingURL\` in any bundle" reports/analyst-bigpickle.log | head -5
+/bin/bash: -c: line 1: unexpected EOF while looking for matching ``'
+[0m
+The peer log suggests this was already executed. Verifying it's real raw output, not just a plan.
+[0m$ [0mgrep -a -n "404 8377 live-calculation" reports/analyst-bigpickle.log | head -3
+71619:404 8377 live-calculation.js.map
+[0m
+[0m$ [0msed -n '71570,71680p' reports/analyst-bigpickle.log
+- `bonusrechner_abschluss.php`: GET vs POST differential — "Account-ID nicht gefunden" only on valid form POST; lead-gated, one-shot stuffing→register chain REFUTED (prior 85→65).
+  - `kassenkompass.de/php/mark_all_read.php`: pre-auth action-router on apex+www+.net — invalid action 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}`; siblings (`mark_read`, `send_message`, `load_messages`) 46 B `Nicht angemeldet`; action param is POST-only → router is HUMAN_ONLY under read-only rules. `/php/` = 403/1233 B IIS "Access is denied".
+  - JS findings: `/js/whitelabel_live.js` (11,359 B) postMessage receiver has no `event.origin`/`event.source` check, forces `wl-active`, suppresses 5 real trust elements via `textContent` (integrity-only, NOT XSS), wildcard `targetOrigin '*'`, not loaded on bonusrechner.php; `/js/param_passthrough.js` (web1.0.1) harvests 16 params (len ≤128) → sessionStorage `kkweb_pass_params`, re-injects into same-host funnel anchors/CTAs, no host/scheme escape; `/js/live-calculation.js` (36,499 B) orphaned unsigned `data_sparsum` read (line 624 → `#resulteuro` textContent) with `setCookie` commented out (line 642), 0 egress primitives.
+  - Rejected classes confirmed: SSRF, JWT_ALG_CONFUSION, CORS (api v1/v2, `/post/`, .net, funnel), CRED_REUSE (magic `KKX3382745`, `X8372`), encoded-separator WAF/access-control bypass (byte-identical 401s), Host-header vhost misconfig (false positive, 51-byte nonce diff), wider S3 footprint (5 sibling buckets all deny ListBucket).
+  - kk-s3-01: existence oracle (200 = public object, 403 AccessDenied = absent); qid axis 1..180 (6 beyond page-refs), all n=1 byte-identical duplicates ETag `52f04d114ad9a1ab359ff47d672bbd0b` / 747,082 B / 2025-10-28; qid 60 n=2 = 1,051,319 B ETag `baa5a9…`; non-image keys all 403; `?versionId=null` → 403.
+  - kassenkompass.net: blanket 302 on every app-handled path (.php and non-.php) → no existence oracle; IIS/10.0 + PHP 8.4.3 backend; host-only cookies; 302→.de carries no params.
+
+## Work State
+### Completed
+- Full passive map of api.kassenkompass.de: 15/15 verb+auth matrix, 15+1 catalogue, v2 42-name saturation, normalization matrix (17 families), four response-envelope fingerprints, three canonicalisation oracles.
+- Full funnel map: 7 cookie-mirror entries, alias maps, 7/7 GET-branch closure, POST lead gate confirmation.
+- S3 bucket layout mapped; existence oracle and listing-posture oracle established.
+- Public-JS corpus read (standard.js 67,969 B; live-calculation.js 36,499 B; param_passthrough.js web1.0.1; whitelabel_live.js 11,359 B) with negative closure of reflection/XSS and server-side cookie-spoof chains.
+- Prior findings retired correctly: encoded-separator bypass (peer finals 90/88), HEAD route-membership methodology, Host-header false positive, `/post/` unauth-provisioning claim, one-shot stuffing→register chain.
+- Latest live cycle (2,159,139 B apex+www fragen.php, +0.022% inside ±0.3% band) re-confirmed drift-on-refresh; api root/sync/health byte-stable.
+
+### Active
+- Waiting on the source-map/embedded-secret audit of the 3 public JS bundles — the only passive route to the `X-API-Secret` and to unblocking every AUTH_HELPED final. No such audit exists anywhere in the KB despite 30+ carried cycles.
+- Standing 24h smoke on `bonusrechner_fragen.php` (drift-on-refresh model validation).
+
+### Blocked
+- All AUTH_HELPED findings blocked on `X-API-Secret`: IDOR `/user/{ext_id}` cross-user PII (62), v2 `insurance_info` BOLA (downgraded — draft-only value, publicly replicated by fragen.php `ucatKkData`), `/post/create_user` write auth (unprovable with read-only methods).
+- `kassenkompass.de/php/mark_all_read.php` is HUMAN_ONLY (action param POST-only; read-only rules forbid POST).
+- Peer pipeline produces zero signal for 25+ consecutive cycles; reposcan unavailable ("TARGET_ORG not configured").
+
+## Next Move
+1. `[NEXT] RAG`: GET (≤1 rps) `https://kassenkompass.de/js/standard.js`, `/js/live-calculation.js`, `/js/param_passthrough.js?v=web1.0.1`, `/js/whitelabel_live.js` and each `.map` (`standard.js.map`, `live-calculation.js.map`, `param_passthrough.js.map`, `whitelabel_live.js.map`); grep bodies for `X-API-Secret`, `sourceMappingURL`, `api_secret`, `Bearer`, and 20+ char high-entropy tokens.
+2. On positive secret recovery → re-verify `GET https://api.kassenkompass.de/user/1` vs `/user/2` vs `/user/999` for tenant scoping (IDOR/BOLA), with matching negative control (invalid secret).
+
+## Relevant Files
+- `state_bigpickle.json` / `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}` — peer state stubs.
+- `reports/hypotheses-nemotron3.txt`: still ranks refuted finals (encoded-separator WAF bypass @90 `/delete/{id}`, @88 `/health_insurance/`) plus a queued NEXT for the same refuted probes — do not re-emit.
+- `inventory/kassenkompass.md`: host inventory + timestamped recon log (api/www/.net/awv + `load.awv`); Live HTTP count 3.
+- `scope.yml`: in-scope definition (all company-owned infrastructure, comparison platforms, portals, APIs, websites, mobile apps, domains).
+- Public bundles (analysis targets, not local files): `kassenkompass.de/js/standard.js` (67,969 B), `/js/live-calculation.js` (36,499 B), `/js/param_passthrough.js` (web1.0.1), `/js/whitelabel_live.js` (11,359 B).
+- Key endpoints: `api.kassenkompass.de/` (1167 B catalogue), `/sync/` (67 B legacy envelope), `/health/` (22 B), `/v2/insurance_info/{kk_id}`, `/post/help` (344 B), `kassenkompass.de/bonusrechner_fragen.php` (~2.15 MB leak), `kassenkompass.de/php/mark_all_read.php`, `kk-s3-01.s3.eu-central-1.amazonaws.com/uploads/fraq/{qid}/{n}.png`.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do echo "=== $f ==="; grep -oaE "sourceMappingURL=[^ ]+|X-API-Secret|api[_-]?secret|Bearer [A-Za-z0-9._-]+|secret[\"']?\s*[:=]\s*[\"'][^\"']+" "$f" || echo "(no marker)"; done
+=== standard.js ===
+(no marker)
+=== live-calculation.js ===
+(no marker)
+=== param_passthrough.js ===
+(no marker)
+=== whitelabel_live.js ===
+(no marker)
+[0m
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do curl -s -o "$f.map" -w "%{http_code} %{size_download} $f.map\n" --max-time 20 "https://kassenkompass.de/js/$f.map"; sleep 1; done
+404 8377 standard.js.map
+404 8377 live-calculation.js.map
+404 8377 param_passthrough.js.map
+404 8377 whitelabel_live.js.map
+[0m
+[0m$ [0mcd /tmp/opencode && echo "--- api refs ---"; grep -oaE "https?://[a-z0-9.-]*kassenkompass[a-z0-9./_-]*" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | sort -u; echo "--- high-entropy tokens (>=24 chars b64/hex) ---"; grep -oaE "[A-Za-z0-9+/_-]{24,}={0,2}" standard.js live-calculation.js param_passthrough.js whitelabel_live.js | grep -vaE "function|document|undefined|prototype|addEventListener|querySelector|createElement|textContent|application" | sort -u | head -40
+--- api refs ---
+standard.js:https://awv.kassenkompass.de
+standard.js:https://load.awv.kassenkompass.de
+--- high-entropy tokens (>=24 chars b64/hex) ---
+live-calculation.js:Monatsbeitrag-Berechnung
+live-calculation.js:Nicht-Numerisches/Negatives
+live-calculation.js:berechneKrankenkassenWert
+live-calculation.js:checkIntervalRequirements
+live-calculation.js:getAktuelleKrankenkasseId
+live-calculation.js:getCurrentDisplayedSavings
+live-calculation.js:getVerfuegbareKrankenkassen
+live-calculation.js:removeSelectedCategories
+param_passthrough.js:Fragebaum-/Direktmodus-Steuerung
+param_passthrough.js:Partner-/Kampagnen-Attribution
+standard.js:EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+standard.js:Versicherungsstatus-Ticket
+standard.js:_hjIncludedInPageviewSample
+standard.js:_hjIncludedInSessionSample
+standard.js:arbeitgeber_daten_eingabe
+standard.js:berufsgruppe_id/berufsgruppe_name
+standard.js:checkForExistingFragenElements
+standard.js:cookie-category-description
+standard.js:cookie-category-required
+standard.js:cookie-modal-btn-primary
+standard.js:cookie-modal-btn-secondary
+standard.js:createTrackingTestButton
+standard.js:createTrackingTestButtonDaten
+standard.js:createTrackingTestButtonFragen
+standard.js:debounceTrackBerufsdaten
+standard.js:debounceTrackKrankenkasse
+standard.js:initBonusrechnerAbschlussDataLayer
+standard.js:initBonusrechnerDataLayer
+standard.js:initBonusrechnerDatenDataLayer
+standard.js:initBonusrechnerFragenDataLayer
+standard.js:initBonusrechnerSucheDataLayer
+standard.js:initBonusrechnerVergleich2DataLayer
+standard.js:initBonusrechnerWechsel2DataLayer
+standard.js:initPageSpecificDataLayer
+standard.js:persoenliche_daten_eingabe
+standard.js:setupBonusrechnerDatenTracking
+standard.js:setupBonusrechnerFragenTracking
+standard.js:setupBonusrechnerTracking
+standard.js:setupGenderButtonsTracking
+standard.js:showTrackingFeedbackDaten
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oaE ".{80}EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{80}" standard.js
+(no output)
+[0m
+[0m$ [0mcd /tmp/opencode && grep -oaE ".{120}EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{40}" standard.js; echo "--- try both-side-free ---"; grep -oaE "EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8.{120}" standard.js
+--- try both-side-free ---
+[0m
+[0m$ [0mcd /tmp/opencode && grep -abo "EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8" standard.js
+6478:EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+[0m
+[0m$ [0mcd /tmp/opencode && dd if=standard.js bs=1 skip=6300 count=360 2>/dev/null | cat -v
+==e?void 0:e.textContent}^M
+            var e=window,t=document,r="script",n="dataLayer",o="https://awv.kassenkompass.de",a="https://load.awv.kassenkompass.de",i="ahcfuvbcz",c="b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D",g="stapeUserId",v="",E="",d=!1;^M
+[0m
+[0m$ [0mls -la /tmp/opencode/ 2>/dev/null | head -30; echo "=== KB record? ==="; grep -rn "stape\|EwdfMSEr\|ahcfuvbcz\|source-map\|source map" knowledge/index.md reports/hypotheses.md reports/valid-bugs.md 2>/dev/null | head -20
+total 8
+drwxr-xr-x  2 runner runner 4096 Oct 14 15:29 .
+drwxrwxrwt 15 root   root   4096 Oct 14 15:29 ..
+=== KB record? ===
+knowledge/index.md:131:- 2026-09-06 ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+knowledge/index.md:201:- 2026-09-07 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+knowledge/index.md:224:- 2026-09-07 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM.
+knowledge/index.md:249:- 2026-09-08 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+knowledge/index.md:262:- 2026-09-08 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+knowledge/index.md:274:- 2026-09-09 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+knowledge/index.md:1383:- 2026-10-13 ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
+knowledge/index.md:1414:- 2026-10-14 ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
+knowledge/index.md:1445:- 2026-10-14 ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
+reports/hypotheses.md:485:- LEARN: ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live;
+reports/hypotheses.md:532:- LEARN: ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live;
+reports/hypotheses.md:724:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:757:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:772:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:801:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:821:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:834:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:848:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400
+reports/hypotheses.md:877:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 E
+reports/hypotheses.md:895:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 E
+[0m
+The peer log contains **raw executed output** for this exact audit. Checking whether it's persisted anywhere in the KB, and what remains unverified.
+[0m$ [0mgrep -a -n "EwdfMSEr\|ahcfuvbcz\|stapeUserId" reports/*.log leads/*.md knowledge/index.md 2>/dev/null | head -20
+reports/analyst-bigpickle.log:7208:[NEW] awv: client GTM container fully readable — GA4 G-RXB3GJEMRT with server_container_url=https://awv.kassenkompass.de (server-side GTM), FB pixel 360390300088445, purchase event (value 128 EUR / transaction_id macro); standard.js embeds Stape SGTM loader (endpoint id `ahcfuvbcz`); `/g/collect` live (400 on invalid).
+reports/analyst-bigpickle.log:7242:reasoning: Stape SGTM (id ahcfuvbcz) + client GA4 G-RXB3GJEMRT point to awv; /g/collect responds on bare/invalid (400), collector exposed by design; purchase event present client-side.
+reports/analyst-bigpickle.log:7259:[LEARN] ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+reports/analyst-bigpickle.log:7346:- [LEARN] ACCEPTED OTHER @ awv: client container fully readable — SGTM (Stape ahcfuvbcz) / GA4 G-RXB3GJEMRT / FB pixel 360390300088445 / purchase (128 EUR / transaction_id macro); /g/collect live; "GTM proxy" label superseded by SGTM.
+reports/analyst-bigpickle.log:10958:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 E
+reports/analyst-bigpickle.log:10976:- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 E
+reports/analyst-bigpickle.log:11011:[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:12439:171:            var e=window,t=document,r="script",n="dataLayer",o="https://awv.kassenkompass.de",a="https://load.awv.kassenkompass.de",i="ahcfuvbcz",c="b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D",g="stapeUserId",v="",E="",d=!1;
+reports/analyst-bigpickle.log:12459:173:                var d=!!g&&(m=navigator.userAgent,!!(m=new RegExp("Version/([0-9._]+)(.*Mobile)?.*Safari.*").exec(m)))&&16.4<=parseFloat(m[1]),f="stapeUserId"===g,I=d&&!f?function(e,t,r){void 0===t&&(t="");var n={cookie:l,localStorage:s,jsVariable:u,cssSelector:A},t=Array.isArray(t)?t:[t];if(e&&n[e])for(var o=n[e],a=0,i=t;a<i.length;a++){var c=i[a],c=r?o(c,r):o(c);if(c)return c}else console.warn("invalid uid source",e)}(g,v,E):void 0;
+reports/analyst-bigpickle.log:17802:[CHANGED] awv.kassenkompass.de SGTM container fully characterized — Stape (ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:47982:- **Cloud/other:** `kk-s3-01.s3.eu-central-1.amazonaws.com` — existence oracle (200 public-readable object vs 403 AccessDenied), qid 1..180 (6 beyond page refs), n-dimension extends (qid 60 n=2), images-only, non-image keys 403. `awv.kassenkompass.de` — SGTM (Stape `ahcfuvbcz`), GA4 `G-RXB3GJEMRT`, FB `360390300088445`, purchase 128 EUR, `/g/collect` 400-on-invalid; root UA-dependent (400 to default curl). `load.awv.kassenkompass.de` Cloudflare-challenged (403). 
+reports/analyst-bigpickle.log:48660:131:- 2026-09-06 ACCEPTED OTHER @ awv: client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid live; "GTM proxy" label superseded by SGTM.
+reports/analyst-bigpickle.log:48665:201:- 2026-09-07 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+reports/analyst-bigpickle.log:48667:224:- 2026-09-07 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM.
+reports/analyst-bigpickle.log:48669:249:- 2026-09-08 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully read — SGTM(Stape ahcfuvbcz)/GA4 G-RXB3GJEMRT/FB 360390300088445/purchase(128 EUR); /g/collect 400-on-invalid; "GTM proxy" label superseded by SGTM
+reports/analyst-bigpickle.log:48671:262:- 2026-09-08 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:48673:274:- 2026-09-09 ACCEPTED OTHER @ awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:50485:276:- NEW awv.kassenkompass.de fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:50487:285:- NEW awv.kassenkompass.de fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+reports/analyst-bigpickle.log:50489:320:- NEW awv.kassenkompass.de: Client container fully characterized — SGTM (Stape ahcfuvbcz), GA4 G-RXB3GJEMRT, FB 360390300088445, purchase event 128 EUR, /g/collect 400-on-invalid
+[0m
+The peer log has **raw executed output** — but the KB still records "no source-map search has ever been run" (stale, 10-13 and twice 10-14). Independently verifying with a rate-limited read-only pass.
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do
+  u="https://kassenkompass.de/js/$f"
+  [ "$f" = "param_passthrough.js" ] && u="$u?v=web1.0.1"
+  curl -s -o "$f" -D "$f.hdr" -w "%{http_code} %{size_download} $f\n" --max-time 25 "$u"
+  sleep 1
+done
+200 67969 standard.js
+200 37225 live-calculation.js
+200 5449 param_passthrough.js
+200 11359 whitelabel_live.js
+[0m
+Sizes differ from KB for `live-calculation.js` (37,225 vs 36,499). Checking source-maps and secrets, plus the size delta.
+[0m$ [0mcd /tmp/opencode && echo "=== sourceMappingURL ==="; grep -oa "sourceMappingURL[^ ]*" *.js || echo "none in any bundle"
+echo "=== secret tokens ==="; grep -oaE "X-API-Secret|api[_-]?secret|X-Api-Key|X-Api-Secret|Bearer [A-Za-z0-9._-]{10,}|Authorization" *.js || echo "none"
+echo "=== private keys ==="; grep -oaE "BEGIN (RSA |OPENSSH |EC |DSA |PGP )?PRIVATE KEY" *.js || echo "none"
+echo "=== sha256 ==="; sha256sum *.js
+=== sourceMappingURL ===
+none in any bundle
+=== secret tokens ===
+none
+=== private keys ===
+none
+=== sha256 ===
+ed43688ebada96f962c132c2f0afc1aad653c3d4bfb4074a41fc7675d969bdab  live-calculation.js
+887b80af806c8303affc1205cc3687b6147f3b3ecf0351f86276b20fffc4ad7f  param_passthrough.js
+ea2defadc34ef8c32b97764d6931f843e901f8b1f73ef1f224ffef392310b920  standard.js
+8fe86ea1d742f4926e474362bb670a542d0d21614373885b58fe2796863c5280  whitelabel_live.js
+[0m
+[0m$ [0mcd /tmp/opencode && for f in standard.js live-calculation.js param_passthrough.js whitelabel_live.js; do
+  curl -s -o "$f.map" -w "%{http_code} %{size_download} $f.map\n" --max-time 25 "https://kassenkompass.de/js/$f.map"
+  sleep 1
+done
+404 8377 standard.js.map
+404 8377 live-calculation.js.map
+404 8377 param_passthrough.js.map
+404 8377 whitelabel_live.js.map
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== high-entropy 24+ ==="; grep -oaE "[A-Za-z0-9+/_-]{28,}={0,2}" *.js | grep -vaE "function|document|undefined|prototype|addEventListener|querySelector|createElement|textContent|application|Month|Beitrag|Berechnung|Numerisches|Krankenkasse|getAktuelle|getCurrent|Verfuegbare|Selected|Interval|Requirements" | sort -u | head -40
+echo "=== URLs ==="; grep -oaE "https?://[a-zA-Z0-9.-]+" *.js | sort -u
+echo "=== header comment ==="; head -c 400 live-calculation.js
+=== high-entropy 24+ ===
+param_passthrough.js:Fragebaum-/Direktmodus-Steuerung
+param_passthrough.js:Partner-/Kampagnen-Attribution
+standard.js:EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+standard.js:berufsgruppe_id/berufsgruppe_name
+standard.js:checkForExistingFragenElements
+standard.js:createTrackingTestButtonDaten
+standard.js:createTrackingTestButtonFragen
+standard.js:initBonusrechnerAbschlussDataLayer
+standard.js:initBonusrechnerDatenDataLayer
+standard.js:initBonusrechnerFragenDataLayer
+standard.js:initBonusrechnerSucheDataLayer
+standard.js:initBonusrechnerVergleich2DataLayer
+standard.js:initBonusrechnerWechsel2DataLayer
+standard.js:setupBonusrechnerDatenTracking
+standard.js:setupBonusrechnerFragenTracking
+standard.js:trackBerufsgruppeGehaltImmediate
+whitelabel_live.js:bnv_legalmenu_ornamentfallback
+whitelabel_live.js:htmlincludes/whitelabel/whitelabel_styles
+=== URLs ===
+standard.js:https://awv.kassenkompass.de
+standard.js:https://load.awv.kassenkompass.de
+standard.js:https://static.hotjar.com
+=== header comment ===
+/**
+ * Live Calculation Manager - Krankenkassen-Ersparnis Berechnung
+ * Verantwortlich für: Echtzeitberechnung der Ersparnis, Cookie-Management, UI-Updates
+ */
+
+class LiveCalculationManager {
+    constructor(sessionData, ucatKkData, globalbudgetsData = {}, kombiboniData = {}) {
+        this.sessionData = sessionData;
+        this.ucatKkData = ucatKkData;
+        this.globalbudgetsData =
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== count of Ewdf token ctx ==="; grep -oa "b=[A-Za-z0-9+/=]\{20,\}" *.js | sort -u
+echo "=== endpoints / fetch ==="; grep -oaE "fetch\(|XMLHttpRequest|sendBeacon\(|\.open\(" *.js | sort | uniq -c
+echo "=== live-calc line count ==="; wc -l *.js
+=== count of Ewdf token ctx ===
+standard.js:b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8
+=== endpoints / fetch ===
+=== live-calc line count ===
+   868 live-calculation.js
+   130 param_passthrough.js
+  1793 standard.js
+   236 whitelabel_live.js
+  3027 total
+[0m
+Source-map route closed independently. Now investigating the `live-calculation.js` size delta (+726 B vs KB) — that's a new surface.
+[0m$ [0mcd /tmp/opencode && echo "=== Ewdf in KB? ==="; grep -rn "EwdfMSEr" /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge/ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/hypotheses.md /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/probe-results.md 2>/dev/null | head -10 || echo "NOT in KB"
+echo "=== size claims in KB ==="; grep -rno "36,499 B\|36499\|live-calculation.js (\?[0-9,]* B" /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/knowledge/index.md | tail -8
+=== Ewdf in KB? ===
+=== size claims in KB ===
+929:36,499 B
+[0m
+The `b=Ewdf…` token is the Stape SGTM loader credential. Checking whether it's characterized in the KB, and confirming the `live-calculation.js` size delta.
+[0m$ [0mcd /tmp/opencode && echo "=== what changed? search for new-looking content ==="; grep -oaE "class |constructor|function |=>" live-calculation.js | wc -l; echo "--- any http/fetch/api ---"; grep -oaE "api\.|X-|token|secret|password|credential" live-calculation.js | sort | uniq -c
+=== what changed? search for new-looking content ===
+25
+--- any http/fetch/api ---
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -rn "live-calculation" knowledge/index.md | grep -oE "[0-9,]+ B" | sort -u; echo "=== all live-calc entries ==="; grep -rn "live-calculation" knowledge/index.md | tail -6
+36,499 B
+=== all live-calc entries ===
+929:- 2026-09-30 ACCEPTED BUSLOGIC @ /js/live-calculation.js: orphaned unsigned read/write asymmetry — getBaseSavingsValue() parses data_sparsum from the cookie and line 624 adds it to the computed savings before animating the total into #resulteuro, while the corresponding setCookie is commented out at line 642. Sink is textContent (665, 672): display forgery, not XSS. 0 fetch/XHR/sendBeacon egress primitives in 36,499 B.
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== stape token analysis ==="; grep -oaE "b=[A-Za-z0-9+/=%]{20,}" *.js; echo "--- full loader ctx ---"; grep -oaE 'o="https[^;]+;' standard.js | head -3
+=== stape token analysis ===
+standard.js:b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D
+--- full loader ctx ---
+o="https://awv.kassenkompass.de",a="https://load.awv.kassenkompass.de",i="ahcfuvbcz",c="b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D",g="stapeUserId",v="",E="",d=!1;
+[0m
+[0m$ [0mcd /tmp/opencode && for f in *.hdr; do echo "=== $f ==="; grep -iE "HTTP/|last-modified|etag|content-length|cache-control|date|x-cache|cf-cache" "$f"; done
+=== live-calculation.js.hdr ===
+HTTP/2 200 
+date: Wed, 14 Oct 2026 15:37:10 GMT
+content-length: 37225
+cache-control: max-age=31536000
+last-modified: Tue, 13 Oct 2026 12:31:43 GMT
+etag: "beb1dcee5bdd1:0"
+cf-cache-status: BYPASS
+=== param_passthrough.js.hdr ===
+HTTP/2 200 
+date: Wed, 14 Oct 2026 15:37:11 GMT
+content-length: 5449
+cache-control: max-age=31536000
+last-modified: Fri, 04 Sep 2026 16:56:08 GMT
+etag: "8eaef1478e3cdd1:0"
+cf-cache-status: BYPASS
+=== standard.js.hdr ===
+HTTP/2 200 
+date: Wed, 14 Oct 2026 15:37:08 GMT
+content-length: 67969
+cache-control: max-age=31536000
+last-modified: Wed, 26 Aug 2026 14:34:48 GMT
+etag: "9ef139c6835dd1:0"
+cf-cache-status: BYPASS
+=== whitelabel_live.js.hdr ===
+HTTP/2 200 
+date: Wed, 14 Oct 2026 15:37:13 GMT
+content-length: 11359
+cache-control: max-age=31536000
+last-modified: Fri, 24 Jul 2026 11:12:16 GMT
+etag: "fc0e8485d1bdd1:0"
+cf-cache-status: BYPASS
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== data_sparsum anchor (KB lines 624/642) ==="; grep -n "data_sparsum" live-calculation.js
+=== data_sparsum anchor (KB lines 624/642) ===
+56:        const cookieValue = this.getCookie('data_sparsum');
+656:        // this.setCookie('data_sparsum', Math.round(totalSavings), 7);
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== egress/network in live-calc (KB claimed 0) ==="; grep -oaE "fetch|XMLHttpRequest|sendBeacon|WebSocket|EventSource|\.src *=|import\(|navigator\.send" live-calculation.js | sort | uniq -c
+echo "=== new-looking identifiers ==="; grep -oaE "this\.[a-zA-Z]+ *= *function|this\.[a-zA-Z]+ *\(" live-calculation.js | sort -u | head -40
+=== egress/network in live-calc (KB claimed 0) ===
+=== new-looking identifiers ===
+this.addSelectedCategories(
+this.animateValue(
+this.berechneKrankenkassenWert(
+this.calculateCategoryValue(
+this.calculateLiveSavings(
+this.checkAgeRequirements(
+this.checkIntervalRequirements(
+this.debugDataStructure(
+this.debugHistory(
+this.getAktuelleKrankenkasseId(
+this.getBaseSavingsValue(
+this.getBezugswert(
+this.getCookie(
+this.getCurrentDisplayedSavings(
+this.getJahresgehalt(
+this.getKrankenkassenName(
+this.getMonatsbeitrag(
+this.getUserAge(
+this.getVerfuegbareKrankenkassen(
+this.parseWertZahl(
+this.removeSelectedCategories(
+this.restoreCalculationState(
+this.restoreDisplayedSavings(
+this.saveCalculationState(
+this.setCookie(
+this.showDemoCalculation(
+this.updateSavingsDisplay(
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== full method list ==="; grep -oaE "^    [a-zA-Z_]+\(|^    async [a-zA-Z_]+\(" live-calculation.js | sort -u
+=== full method list ===
+    addSelectedCategories(
+    animateValue(
+    berechneKrankenkassenWert(
+    calculateCategoryValue(
+    calculateLiveSavings(
+    checkAgeRequirements(
+    checkIntervalRequirements(
+    constructor(
+    debugDataStructure(
+    debugHistory(
+    getAktuelleKrankenkasseId(
+    getBaseSavingsValue(
+    getBezugswert(
+    getCookie(
+    getCurrentDisplayedSavings(
+    getJahresgehalt(
+    getKrankenkassenName(
+    getMonatsbeitrag(
+    getUserAge(
+    getVerfuegbareKrankenkassen(
+    getWertbezugName(
+    parseWertZahl(
+    removeSelectedCategories(
+    restoreCalculationState(
+    restoreDisplayedSavings(
+    saveCalculationState(
+    setCookie(
+    showDemoCalculation(
+    testCalculation(
+    testUndoSystem(
+    updateSavingsDisplay(
+[0m
+Confirmed real delta: `live-calculation.js` `last-modified: 2026-10-13 12:31:43`, grew 36,499 → 37,225 B. The KB's line anchors (624/642) are stale. Checking what changed.
+[0m$ [0mcd /tmp/opencode && echo "=== all getCookie/setCookie calls ==="; grep -n "getCookie\|setCookie\|localStorage\|sessionStorage\|document.cookie" live-calculation.js
+=== all getCookie/setCookie calls ===
+33:    getCookie(name) {
+34:        const value = `; ${document.cookie}`;
+41:    setCookie(name, value, days) {
+48:        document.cookie = name + "=" + value + expires + "; path=/";
+56:        const cookieValue = this.getCookie('data_sparsum');
+222:        console.log('[LiveCalc] Alle Cookies:', document.cookie);
+319:        let aktKkId = this.getCookie('akt_kk_id');
+332:        // setCookie('akt_kk_id', '1', 7) überschrieb echten State für 7 Tage.
+356:        let availableKkUids = this.getCookie('available_kk_uids');
+369:        this.setCookie('available_kk_uids', availableKkUidsJson, 7);
+656:        // this.setCookie('data_sparsum', Math.round(totalSavings), 7);
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== saveCalculationState / restore ==="; sed -n '680,760p' live-calculation.js
+=== saveCalculationState / restore ===
+            
+            if (progress < 1) {
+                requestAnimationFrame(updateValue);
+            } else {
+                // Finale Formatierung mit Komma
+                const finalValue = (Math.round(end * 100) / 100).toString().replace('.', ',');
+                element.textContent = finalValue;
+            }
+        };
+
+        requestAnimationFrame(updateValue);
+    }
+
+    /**
+     * Demo-Berechnung wenn keine echten Daten verfügbar sind
+     */
+    showDemoCalculation() {
+        console.log('[LiveCalc] Zeige Demo-Berechnung');
+        
+        // Einfache Demo-Berechnung basierend auf Anzahl ausgewählter Kategorien
+        const categoryCount = this.selectedCategories.length;
+        if (categoryCount === 0) {
+            console.log('[LiveCalc] Keine Kategorien ausgewählt - keine Demo-Berechnung');
+            return null;
+        }
+        
+        // Demo-Ersparnis: 50€ pro Kategorie + Zufallsfaktor
+        const baseAmount = categoryCount * 50;
+        const randomFactor = Math.floor(Math.random() * 100) + 50; // 50-150€ zusätzlich
+        const demoSavings = baseAmount + randomFactor;
+        
+        console.log(`[LiveCalc] Demo-Ersparnis berechnet: ${categoryCount} Kategorien × 50€ + ${randomFactor}€ = ${demoSavings}€`);
+        
+        this.updateSavingsDisplay(demoSavings);
+        
+        return {
+            currentValue: 0,
+            bestValue: demoSavings,
+            savings: demoSavings,
+            bestKkId: 'demo',
+            isDemo: true
+        };
+    }    /**
+     * ERWEITERTE Debug-Funktion: Zeige alle Datenstrukturen
+     */
+    debugDataStructure() {
+        console.group('=== ERWEITERTE LIVE-CALC DEBUG INFO ===');
+        
+        console.log('Session Data:', this.sessionData);
+        console.log('Ausgewählte Kategorien:', this.selectedCategories);
+        
+        if (Array.isArray(this.ucatKkData)) {
+            console.log('Standard ucatKkData Einträge:', this.ucatKkData.length);
+            console.log('Beispiel ucatKkData:', this.ucatKkData.slice(0, 3));
+        } else {
+            console.log('ucatKkData (Object):', Object.keys(this.ucatKkData).length, 'keys');
+        }
+        
+        console.log('Globalbudgets pro KK:');
+        Object.keys(this.globalbudgetsData).forEach(kkId => {
+            const gb = this.globalbudgetsData[kkId];
+            console.log(`  KK ${kkId}: ${Object.keys(gb).length} Globalbudgets`);
+            Object.values(gb).forEach(budget => {
+                console.log(`    - ${budget.name_gb}: ${budget.volumen_gb}€, Kategorien: [${budget.affected_ucats.join(', ')}]`);
+            });
+        });
+        
+        console.log('Kombiboni pro KK:');
+        Object.keys(this.kombiboniData).forEach(kkId => {
+            const kb = this.kombiboniData[kkId];
+            console.log(`  KK ${kkId}: ${Object.keys(kb).length} Kombiboni`);
+            Object.values(kb).forEach(bonus => {
+                console.log(`    - ${bonus.name_boni}: ${bonus.volumen_boni}€, Kategorien: [${bonus.required_ucats.join(', ')}]`);
+            });
+        });
+        
+        console.groupEnd();
+    }    /**
+     * Test-Funktion für manuelle Tests
+     */
+    testCalculation(testCategories = ['1', '2']) {
+[0m
+The file grew +726 B. New methods vs the KB description: `saveCalculationState`, `restoreCalculationState`, `restoreDisplayedSavings`, `debugDataStructure`, `testCalculation`, `testUndoSystem`, `showDemoCalculation`, `checkAgeRequirements`. Let me check if the orphaned data_sparsum asymmetry still holds. The setCookie at 656 is still commented. The getCookie at 56.
+
+Let me check if saveCalculationState writes data_sparsum or similar to a cookie/localStorage. This is the key BUSLOGIC finding — orphaned unsigned read. If the new version re-enabled the write or added another cookie source, that changes the finding.
+
+Let me look at the cookie handling.</think>
+[0m$ [0mcd /tmp/opencode && grep -n "saveCalculationState\|restoreCalculationState\|restoreDisplayedSavings" live-calculation.js; echo "=== bodies ==="; sed -n '480,560p' live-calculation.js
+101:    saveCalculationState(nodeId, description = '') {
+127:    restoreCalculationState(targetNodeId) {
+162:        this.restoreDisplayedSavings(targetState.displayedSavings);
+182:    restoreDisplayedSavings(targetSavings) {
+212:            this.saveCalculationState(nodeId, `Vor Frage Node ${nodeId}`);
+775:        this.saveCalculationState('node1', 'Test Frage 1');
+778:        this.saveCalculationState('node2', 'Test Frage 2'); 
+781:        this.saveCalculationState('node3', 'Test Frage 3');
+788:        this.restoreCalculationState('node2');
+=== bodies ===
+                activeKombibonus = eligibleKombibonis[0];
+                kombiboniBonus = parseFloat(activeKombibonus.volumen_boni) || 0;
+                
+                console.log(`[LiveCalc] Höchster Kombibonus gewählt: ${activeKombibonus.name_boni} (${kombiboniBonus}€)`);
+                console.log(`[LiveCalc] Betroffene Kategorien werden auf 0 gesetzt: [${activeKombibonus.required_ucats.join(', ')}]`);
+                
+                // Alle Kategorien des aktiven Kombibonus auf 0 setzen
+                activeKombibonus.required_ucats.forEach(ucatId => {
+                    if (adjustedValues[ucatId] !== undefined) {
+                        const originalValue = adjustedValues[ucatId];
+                        adjustedValues[ucatId] = 0;
+                        console.log(`[LiveCalc] Kategorie ${ucatId}: ${originalValue}€ → 0€ (durch Kombibonus ersetzt)`);
+                    }
+                });
+            }
+        }
+          // 4. Endwert berechnen
+        const adjustedStandardValue = Object.values(adjustedValues).reduce((sum, val) => sum + val, 0);
+        const finalValue = adjustedStandardValue + kombiboniBonus;
+        
+        console.log(`[LiveCalc] === ERGEBNIS für KK ${kkId} ===`);
+        console.log(`[LiveCalc] Standard-Wert: ${totalStandardValue}€`);
+        console.log(`[LiveCalc] Nach Globalbudgets: ${adjustedStandardValue}€ (${globalbudgetAdjustments >= 0 ? '+' : ''}${globalbudgetAdjustments.toFixed(2)}€)`);
+        if (activeKombibonus) {
+            console.log(`[LiveCalc] Aktiver Kombibonus: ${activeKombibonus.name_boni} (+${kombiboniBonus}€)`);
+            console.log(`[LiveCalc] Kategorien durch Kombibonus ersetzt: [${activeKombibonus.required_ucats.join(', ')}]`);
+        } else {
+            console.log(`[LiveCalc] Kein Kombibonus aktiv: +${kombiboniBonus}€`);
+        }
+        console.log(`[LiveCalc] GESAMT: ${finalValue}€`);
+        console.log(`[LiveCalc] ========================`);
+        
+        return finalValue;
+    }
+
+    /**
+     * Berechne den tatsächlichen Wert einer Kategorie (Euro oder Prozent).
+     * JS-Spiegel der zentralen Formel aus php/leistungswert_lib.php:
+     * Euro direkt; Prozent über wert_tbl-Bezug (wertTblData, Bezug >= 3) bzw.
+     * dynamisch 1/2 über getBezugswert(); nicht auflösbarer Bezug -> Rohwert
+     * (bewusst untertrieben); MaxCap deckelt immer zum Schluss.
+     */
+    calculateCategoryValue(categoryData) {
+        if (!categoryData || !categoryData.wert) {
+            return 0;
+        }
+
+        const wert = this.parseWertZahl(categoryData.wert);
+        const wertart = parseInt(categoryData.wertart) || 1; // 1=Euro, 2=Prozent
+        let value = wert;
+
+        if (wertart === 2) {
+            const wertbezug = parseInt(categoryData.wertbezug) || 0; // 0=kein Bezug, 1=Gehalt, 2=Monatsbeitrag, >=3=wert_tbl
+            let bezugswert = 0;
+            if (wertbezug >= 3) {
+                if (typeof wertTblData !== 'undefined' && wertTblData && wertTblData[wertbezug] !== undefined) {
+                    bezugswert = this.parseWertZahl(wertTblData[wertbezug]);
+                }
+            } else if (wertbezug === 1 || wertbezug === 2) {
+                bezugswert = this.getBezugswert(wertbezug);
+            }
+
+            if (bezugswert > 0) {
+                value = (bezugswert * wert) / 100;
+                console.log(`[LiveCalc] Prozent-Berechnung: ${wert}% von ${bezugswert}€ = ${value}€`);
+            } else {
+                // Bezug nicht auflösbar -> Rohwert statt 0 (gleiches Verhalten wie Server)
+                value = wert;
+            }
+        }
+
+        // MaxCap deckelt immer (auch Euro-Zeilen)
+        const maxcap = this.parseWertZahl(categoryData.maxcap);
+        if (maxcap > 0) {
+            value = Math.min(value, maxcap);
+        }
+        return value;
+    }
+
+    /**
+     * Zahlfeld aus cat_kk_tbl defensiv parsen: Komma-Altlasten ('8,33') normalisieren,
+[0m
+The new version introduced `debugDataStructure` that logs session data to console—not a real vuln. `showDemoCalculation` uses Math.random. The orphaned data_sparsum read at line 56 remains, setCookie still commented at 656. So the BUSLOGIC finding remains but line anchors shifted.
+
+Let me check line 56 and 650-660 for the exact state.
+
+Also check saveCalculationState / restoreCalculationState for localStorage usage (grep showed no localStorage/sessionStorage). So those methods maybe use cookies? Let me look. Actually grep found no localStorage/sessionStorage. Let me search for saveCalculationState body.</think>
+[0m$ [0mcd /tmp/opencode && sed -n '101,200p' live-calculation.js
+saveCalculationState(nodeId, description = '') {
+        const state = {
+            nodeId: nodeId,
+            selectedCategories: [...this.selectedCategories], // Deep copy
+            timestamp: Date.now(),
+            description: description || `Node ${nodeId}`,
+            displayedSavings: this.getCurrentDisplayedSavings()
+        };
+        
+        this.calculationHistory.push(state);
+        
+        // Prevent memory overflow - keep only last N states
+        if (this.calculationHistory.length > this.maxHistoryLength) {
+            this.calculationHistory.shift();
+        }
+        
+        console.log(`[LiveCalc] 💾 Berechnungsstand gespeichert: ${state.description}`, {
+            nodeId: state.nodeId,
+            categories: state.selectedCategories,
+            displayedSavings: state.displayedSavings
+        });
+    }
+
+    /**
+     * UNDO FUNCTIONALITY: Stelle Berechnungsstand wieder her
+     */
+    restoreCalculationState(targetNodeId) {
+        if (this.calculationHistory.length === 0) {
+            console.log('[LiveCalc] ⚠️ Keine History verfügbar für Undo');
+            return false;
+        }
+
+        // Finde den Zustand für die Ziel-Node
+        let targetStateIndex = -1;
+        for (let i = this.calculationHistory.length - 1; i >= 0; i--) {
+            if (this.calculationHistory[i].nodeId === targetNodeId) {
+                targetStateIndex = i;
+                break;
+            }
+        }
+
+        if (targetStateIndex === -1) {
+            console.log(`[LiveCalc] ⚠️ Kein Zustand für Node ${targetNodeId} gefunden - verwende letzten verfügbaren Zustand`);
+            targetStateIndex = this.calculationHistory.length - 1;
+        }
+
+        const targetState = this.calculationHistory[targetStateIndex];
+        
+        // Restore state
+        this.selectedCategories = [...targetState.selectedCategories];
+        
+        // Remove future states (everything after target)
+        this.calculationHistory = this.calculationHistory.slice(0, targetStateIndex + 1);
+        
+        console.log(`[LiveCalc] ↶ Berechnungsstand wiederhergestellt: ${targetState.description}`, {
+            restoredCategories: this.selectedCategories,
+            restoredSavings: targetState.displayedSavings,
+            historyLength: this.calculationHistory.length
+        });
+
+        // Restore the displayed savings
+        this.restoreDisplayedSavings(targetState.displayedSavings);
+        
+        return true;
+    }
+
+    /**
+     * UNDO FUNCTIONALITY: Hole aktuell angezeigte Ersparnis
+     */
+    getCurrentDisplayedSavings() {
+        const resultElement = document.getElementById('resulteuro');
+        if (resultElement) {
+            const currentText = resultElement.textContent || '0';
+            return parseInt(currentText.replace(/[^\d]/g, '')) || 0;
+        }
+        return 0;
+    }
+
+    /**
+     * UNDO FUNCTIONALITY: Stelle angezeigte Ersparnis wieder her
+     */
+    restoreDisplayedSavings(targetSavings) {
+        const resultElement = document.getElementById('resulteuro');
+        if (resultElement) {
+            console.log(`[LiveCalc] 🔄 Restauriere Ersparnis-Anzeige: ${targetSavings}€`);
+            
+            // Animiere zurück zum Zielwert
+            const currentValue = parseFloat(resultElement.textContent) || 0;
+            this.animateValue(resultElement, currentValue, targetSavings, 500);
+        }
+    }
+
+    /**
+     * UNDO FUNCTIONALITY: Debug-Info für History
+     */
+    debugHistory() {
+        console.group('🕒 Calculation History Debug');
+        console.log(`Total states: ${this.calculationHistory.length}`);
+        this.calculationHistory.forEach((state, index) => {
+            console.log(`${index}: Node ${state.nodeId} - ${state.description} (${state.selectedCategories.length} categories, ${state.displayedSavings}€)`);
+[0m
+Interesting — new file references `wertTblData` and php/leistungswert_lib.php. Let me look at saveCalculationState (101) and the cookie structure.
+
+The key point: this is a client-side file; the "orphaned unsigned data_sparsum read" is a display forgery. Nothing new that's a real bug.
+
+But the important delta is: live-calculation.js was modified 2026-10-13, grew +726 B, and now references `wertTblData` (a new data structure sourced from server) and `php/leistungswert_lib.php`. That suggests a new server-side endpoint/parameter may be feeding `wertTblData`. This is a passive-observable new surface.
+
+Let me check where wertTblData comes from — is it embedded in the PHP page? If a new global `wertTblData` is now injected into bonusrechner pages, that may add to the public corpus or reveal new data.
+
+Let me grep the fragen page for wertTblData. But that's a live probe of ~2MB. Actually we can check if KB mentions wertTblData.
+
+Let me be efficient. The task says "Continue if you have next steps". My next step was the RAG source-map search — which I did. Now I have results. I should produce the 7-step output blocks? The user asked me to continue. The analyst role produces structured blocks. But this seems to be a continuation of the analysis session. Let me produce a new cycle output.
+
+Actually, let me gather a bit more: check saveCalculationState body (101-180) to see cookie usage, and check whether wertTblData is new/embedded.
+
+Let me also check the KB for "wertTblData" and "leistungswert_lib".</think>
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== wertTblData in KB? ==="; grep -rn "wertTblData\|leistungswert_lib\|wert_tbl" knowledge/index.md probe-results.md | tail -15
+=== wertTblData in KB? ===
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== wertTblData anywhere local? ==="; grep -rln "wertTblData" . 2>/dev/null | head; echo "=== leistungswert anywhere? ==="; grep -rln "leistungswert_lib\|leistungswert" . 2>/dev/null | head
+=== wertTblData anywhere local? ===
+./analyst-out.txt
+=== leistungswert anywhere? ===
+./analyst-out.txt
+./reports/analyst-bigpickle.log
+[0m
+[0m$ [0mcd /tmp/opencode && sed -n '250,340p' live-calculation.js
+// sind keine Vergleichsbasis — keine Ersparnis-Differenz gegen sie rechnen.
+        // Kategorien wurden oben weiter gesammelt, die Anzeige bleibt einfach still.
+        if ((window.pseudoKkIds || []).includes(parseInt(aktKkId, 10))) {
+            console.log('[LiveCalc] Aktuelle KK ist Pseudo-Kasse - Ersparnisvergleich wird übersprungen');
+            return null;
+        }
+
+        // Hole verfügbare Krankenkassen
+        let availableKkArray = this.getVerfuegbareKrankenkassen(ucatArray);
+        if (!availableKkArray || availableKkArray.length === 0) {
+            console.warn('[LiveCalc] Keine verfügbaren KKs - zeige Demo-Berechnung');
+            return this.showDemoCalculation();
+        }
+
+        console.log('[LiveCalc] Aktuelle KK:', aktKkId);
+        console.log('[LiveCalc] Verfügbare KKs:', availableKkArray);
+        console.log('[LiveCalc] Alle gesammelten positiven Kategorien:', this.selectedCategories);
+
+        // Berechne Wert für aktuelle Krankenkasse
+        let currentKkValue = this.berechneKrankenkassenWert(ucatArray, aktKkId);
+        
+        // Finde beste Alternative
+        let bestKkValue = 0;
+        let bestKkId = null;
+        
+        availableKkArray.forEach(kkId => {
+            if (kkId == aktKkId) return; // Überspringe aktuelle KK
+            
+            let kkValue = this.berechneKrankenkassenWert(ucatArray, kkId);
+            console.log(`[LiveCalc] Alternative KK ${kkId}: ${kkValue}€`);
+            
+            if (kkValue > bestKkValue) {
+                bestKkValue = kkValue;
+                bestKkId = kkId;
+            }
+        });        // Berechne Ersparnis zur besten einzelnen Krankenkasse
+        const savings = bestKkValue - currentKkValue;
+          console.log(`[LiveCalc] === BESTE EINZELNE KRANKENKASSE ===`);
+        console.log(`  - Aktuelle KK (${aktKkId}): ${currentKkValue}€`);
+        console.log(`  - Beste einzelne Alternative: ${this.getKrankenkassenName(bestKkId)} (ID: ${bestKkId}): ${bestKkValue}€`);
+        console.log(`  - Ersparnis bei Wechsel zu dieser EINEN KK: ${savings}€`);
+        console.log(`[LiveCalc] ==========================================`);        // Update UI nur bei positiver Ersparnis zur besten einzelnen KK
+        if (savings > 0) {
+            console.log(`[LiveCalc] ✅ Positive Ersparnis von ${savings}€ bei Wechsel zu: ${this.getKrankenkassenName(bestKkId)}`);
+            this.updateSavingsDisplay(savings);
+        } else {
+            console.log('[LiveCalc] ❌ Keine positive Ersparnis bei Wechsel zu bester verfügbarer KK - UI wird nicht aktualisiert');
+        }return {
+            currentValue: currentKkValue,
+            bestValue: bestKkValue,
+            savings: savings,
+            bestKkId: bestKkId,
+            // Zusätzliche Info für bessere Transparenz
+            recommendedKkName: this.getKrankenkassenName(bestKkId),
+            calculationType: 'single_best_insurance'
+        };
+    }
+
+    /**
+     * Hole aktuelle Krankenkassen-ID
+     */
+    getAktuelleKrankenkasseId() {
+        // Session-Daten haben Priorität
+        if (this.sessionData && this.sessionData.cookies && this.sessionData.cookies.akt_kk_id) {
+            console.log('[LiveCalc] KK ID aus Session-Daten verwendet:', this.sessionData.cookies.akt_kk_id);
+            return this.sessionData.cookies.akt_kk_id;
+        }
+        
+        // Fallback zu Cookie
+        let aktKkId = this.getCookie('akt_kk_id');
+        if (aktKkId) {
+            console.log('[LiveCalc] KK ID aus Cookie verwendet:', aktKkId);
+            return aktKkId;
+        }
+        
+        // Fallback zu Session kk_id
+        if (this.sessionData && this.sessionData.kk_id) {
+            console.log('[LiveCalc] Fallback: KK ID aus Session-Daten verwendet:', this.sessionData.kk_id);
+            return this.sessionData.kk_id;
+        }
+        
+        // Kein persistenter Demo-Cookie mehr (Bau-Plan §7c 08/2026): der frühere
+        // setCookie('akt_kk_id', '1', 7) überschrieb echten State für 7 Tage.
+        // Der Demo-Wert gilt nur noch lokal für die laufende Seite.
+        const demoAktKkId = '1';
+        console.warn('[LiveCalc] Keine KK ID verfügbar - verwende Demo-Wert (nur für diese Seite, kein Cookie):', demoAktKkId);
+        return demoAktKkId;
+    }
+
+    /**
+     * Hole verfügbare Krankenkassen
+[0m
+Important: `wertTblData` appears in live-calculation.js but is NOT in the KB at all. That's new. The KB's BUSLOGIC finding described the file as having getBaseSavingsValue, data_sparsum, setCookie commented. But `wertTblData` and `php/leistungswert_lib.php` reference is new — suggests the calculation formula and data source evolved.
+
+Let me check the bonusrechner pages for wertTblData injection. The fragen page is ~2.15MB. But wertTblData might be in a different page (vergleich2/wechsel2/daten). Let me check probe-results for wertTblData.
+
+Actually, let me search all local files for wertTblData.
+
+Wait - I should be careful about time/budget. The main deliverable is the 7-step cycle output. Let me gather the key facts and emit.
+
+Key new facts found:
+1. Source-map route CLOSED: all 4 .map files → 404 (8377 B generic), no sourceMappingURL in any bundle. This retires the source-map hypothesis.
+2. No embedded X-API-Secret/Bearer/private keys in any bundle. Only credential-shaped literal is the Stape SGTM loader token `b=EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D` in standard.js (Stape powerup token, id ahcfuvbcz). NOT in KB.
+3. live-calculation.js changed: +726 B, last-modified 2026-10-13 12:31:43, sha256 ed43688e..., now references wertTblData / php/leistungswert_lib.php.
+
+The Stape token is interesting. Stape is a server-side GTM hosting provider. The `b=` parameter in the Stape powerup script is an authentication token for the Stape "power-up" / GTM container. Actually, in Stape's loader, `c = "b=..."` is the container config auth. Let me think about whether this is a real secret.
+
+Stape SGTM: the loader script:
+```
+(function(){var e=window,t=document,... o="https://...",a="https://load....",i="containerid",c="b=<token>",g="stapeUserId"...})
+```
+The `b=` token is the Stape "power-up" token used to fetch the container's server-side config. Per Stape docs, this token is embedded in the public page and is meant to be public-ish — but it can grant access to read/modify? Actually Stape's GTM Power-up script uses this to authenticate to Stape's API for the "power-up" features. Let me check.
+
+Actually this might be a genuinely interesting finding: the Stape API token embedded in client JS. Let me investigate what the token authorizes. But this is not the api.kassenkompass.de X-API-Secret.
+
+Hmm. But scope: awv.kassenkompass.de is in-scope (company-owned infra). If the Stape token allows write access to the SGTM container config, that's high value.
+
+But wait — the instruction was read-only, passive. Let me verify what this token is. Let me search the web.
+
+Actually, I should focus. Let me check whether the token is already known/characterized. The KB says awv SGTM Stape ahcfuvbcz characterized since 09-06. But the specific `b=` token isn't recorded. 
+
+Let me clarify what Stape's `b=` token is. Stape.io GTM Power-up. Let me do a quick web search.
+
+Actually, let me be measured. Given the reasoning-effort and the task, let me do a quick check on the Stape token meaning, then emit the cycle.
+
+Let me search.</think>`wertTblData` and a new formula source `php/leistungswert_lib.php` appear in the updated bundle but are absent from the KB. Also found an unrecorded credential-shaped literal: the Stape token. Investigating both.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && grep -n "wertTblData\|leistungswert" analyst-out.txt
+839:     * JS-Spiegel der zentralen Formel aus php/leistungswert_lib.php:
+840:     * Euro direkt; Prozent über wert_tbl-Bezug (wertTblData, Bezug >= 3) bzw.
+857:                if (typeof wertTblData !== 'undefined' && wertTblData && wertTblData[wertbezug] !== undefined) {
+858:                    bezugswert = this.parseWertZahl(wertTblData[wertbezug]);
+991:Interesting — new file references `wertTblData` and php/leistungswert_lib.php. Let me look at saveCalculationState (101) and the cookie structure.
+995:But the important delta is: live-calculation.js was modified 2026-10-13, grew +726 B, and now references `wertTblData` (a new data structure sourced from server) and `php/leistungswert_lib.php`. That suggests a new server-side endpoint/parameter may be feeding `wertTblData`. This is a passive-observable new surface.
+997:Let me check where wertTblData comes from — is it embedded in the PHP page? If a new global `wertTblData` is now injected into bonusrechner pages, that may add to the public corpus or reveal new data.
+999:Let me grep the fragen page for wertTblData. But that's a live probe of ~2MB. Actually we can check if KB mentions wertTblData.
+1003:Actually, let me gather a bit more: check saveCalculationState body (101-180) to see cookie usage, and check whether wertTblData is new/embedded.
+1005:Let me also check the KB for "wertTblData" and "leistungswert_lib".</think>
+1006:[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== wertTblData in KB? ==="; grep -rn "wertTblData\|leistungswert_lib\|wert_tbl" knowledge/index.md probe-results.md | tail -15
+1007:=== wertTblData in KB? ===
+1009:[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== wertTblData anywhere local? ==="; grep -rln "wertTblData" . 2>/dev/null | head; echo "=== leistungswert anywhere? ==="; grep -rln "leistungswert_lib\|leistungswert" . 2>/dev/null | head
+1010:=== wertTblData anywhere local? ===
+1012:=== leistungswert anywhere? ===
+1109:Important: `wertTblData` appears in live-calculation.js but is NOT in the KB at all. That's new. The KB's BUSLOGIC finding described the file as having getBaseSavingsValue, data_sparsum, setCookie commented. But `wertTblData` and `php/leistungswert_lib.php` reference is new — suggests the calculation formula and data source evolved.
+1111:Let me check the bonusrechner pages for wertTblData injection. The fragen page is ~2.15MB. But wertTblData might be in a different page (vergleich2/wechsel2/daten). Let me check probe-results for wertTblData.
+1113:Actually, let me search all local files for wertTblData.
+1120:3. live-calculation.js changed: +726 B, last-modified 2026-10-13 12:31:43, sha256 ed43688e..., now references wertTblData / php/leistungswert_lib.php.
+1142:Let me search.</think>`wertTblData` and a new formula source `php/leistungswert_lib.php` appear in the updated bundle but are absent from the KB. Also found an unrecorded credential-shaped literal: the Stape token. Investigating both.
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== wertTblData refs in bundle ==="; grep -n "wertTblData" live-calculation.js; echo "=== is it declared in any bundle? ==="; grep -l "var wertTblData\|let wertTblData\|const wertTblData\|wertTblData *=" *.js || echo "not declared in bundles"
+=== wertTblData refs in bundle ===
+518:     * Euro direkt; Prozent über wert_tbl-Bezug (wertTblData, Bezug >= 3) bzw.
+535:                if (typeof wertTblData !== 'undefined' && wertTblData && wertTblData[wertbezug] !== undefined) {
+536:                    bezugswert = this.parseWertZahl(wertTblData[wertbezug]);
+570:     * (feste Bezüge >= 3 kommen aus wertTblData, siehe calculateCategoryValue)
+=== is it declared in any bundle? ===
+not declared in bundles
+[0m
+The `wertTblData` global is referenced. Where is it defined? If it's set inline in a page, we'd need to fetch the page. But this is a client-side JS file. The definition would come from an inline script. Let me search the bundles — standard.js? Actually wertTblData is a global in live-calculation.js referenced but not defined in it. The bonusrechner page likely defines it.
+
+But before going deeper, let me step back. This is a large rabbit hole. Let me focus on the deliverable: a new 7-step cycle. 
+
+Actually wait, why does analyst-out.txt contain "wertTblData" and "leistungswert_lib"? That's the output I produced earlier (the file in the repo, from a previous run). Hmm, actually analyst-out.txt is at repo root and contains the prior cycle output. Let me check — grep said analyst-out.txt contains wertTblData. That's odd since my output didn't mention it. Let me look.
+
+Actually the grep was run with cwd repo root: `grep -rln "wertTblData" .` returned `./analyst-out.txt`. So analyst-out.txt (the file in repo, 13646 bytes) contains wertTblData. That file was from a different run maybe. Let me read it.
+
+Actually, I already saw analyst-out.txt content earlier via grep — it matched lines 39,40,41,51,103 which included my hypotheses text. But it now also contains wertTblData? Let me re-read the file.
+
+Hmm, the grep -rln earlier returned analyst-out.txt for wertTblData. Let me actually read the file.</think>The local `analyst-out.txt` (a prior cycle's output) already mentions `wertTblData`. Let me check.
+[0m$ [0mcd /tmp/opencode && echo "=== decode Stape b= token ==="; python3 -c "
+import base64,urllib.parse
+s='EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D'
+s=urllib.parse.unquote(s)
+b=base64.b64decode(s)
+print('len',len(b))
+print('hex',b.hex())
+print('repr',b)
+"
+=== decode Stape b= token ===
+len 41
+hex 13075f31212b4e3c2e572e34232b344e0c5e5058444007064708030506030d03150e121706154d0c1f
+repr b'\x13\x07_1!+N<.W.4#+4N\x0c^PXD@\x07\x06G\x08\x03\x05\x06\x03\r\x03\x15\x0e\x12\x17\x06\x15M\x0c\x1f'
+[0m
+[0m$ [0mcd /tmp/opencode && sed -n '340,400p' live-calculation.js
+* Hole verfügbare Krankenkassen
+     */
+    getVerfuegbareKrankenkassen(ucatArray) {
+        // Session-Daten haben Priorität
+        if (this.sessionData && this.sessionData.cookies && this.sessionData.cookies.available_kk_uids) {
+            let availableKkUids = this.sessionData.cookies.available_kk_uids;
+            console.log('[LiveCalc] Verfügbare KKs aus Session-Daten verwendet:', availableKkUids);
+            
+            try {
+                return typeof availableKkUids === 'string' ? JSON.parse(availableKkUids) : availableKkUids;
+            } catch (e) {
+                console.error('[LiveCalc] Fehler beim Parsen der Session KKs:', e);
+            }
+        }
+        
+        // Fallback zu Cookie
+        let availableKkUids = this.getCookie('available_kk_uids');
+        if (availableKkUids) {
+            try {
+                return JSON.parse(availableKkUids);
+            } catch (e) {
+                console.error('[LiveCalc] Fehler beim Parsen der Cookie KKs:', e);
+            }
+        }
+        
+        // Fallback: Alle verfügbaren KKs aus ucatKkData
+        console.warn('[LiveCalc] Verfügbare Krankenkassen nicht gefunden - verwende alle aus ucatKkData');
+        const allKkIds = [...new Set(ucatArray.map(item => item.uid_kk_q))];
+        const availableKkUidsJson = JSON.stringify(allKkIds);
+        this.setCookie('available_kk_uids', availableKkUidsJson, 7);
+        console.log('[LiveCalc] Demo-Cookie für verfügbare KKs gesetzt:', allKkIds);
+        
+        return allKkIds;
+    }    /**
+     * ERWEITERTE Berechnung: Wert für eine bestimmte Krankenkasse mit Globalbudgets und Kombiboni
+     */
+    berechneKrankenkassenWert(ucatArray, kkId) {
+        console.log(`[LiveCalc] === ERWEITERTE BERECHNUNG für KK ${kkId} ===`);
+        
+        // 1. Standard-Kategoriewerte sammeln
+        let standardValues = {};
+        let totalStandardValue = 0;
+        
+        this.selectedCategories.forEach(categoryId => {
+            const categoryData = ucatArray.find(item => 
+                item.uid_ucat_q == categoryId && item.uid_kk_q == kkId
+            );
+            
+            if (categoryData && categoryData.wert) {
+                const calculatedValue = this.calculateCategoryValue(categoryData);
+                standardValues[categoryId] = calculatedValue;
+                totalStandardValue += calculatedValue;
+                
+                console.log(`[LiveCalc] Standard - KK ${kkId}, Kategorie ${categoryId}: ${calculatedValue}€`);
+            }
+        });
+        
+        console.log(`[LiveCalc] Standard-Wert gesamt: ${totalStandardValue}€`);
+        
+        // 2. Globalbudgets prüfen und anwenden
+        let adjustedValues = {...standardValues};
+[0m
+The `analyst-out.txt` is this session's own transcript. Confirmed `wertTblData` is a global not declared in any bundle (server-injected). Let me decode the Stape token and check the new `available_kk_uids` cookie read/write pair.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== EwdfMSEr occurrences ==="; grep -ra "EwdfMSEr" knowledge/ reports/hypotheses.md reports/valid-bugs.md probe-results.md leads/ inventory/ 2>/dev/null | head; echo "[exit=$?]"
+=== EwdfMSEr occurrences ===
+[exit=0]
+[0m
+Let me definitively verify whether this Stape token is recorded anywhere in the KB.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== does KB record the b= token / power-up key? ==="; grep -rn "power-up\|powerup\|power_up\|Stape token\|b=.*MSEr" knowledge/index.md reports/hypotheses.md | head
+=== does KB record the b= token / power-up key? ===
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && if grep -raq "EwdfMSEr" knowledge/ reports/hypotheses.md reports/valid-bugs.md probe-results.md leads/ inventory/ 2>/dev/null; then echo "FOUND in KB"; else echo "NOT FOUND anywhere in KB/leads/inventory"; fi
+NOT FOUND anywhere in KB/leads/inventory
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== does KB or probe-results record ANY stape powerup token? ==="; if grep -raqiE "stape.*token|power.?up.*key|b=\\\\?\"?[A-Za-z0-9+/=]{40,}" knowledge/index.md probe-results.md reports/hypotheses.md 2>/dev/null; then echo FOUND; else echo NONE; fi
+=== does KB or probe-results record ANY stape powerup token? ===
+NONE
+[0m
+Confirmed: the token is absent from the KB. Now researching what a Stape power-up `b=` token actually authorizes.
+[0m◈ [0mExa Web Search "Stape.io GTM power-up script b= parameter token authentication container"
+[0m◈ [0mExa Web Search "Stape.io "power-up script" key authentication API container sid sgtm"
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== which pages load live-calculation.js ==="; grep -o "bonusrechner[a-z_0-9]*\.php[^\"']*" probe-results.md | sort | uniq -c | sort -rn | head; echo "--- live-calculation refs ---"; grep -n "live-calculation" probe-results.md | head -20
+=== which pages load live-calculation.js ===
+    308 bonusrechner_fragen.php -> 200 len=?
+     86 bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+     28 bonusrechner_abschluss.php -> 200 len=?
+     22 bonusrechner_daten.php -> 200 len=?
+     21 bonusrechner_vergleich2.php -> 200 len=?
+     17 bonusrechner_suche.php -> 200 len=?
+     11 bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+     10 bonusrechner.php -> 200 len=?
+      9 bonusrechner.php?lizenz=test&jid=123&agn=456&ppn=789 -> 200 len=?
+      8 bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 -> 200 len=?
+--- live-calculation refs ---
+[0m
+The Stape `b=` token ships client-side by design (Custom Loader snippet). Let me check what the KB knows about `wertTblData`'s host page before spending live probes.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && echo "=== data structures in fragen corpus per KB ==="; grep -o "ucatKkData\|globalbudgetsData\|kombiboniData\|wertTblData\|dataant\|pseudoKkIds" knowledge/index.md | sort | uniq -c
+=== data structures in fragen corpus per KB ===
+      2 dataant
+      4 globalbudgetsData
+      4 kombiboniData
+      9 pseudoKkIds
+      7 ucatKkData
+[0m
+The source-map route is closed. Two new items emerged: an unrecorded Stape auth token and a `live-calculation.js` update (10-13, +726 B) referencing a new global `wertTblData`. Testing whether the Stape token is a real credential.
+[0m$ [0mcd /tmp/opencode && TOK="EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D"
+echo "=== A: container js WITHOUT token ==="
+curl -s -o stapeA -w "%{http_code} %{size_download} %{content_type}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js"
+sleep 1
+echo "=== B: container js WITH token ==="
+curl -s -o stapeB -w "%{http_code} %{size_download} %{content_type}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js?b=$TOK"
+sleep 1
+echo "=== diff ==="; cmp stapeA stapeB && echo "IDENTICAL" || echo "DIFFERENT"
+echo "=== sha ==="; sha256sum stapeA stapeB
+=== A: container js WITHOUT token ===
+200 255390 application/javascript; charset=UTF-8
+=== B: container js WITH token ===
+200 530057 application/javascript; charset=UTF-8
+=== diff ===
+stapeA stapeB differ: byte 12119, line 10
+DIFFERENT
+=== sha ===
+6fad9283d89fa9189f37362a5d6b5aa3694d83461e7c82615fcef11f5f04f29c  stapeA
+156424f4180582ec116e46dd0243529bf1e16fe6ce0583b785accaac7c5284d9  stapeB
+[0m
+Significant: the token changes the response — 530,057 B vs 255,390 B. The `b=` token unlocks materially more container config. Analyzing what it exposes.
+[0m$ [0mcd /tmp/opencode && echo "=== sizes/lines ==="; wc -c stapeA stapeB; wc -l stapeA stapeB
+echo "=== unique strings in B not in A (sample) ==="
+grep -oaE "\"[a-zA-Z0-9_]{4,40}\"" stapeA | sort -u > A.toks
+grep -oaE "\"[a-zA-Z0-9_]{4,40}\"" stapeB | sort -u > B.toks
+echo "--- only in B ---"; comm -13 A.toks B.toks | head -60
+echo "--- count only-in-B ---"; comm -13 A.toks B.toks | wc -l
+echo "--- count only-in-A ---"; comm -23 A.toks B.toks | wc -l
+=== sizes/lines ===
+255390 stapeA
+530057 stapeB
+785447 total
+   510 stapeA
+  1089 stapeB
+  1599 total
+=== unique strings in B not in A (sample) ===
+--- only in B ---
+"00dfeb6093c19b9688844b9e30f3ba7d63"
+"16854749601"
+"230483935"
+"230483935_12"
+"230483935_12_11"
+"230483935_12_7"
+"230483935_18"
+"230483935_19"
+"230483935_19_18"
+"230483935_19_7"
+"230483935_23"
+"230483935_23_22"
+"230483935_23_7"
+"230483935_25"
+"230483935_25_40"
+"230483935_25_7"
+"230483935_27"
+"230483935_28"
+"230483935_29"
+"230483935_29_27"
+"230483935_30"
+"230483935_30_27"
+"230483935_30_28"
+"230483935_30_7"
+"230483935_33"
+"230483935_33_32"
+"230483935_33_7"
+"230483935_36"
+"230483935_36_28"
+"230483935_36_7"
+"230483935_42"
+"360390300088445"
+"AMP_TOKEN"
+"ATTRIBUTE"
+"AddPaymentInfo"
+"AddToCart"
+"AddToWishlist"
+"Array"
+"AssertApiSubject"
+"AssertThatSubject"
+"BackCompat"
+"CLASSES"
+"CompleteRegistration"
+"Contact"
+"CurrencyValue"
+"CustomEventName"
+"CustomizeProduct"
+"DATA_LAYER"
+"DOMNodeInserted"
+"DefaultTagEvent"
+"Donate"
+"ELEMENT"
+"EXTENSION"
+"EventName"
+"FPAU"
+"FRAGMENT"
+"FindLocation"
+"FirstOnScreen"
+"GoogleApp"
+"HISTORY_CHANGE_SOURCE"
+--- count only-in-B ---
+689
+--- count only-in-A ---
+0
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== secrets-shaped literals in stapeB ==="
+grep -oaE "(api[_-]?key|apikey|secret|token|password|passwd|auth|credential|private[_-]?key|X-API)[\"']?\s*[:=]\s*[\"'][^\"']{8,120}[\"']" stapeB | sort -u | head -50
+echo "=== count ==="; grep -oaiE "(api[_-]?key|secret|password|private[_-]?key|X-API-Secret)" stapeB | sort | uniq -c
+=== secrets-shaped literals in stapeB ===
+=== count ===
+      3 password
+[0m
+`b=` token output is a strict superset (0 tokens only-in-A, 689 new). Searching the expanded container for credentials.
+[0m$ [0mcd /tmp/opencode && echo "=== high-entropy 32+ hex/b64 only-in-B candidates ==="
+grep -oaE "[A-Za-z0-9+/=_-]{32,}" stapeB | sort -u > B.hi
+grep -oaE "[A-Za-z0-9+/=_-]{32,}" stapeA | sort -u > A.hi
+echo "--- new high-entropy in B (first 60) ---"
+comm -13 A.hi B.hi | grep -vaE "^(function|undefined|prototype|addEventListener|querySelector|createElement|textContent|application|ContentSecurityPolicy|getComputedStyle|removeEventListener)" | head -60
+echo "--- total new ---"; comm -13 A.hi B.hi | wc -l
+=== high-entropy 32+ hex/b64 only-in-B candidates ===
+--- new high-entropy in B (first 60) ---
+00dfeb6093c19b9688844b9e30f3ba7d63
+ChEI8NC81gYQ346BkpOhr4eVARIdAMtU43XP8yDZg5RRAUfl/RD2fHGnjGhExCCEB7oaApOS
+__access_dom_element_properties=b
+__access_template_storage=function
+__detect_element_visibility_events
+__detect_element_visibility_events=b
+__unsafe_inject_arbitrary_html=b
+berufsgruppe_gehalt_abgeschlossen
+com/call-tracking/call-tracking_
+detect_element_visibility_events
+detect_element_visibility_events=
+enableAutoEventOnElementVisibility
+enableAutoEventOnFormInteraction
+enableAutoEventOnYouTubeActivity
+kostenlose_beratung_geklickt_nach_vergleich
+taskAddRegionalNonPersonalizedAdData
+taskSetAdsConversionRemarketingParams
+telefonisch_beratung_angefordert
+unsubscribeFromCrossContainerData
+vtp_cssProvidedEnhancedConversionValue
+vtp_enableCustomerLifecycleReporting
+vtp_enableEnhancedConversionsCheckbox
+vtp_enableNewCustomerReportingCheckbox
+vtp_enableProductReportingCheckbox
+vtp_newCustomerReportingDataSource
+vtp_objectPropertiesFromVariable
+--- total new ---
+26
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== password ctx ==="; grep -oanE ".{100}password.{100}" stapeB | head -5
+echo; echo "=== 00dfeb ctx ==="; grep -oaE ".{80}00dfeb6093c19b9688844b9e30f3ba7d63.{80}" stapeB | head -3
+=== password ctx ===
+
+=== 00dfeb ctx ===
+30483935_47","vtp_addOrderID":false,"vtp_addOrderValue":false,"vtp_MarketerId":"00dfeb6093c19b9688844b9e30f3ba7d63","vtp_pixelType":"page_view_pixel","vtp_addCurrency":false,"tag_id":49},{"funct
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== head of A ==="; head -c 600 stapeA; echo; echo "=== head of B ==="; head -c 600 stapeB
+=== head of A ===
+!function(){function y(t,e){if("function"==typeof e)return t instanceof e;else return!!t&&"object"==typeof t&&"string"==typeof t.url}function R(t,e,r){return null!=(t=null==t?void 0:t[e])?t:r}function m(t,e,r,n){var o=[t,e].filter(Boolean);if(r){o.push(r);for(var t=n.port?":"+n.port:"",i=(n.hostname+t).split("."),a=0;a<i.length;a++){var c=i.slice(a).join(".");if(o.push(n.protocol+"//"+c+r),!c.startsWith("www."))o.push(n.protocol+"//www."+c+r)}}return o}function n(t,e){if(0!==t.indexOf(e))return!1;else{t=t.charAt(e.length);return!t||"/"===t||"?"===t}}var u=[/^\/gpt_ads-public.js/,/^\/robots.txt
+=== head of B ===
+!function(){function y(t,e){if("function"==typeof e)return t instanceof e;else return!!t&&"object"==typeof t&&"string"==typeof t.url}function R(t,e,r){return null!=(t=null==t?void 0:t[e])?t:r}function m(t,e,r,n){var o=[t,e].filter(Boolean);if(r){o.push(r);for(var t=n.port?":"+n.port:"",i=(n.hostname+t).split("."),a=0;a<i.length;a++){var c=i.slice(a).join(".");if(o.push(n.protocol+"//"+c+r),!c.startsWith("www."))o.push(n.protocol+"//www."+c+r)}}return o}function n(t,e){if(0!==t.indexOf(e))return!1;else{t=t.charAt(e.length);return!t||"/"===t||"?"===t}}var u=[/^\/gpt_ads-public.js/,/^\/robots.txt
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== server-side cred patterns ==="
+grep -oaE "(access_token|pixel_id|dataset_id|conversion_id|pixelId|datasetId|accessCode|ct_key|ct_pixel|page_id|em|pn|api_secret|apiSecret|test_code|test_code|managers|agent_id|google_tag_id|AW-[0-9]+|G-[A-Z0-9]{6,}|GTM-[A-Z0-9]+|UA-[0-9-]+|fbq)" stapeB | sort | uniq -c | sort -rn | head -40
+=== server-side cred patterns ===
+    562 em
+     10 pn
+      7 fbq
+      3 conversion_id
+      3 GTM-TT4LBVMW
+      2 pixelId
+      2 G-RXB3GJEMRT
+      1 page_id
+      1 AW-16854749601
+[0m
+Searching the expanded container for server-side tag credentials (Meta CAPI access tokens, Google Ads IDs).
+[0m$ [0mcd /tmp/opencode && echo "=== Meta/FB tag config in B ==="; grep -oaE ".{60}\"pixel_id\".{120}|.{60}vtp_pixelID.{120}|.{60}vtp_pixelType.{80}" stapeB | head -8
+echo; echo "=== GA4 config ==="; grep -oaE "G-[A-Z0-9]{8,}|GTM-[A-Z0-9]+|AW-[0-9]+" stapeB | sort -u | head -20
+=== Meta/FB tag config in B ===
+alse,"vtp_MarketerId":"00dfeb6093c19b9688844b9e30f3ba7d63","vtp_pixelType":"page_view_pixel","vtp_addCurrency":false,"tag_id":49},{"function":"__tg","vtp
+
+=== GA4 config ===
+AW-16854749601
+G-RXB3GJEMRT
+GTM-TT4LBVMW
+[0m
+The `b=` token ships in public page source by design. Decisive test: does a **wrong** token also unlock the 530 KB response? That distinguishes an access-control credential from a mere parameter.
+[0m$ [0mcd /tmp/opencode && TOK="EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D"
+echo "=== C: garbage token ==="
+curl -s -o stapeC -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js?b=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA%3D"
+sleep 1
+echo "=== D: empty b= ==="
+curl -s -o stapeD -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js?b="
+sleep 1
+echo "=== E: no b, other param ==="
+curl -s -o stapeE -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js?id=x"
+echo "=== sha comparison ==="; sha256sum stapeA stapeB stapeC stapeD stapeE
+echo "=== cmp B vs C ==="; cmp stapeB stapeC && echo "B==C (token NOT validated)" || echo "B!=C"
+=== C: garbage token ===
+200 255390
+=== D: empty b= ===
+200 255943
+=== E: no b, other param ===
+200 255390
+=== sha comparison ===
+6fad9283d89fa9189f37362a5d6b5aa3694d83461e7c82615fcef11f5f04f29c  stapeA
+156424f4180582ec116e46dd0243529bf1e16fe6ce0583b785accaac7c5284d9  stapeB
+23f5dd4cd0be106ae79c698f67c20f241c0afe59052abfd609a956b244be5ba8  stapeC
+42515cac6a182d8e10e16cc5baa54d51cfff2e1aa065d01fac1cfd5d05ecf60e  stapeD
+6fad9283d89fa9189f37362a5d6b5aa3694d83461e7c82615fcef11f5f04f29c  stapeE
+=== cmp B vs C ===
+stapeB stapeC differ: byte 12119, line 10
+B!=C
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== A vs C first diff ==="; cmp -l stapeA stapeC | head -10; echo "--- byte count differing ---"; cmp -l stapeA stapeC | wc -l
+echo "=== context of diff ==="; head -c 12180 stapeA | tail -c 120; echo "<<<A"; head -c 12180 stapeC | tail -c 120; echo "<<<C"
+=== A vs C first diff ===
+ 12240  60  61
+--- byte count differing ---
+1
+=== context of diff ===
+ 
+(function(){
+
+var data = {
+
+"resource": {
+  "version":"1",
+  
+  "macros":[],
+  "tags":[],
+  "predicates":[],
+  "rules"<<<A
+ 
+(function(){
+
+var data = {
+
+"resource": {
+  "version":"1",
+  
+  "macros":[],
+  "tags":[],
+  "predicates":[],
+  "rules"<<<C
+[0m
+Token **is** validated — garbage token falls back to 255,390 B. But A and C have identical size yet different sha. Checking whether responses are dynamic.
+[0m$ [0mcd /tmp/opencode && echo "=== re-fetch A twice to test dynamism ==="
+curl -s -o stapeA2 -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js"
+sha256sum stapeA stapeA2
+cmp stapeA stapeA2 && echo "STABLE" || echo "DYNAMIC"
+=== re-fetch A twice to test dynamism ===
+200 255390
+6fad9283d89fa9189f37362a5d6b5aa3694d83461e7c82615fcef11f5f04f29c  stapeA
+6fad9283d89fa9189f37362a5d6b5aa3694d83461e7c82615fcef11f5f04f29c  stapeA2
+STABLE
+[0m
+A vs C differ by exactly **one byte**: ASCII `0` vs `1` at offset 12240. Let me see the exact field.
+[0m$ [0mcd /tmp/opencode && python3 -c "
+for n in ['stapeA','stapeC','stapeD','stapeB']:
+    d=open(n,'rb').read()
+    print(n, repr(d[12160:12340]))
+    print()
+"
+stapeA b'cates":[],\n  "rules":[]\n}\n\n\n\n\n\n\n,"blob":{"1":"1","10":"GTM-","14":"6ac1","15":"0","16":"ChEI8NC81gYQ346BkpOhr4eVARIVAMtU43XloZ+PVe83pYIPt4ZSJey5GgIFJg==","19":"dataLayer","20":"","'
+
+stapeC b'cates":[],\n  "rules":[]\n}\n\n\n\n\n\n\n,"blob":{"1":"1","10":"GTM-","14":"6ac1","15":"1","16":"ChEI8NC81gYQ346BkpOhr4eVARIVAMtU43XloZ+PVe83pYIPt4ZSJey5GgIFJg==","19":"dataLayer","20":"","'
+
+stapeD b'cates":[],\n  "rules":[]\n}\n\n\n\n\n\n\n,"blob":{"1":"1","10":"GTM-","14":"6ad0","15":"2","16":"ChEI8NC81gYQ346BkpOhr4eVARIVAMtU43XloZ+PVe83pYIPt4ZSJey5GgIFJg==","19":"dataLayer","20":"","'
+
+stapeB b'dataLayerVersion":2,"vtp_setDefaultValue":false,"vtp_name":"eventModel.consent_analytics"},{"function":"__e"},{"function":"__v","vtp_name":"gtm.triggers","vtp_dataLayerVersion":2,"'
+[0m
+Key insight: without a valid token the container `resource` is **empty** (`macros/tags/predicates/rules` all `[]`). Let me confirm B holds the real config.
+[0m$ [0mcd /tmp/opencode && for n in stapeA stapeB; do echo "=== $n resource ==="; python3 -c "
+import re,sys
+d=open('$n','rb').read().decode('utf8','replace')
+i=d.find('\"resource\"')
+seg=d[i:i+400]
+print(seg)
+for k in ['macros','tags','predicates','rules','blobs','env']:
+    m=re.search(r'\"%s\":\['%k,d[i:i+200000])
+    if m:
+        # count entries crudely
+        start=m.end()-1
+        depth=0
+        for j in range(start,min(start+4000000,len(d))):
+            if d[j]=='[': depth+=1
+            elif d[j]==']':
+                depth-=1
+                if depth==0: break
+        body=d[start:j+1]
+        print(' ',k,'bytes=',len(body),'entries~',body.count('\"function\"')+body.count('{'))
+"; done
+=== stapeA resource ===
+"resource": {
+  "version":"1",
+  
+  "macros":[],
+  "tags":[],
+  "predicates":[],
+  "rules":[]
+}
+
+
+
+
+
+
+,"blob":{"1":"1","10":"GTM-","14":"6ac1","15":"0","16":"ChEI8NC81gYQ346BkpOhr4eVARIVAMtU43XloZ+PVe83pYIPt4ZSJey5GgIFJg==","19":"dataLayer","20":"","21":"awv.kassenkompass.de","22":"eyIwIjoiVVMiLCIxIjoiIiwiMiI6ZmFsc2UsIjMiOiIiLCI0IjoiIiwiNSI6dHJ1ZSwiNiI6ZmFsc2UsIjkiOmZhbHNlfQ","23":"google.tagmanag
+  macros bytes= 141 entries~ 1
+  tags bytes= 128 entries~ 1
+  predicates bytes= 109 entries~ 1
+  rules bytes= 95 entries~ 1
+=== stapeB resource ===
+"resource": {
+  "version":"15",
+  
+  "macros":[{"function":"__v","vtp_dataLayerVersion":2,"vtp_setDefaultValue":false,"vtp_name":"eventModel.consent_analytics"},{"function":"__e"},{"function":"__v","vtp_name":"gtm.triggers","vtp_dataLayerVersion":2,"vtp_setDefaultValue":true,"vtp_defaultValue":""},{"function":"__c","vtp_value":"G-RXB3GJEMRT"},{"function":"__v","vtp_dataLayerVersion":2,"vtp_setDefa
+  macros bytes= 140 entries~ 1
+  tags bytes= 658 entries~ 3
+  predicates bytes= 1219 entries~ 17
+  rules bytes= 1894 entries~ 50
+[0m
+[0m$ [0mcd /tmp/opencode && python3 -c "
+import base64,json
+b22='eyIwIjoiVVMiLCIxIjoiIiwiMiI6ZmFsc2UsIjMiOiIiLCI0IjoiIiwiNSI6dHJ1ZSwiNiI6ZmFsc2UsIjkiOmZhbHNlfQ'
+print('blob22:',base64.b64decode(b22+'=').decode())
+"
+echo "=== blob keys A ==="; python3 -c "
+import re
+d=open('stapeA','rb').read().decode('utf8','replace')
+i=d.find('\"blob\":{')
+print(d[i:i+900])
+"
+Traceback (most recent call last):
+  File "<string>", line 4, in <module>
+  File "/usr/lib/python3.12/base64.py", line 88, in b64decode
+    return binascii.a2b_base64(s, strict_mode=validate)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+binascii.Error: Incorrect padding
+=== blob keys A ===
+"blob":{"1":"1","10":"GTM-","14":"6ac1","15":"0","16":"ChEI8NC81gYQ346BkpOhr4eVARIVAMtU43XloZ+PVe83pYIPt4ZSJey5GgIFJg==","19":"dataLayer","20":"","21":"awv.kassenkompass.de","22":"eyIwIjoiVVMiLCIxIjoiIiwiMiI6ZmFsc2UsIjMiOiIiLCI0IjoiIiwiNSI6dHJ1ZSwiNiI6ZmFsc2UsIjkiOmZhbHNlfQ","23":"google.tagmanager.debugui2.queue","24":"tagassistant.google.com","27":0.005,"3":"awv.kassenkompass.de","30":"US","31":"US","32":true,"36":"https://adservice.google.com/pagead/regclk","37":"__TAGGY_INSTALLED","38":"cct.google","39":"googTaggyReferrer","40":"https://cct.google/taggy/agent.js","41":"google.tagmanager.ta.prodqueue","42":0.01,"43":"{\"keys\":[{\"hpkePublicKey\":{\"params\":{\"aead\":\"AES_128_GCM\",\"kdf\":\"HKDF_SHA256\",\"kem\":\"DHKEM_P256_HKDF_SHA256\"},\"publicKey\":\"BJPridywSAogZAQJNyP9Ekz+SUItCw4gyUJ7Ko5y/vKZWNSDp/UV5x5JmjdzT7v+8LNf/xfXX8/hw8g+zaWLJvw=\",\"version\":0},\"id\":\"85cc4060-15d7
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== exhaustive secret sweep on full config (stapeB) ==="
+grep -oaE "(access_token|api[_-]?key|apikey|secret|passwd|password|bearer|private_key|client_secret|refresh_token|authorization)" stapeB | sort | uniq -c | sort -rn
+echo "=== urls/hosts ==="; grep -oaE "https?://[a-zA-Z0-9._-]+" stapeB | sed 's/[?&].*//' | sort -u | head -40
+echo "=== IPs ==="; grep -oaE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b" stapeB | sort -u | head -20
+=== exhaustive secret sweep on full config (stapeB) ===
+      3 password
+=== urls/hosts ===
+https://ad.doubleclick.net
+https://ade.googlesyndication.com
+https://adservice.google.com
+https://amplify.outbrain.com
+https://analytics.google.com
+https://awv.kassenkompass.de
+https://cct.google
+https://connect.facebook.net
+https://m.youtube.com
+https://pagead2.googlesyndication.com
+https://www.facebook.com
+https://www.google.com
+https://www.googleadservices.com
+https://www.googletagmanager.com
+https://www.youtube.com
+=== IPs ===
+[0m
+Decisive: without the token the container `resource` is **empty**; with it, full published config (tags/macros/predicates/rules). Let me decode the blob metadata and do a final secret sweep.
+[0m$ [0mcd /tmp/opencode && echo "=== 3 'password' hits w/ context ==="; grep -oanE ".{150}password.{150}" stapeB | head -6
+echo; echo "=== blob22 decode (pad fix) ==="; python3 -c "
+import base64
+s='eyIwIjoiVVMiLCIxIjoiIiwiMiI6ZmFsc2UsIjMiOiIiLCI0IjoiIiwiNSI6dHJ1ZSwiNiI6ZmFsc2UsIjkiOmZhbHNlfQ'
+s+='='*(-len(s)%4)
+print(base64.b64decode(s).decode())
+"
+=== 3 'password' hits w/ context ===
+
+=== blob22 decode (pad fix) ===
+{"0":"US","1":"","2":false,"3":"","4":"","5":true,"6":false,"9":false}
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== does ANY PII / email / user data appear in full config? ==="; grep -oaE "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" stapeB | sort -u | head -20
+echo "--- phone ---"; grep -oaE "\+49[0-9 ()-]{6,}|0[1-9][0-9]{6,11}" stapeB | sort -u | head
+echo "=== '22' blob is geo (US), blob43 is Google HPKE public key (public by design) ==="
+echo "=== confirm: is full config reachable WITHOUT token by other means? ==="
+curl -s -o stapeF -w "no-token-alt: %{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/gtm.js?id=ahcfuvbcz"; sleep 1
+curl -s -o stapeG -w "env-preview: %{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/ahcfuvbcz.js?gtm_auth=x&gtm_preview=1&gtm_cookies_win=x"
+=== does ANY PII / email / user data appear in full config? ===
+--- phone ---
+0123456789
+013904242
+022224774
+024104815
+0390300088445
+04031479
+04807628
+049323471
+06948616
+07225278
+=== '22' blob is geo (US), blob43 is Google HPKE public key (public by design) ===
+=== confirm: is full config reachable WITHOUT token by other means? ===
+no-token-alt: 200 243395
+env-preview: 404 13660
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== gtm.js (no token) resource ==="; python3 -c "
+import re
+d=open('stapeF','rb').read().decode('utf8','replace')
+i=d.find('\"resource\"')
+print(d[i:i+300])
+for k in ['tags','rules']:
+    m=re.search(r'\"%s\":\['%k,d)
+    print(k,'found at',m.start() if m else None)
+print('has GTM-TT4LBVMW:', 'GTM-TT4LBVMW' in d)
+print('has AW-16854749601:', 'AW-16854749601' in d)
+print('has vtp_MarketerId:', 'vtp_MarketerId' in d)
+"
+echo "=== stapeB same markers ==="; for m in GTM-TT4LBVMW AW-16854749601 vtp_MarketerId; do printf "%s: " "$m"; grep -c "$m" stapeB; done
+echo "=== password case-insens ctx ==="; grep -oaiE ".{80}password.{80}" stapeB | head -3
+=== gtm.js (no token) resource ===
+"resource": {
+  "version":"1",
+  
+  "macros":[],
+  "tags":[],
+  "predicates":[],
+  "rules":[]
+}
+
+
+
+
+
+
+,"blob":{"1":"1","10":"ahcfuvbcz","14":"6ac1","15":"0","16":"ChEI8NC81gYQ346BkpOhr4eVARIaAMtU43WxpwLdSPZIL01+Fw56kLCCWCxmqtEaAiEn","19":"dataLayer","20":"","21":"awv.kassenkompass.de","22":"eyIwIjoi
+tags found at 133
+rules found at 165
+has GTM-TT4LBVMW: False
+has AW-16854749601: False
+has vtp_MarketerId: False
+=== stapeB same markers ===
+GTM-TT4LBVMW: 1
+AW-16854749601: 1
+vtp_MarketerId: 1
+=== password case-insens ctx ===
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== is B reachable via a stable public route? test gtm.js content vs B ==="
+echo "gtm.js size:"; wc -c < stapeF; echo "B size:"; wc -c < stapeB
+echo "--- does gtm.js contain tags? ---"
+python3 -c "
+d=open('stapeF','rb').read().decode('utf8','replace')
+import re
+m=re.search(r'\"tags\":\[',d)
+if m:
+    start=m.end()-1; depth=0
+    for j in range(start,len(d)):
+        if d[j]=='[': depth+=1
+        elif d[j]==']':
+            depth-=1
+            if depth==0: break
+    print('tags bytes:',j+1-start)
+"
+echo "=== does B equal a gtm.js with auth? compare markers in stapeA (empty) ==="
+grep -c "vtp_MarketerId" stapeA || echo "0 in A"
+=== is B reachable via a stable public route? test gtm.js content vs B ===
+gtm.js size:
+243395
+B size:
+530057
+--- does gtm.js contain tags? ---
+tags bytes: 2
+=== does B equal a gtm.js with auth? compare markers in stapeA (empty) ===
+0
+0 in A
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== tag functions in B ==="; python3 -c "
+import re
+d=open('stapeB','rb').read().decode('utf8','replace')
+i=d.find('\"resource\"')
+seg=d[i:]
+m=re.search(r'\"tags\":\[',seg)
+start=m.end()-1; depth=0
+for j in range(start,len(seg)):
+    if seg[j]=='[': depth+=1
+    elif seg[j]==']':
+        depth-=1
+        if depth==0: break
+body=seg[start+1:j]
+tags=re.findall(r'\{\"function\":\"([^\"]+)\"',body)
+from collections import Counter
+for k,v in Counter(tags).most_common(): print(f'{v:3} {k}')
+print('TOTAL tags:',len(tags))
+"
+=== tag functions in B ===
+ 24 __tg
+  7 __gaawe
+  3 __html
+  2 __googtag
+  2 __evl
+  1 __cvt_KFNBV
+  1 __gclidw
+  1 __awct
+  1 __cvt_230483935_47
+  1 __lcl
+  1 __cl
+  1 __fsl
+TOTAL tags: 45
+[0m
+Let me enumerate the actual tags in the revealed config and resolve those `password` matches.
+[0m$ [0mcd /tmp/opencode && echo "=== exact password matches ==="; grep -oaiE ".{0,120}password.{0,120}" stapeB | head -5; echo "[end]"
+=== exact password matches ===
+[h]==="string"?e[h]=[e[h],k]:e[h].push(k):e[h]=k}c={href:d.href,origin:d.origin,protocol:d.protocol,username:d.username,password:d.password,host:d.host,hostname:d.hostname,
+peof p[u]==="string"?p[u]=[p[u],v]:p[u].push(v):p[u]=v}m.searchParams=p;m.origin=m.protocol+"//"+m.host;m.username="";m.password="";b=Wd(m);
+[end]
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== __html tag bodies ==="; python3 -c "
+import re,json
+d=open('stapeB','rb').read().decode('utf8','replace')
+i=d.find('\"resource\"'); seg=d[i:]
+m=re.search(r'\"tags\":\[',seg); start=m.end()-1; depth=0
+for j in range(start,len(seg)):
+    if seg[j]=='[': depth+=1
+    elif seg[j]==']':
+        depth-=1
+        if depth==0: break
+body=seg[start+1:j]
+for tm in re.finditer(r'\{\"function\":\"__html\",(.*?)\},(?=\{|\])',body):
+    print('HTML:',tm.group(1)[:400]); print('---')
+"
+=== __html tag bodies ===
+HTML: "metadata":["map"],"once_per_event":true,"vtp_html":"\u003Cscript type=\"text\/gtmscript\" id=\"hs-script-loader\" async defer data-gtmsrc=\"\/\/js-eu1.hs-scripts.com\/146866466.js\"\u003E\u003C\/script\u003E","vtp_supportDocumentWrite":false,"vtp_enableIframeMode":false,"vtp_enableEditJsMacroBehavior":false,"tag_id":4
+---
+HTML: "metadata":["map"],"once_per_event":true,"vtp_html":"\u003Cscript type=\"text\/gtmscript\"\u003E(function(a,e,b,f,g,c,d){a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};c=e.createElement(f);c.async=1;c.src=\"https:\/\/www.clarity.ms\/tag\/\"+g;d=e.getElementsByTagName(f)[0];d.parentNode.insertBefore(c,d)})(window,document,\"clarity\",\"script\",\"tgr8kshakx\");\u003C\/script\u003E","vtp
+---
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== custom template tags ==="; python3 -c "
+import re
+d=open('stapeB','rb').read().decode('utf8','replace')
+i=d.find('\"resource\"'); seg=d[i:]
+m=re.search(r'\"tags\":\[',seg); start=m.end()-1; depth=0
+for j in range(start,len(seg)):
+    if seg[j]=='[': depth+=1
+    elif seg[j]==']':
+        depth-=1
+        if depth==0: break
+body=seg[start+1:j]
+for name in ['__cvt_KFNBV','__cvt_230483935_47','__tg']:
+    for tm in re.finditer(r'\{\"function\":\"'+re.escape(name)+r'\",(.*?)\},(?=\{|\])',body):
+        print(name,'::',tm.group(1)[:500]); print('---')
+" | head -60
+=== custom template tags ===
+__cvt_KFNBV :: "metadata":["map"],"once_per_event":true,"vtp_disablePushState":false,"vtp_eventId":["macro",5],"vtp_eventNameStandard":"PageView","vtp_dataLayerEventPush":false,"vtp_pixelIds":"360390300088445","vtp_objectPropertiesFromVariable":false,"vtp_consent":true,"vtp_enableDataLayerMapping":true,"vtp_inheritEventName":"override","vtp_disableAutoConfig":false,"vtp_enableCurrentDataLayerOnly":false,"vtp_enableConsentMode":false,"vtp_enableEdvancedMatching":false,"vtp_dpoLDU":false,"vtp_eventName":"standar
+---
+__cvt_230483935_47 :: "vtp_addOrderID":false,"vtp_addOrderValue":false,"vtp_MarketerId":"00dfeb6093c19b9688844b9e30f3ba7d63","vtp_pixelType":"page_view_pixel","vtp_addCurrency":false,"tag_id":49
+---
+__tg :: "vtp_triggerIds":["list","230483935_12_7","230483935_12_11"],"vtp_uniqueTriggerId":"230483935_12","tag_id":51
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_12_7","tag_id":52
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_12_11","tag_id":54
+---
+__tg :: "vtp_triggerIds":["list","230483935_19_7","230483935_19_18"],"vtp_uniqueTriggerId":"230483935_19","tag_id":56
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_19_7","tag_id":57
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_19_18","tag_id":59
+---
+__tg :: "vtp_triggerIds":["list","230483935_23_7","230483935_23_22"],"vtp_uniqueTriggerId":"230483935_23","tag_id":60
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_23_7","tag_id":61
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_23_22","tag_id":63
+---
+__tg :: "vtp_triggerIds":["list","230483935_25_7","230483935_25_40"],"vtp_uniqueTriggerId":"230483935_25","tag_id":64
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_25_7","tag_id":65
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_25_40","tag_id":67
+---
+__tg :: "vtp_triggerIds":["list","230483935_29_27"],"vtp_uniqueTriggerId":"230483935_29","tag_id":70
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_29_27","tag_id":71
+---
+__tg :: "vtp_triggerIds":["list","230483935_30_7","230483935_30_27","230483935_30_28"],"vtp_uniqueTriggerId":"230483935_30","tag_id":72
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_30_7","tag_id":73
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_30_27","tag_id":75
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_30_28","tag_id":77
+---
+__tg :: "vtp_triggerIds":["list","230483935_33_32","230483935_33_7"],"vtp_uniqueTriggerId":"230483935_33","tag_id":78
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_33_32","tag_id":79
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_33_7","tag_id":81
+---
+__tg :: "vtp_triggerIds":["list","230483935_36_7","230483935_36_28"],"vtp_uniqueTriggerId":"230483935_36","tag_id":82
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_36_7","tag_id":83
+---
+__tg :: "vtp_isListeningTag":true,"vtp_firingId":"230483935_36_28","tag_id":85
+---
+[0m
+The3 `password` hits are URL-parsing code, not credentials. Now checking the custom templates and HTML tags in the revealed config — that's where server-side secrets would live.
+The revealed config contains only public-by-design tracking IDs (HubSpot 146866466, Clarity tgr8kshakx, GA4, Ads, Meta, Outbrain). Testing whether the token is container-scoped or a global credential.
+[0m$ [0mcd /tmp/opencode && TOK="EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8"
+echo "=== decode token structure ==="; python3 -c "
+import base64,urllib.parse
+raw=base64.b64decode('$TOK'+'=')
+print('len',len(raw)); print('hex',raw.hex())
+"
+echo "=== token against stape.io API (read-only GET) ==="
+curl -s -o sap -w "api: %{http_code} %{size_download}\n" --max-time 15 -H "Authorization: Bearer $TOK" "https://stape.io/api/v1/containers" ; head -c 200 sap; echo
+=== decode token structure ===
+len 41
+hex 13075f31212b4e3c2e572e34232b344e0c5e5058444007064708030506030d03150e121706154d0c1f
+=== token against stape.io API (read-only GET) ===
+api: 404 17262
+<!DOCTYPE html><html id="__next_error__"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" as="script" fetchPriority="low" href="/_n
+[0m
+[0m$ [0mcd /tmp/opencode && TOK="EwdfMSErTjwuVy40Iys0TgxeUFhEQAcGRwgDBQYDDQMVDhIXBhVNDB8%3D"
+echo "=== cross-container: token on random container id ==="
+curl -s -o sc1 -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/zzzzzzzz.js?b=$TOK"; sleep 1
+echo "=== cross-container: token on gtm.js path ==="
+curl -s -o sc2 -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/gtm.js?id=ahcfuvbcz&b=$TOK"; sleep 1
+echo "=== does it contain the real config? ==="
+for f in sc1 sc2; do printf "%s GTM-TT4LBVMW=%s MarketerId=%s\n" "$f" "$(grep -c 'GTM-TT4LBVMW' $f)" "$(grep -c 'vtp_MarketerId' $f)"; done
+echo "=== no-token baseline sizes ==="; printf "sc1 no-token: "; curl -s -o sc1n -w "%{http_code} %{size_download}\n" --max-time 20 "https://awv.kassenkompass.de/zzzzzzzz.js"
+=== cross-container: token on random container id ===
+400 0
+=== cross-container: token on gtm.js path ===
+200 243395
+=== does it contain the real config? ===
+sc1 GTM-TT4LBVMW=0 MarketerId=0
+sc2 GTM-TT4LBVMW=0 MarketerId=0
+=== no-token baseline sizes ===
+sc1 no-token: 400 0
+[0m
+Token is container-scoped (random id → 400) and rejected by Stape's API. Running the decisive control: is the published GTM config public by design anyway?
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt && for m in GTM-TT4LBVMW 146866466 tgr8kshakx AW-16854749601 hubspot Clarity clarity; do printf "%-18s: " "$m"; if grep -raq "$m" knowledge/index.md probe-results.md reports/hypotheses.md 2>/dev/null; then echo "IN KB"; else echo "-"; fi; done
+GTM-TT4LBVMW      : IN KB
+146866466         : IN KB
+tgr8kshakx        : -
+AW-16854749601    : -
+hubspot           : -
+Clarity           : -
+clarity           : -
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== CONTROL: public web GTM container, no token, third-party CDN ==="
+curl -s -o gtmctl -w "%{http_code} %{size_download}\n" --max-time 20 -A "Mozilla/5.0" "https://www.googletagmanager.com/gtm.js?id=GTM-TT4LBVMW"
+sleep 1
+echo "markers:"; for m in GTM-TT4LBVMW AW-16854749601 vtp_MarketerId 146866466 tgr8kshakx G-RXB3GJEMRT; do printf "  %-18s %s\n" "$m" "$(grep -c "$m" gtmctl 2>/dev/null)"; done
+echo "=== tags in control ==="; python3 -c "
+import re
+try:
+    d=open('gtmctl','rb').read().decode('utf8','replace')
+except: raise SystemExit
+m=re.search(r'\"tags\":\[',d)
+if not m: print('no tags'); raise SystemExit
+start=m.end()-1; depth=0
+for j in range(start,len(d)):
+    if d[j]=='[': depth+=1
+    elif d[j]==']':
+        depth-=1
+        if depth==0: break
+print('tags bytes:',j+1-start)
+body=d[start+1:j]
+tags=re.findall(r'\{\"function\":\"([^\"]+)\"',body)
+print('tag count:',len(tags))
+"
+=== CONTROL: public web GTM container, no token, third-party CDN ===
+200 517763
+markers:
+  GTM-TT4LBVMW       1
+  AW-16854749601     1
+  vtp_MarketerId     1
+  146866466          1
+  tgr8kshakx         1
+  G-RXB3GJEMRT       2
+=== tags in control ===
+tags bytes: 8631
+tag count: 45
+[0m
+[0m$ [0mcd /tmp/opencode && python3 -c "
+import re,hashlib
+def extract(fn):
+    d=open(fn,'rb').read().decode('utf8','replace')
+    out={}
+    for k in ['tags','predicates','rules','macros']:
+        m=re.search(r'\"%s\":\['%k,d)
+        if not m: continue
+        start=m.end()-1; depth=0
+        for j in range(start,len(d)):
+            if d[j]=='[': depth+=1
+            elif d[j]==']':
+                depth-=1
+                if depth==0: break
+        out[k]=d[start:j+1]
+    # version
+    mv=re.search(r'\"resource\":\{\s*\"version\":\"([^\"]+)\"',d)
+    out['ver']=mv.group(1) if mv else '?'
+    return out
+A=extract('stapeB'); C=extract('gtmctl')
+print('stapeB version:',A['ver'],' googleCDN version:',C['ver'])
+for k in ['tags','predicates','rules','macros']:
+    ha=hashlib.sha256(A.get(k,'').encode()).hexdigest()[:16]
+    hc=hashlib.sha256(C.get(k,'').encode()).hexdigest()[:16]
+    print(f'  {k:11} stape={ha} google={hc} {\"MATCH\" if ha==hc else \"DIFFER\"}  len {len(A.get(k,\"\"))} vs {len(C.get(k,\"\"))}')
+"
+stapeB version: ?  googleCDN version: ?
+  tags        stape=7511a41820307226 google=7511a41820307226 MATCH  len 8631 vs 8631
+  predicates  stape=4739257d63da5e62 google=4739257d63da5e62 MATCH  len 1579 vs 1579
+  rules       stape=8fba01e1a5341464 google=8fba01e1a5341464 MATCH  len 517 vs 517
+  macros      stape=7cdf9885ebd99dcf google=7cdf9885ebd99dcf MATCH  len 2058 vs 2058
+[0m
+[0m$ [0mcd /tmp/opencode && echo "=== is stapeB byte-identical to google control in tag region? ==="; python3 -c "
+import re
+def seg(fn):
+    d=open(fn,'rb').read().decode('utf8','replace')
+    i=d.find('\"tags\":[')
+    return d[i:i+9000]
+a=seg('stapeB'); c=seg('gtmctl')
+# find first difference
+n=min(len(a),len(c))
+for i in range(n):
+    if a[i]!=c[i]:
+        print('first diff at',i)
+        print(' stape :',repr(a[max(0,i-60):i+80]))
+        print(' google:',repr(c[max(0,i-60):i+80]))
+        break
+else:
+    print('IDENTICAL for',n,'chars')
+"
+=== is stapeB byte-identical to google control in tag region? ===
+IDENTICAL for 9000 chars
+[0m
+Control is decisive: the same 45 tags + all IDs are publicly fetchable with **no token** from Google's CDN. Let me verify content equality rigorously.
