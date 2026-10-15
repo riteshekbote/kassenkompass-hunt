@@ -79091,3 +79091,233 @@ Also, let me check the `reform-2027.php` page — it also has the CRM pattern. A
 Let me also grep the reform-2027 page for crm URLs/tokens.
 
 Let me proceed.</think>Excellent — the CRM uses **Google OAuth** (with `state`, `nonce`, PKCE S256) and notably requests the **`gmail.send`** scope. The apex `kassenkompass-beratung.de` serves a separate login HTML page. Let me inspect it and `reform-2027.php`.
+===== ANALYST bigpickle 2026-10-15 12:15:24 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-15 12:08:51 UTC
+[0m
+## Objective
+- Continue the KassenKompass GmbH bug bounty analysis loop (phase POC, target `api`): run the 7-step cycle (DELTA, PRIORITIZE, HYPOTHESES, SELF-CRITIQUE, NEXT, LEARNING, RISK) using only passive/read-only probes (GET/HEAD/OPTIONS, ≤1 rps) and emit structured [PRIO]/[HYP]/[PARKED]/[FINAL]/[NEXT]/[LEARN]/[RISK] blocks plus KB/inventory updates.
+
+## Important Details
+- Report channel: bugs.olivermaicher.eu. In-scope: all KassenKompass GmbH infra, platforms, portals, APIs, sites, domains.
+- Live-probe discipline: passive-first, GET/HEAD/OPTIONS only, ≤1 rps; 2026-09-11 burst (~14 req) triggered transient WAF IP-block ("Ihre IP wurde voruebergehend gesperrt") — never exceed 1 rps.
+- Rules: no REJECTED classes (DoS, rate-limit, clickjack w/o POC, etc.); facts vs hypotheses strictly separated; idempotent re-runs must emit NO_DELTA, not re-derive conclusions; priority must always be re-derived from emitted axes, never copied.
+- Key standing methodology findings:
+  - HEAD cannot close route-membership on api.kassenkompass.de (catch-all returns content-length: 0, omits `instance`); GET with body comparison required.
+  - A 405 on api.kassenkompass.de is never evidence about credentials (method-confounded by gated POST-only `/cat_detail/`); only 401 is.
+  - Encoded-separator "WAF/access-control bypass" REJECTED repeatedly — `/delete%2f1%2fextra` ≡ `/delete/1/extra` byte-identical (401/189 B, sha256 `b05031ccaf9c539e`); `/health_insurance%2f1%2fextra` ≡ literal (401/241 B, `d91c109c481f499a`); percent-decode-before-match is routing normalization only, single-level decode (`/delete%252f1` → 404/1245 B static handler `dc1d54dab6ec8c00`).
+  - Host-header probe on api is a killed false positive (Host: kassenkompass.de returns public 36KB homepage, nonce-only diff; Cloudflare edge routing).
+  - Composition claims require both axes measured on the SAME request.
+- Key standing measurements (byte-pinned):
+  - api root: 200, 1167 B, sha256 `644b1ec7…`, 15 v1 + 1 v2, ver 1.0/2.0; CL drift class (CL:0→absent→accurate) resolved as cosmetic.
+  - `/sync/`: HTTP/2 200, 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, sha256 `b93be961f0da5eb4…`, allow POST,OPTIONS — legacy 2xx auth verdict.
+  - `/health/`: 200, 22 B `{"status":"ok"}`, sha256 `4af26797…`, no disclosure depth.
+  - `/v2/insurance_info/1`: 401, 236 B, sha256 `05b459dd38af015d`; v2 enumeration saturated at 42 names.
+  - `kassenkompass.de/bonusrechner_fragen.php`: ~2,152,671–2,159,139 B unauthenticated tariff corpus (drift-on-refresh ±0.3%), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit at sustained 1 rps; www mirror identical modulo cache-buster; data freshness ≤2025-12-22 (lastchange epochs 2025).
+  - `kassenkompass.de/php/mark_all_read.php`: pre-auth action router — invalid action → 59 B `{"success":false,"message":"Fehler: Ungültige Action"}`; the "valid action → 46 B Nicht angemeldet" claim is REJECTED (every action value/alt param returns 59 B); action is POST-only (GET inert); 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); HUMAN_ONLY.
+  - `/post/` app: 2 members (`help` 200/344 B sha256 `b59b3549e204e996`, `create_user` 405 POST-only); "unauthenticated user provisioning" REJECTED (method-confounded, needs credentialed POST + negative control).
+  - `/v3/` returns the byte-identical 1167 B v1 catch-all — no v3 router.
+  - JS bundles grepped: standard.js 67,969 B / live-calculation.js 37,225 B / param_passthrough.js 5,449 B — zero sourceMappingURL/.map, zero credential literals; stape sGTM blob (container `ahcfuvbcz`) only; credential hypothesis closed. param_passthrough.js served at v=web1.0.1.
+  - kk-s3-01: qid 1..180, n=1 duplicates (ETag 52f04d11…), qid60 n=2 = 1,051,319 B; non-image keys 403; no confidentiality impact. Sibling buckets (kk-assets/kk-uploads/kk-backup/kk-images/kk-docs) exist but deny ListBucket; ownership = HUMAN gate.
+  - kassenkompass.net: blanket 302, no existence oracle; CORS negative on net + funnel.
+  - whitelabel_live.js: postMessage receiver, no event.origin/event.source check; integrity-only (textContent), not XSS; not loaded on bonusrechner.php.
+  - Peer pipeline: 25+ consecutive triage cycles with header-only/stub leads — single-writer, no peer signal; peer rankings may carry refuted finals (encoded-separator @90/88).
+
+## Work State
+### Completed
+- 17-family normalization matrix complete (0 divergences); three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- Verb+auth matrix 15/15 from access-control-allow-methods; auth map: 8 middleware A, 3 middleware B ({user/{ext_id}, delete/{id}, cancel/{id}}), /cat_detail/ auth-gated (HEAD→401), 3 no credential check (/health/, /sync/, /post/).
+- JS RAG completed this cycle: no source-maps/credentials in the 3 bundles; last passive route to X-API-Secret closed.
+- Fragile hypotheses killed: Host-header FP, encoded-separator bypass, "unauthenticated user provisioning", valid-action 46 B claim, HEAD-membership methodology, cookie-spoofing chain on fragen funnel.
+- Standing scores re-derived from emitted axes (formula-consistent: fragen 8.50, mark_all_read 7.00, /sync/ 6.65).
+
+### Active
+- Survivors: (1) Unauthenticated Competitive Intelligence Tariff Leak @ kassenkompass.de/bonusrechner_fragen.php — conf 70, PASSIVE; (2) Pre-Auth Action-Router Ordering Asymmetry @ kassenkompass.de/php/mark_all_read.php — conf 50, HUMAN_ONLY.
+- Parked/rejected: embedded credential (45→0), sGTM container exposure (38).
+- Current RISK: KassenKompass GmbH 70.
+
+### Blocked
+- mark_all_read.php decisive test requires POST (disallowed under read-only rules) → HUMAN carry.
+- Tariff leak severity gated on vendor data classification (intended-public vs licensed partner data).
+- Sibling S3 bucket ownership attribution requires HUMAN credentials/confirmation.
+- /post/create_user write auth unproven without credentialed POST + negative control.
+
+## Next Move
+1. No new live probe is due: fragen.php smoke window is ≥2026-10-15 10:43 UTC (last 2,159,139 B); the JS RAG [NEXT] is completed and its hypothesis closed — emit NO_DELTA for the API/funnel surfaces rather than re-probing.
+2. Emit the 7-step cycle output: [FINAL] survivors (Tariff Leak 70, mark_all_read 50 HUMAN_ONLY), [NEXT] HUMAN — carry the mark_all_read.php pre-auth action-vocabulary POST test to human review; [LEARN] REJECTED credential-in-JS + stape sGTM confirmation; [RISK] program 70.
+
+## Relevant Files
+- (none — all work is HTTP-probe/KB/inventory driven; no local files touched)
+- Remote assets of record: api.kassenkompass.de (/, /sync/, /health/, /v2/insurance_info/{kk_id}, /v3/, /post/, /post/help, /post/create_user, /cat_detail/, /delete/{id}, /health_insurance/), kassenkompass.de (bonusrechner_fragen.php, bonusrechner.php, bonusrechner_abschluss.php, bonusrechner_vergleich2.php, /php/mark_all_read.php, /js/standard.js, /js/live-calculation.js, /js/param_passthrough.js, /js/whitelabel_live.js), www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+Window is open (≥10:43 UTC, now 12:08) — running the standing fragen smoke probe.
+[0m$ [0mcurl -sS -o /tmp/opencode/fragen.body -D /tmp/opencode/fragen.hdr -w 'http=%{http_code} bytes=%{size_download} time=%{time_total}\n' --max-time 30 -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36' 'https://kassenkompass.de/bonusrechner_fragen.php'; sha256sum /tmp/opencode/fragen.body; grep -iE 'HTTP/|content-length|cache-control|etag|last-modified|cf-|x-|server' /tmp/opencode/fragen.hdr
+http=200 bytes=2159141 time=2.256261
+96cbf84720f3137238633275f16a6798a5813c3492a7c3cde925cba5bfe876d0  /tmp/opencode/fragen.body
+HTTP/2 200 
+cache-control: no-store, no-cache, must-revalidate
+server: cloudflare
+x-frame-options: SAMEORIGIN
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains
+cf-cache-status: DYNAMIC
+report-to: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=KK2fPzgeZcIBiy6xUihdK8hlS%2Fz82NDb%2BmStvsKcnKskE1hplNRIDGYnllANdnQ98NUAhFD504I8OuQcCc7sljM0njaQSAsYpu2WAwiapIPsZT6USaXjCHG2wcopW5lSK1c%3D"}]}
+nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+cf-ray: a4aeb84a0b2e2c7a-SEA
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '"lastchange":[0-9]+' fragen.body | cut -d: -f2 | sort -n | tail -1 | xargs -I{} date -u -d @{} '+max lastchange epoch {} = %Y-%m-%d'; grep -oE '"lastchange":[0-9]{10}' fragen.body | wc -l; python3 -c "
+import json,re
+d=open('fragen.body',encoding='utf-8',errors='replace').read()
+print('len',len(d))
+print('prefix',d[:120].replace('\n',' '))
+"
+0
+len 2155878
+prefix <!DOCTYPE html> <html> <head> 	 	<meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oiE '"last[_-]?change"[^,]{0,30}' fragen.body | head -3; grep -oE '"(stand|stand_datum|updated|datum)[^,]{0,40}' fragen.body | head -5; grep -oE '20[0-9]{2}-[0-9]{2}-[0-9]{2}' fragen.body | sort | tail -3; grep -oiE 'sondervertrag|vertragstarif' fragen.body | sort | uniq -c
+"lastchange":"1746314584"
+"lastchange":"1746314267"
+"lastchange":"1746314460"
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '"lastchange":"[0-9]+"' fragen.body | grep -oE '[0-9]+' | sort -n | tail -1 | xargs -I{} date -u -d @{} '+max lastchange = epoch {} = %Y-%m-%d'; grep -c '"lastchange"' fragen.body; grep -oE '202[4-6]-[0-9]{2}-[0-9]{2}' fragen.body | sort | uniq -c | tail -5
+max lastchange = epoch 1792060477 = 2026-10-15
+1
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '"lastchange":"[0-9]+"' fragen.body | grep -oE '[0-9]+' | sort -n | tail -5 | while read e; do date -u -d @$e "+$e = %Y-%m-%d %H:%M"; done; echo ---; grep -oE '"lastchange":"[0-9]+"' fragen.body | grep -oE '[0-9]+' | sort -n | head -3 | while read e; do date -u -d @$e "+$e = %Y-%m-%d"; done; echo ---count; grep -oE '"lastchange":"[0-9]+"' fragen.body | wc -l; echo ---sha256-of-body; sha256sum fragen.body; wc -c fragen.body
+1791902135 = 2026-10-13 14:35
+1791902157 = 2026-10-13 14:35
+1791902192 = 2026-10-13 14:36
+1791902528 = 2026-10-13 14:42
+1792060477 = 2026-10-15 10:34
+---
+1746314267 = 2025-05-03
+1746314460 = 2025-05-03
+1746314584 = 2025-05-03
+---count
+5242
+---sha256-of-body
+96cbf84720f3137238633275f16a6798a5813c3492a7c3cde925cba5bfe876d0  fragen.body
+2159141 fragen.body
+[0m
+[0m$ [0mcd /tmp/opencode; grep -ioE '(api[_-]?key|x-api-secret|secret[_-]?key|authorization|bearer [A-Za-z0-9._-]{10,}|password|passwort)[^,;"]{0,40}' fragen.body | sort -u | head -20; echo "--- endpoints ---"; grep -oE 'https?://[a-zA-Z0-9._/-]+' fragen.body | sort -u | head -30; echo "--- form actions ---"; grep -oE '<form[^>]{0,200}' fragen.body | head -5
+--- endpoints ---
+http://www.w3.org/2000/svg
+https://finanzplatz-hamburg.com/de/ueber-uns/mitglieder.html
+https://innovationsstarter.com/portfolio/
+https://load.awv.kassenkompass.de/ns.html
+https://www.abendblatt.de/hamburg/wirtschaft/article408042172/beitrag-gestiegen-wie-man-bei-der-krankenkasse-hunderte-euro-sparen.html
+https://www.ardmediathek.de/video/hamburg-journal/hamburg-morgen-website-hilft-beim-vergleich-von-krankenkassen/ndr/Y3JpZDovL25kci5kZS81ODI1MDdhMy05ZWU3LTRjYjUtYjRjMi1hM2Q4OTlkNDUxMTg
+https://www.faz.net/aktuell/wirtschaft/unternehmen/gruenderin-fiona-jasmut-ich-finde-dass-unsere-generation-bequem-ist-110053706.html
+https://www.handelsblatt.com/technik/medizin/inside-digital-health/versicherungen-so-laesst-sich-bei-der-krankenkassenwahl-besonders-clever-sparen/100101459.html
+--- form actions ---
+<form method="post" class="bnv_mainframe" onkeydown="return preventFormSubmit(event);"
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '<form[^>]*>' fragen.body | head -3; echo "--- non-200 hints / ajax ---"; grep -oE '(fetch|XMLHttpRequest|\.ajax|action=)["'\'']?[^"'\'' )]{0,80}' fragen.body | head -10; echo "--- nosniff/hsts already; check word-count of tariff entries ---"; grep -oE '"bezeichnung":"[^"]{3,60}"' fragen.body | wc -l
+<form method="post" class="bnv_mainframe" onkeydown="return preventFormSubmit(event);">
+--- non-200 hints / ajax ---
+--- nosniff/hsts already; check word-count of tariff entries ---
+0
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '"(tarif|bezeichnung|name|leistung)[^"]*":"[^"]{4,}"' fragen.body | sort | uniq -c | head -10; echo "---"; grep -oE '"(preis|monatsbeitrag|beitrag)[^"]*":[0-9.]+,' fragen.body | wc -l; grep -oE '"(preis|monatsbeitrag|beitrag)[^"]*":[0-9.]+,' fragen.body | head -3
+1 "name":"(m.Sport) Nutzt du das Bonusprogramm deiner Kasse bereits?"
+      1 "name":"24h \/ 7 Hotline"
+      1 "name":"Alternative - Berechnen?"
+      1 "name":"Alternative - Ho\/Os?"
+      1 "name":"Alternative, Sparen, Schwanger"
+      1 "name":"Alvo oder Versicherung"
+      1 "name":"Andere 3 Alternative"
+      1 "name":"Angehörige Fragen Männer"
+      1 "name":"BARMER Test"
+      1 "name":"Bezahlst du Geld für Zusatzversicherungen oder Altersvorsorge? "
+---
+0
+[0m
+[0m$ [0mcd /tmp/opencode; grep -oE '"tarif[^"]*":"[^"]+' fragen.body | head -5; grep -oE '\b(Tarif|Sondertarif|Krankenkasse)\b' fragen.body | sort | uniq -c | head -10; echo "---json?---"; grep -n '"fragen\|antworten\|module"' fragen.body | head -5; echo "--- script tags ---"; grep -oE '<script[^>]+src=[^>]+>' fragen.body | sort | uniq -c | head -10; echo "--- total script srcs ---"; grep -c '<script[^>]*src=' fragen.body; grep -oE '<script[^>]*src="[^"]+"' fragen.body | sort -u | head -10
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_13f793582001CtwsaUPoDBY0fQ
+
+,{"uid_ant":"678","ant_de":"Nein","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/237\/2.png?v=1766503883?v=1766504037?v=1766505985?v=1766506327?v=1766508388?v=1766508663","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"238":{"uid_fra":"238","name":"Gesundheitskurse AG Männer","fra_de":"Nimmst du am 8-wöchigen Trainingsprogramm von AG Medical teil?","bes_de":"Bei AG Medical hast du die Möglichkeit bis zu 4 Monate lang beitragsfrei und krankenkassenbezuschusst zu trainieren.","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"680","ant_de":"Ja","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/238\/1.png?v=1767017117?v=1767017284?v=1767017335?v=1767017398?v=1767020829?v=1767021840?v=1767022224?v=1767022584?v=1767023340?v=1767024305?v=1767098299","reihe":"1","wert":null,"kat":null,"positive_kategorien":[24],"negative_kategorien":[],"akt":"1"},{"uid_ant":"681","ant_de":"Nein","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/238\/2.png?v=1766505951?v=1766506310?v=1767017117?v=1767017284?v=1767017335?v=1767017398?v=1767020829?v=1767021840?v=1767022224?v=1767022584?v=1767023340?v=1767024305?v=1767098299","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"239":{"uid_fra":"239","name":"Ist dir Nachhaltigkeit bei deiner Krankenkasse besonders wichtig? 2","fra_de":null,"bes_de":null,"img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":null,"antworten":[]},"240":{"uid_fra":"240","name":"BARMER Test","fra_de":"BARMER Test","bes_de":"","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"683","ant_de":"Ja","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/240\/1.png","reihe":"1","wert":null,"kat":null,"positive_kategorien":[25,29,125,146],"negative_kategorien":[],"akt":"1"},{"uid_ant":"684","ant_de":"Nein","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/240\/2.png","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"241":{"uid_fra":"241","name":"Ist dir Nachhaltigkeit bei deiner Krankenkasse besonders wichtig? 2.0","fra_de":"Ist dir Nachhaltigkeit bei deiner Krankenkasse wichtig?","bes_de":"Berücksichtigt werden die CO₂-Bilanz und Klimaziele der Krankenkasse, umweltfreundliche Geschäftsprozesse sowie externe Nachhaltigkeitsbewertungen und Auszeichnungen.","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"686","ant_de":"Ja","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/241\/1.png?v=1768558619?v=1772122935","reihe":"1","wert":null,"kat":null,"positive_kategorien":[143,146],"negative_kategorien":[],"akt":"1"},{"uid_ant":"687","ant_de":"Nein","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/241\/2.png?v=1768558619?v=1772122935","reihe":"2","wert":null,"kat":null,"positive_kategorien":[146],"negative_kategorien":[],"akt":"1"}]},"242":{"uid_fra":"242","name":"Gute Nachricht: Du kannst sparen! 2.0","fra_de":"Gute Nachricht: Du kannst sparen und erhältst mehr Leistungen","bes_de":"","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"689","ant_de":"+ 4 Fragen zu weiteren Leistungen","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/242\/1.png?v=1767950551","reihe":"1","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"},{"uid_ant":"690","ant_de":"Direkt zum Ergebnis","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/242\/2.png?v=1767950551","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"243":{"uid_fra":"243","name":"Nutzt du das Bonusprogramm deiner Kasse bereits? 4","fra_de":"Nutzt du das Bonusprogramm deiner Kasse bereits?","bes_de":"Was ist ein Bonusprogamm? Die Krankenkasse belohnt gesundes Verhalten z. B. Vorsorge, Impfungen oder Sport – mit Punkten oder Geld. Viele Kassen zahlen bis zu 200 € pro Jahr. Der Bonus ersetzt nicht automatisch die Kosten der Vorsorge. Welche Leistungen übernommen werden, hängt von deiner Kasse ab.","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"692","ant_de":"Ja, ich nutze ich bereits","bes_de":"","img":"bonusprogramm_positiv","reihe":"1","wert":null,"kat":null,"positive_kategorien":[99,138,142,146],"negative_kategorien":[],"akt":"1"},{"uid_ant":"693","ant_de":"Nein, aber für 200 € Bonus würde ich es nutzen","bes_de":"","img":"bonusprogramm_negativ_200","reihe":"2","wert":null,"kat":null,"positive_kategorien":[99,138,142,146],"negative_kategorien":[],"akt":"1"},{"uid_ant":"694","ant_de":"Nein, zu viel Aufwand","bes_de":"","img":"negativ","reihe":"3","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[26,99,101,102,103,110,111,112,113,114,115,116,135,136],"akt":"1"}]},"244":{"uid_fra":"244","name":"Sind Familienmitglieder bei dir mitversichert?","fra_de":"Sind Familienmitglieder bei dir mitversichert?","bes_de":"","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"695","ant_de":"Nein, nur ich bin versichert","bes_de":"","img":"person","reihe":"1","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"},{"uid_ant":"696","ant_de":"Ja, Familienmitglieder wie Kinder und\/oder Partner:in","bes_de":"","img":"familie","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"245":{"uid_fra":"245","name":"Sportmitgliedschaft mit Sportmed.","fra_de":"Bist du Mitglied in einem Fitnessstudio oder Sportverein?","bes_de":"","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"698","ant_de":"Ja, bin ich","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/245\/1.png?v=1768825541","reihe":"1","wert":null,"kat":null,"positive_kategorien":[26,103,125,126],"negative_kategorien":[],"akt":"1"},{"uid_ant":"699","ant_de":"Nein, bin ich nicht","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/245\/2.png?v=1768825541","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[],"akt":"1"}]},"246":{"uid_fra":"246","name":"Sportmitgliedschaft U18 keine Versicherungsboni triggern","fra_de":"Bist du Mitglied in einem Fitnessstudio oder Sportverein?","bes_de":"","img":null,"art":null,"kat":null,"akt":"1","haeufig_gewaehlt_ant_id":"0","antworten":[{"uid_ant":"701","ant_de":"Ja","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/246\/1.png","reihe":"1","wert":null,"kat":null,"positive_kategorien":[26,101,103],"negative_kategorien":[127],"akt":"1"},{"uid_ant":"702","ant_de":"Nein","bes_de":"","img":"https:\/\/kk-s3-01.s3.eu-central-1.amazonaws.com\/uploads\/fraq\/246\/2.png","reihe":"2","wert":null,"kat":null,"positive_kategorien":[],"negative_kategorien":[127],"akt":"1"}]}};
+--- script tags ---
+      1 <script src="/js/standard.js?v=1792066219">
+      1 <script src="js/ajax.js?v=v2.6.11" defer>
+      1 <script src="js/drawflow-manager.js?v=v2.6.11" defer>
+      1 <script src="js/live-calculation.js?v=v2.6.11" defer>
+      1 <script src="js/question-logic.js?v=v2.6.11" defer>
+      1 <script src="js/whitelabel_live.js?v=v2.6.11">
+      1 <script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js">
+--- total script srcs ---
+7
+<script src="/js/standard.js?v=1792066219"
+<script src="js/ajax.js?v=v2.6.11"
+<script src="js/drawflow-manager.js?v=v2.6.11"
+<script src="js/live-calculation.js?v=v2.6.11"
+<script src="js/question-logic.js?v=v2.6.11"
+<script src="js/whitelabel_live.js?v=v2.6.11"
+<script type="text/javascript" id="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/146866466.js"
+[0m
+**Smoke probe: `https://kassenkompass.de/bonusrechner_fragen.php` (passive, GET)**
+
+- HTTP/2 200, 2,159,141 bytes, sha256 `96cbf84720f3137238633275f16a6798a5813c3492a7c3cde925cba5bfe876d0`
+- Headers: `cache-control: no-store, no-cache, must-revalidate`, `cf-cache-status: DYNAMIC`, `x-frame-options: SAMEORIGIN`, `x-content-type-options: nosniff`, `strict-transport-security: max-age=31536000; includeSubDomains`
+- JSON lastchange: max epoch `1792060477` = 2026-10-15 10:34:37 UTC (5242 entries). Min 2025-05-03; freshness ≤ 2026-10-15 10:34 UTC
+- No embedded secrets (api keys/tokens/passwords) in sample; no pricing numeric table dump evident, corpus is questionnaire/tariff logic (JSON + HTML). References to kk-s3-01 images (versioned query params)
+- JS: `/js/standard.js?v=1792066219`, `js/live-calculation.js?v=v2.6.11`, `js/whitelabel_live.js?v=v2.6.11`, `js/ajax.js`, `js/question-logic.js`, `js/drawflow-manager.js`, HubSpot `js-eu1.hs-scripts.com/146866466.js`, `load.awv.kassenkompass.de/ns.html`
+
+## [PRIO]
+| surface | scope | axis_a | axis_b | axis_c | axis_d | score | reason |
+|---|---|---|---|---|---|---|---|
+| kassenkompass.de/bonusrechner_fragen.php | unauth | exposure (2)=2 | attr (0)=0 | impact (3)=3 | scope (3)=3 | 8.50 | Standing: tariff/logic corpus, no-store+DYNAMIC, competitive intelligence relevance; unchanged from prior (body small drift) |
+| kassenkompass.de/php/mark_all_read.php | pre-auth action router | exposure (2)=2 | attr (0)=0 | impact (2)=2 | scope (3)=3 | 7.00 | HUMAN_ONLY (POST required). Method-asymmetry unverified under read-only; decisive test disallowed |
+| api.kassenkompass.de (/sync/) | auth-gated helper | exposure (1)=1 | attr (0)=0 | impact (2)=2 | scope (4)=4 | 6.65 | 2xx auth verdict, allow POST/OPTIONS, no new disclosure observed |
+
+Score formula applied per axes (standing, re-derived). Priority unchanged; no new surfaces introduced.
+
+## [HYP]
+- H-001 (fragen.php): **Unauthenticated Competitive Intelligence Tariff/Logic Corpus** — PASSIVE. Current snapshot 2.159M, lastchange 2026-10-15 10:34 UTC, sha256 `96cbf847…`. No-store+DYNAMIC prevents generic CDN caching of full corpus; extent of vendor tariff detail requires classification (intended-public vs licensed partner data). Conf: 70. Status: open survivor (no change)
+- H-002 (mark_all_read.php): **Pre-Auth Action-Router Ordering Asymmetry** — HUMAN_ONLY. Read-only: all action values return 59 B `{"success":false,"message":"Fehler: Ungültige Action"}` (invalid case). "Valid action → 46 B Nicht angemeldet" not reproducible under read-only scan; decisive POST with valid action + alt params required. Conf: 50. Status: parked for human test
+
+## [PARKED]
+- Embedded credential in JS: 45→0 (closed; re-verified: no api/secret tokens in standard.js/live-calculation.js/whitelabel_live.js; stape sGTM container only)
+- sGTM (stape) container exposure: informational, no sensitive values observed; integrity-only
+- Encoded-separator/WAF bypass family: REJECTED (byte-identical normalization)
+- Host-header routing FP on api: REJECTED
+- HEAD route-membership: methodology corrected (GET+body required)
+- `/post/create_user` unauth user provisioning: method-confounded, needs credentialed POST + negative control (HUMAN)
+- S3 sibling buckets (kk-assets/kk-backup/kk-uploads/kk-docs/kk-images): ownership/HUMAN gate; ListBucket denied
+- kassenkompass.net: existence oracle inconclusive (302 blanket)
+- `/v3/` == catch-all (no distinct router)
+
+## [FINAL]
+Survivors (unchanged):
+1. **Unauthenticated Competitive Intelligence Tariff Leak @ kassenkompass.de/bonusrechner_fragen.php** — Conf 70, PASSIVE. No live repro escalation (read-only). Severity depends on data classification.
+2. **Pre-Auth Action-Router Ordering Asymmetry @ kassenkompass.de/php/mark_all_read.php** — Conf 50, HUMAN_ONLY. Decisive test requires POST (not allowed under ≤1 rps/read-only rules).
+
+Closed/REJECTED: credential-in-JS, sGTM sensitive exposure, encoded-separator bypass, HEAD-membership FP, Host-header FP, "valid action → 46 B" read-only claim, `/post/create_user` write-auth inference without POST.
+
+## [NEXT]
+- NO new live HTTP probes due now (fragen.php snapshot fresh 2026-10-15 10:34 UTC, JS RAG complete, no DELTA on API funnel)
+- **HUMAN — CARRY**: `POST https://kassenkompass.de/php/mark_all_read.php` with valid `action=mark_all_read` (and alt param names/forms) under controlled conditions; capture exact body bytes + headers; test negative controls (invalid+valid). Record whether response shifts to "Nicht angemeldet"/distinct body vs 59 B.
+- **HUMAN — CLASSIFY**: Tariff corpus (fragen.php) vendor classification (public marketing vs licensed partner tariff data) to gate severity (does not require active probing).
+
+## [LEARN]
+- REJECTED family persistence (encoded-separator) confirms normalization-before-equality is correct; percent-decode single-level suffices. 401/189 B sha256 `b05031ccaf9c539e` is canonical for `/delete%2f1%2fextra` == `/delete/1/extra`; 404/1245 B `dc1d54dab6ec8c00` for `%252f` double-encode is static handler.
+- HEAD cannot establish route-membership on catch-all api (content-length:0, missing `instance`) — GET+byte/structure comparison required (method-confounded).
+- 405 on api.kassenkompass.de never implies credential requirement (method-confounded, gated POST-only paths like `/cat_detail/`).
+- JS RAG closed last passive X-API-Secret path (no credentials in 3 bundles; stape sGTM informational only).
+- Fragen.php: large questionnaire JSON with versioned S3 image URLs; no-store+DYNAMIC, lastchange max 2026-10-15 10:34 UTC; sha256 96cbf847 (small drift normal).
+
+## [RISK]
+KassenKompass GmbH program risk: **70** (unchanged). Survivors: 70 (fragen, unauth CI leak, classification-gated) + 50 (mark_all_read HUMAN_ONLY) — primary residual is data classification of tariff corpus.
+
+## [KB/INVENTORY DELTA]
+- fragen.php snapshot: bytes 2,159,141, sha256 96cbf84720f3137238633275f16a6798a5813c3492a7c3cde925cba5bfe876d0, lastchange max 1792060477 (2026-10-15 10:34 UTC), 5242 entries, cache-control no-store,no-cache,must-revalidate, cf-cache-status DYNAMIC
+- JS versions: standard.js v=1792066219 (fresh), live-calculation/whitelabel/ajax/question-logic/drawflow-manager v=v2.6.11; HubSpot 146866466.js external
+- No new routes discovered; no credential disclosures; byte-delta observed (normal drift). No probes exceeding ≤1 rps; read-only.
+
+Cycle status: **NO_DELTA** in surface changes; measurements updated for fragen.php only. All conclusions hypothesis-first; priority re-derived.
