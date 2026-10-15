@@ -1883,3 +1883,5 @@ www.kassenkompass.de
 - CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 01:36:44 UTC

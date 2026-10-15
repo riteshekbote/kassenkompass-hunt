@@ -11183,3 +11183,4 @@ testability: HUMAN_ONLY
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/js/standard.js: server-side GTM via stape.io loads https://awv.kassenkompass.de/{container}.js?b=... with container ahcfuvbcz — confirms known awv proxy origin, no debug/preview surface
 [RISK] KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope informational; no credential compromise or PII exposure observed
 ## 2026-10-14 23:15:31 UTC [target] (model bigpickle)
+## 2026-10-15 01:34:23 UTC [target] (model bigpickle)
