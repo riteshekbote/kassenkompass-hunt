@@ -2007,3 +2007,11 @@ https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
 https://api.kassenkompass.de/post/help -> HTTP 405
 https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 20:28:29 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/js/whitelabel_live.js -> 200 len=11359

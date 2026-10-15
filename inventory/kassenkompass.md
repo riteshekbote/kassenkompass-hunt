@@ -1896,3 +1896,11 @@ www.kassenkompass.de
 - NEW infra note: AWSALB+AWSALBCORS stickiness cookies present — origin behind AWS ALB under Cloudflare; observation only (header-derived infra disclosure is not a reportable class).
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 20:28:19 UTC
+- NEW kassenkompass.de/js/whitelabel_live.js: source-map/embedded-secret RAG (closed 2026-10-15) covered only 3 bundles (standard.js, live-calculation.js, param_passthrough.js) — this 4th public bundle (11,
+- NEW kassenkompass.de/bonusrechner_fragen.php: 24h smoke 2026-10-15 17:14 UTC — HTTP 200, 2,159,141 B (Δ+2 B vs baseline 2,159,139 B, 0.00009%), sha256 fd925227…, no-store+CF-DYNAMIC, no ETag/Last-Modified
+- NEW kassenkompass.de/bonusrechner_fragen.php: full 2.16MB corpus credential grep — 0 hits across 13 secret-shaped patterns (X-API-Secret, api_secret, PEM BEGIN, Bearer≥10, password/token assignment, AWS4-
+- NEW infra: AWSALB/AWSALBCORS stickiness cookies present on responses — confirms AWS ALB origin behind Cloudflare; header-derived infra disclosure, not a reportable class
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
