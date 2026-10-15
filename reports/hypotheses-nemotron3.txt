@@ -1,17 +1,10 @@
-## 2026-10-15 01:36:34 UTC [target] (model nemotron3)
-[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.50,a=10,b=10,t=8,g=10,c=5,f=10
-[PRIO] kassenkompass.de/php/mark_all_read.php,7.75,a=8,b=7,t=6,g=10,c=5,f=8
-[PRIO] api.kassenkompass.de/post/create_user,6.55,a=7,b=8,t=5,g=10,c=5,f=3
-[HYP] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak
-class: MISCONFIG
-asset: kassenkompass.de/bonusrechner_fragen.php
-confidence: 95
-reasoning: 2.15MB tariff corpus (ucatKkData 1.79MB, globalbudgetsData, kombiboniData, pseudoKkIds) served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across 100+ sustained 1 rps requests; payload drifts ±0.3% per rotation (drift-on-refresh model); www mirror identical; sessionData null under stuffed jar proves cookies not consumed for data population
-evidence_needed: None — finding proven by passive measurement
-verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (PASSIVE) — confirm 200, ~2.15MB, ucatKkData/globalbudgetsData/kombiboniData/pseudoKkIds present, cache-control: no-store, cf-cache-status: DYNAMIC, no ETag/Last-Modified
-impact: Full competitive intelligence tariff dataset (5,209 category rows, resolved per-KK references, budgets, combo bonuses) exposed to any visitor — HIGH business value leak
-testability: PASSIVE
-[HYP] kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Unauthenticated State Mutation
+## 2026-10-15 06:30:21 UTC [target] (model nemotron3)
+[PRIO] kassenkompass.de/php/mark_all_read.php,7.60,attack_surface=8,business_value=6,tech_exposure=7,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.55,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=7,freshness=7
+[PRIO] api.kassenkompass.de/post/create_user,6.55,attack_surface=6,business_value=7,tech_exposure=8,gate_ease=2,cloud_surface=6,freshness=7
+[PRIO] api.kassenkompass.de/,6.40,attack_surface=7,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=5,freshness=5
+[PRIO] kassenkompass.de/bonusrechner_abschluss.php,6.10,attack_surface=6,business_value=6,tech_exposure=5,gate_ease=2,cloud_surface=5,freshness=6
+[HYP] kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Enables Unauthenticated State Mutation
 class: AUTH
 asset: kassenkompass.de/php/mark_all_read.php
 confidence: 75
@@ -19,6 +12,15 @@ reasoning: Action parameter evaluated before session check — unauthenticated P
 evidence_needed: POST with valid action parameters to confirm pre-auth differential reaches session check
 verify_steps: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (form-encoded); repeat for mark_read, send_message, load_messages — expect 46B "Nicht angemeldet" vs invalid action 59B "Ungültige Action"
 impact: Pre-auth action router exposes state-mutation endpoints (mark_all_read, send_message) to unauthenticated callers — could enable notification manipulation or message injection if session bypass exists; MEDIUM
+testability: PASSIVE
+[HYP] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 95
+reasoning: 2.15MB tariff corpus (ucatKkData 1.79MB per-KK resolved refs, globalbudgetsData, kombiboniData, pseudoKkIds=[99,100,101]) served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps; payload drift within ±0.3% band confirms drift-on-refresh model; data freshness ≤2025-12-22 (lastchange epochs 2025); www mirror identical; sessionData null under stuffed jar — competitive intelligence exposure
+evidence_needed: Sustained scraping confirmation (already done: 100 requests at 1 rps all 200, no 429/WAF/rate-limit)
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (PASSIVE) — confirm 200, ~2.15MB, no-store, CF-DYNAMIC, no validators; repeat on www.kassenkompass.de
+impact: Full tariff dataset with resolved per-KK references, budgets, combination bonuses exposed to any anonymous visitor — competitive intelligence leak; severity gated on vendor data classification (intended public vs licensed partner data); HIGH if partner-only data
 testability: PASSIVE
 [HYP] api.kassenkompass.de/post/create_user: Unauthenticated Write Endpoint in Separately Mounted App
 class: AUTH
@@ -29,12 +31,12 @@ evidence_needed: Credentialed POST to /post/create_user with negative control (v
 verify_steps: GET https://api.kassenkompass.de/post/help (PASSIVE) — confirm 200/344B JSON advertising create_user; POST https://api.kassenkompass.de/post/create_user with minimal JSON body (AUTH_HELPED) — requires valid X-API-Secret for conclusive verification; passive-first cannot resolve
 impact: If unauthenticated POST succeeds → user provisioning without auth; HIGH. If auth required → finding invalid. Current evidence: method-confounded (405 on POST-only route), write auth unproven
 testability: AUTH_HELPED
-[PARKED] kassenkompass.de/bonusrechner.php: Cookie Stuffing → Account Creation Chain via 7 Funnel Entries: lead gate requires prior funnel completion (Account-ID from completed questionnaire); one-shot stuffing→register REFUTED; HUMAN_ONLY for lead generation
-[PARKED] api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access: middleware B distinct but tenant scoping unproven; AUTH_HELPED only
-[PARKED] api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read: draft data value downgraded (publicly replicated by fragen.php ucatKkData); AUTH_HELPED only
-[PARKED] Encoded Separator + Suffix Absorption Access-Control Bypass: Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed
-[PARKED] CORS-based postMessage Exploit via whitelabel_live.js: guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified
-[PARKED] S3 Bucket Anonymous Enumeration via qid Axis: qid 1..180 confirmed, all byte-identical duplicates (questionnaire PNGs); no confidentiality impact demonstrated; non-image keys 403; listing AccessDenied; LOW impact
+[PARKED] api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access — middleware B distinct but tenant scoping unproven; AUTH_HELPED only
+[PARKED] api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read — draft data value downgraded (publicly replicated by fragen.php ucatKkData); AUTH_HELPED only
+[PARKED] Encoded Separator + Suffix Absorption Access-Control Bypass — Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed
+[PARKED] CORS-based postMessage Exploit via whitelabel_live.js — guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified
+[PARKED] S3 Bucket Anonymous Enumeration via qid Axis — qid 1..180 confirmed, all byte-identical duplicates (questionnaire PNGs); no confidentiality impact demonstrated; non-image keys 403; listing AccessDenied; LOW impact
+[PARKED] kassenkompass.de/bonusrechner.php: Cookie Stuffing → Account Creation Chain via 7 Funnel Entries — lead gate requires prior funnel completion (Account-ID from completed questionnaire); one-shot stuffing→register REFUTED; HUMAN_ONLY for lead generation
 [FINAL] 1. kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (confidence 95, PASSIVE)
 [FINAL] 2. kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Unauthenticated State Mutation (confidence 75, PASSIVE)
 [FINAL] 3. api.kassenkompass.de/post/create_user: Unauthenticated Write Endpoint in Separately Mounted App (confidence 65, AUTH_HELPED)

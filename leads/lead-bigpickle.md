@@ -11184,3 +11184,4 @@ testability: HUMAN_ONLY
 [RISK] KassenKompass GmbH: 70 — unauthenticated 2.15MB tariff corpus (MEDIUM-HIGH, gated on vendor classification) plus a pre-auth router-ordering asymmetry with no demonstrated mutation; API catalog/legacy-envelope informational; no credential compromise or PII exposure observed
 ## 2026-10-14 23:15:31 UTC [target] (model bigpickle)
 ## 2026-10-15 01:34:23 UTC [target] (model bigpickle)
+## 2026-10-15 06:31:21 UTC [target] (model bigpickle)
