@@ -1889,3 +1889,10 @@ www.kassenkompass.de
 ## 2026-10-15 06:31:32 UTC
 
 ## 2026-10-15 12:15:24 UTC
+
+## 2026-10-15 17:17:19 UTC
+- NEW kassenkompass.de/bonusrechner_fragen.php: 24h smoke executed 2026-10-15 17:14 UTC — HTTP 200, decompressed 2,159,141 B (baseline 2,159,139 B, Δ+2 B = 0.00009%, well within ±0.3% band), sha256 `fd92522
+- NEW kassenkompass.de/bonusrechner_fragen.php: full 2.16MB corpus credential grep — **0 hits** across 13 patterns (X-API-Secret, api_secret, PEM BEGIN variants, Bearer ≥10, password/token assignment, AWS4-
+- NEW infra note: AWSALB+AWSALBCORS stickiness cookies present — origin behind AWS ALB under Cloudflare; observation only (header-derived infra disclosure is not a reportable class).
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
