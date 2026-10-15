@@ -1904,3 +1904,5 @@ www.kassenkompass.de
 - NEW infra: AWSALB/AWSALBCORS stickiness cookies present on responses — confirms AWS ALB origin behind Cloudflare; header-derived infra disclosure, not a reportable class
 - CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
 - CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 23:19:54 UTC

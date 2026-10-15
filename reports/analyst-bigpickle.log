@@ -79714,3 +79714,222 @@ testability: AUTH_HELPED
 [RISK] KassenKompass GmbH: 70 — unauthenticated 2.16MB tariff corpus (MEDIUM-HIGH, classification-gated, credential vector fully excluded); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); no credential compromise or PII exposure observed. Passive surface exhausted; no further autonomous probes warranted.
 
 Passive surface is fully exhausted and every remaining item is human-gated — I'm stopping here. To proceed I need one of: (a) the tariff-data classification answer, (b) authorization for the mark_all_read POST vocabulary test, or (c) an X-API-Secret / AUTH_HELPED credential for the /post/create_user write test.
+===== ANALYST bigpickle 2026-10-15 23:19:54 UTC =====
+[0m
+> build · big-pickle
+[0m
+STEP 1 — DELTA: NO_DELTA. RAG on the 4th bundle (whitelabel_live.js) already closed 0/12 in prior cycle; all 4 public JS bundles clean. fragen smoke window ≥2026-10-16 17:14 UTC not yet open; API within drift window (last hashes 644b1ec7…/b93be961… from 10-09, re-confirmed 10-14). No probe due.
+
+STEP 2 — PRIORITIZE (re-derived from own axes):
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+
+STEP 3 — HYPOTHESES:
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex serves 2,159,141 B to any anonymous GET (17:14 10-15 smoke, Δ+2 B vs baseline), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across 100×1rps; ucatKkData 1.79MB + globalbudgetsData + kombiboniData + dataant (138 questions/375 rule edges) + pseudoKkIds=[99,100,101]; credential angle fully excluded (corpus grep 0/13 patterns AND all 4 public JS bundles 0 hits); www mirror identical modulo cache-buster
+evidence_needed: vendor data classification (intended-public marketing calculator data vs licensed partner tariff data)
+verify_steps: no further probing — carry classification question to program owner/vendor
+impact: full tariff + budget/combination rule corpus to any anonymous visitor — MEDIUM-HIGH gated on classification
+testability: HUMAN
+
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid action returns 200/59B "Fehler: Ungültige Action"; siblings mark_read/send_message/load_messages return 46B "Nicht angemeldet"; action validated before session check; action param POST-only (GET 0-differential); every action value and alternate param name tested pre-auth still yields 59B
+evidence_needed: a recognized action vocabulary yielding != 59B pre-auth (requires POST)
+verify_steps: GET variants are 0-differential; discriminating POST disallowed under read-only rules → human carry
+impact: router-ordering disclosure now; unauth mutation only if a valid pre-auth action exists — LOW
+testability: HUMAN_ONLY
+
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* proven outside X-API-Secret via calibrated HEAD differential (HEAD /delete/1→401, /state/→401 vs /post/→405, /post/create_user→405); GET /post/help advertises POST /post/create_user ("Erstellt einen neuen User. Erwartet JSON im Body."); write unassessed because 405-on-POST-only-routes is method-confounded by gated /cat_detail/; namespace closed at exactly 2 members
+evidence_needed: credentialed POST with negative control (valid secret → 200 vs invalid → 401/403)
+verify_steps: not available within read-only rules → AUTH_HELPED
+impact: unauthenticated user provisioning if write succeeds without credential — HIGH, unproven
+testability: AUTH_HELPED
+
+STEP 4 — SELF-CRITIQUE:
+[PARKED] Embedded Credential in JS Bundles: whitelabel_live.js swept → 0/12; all 4 public bundles clean; closed 10-15. Not a hypothesis.
+[PARKED] Embedded Credential in Tariff Corpus: 0/13; closed 10-15.
+[PARKED] sGTM Server Container Route/Config Exposure: confidence 38 < 40.
+[FINAL] survivors ranked: Tariff Leak (70, HUMAN), mark_all_read Router Asymmetry (50, HUMAN_ONLY), /post/create_user Provisioning (45, AUTH_HELPED).
+
+STEP 5 — NEXT ACTION:
+[NEXT] HUMAN: Ask the program owner one question — is the 2.16MB bonusrechner_fragen.php corpus (ucatKkData/globalbudgetsData/dataant) intended-public marketing-calculator data or licensed partner tariff data? A single answer resolves the top-ranked hypothesis either to a reportable P4-N finding or to a rejection; no further probing can substitute for this classification.
+
+STEP 6 — LEARNING:
+[LEARN] ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried as coverage-gap only, not re-emitted.
+[LEARN] ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js) — no unswept passive JS remains; all remaining work is human-gated.
+
+STEP 7 — RISK:
+[RISK] KassenKompass GmbH: 70 — unauthenticated 2.16MB tariff corpus (MEDIUM-HIGH, classification-gated, credential vector fully excluded: 0/13 corpus + 0/4 bundles); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); API catalog/legacy-envelope findings informational; no credential compromise and no PII exposure observed. Passive surface exhausted; no further autonomous probes warranted.
+## Objective
+- Act as senior bug bounty analyst for KassenKompass GmbH (report channel: bugs.olivermaicher.eu), running a fixed 7-step analysis loop (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARNING → RISK) over the knowledge base, inventory, and prior leads.
+- Emit only structured blocks ([PRIO]/[HYP]/[PARKED]/[FINAL]/[NEXT]/[LEARN]/[RISK]); do not invent vulnerabilities; passive-first read-only probing only.
+
+## Important Details
+- Scope: ONLY company-owned infra of KassenKompass GmbH (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com).
+- Rules: facts vs hypotheses separated; live probes GET/HEAD/OPTIONS only, ≤1 rps; no auth-bypass/mutating tests on live customer data; sha256 any secret; REJECTED classes list must be excluded (DoS, descriptive-only errors, cookie flags on non-sensitive data, username enumeration, rate-limit policy, clickjacking w/o exploit, etc.).
+- Current state: `{"phase": "POC", "target": "api"}`.
+- Scoring formula: priority = 0.25·attack_surface + 0.25·business_value + 0.15·tech_exposure + 0.15·gate_ease + 0.10·cloud_surface + 0.10·freshness; always recompute from own emitted axes (peer [PRIO] lines have repeatedly failed to reproduce: fragen 9.55 vs 8.50, /sync/ 7.60 vs 6.65).
+- Key methodological rules learned: HEAD cannot close route-membership on api host (catch-all returns content-length:0, no `instance`); 405 is method-confounded, never credential evidence; encoded vs literal must be byte-differential to prove bypass; composition claims need both axes on the same request; idempotent re-runs must emit NO_DELTA.
+- Standing open gates: Tariff Leak = HUMAN (vendor data classification question); mark_all_read.php router = HUMAN_ONLY (discriminating POST disallowed read-only); /post/create_user = AUTH_HELPED (credentialed POST + negative control required).
+- Passive credential discovery exhausted across all 4 public JS bundles (standard.js 67,969 B sha256 ed43688e…, live-calculation.js 37,225 B 887b80af…, param_passthrough.js 5,449 B ea2defad…, whitelabel_live.js 11,359 B swept 0/12) — no unswept passive JS remains.
+- fragen.php next rotation window ≥2026-10-16 17:14 UTC (baseline 2,159,141 B, sha256 fd925227…); do not probe before window.
+
+## Work State
+### Completed
+- API fully mapped: 15 v1 + 1 v2 endpoint (ver 1.0/2.0), root 1167 B sha256 644b1ec7… byte-stable since 2026-10-09; /sync/ 67 B sha256 b93be961…; /health/ 22 B; v2 sole route insurance_info, 42-name enumeration saturated; /v3/ = catch-all (no v3 router).
+- Auth map 15/15: 8 middleware A, 3 middleware B ({user/{ext_id}, delete/{id}, cancel/{id}}), /cat_detail/ GET=405/HEAD=401, 3 no-credential-check (/health/, /sync/, /post/).
+- Normalization matrix complete: 17 route families, 0 divergences, percent-decode-before-match host-wide (v1+v2), single-level decode, three pre-auth oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- REJECTED (stable): encoded-separator access-control bypass; unauthenticated user provisioning (405 method-confounded); X-API-Secret via query/cookie; CORS (api + .net + funnel); Host-header vhost FP; WAF-bypass; S3 wider-bucket exposure (5 siblings ListBucket-denied); kk-s3-01 PNG confidentiality; mark_all_read "valid action → 46 B" (every action/param yields 59 B).
+- fragen.php: 2.16 MB unauthenticated tariff corpus (ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant 138Q/375 edges + pseudoKkIds), no-store+CF-DYNAMIC, no validators, no rate limit at 100 req/1 rps; credential vector excluded (0/13 patterns); data freshness ≤2025-12-22; drift-on-refresh ±0.3%.
+- /php/ namespace: 4 handlers (mark_read, mark_all_read, send_message, load_messages); pre-auth action-router ordering confirmed on apex+www+net; action param POST-only (GET 0-differential).
+- Whitelabel/param_passthrough findings recorded (postMessage no origin check = integrity-only NOT XSS; 16-param sessionStorage relay, cap 128).
+
+### Active
+- Analysis loop converged to halt state: last leads declare "passive surface exhausted; analysis halts pending external input" with all survivors human-gated.
+- Standing [FINAL] survivors: Tariff Leak (70, HUMAN), mark_all_read Router Asymmetry (50, HUMAN_ONLY), /post/create_user Provisioning (45, AUTH_HELPED).
+- Latest [NEXT] queued (2026-10-15 leads) was the whitelabel_live.js RAG — that sweep has since been executed (0 hits) per later KB entries.
+
+### Blocked
+- mark_all_read.php decisive test requires POST → HUMAN_ONLY under read-only rules.
+- /post/create_user write auth requires credentialed POST → AUTH_HELPED.
+- Tariff Leak severity requires vendor data classification → HUMAN answer.
+- Peer pipeline: 25+ consecutive empty/stub triage cycles (observability gap, zero signal).
+
+## Next Move
+1. Emit a NO_DELTA cycle: no probe due (fragen window ≥2026-10-16 17:14 UTC; API surface exhausted), recompute standing priorities from own emitted axes (fragen 8.50, mark_all_read 7.00, /post/create_user 6.60), keep [FINAL] survivors unchanged.
+2. Issue a single [NEXT] HUMAN: (1) ask program owner whether fragen.php 2.16 MB corpus is intended-public vs licensed partner data; (2) approve mark_all_read.php valid-action POST vocabulary test; (3) AUTH_HELPED credentialed POST + negative control on /post/create_user.
+
+## Relevant Files
+- inventory/kassenkompass.md: host inventory + dated recon log (drives STEP 1 DELTA).
+- reports/hypotheses-bigpickle.txt, hypotheses-nemotron3.txt, hypotheses-laguna.txt, hypotheses-ling3.txt, hypotheses-longcat.txt, hypotheses-mimo.txt: peer lead files (currently header-only/stub).
+- state_bigpickle.json / state_nemotron3.json: `{"phase": "POC", "target": "api"}`.
+- kassenkompass.de/js/{standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js}: the 4 public bundles, all credential-swept clean.
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-15 23:19:35 UTC
+[0m
+[0m$ [0mls inventory/ reports/ 2>/dev/null; cat state_bigpickle.json 2>/dev/null
+inventory/:
+kassenkompass.md
+
+reports/:
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mtail -60 reports/analyst-bigpickle.log 2>/dev/null
+## Relevant Files
+- (none — all work is live HTTP probing and KB/lead emission; no local files or repos. `reposcan` unavailable: TARGET_ORG not configured.)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+Executing the queued [NEXT] RAG — single read-only GET on the 4th unswept public JS bundle.
+[0m$ [0mcurl -sS --max-time 30 -A "bug-bounty-analysis" -o /tmp/opencode/whitelabel_live.js -w "http=%{http_code} bytes=%{size_download} type=%{content_type}\n" https://kassenkompass.de/js/whitelabel_live.js && sha256sum /tmp/opencode/whitelabel_live.js
+http=200 bytes=11359 type=application/javascript
+8fe86ea1d742f4926e474362bb670a542d0d21614373885b58fe2796863c5280  /tmp/opencode/whitelabel_live.js
+[0m
+[0m→ [0mRead /tmp/opencode/whitelabel_live.js
+[0m✱ [0mGrep "sourceMappingURL|\.map"|X-API-Secret|api[_-]?secret|BEGIN (RSA|OPENSSH|PRIVATE)|Bearer [A-Za-z0-9]{10,}|[Pp]assword\s*[:=]\s*['"][^'"]{8,}|[Tt]oken\s*[:=]\s*['"][A-Za-z0-9_\-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_|AIza[0-9A-Za-z_\-]{30,}"[90m in /tmp/opencode/whitelabel_live.js · 0 matches[0m
+[DELTA] NEW: kassenkompass.de/js/whitelabel_live.js swept (11,359 B, sha256 8fe86ea1d742f4926e474362bb670a542d0d21614373885b58fe2796863c5280) — 0/12 patterns (sourceMappingURL/.map/X-API-Secret/api-secret/private-key/Bearer/password/token/AKIA/gh[pr]_/AIza). No new surface; coverage gap now closed.
+
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex serves 2,159,141 B to any anonymous GET, no-store/no validators/no rate limit, drift-free across 10+ 24h windows; ucatKkData 1.79MB + globalbudgetsData + kombiboniData + dataant (138 questions/375 rule edges) + pseudoKkIds; credential angle fully excluded (corpus grep 0/13 AND all 4 public JS bundles now 0 hits); www mirror identical modulo cache-buster
+evidence_needed: vendor data classification (intended-public marketing calculator data vs licensed partner tariff data)
+verify_steps: no further probing; carry classification question to program owner / vendor
+impact: full tariff + budget/combination rule corpus to any anonymous visitor — MEDIUM-HIGH gated on classification
+testability: HUMAN
+
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauth invalid action returns 200/59B "Ungültige Action"; siblings mark_read/send_message/load_messages return 46B "Nicht angemeldet"; action validated before session check; action param POST-only
+evidence_needed: a recognized action vocabulary yielding != 59B pre-auth (requires POST)
+verify_steps: GET variants 0-differential; discriminating POST disallowed under read-only rules → human carry
+impact: router-ordering disclosure now; unauth mutation only if a valid pre-auth action exists — LOW
+testability: HUMAN_ONLY
+
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* proven outside X-API-Secret via calibrated HEAD differential; GET /post/help advertises POST /post/create_user; write unassessed because 405-on-POST-only-routes is method-confounded by gated /cat_detail/; namespace closed at 2 members
+evidence_needed: credentialed POST with negative control (valid secret → 200 vs invalid → 401/403)
+verify_steps: not available within read-only rules → AUTH_HELPED
+impact: unauthenticated user provisioning if write succeeds without credential — HIGH, unproven
+testability: AUTH_HELPED
+
+[PARKED] Embedded Credential in JS Bundles: whitelabel_live.js now swept → 0/12; all 4 public bundles clean; closed.
+[PARKED] Embedded Credential in Tariff Corpus: 0/13; closed 2026-10-15.
+[PARKED] sGTM Server Container Route/Config Exposure: confidence 38 < 40.
+[FINAL] survivors: Tariff Leak (70, classification-gated), mark_all_read Router Asymmetry (50, HUMAN_ONLY), /post/create_user Provisioning (45, AUTH_HELPED).
+
+[NEXT] HUMAN: (1) Tariff Leak — ask program owner whether the 2.16MB fragen.php corpus (ucatKkData/globalbudgetsData/dataant) is intended-public or licensed partner data (single answer moves 70→P4-N ≈$150 or →reject); (2) mark_all_read.php valid-action POST vocabulary test (candidates: mark_all_read, mark_read, send_message, load_messages) under approval; (3) /post/create_user credentialed POST + negative control under AUTH_HELPED.
+
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/enum/sanitized-font values into a <style> block (no HTML sink) — integrity-only, NOT XSS; consistent with prior whitelabel finding. Comment discloses server path htmlincludes/whitelabel/whitelabel_styles.php (descriptive-only, out-of-scope disclosure class).
+[LEARN] ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work human-gated, so analysis halts pending external input.
+
+[RISK] KassenKompass GmbH: 70 — unauthenticated 2.16MB tariff corpus (MEDIUM-HIGH, classification-gated, credential vector fully excluded); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); no credential compromise or PII exposure observed. Passive surface exhausted; no further autonomous probes warranted.
+
+Passive surface is fully exhausted and every remaining item is human-gated — I'm stopping here. To proceed I need one of: (a) the tariff-data classification answer, (b) authorization for the mark_all_read POST vocabulary test, or (c) an X-API-Secret / AUTH_HELPED credential for the /post/create_user write test.
+[0m
+[0m→ [0mRead inventory/kassenkompass.md
+Current time is 2026-10-15 23:19 UTC. fragen window ≥2026-10-16 17:14 UTC — not open yet (~18 hours away). So no probe due.
+
+Let me check the inventory file for any deltas, and check whether the log state changed. Let me look at the tail of my log to confirm the last emitted cycle.</think>
+The log shows the last emitted cycle already completed the RAG and halted. The user says "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed."
+
+Current state: passive surface exhausted, all remaining human-gated. Time is 2026-10-15 23:19 UTC. fragen window ≥2026-10-16 17:14 UTC, not open. So no probe due.
+
+I already emitted the NO_DELTA cycle above. The correct thing now is to stop and ask for clarification, because there's genuinely nothing autonomous left to do. I should not repeat the same cycle again.
+
+Let me be concise. I've verified the state. Nothing to do. Stop and ask.
+
+Actually, let me double-check: is there anything on the reasoning that the latest leads show whitelabel sweep already done in the log — yes, confirmed. So my prior turn's NO_DELTA was correct and idempotent.
+
+So I should just state that I'm stopping and what I need.
+
+Let me not run more probes. Just answer concisely.
+
+I should verify there's not a genuinely new passive avenue I could take that's read-only. Let me think about what hasn't been done... The KB is enormous. Everything seems saturated. I'll stop.
+
+Let me give the concise answer.</think>No actionable autonomous step remains. Verified state:
+
+- Current time `2026-10-15 23:19 UTC`; fragen smoke window (≥`2026-10-16 17:14 UTC`) is ~18h out — no probe due.
+- Last cycle already executed the queued whitelabel_live.js RAG (0/12, sha256 `8fe86ea1…`) and halted; all 4 public JS bundles are credentialed-clean, so the passive surface is exhausted.
+- `reports/analyst-bigpickle.log` tail confirms the prior cycle ended with the identical NO_DELTA + HUMAN verdict. Re-running now would be an idempotent duplicate.
+
+Every survivor is human-gated:
+
+- **Tariff Leak** (conf 70) — needs the vendor/data-classification answer.
+- **mark_all_read.php router asymmetry** (conf 50, HUMAN_ONLY) — needs approval for a POST vocabulary test.
+- **/post/create_user provisioning** (conf 45, AUTH_HELPED) — needs an X-API-Secret + a credentialed POST.
+
+Stopping here rather than emitting another identical cycle. To proceed I need one of: (a) the tariff-data classification, (b) authorization for the mark_all_read POST test, or (c) an X-API-Secret credential. Which would you like to provide?
