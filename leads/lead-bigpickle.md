@@ -11773,3 +11773,4 @@ evidence_needed: credentialed POST + negative control (valid vs invalid/missing 
 verify_steps: (AUTH_HELPED) POST valid secret, then without/invalid; compare; stop if it would create live data.
 impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
 testability: AUTH_HELPED
+## 2026-10-16 22:54:51 UTC [target] (model bigpickle)

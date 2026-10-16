@@ -6145,3 +6145,5 @@
 - LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
 - LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
 - LEARN: ...
+
+## RANKED HYPOTHESES 2026-10-16 23:03:19 UTC
