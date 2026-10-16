@@ -2040,3 +2040,8 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 
 ## 2026-10-16 16:47:28 UTC
 
+
+## 2026-10-16 19:53:47 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?

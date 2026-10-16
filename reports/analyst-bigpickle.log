@@ -81091,3 +81091,1252 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 ## 2026-10-16 11:54:03 UTC [target] (model laguna)
 [0m
 Next step is time-gated: HOLD until ≥17:14 UTC (now 16:29). I'll wait out the window, then run the single scheduled GET.
+===== ANALYST bigpickle 2026-10-16 19:53:41 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-16 19:42:43 UTC
+[0m
+The user wants a structured summary of the conversation. This is a long-running bug bounty recon engagement against KassenKompass GmbH, in the POC phase, target api. I need to produce the anchored summary in the exact template format.
+
+Let me distill the key facts:
+
+Objective: Bug bounty hunting against KassenKompass GmbH (report channel bugs.olivermaicher.eu), in-scope: all company-owned infrastructure. Currently in POC phase, target api.
+
+Key facts to preserve:
+- Scope: api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com
+- Passive-first, ≤1 rps, GET/HEAD/OPTIONS only, no auth-bypass or mutating tests
+- api.kassenkompass.de: 15 v1 endpoints + 1 v2 (insurance_info); auth X-API-Secret sole channel; auth map 15/15; middleware A/B; /sync/ HTTP 200 legacy envelope 67 B sha256 b93be961...; root 1167 B sha256 644b1ec7...; /health/ 22 B unprotected
+- v2 enumeration saturated at 42 names
+- Normalization matrix complete 17 families; percent-decode-before-match; case-sensitive; single-level decode; encoded separators decode
+- /post/create_user confirmed separately mounted outside X-API-Secret; POST-only; auth unproven (AUTH_HELPED)
+- kassenkompass.de/bonusrechner_fragen.php: 2.16 MB tariff corpus unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; drift ±0.3% model; baseline 2,159,141 B sha256 fd925227...; classification question HUMAN
+- 7 funnel mirrors
+- kassenkompass.de/php/mark_all_read.php: pre-auth action router, unauthenticated invalid action → 200/59B "Ungültige Action" vs valid → 46B "Nicht angemeldet"; action param POST-only; HUMAN_ONLY
+- kk-s3-01: qid 1..180, images-only, no confidentiality impact
+- awv root 400 under both UAs (resolved)
+- 3 survivor hypotheses: Tariff Leak 70 HUMAN; mark_all_read 50 HUMAN_ONLY; /post/create_user 45 AUTH_HELPED
+- Risk 70
+- PRIO scores: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60
+- Last leads: [NEXT] HOLD until ≥2026-10-16 17:14 UTC then single GET bonusrechner_fragen.php (+ www mirror) at ≤1 rps, compare vs 2,159,141 B / fd925227...
+- Last model runs at 11:56 and 16:47 2026-10-16: no change, survivors HUMAN-gated
+- Pipeline observability gap: 25+ consecutive empty triage cycles
+- Credential vector excluded: 0/13 patterns in corpus, 0/4 JS bundles
+- 4 public JS bundles: standard.js 67,969 B, live-calculation.js 36,499 B, param_passthrough.js (web1.0.1), whitelabel_live.js 11,359 B
+
+Current state/time: last entries 2026-10-16 16:47:28 UTC. Next move: HOLD until 17:14 UTC then probe.
+
+Also the analyst role prompt appears at the end (the STEP 1-7 output requirements). That's the system/user instruction for the agent's output format.
+
+Let me write this concisely. I should keep section order: Objective, Important Details, Work State (Completed, Active, Blocked), Next Move, Relevant Files.
+
+"Relevant files" — I don't have explicit file paths in the conversation beyond artifacts: reports/hypotheses-nemotron3.txt, lead_bigpickle.txt, state_bigpickle.json, state_nemotron3.json, hypotheses-bigpickle.txt, inventory/kassenkompass.md, scope.yml, probe-results.md. I should list them as context.
+
+Let me draft.
+
+I must not mention summarization. Keep bullets terse. Preserve exact identifiers.
+
+I'll write it now.</think>## Objective
+- Continue passive-first bug bounty recon/hunting on KassenKompass GmbH (report channel: bugs.olivermaicher.eu); program phase POC, target `api`.
+- Produce structured STEP 1–7 output blocks ([PRIO]/[HYP]/[NEXT]/[LEARN]/[RISK]) per the analyst role brief.
+
+## Important Details
+- Rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; sha256 any secret; scanner output needs manual validation; no REJECTED classes; facts vs hypotheses separated.
+- Scope (from scope.yml + inventory/kassenkompass.md): all KassenKompass GmbH infra; observed hosts: `api.kassenkompass.de`, `kassenkompass.de`, `www.kassenkompass.de`, `kassenkompass.net`, `awv.kassenkompass.de`, `load.awv.kassenkompass.de`, `kk-s3-01.s3.eu-central-1.amazonaws.com`.
+- API auth: `X-API-Secret` header is sole channel; query-string/cookie source-merge REJECTED on A/B/v2. Auth map 15/15: middleware A (8 routes, "…ist ungültig oder nicht berechtigt"), middleware B (3 routes {`/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`}, "X-API-Secret Header fehlt"), 1 method-checked-first (`/cat_detail/`), 3 no credential check (`/health/`, `/sync/`, `/post/`).
+- Stable hashes: root 1167 B sha256 `644b1ec74036ec90…` (15 v1 ver 1.0 + 1 v2 ver 2.0); `/sync/` 67 B sha256 `b93be961f0da5eb4…` (HTTP 200 legacy envelope); `/health/` 22 B sha256 `4af26797ca98dbf2…`; static-handler 404 1245 B sha256 `dc1d54dab6ec8c00…`.
+- v2: `insurance_info` sole route, enumeration saturated at 42 names; greedy segment match; `/v2/insurance_info/1` → 401/236 B sha256 `05b459dd38af015d…`.
+- Normalization: percent-decode-before-match host-wide (v1+v2), case-sensitive, single decode level, encoded separators decode (`/delete%2f1` → 401/182 B `46bd50c0c679e09f…`); 17-family matrix complete (0 divergences); 3 pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- `kassenkompass.de/bonusrechner_fragen.php`: 2.16 MB tariff corpus unauthenticated, `no-store`+`CF-DYNAMIC`, no ETag/Last-Modified, no rate limit; drift-on-refresh ±0.3% model; last baseline 2,159,141 B sha256 `fd925227…`; www mirror identical modulo 1-byte cache-buster.
+- Credential vector excluded: 0/13 secret-shaped patterns in 2.16 MB corpus; 0 sourceMappingURL/.map/credentials across all 4 public JS bundles (standard.js 67,969 B, live-calculation.js 36,499 B, param_passthrough.js web1.0.1, whitelabel_live.js 11,359 B).
+- `kassenkompass.de/php/mark_all_read.php`: action evaluated pre-auth; unauthenticated invalid action → 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}` vs valid siblings → 46 B `Nicht angemeldet`; action param POST-only (GET inert).
+- `api.kassenkompass.de/post/create_user`: `/post/*` separately mounted outside X-API-Secret (HEAD differential); namespace closed at 2 members (`help`, `create_user`); 405 method-confounded by gated POST-only `/cat_detail/`; unauthenticated write unproven.
+- Pipeline observability gap: 25+ consecutive triage cycles with header-only/stub peer leads; peers reprint refuted claims (encoded-separator WAF bypass @90/88, nemotron3 provisioning).
+- Standing RISK: KassenKompass GmbH = 70.
+
+## Work State
+### Completed
+- API surface fully mapped and drift-free since 2026-09-07: 15/15 v1 + v2 auth map, verb+auth matrix from `access-control-allow-methods`, `/post/` namespace closed, normalization matrix complete.
+- All passive JS/RAG credential routes exhausted (4 bundles); 2.16 MB corpus credential grep closed.
+- `kk-s3-01`: qid axis 1..180 enumerated (images-only, byte-identical duplicates, non-image keys 403) — no confidentiality impact; `?versionId=null` → 403.
+- `kassenkompass.net`: blanket 302 on all app-handled paths → no existence oracle; parser differential REJECTED; host-only cookies.
+- `awv.kassenkompass.de` root 400-vs-404 discriminator RESOLVED (400 under default-curl and Chrome/131 UA).
+- `kassenkompass.de/bonusrechner_fragen.php` 24h smoke executed 2026-10-15 17:14 UTC: 2,159,141 B, sha256 `fd925227…`, Δ+2 B (0.00009%).
+- Funnel stuffing surface confirmed at 7 mirror entries with divergent alias maps; GET branch closed 7/7 (cookie consumption strictly POST/portal-path).
+- `bonusrechner_abschluss.php`: one-shot stuffing→register chain REFUTED (GET vs POST differential; "Account-ID nicht gefunden" only on valid POST) — confidence corrected 85→65.
+
+### Active
+- Holding discipline: no probe due until ≥2026-10-16 17:14 UTC (24h fragen smoke window).
+- 3 survivor hypotheses carried: (1) Tariff Leak conf 70 / MISCONFIG / HUMAN (classification-gated); (2) mark_all_read pre-auth router asymmetry conf 50 / AUTH / HUMAN_ONLY; (3) `/post/create_user` provisioning conf 45 / AUTH / AUTH_HELPED.
+- PRIO standing: `kassenkompass.de/bonusrechner_fragen.php` 8.50, `kassenkompass.de/php/mark_all_read.php` 7.00, `api.kassenkompass.de/post/create_user` 6.60.
+
+### Blocked
+- Tariff Leak: severity hinges solely on vendor data classification (intended-public vs licensed partner data) — HUMAN input required.
+- mark_all_read: valid-action POST vocabulary test disallowed under read-only rules — HUMAN approval required.
+- `/post/create_user`: credentialed POST + negative control unavailable under read-only rules — AUTH_HELPED required (do not test unauthenticated write).
+- Peer pipeline silent 25+ cycles; backend "Unexpected server error" / "No leads provided" in triage runs.
+
+## Next Move
+1. HOLD until ≥2026-10-16 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ `www` mirror) at ≤1 rps; compare size/sha256 vs 2,159,141 B / `fd925227…`; otherwise emit NO_DELTA.
+2. HUMAN: ask program owner whether the 2.16 MB fragen.php corpus (ucatKkData / globalbudgetsData / dataant / kombiboniData / pseudoKkIds=[99,100,101]) is intended-public or licensed partner data — single answer moves hypothesis 1 to reportable MISCONFIG or REJECTED.
+
+## Relevant Files
+- `scope.yml`: in-scope asset definition (all KassenKompass GmbH infra).
+- `inventory/kassenkompass.md`: host inventory + dated passive-recon log (hosts, endpoints, header/tech facts).
+- `reports/hypotheses-nemotron3.txt`: peer ledger still ranking refuted encoded-separator WAF-bypass finals @90/88 + queued probes for them.
+- `hypotheses-bigpickle.txt`: own NEXT/HYP/PRIO/LEARN/RISK lead file (HOLD + probe instructions).
+- `lead_bigpickle.txt`: carries top-ranked Tariff Leak hypothesis (conf 70).
+- `state_bigpickle.json`, `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}` (33-byte stubs).
+- `probe-results.md`: raw read-only probe output (harness artifact noted: "GET /post/help -> HTTP 405" at 2026-09-28 17:03 is a probe-script artifact, not target drift).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+The window is open (19:42 UTC > 17:14 UTC). Time to execute the scheduled smoke test: single GET on bonusrechner_fragen.php (+ www mirror) at ≤1 rps, compare vs baseline 2,159,141 B / sha256 fd925227…, otherwise NO_DELTA.
+
+Let me do this. Read-only GET, rate limited. Let me run the probe.
+
+I should do the primary GET, then the mirror, spaced ≥1s apart. Compute size and sha256. Let me be careful to not hammer.
+
+Let me run with curl. I'll fetch the body, compute size and sha256, and also capture headers/status and transfer time.
+
+Let me do it in one command for the primary, then the mirror after 1s. Actually I'll do two separate calls with a sleep. But parallel tool calls would violate ≤1 rps? They're different hosts (kassenkompass.de and www.kassenkompass.de). Still, safer to do sequentially with sleep. Let me just run a single bash command that does both with a 2s gap.
+
+Let me write the command carefully. Use curl with -s -o to a temp file, get http_code, size_download, time_total. Then sha256sum.
+
+Let me do it.</think>Window is open. Executing the scheduled single-GET smoke on the fragen corpus (+ www mirror), ≤1 rps.
+[0m$ [0mcd /tmp/opencode
+echo "=== primary kassenkompass.de/bonusrechner_fragen.php ==="
+curl -sS -o fragen_primary.bin -w 'http=%{http_code} size=%{size_download} time=%{time_total}s ctype=%{content_type}\n' \
+  -A 'Mozilla/5.0 (compatible; kk-recon/1.0)' \
+  --max-time 60 \
+  'https://kassenkompass.de/bonusrechner_fragen.php'
+sha256sum fragen_primary.bin
+wc -c < fragen_primary.bin
+sleep 2
+echo "=== www mirror ==="
+curl -sS -o fragen_www.bin -w 'http=%{http_code} size=%{size_download} time=%{time_total}s ctype=%{content_type}\n' \
+  -A 'Mozilla/5.0 (compatible; kk-recon/1.0)' \
+  --max-time 60 \
+  'https://www.kassenkompass.de/bonusrechner_fragen.php'
+sha256sum fragen_www.bin
+wc -c < fragen_www.bin
+=== primary kassenkompass.de/bonusrechner_fragen.php ===
+http=200 size=2159143 time=1.973913s ctype=text/html; charset=UTF-8
+0e5222fe0b02e3c343b82acb07671fa07334daad68697c40a434964261c3a0ad  fragen_primary.bin
+2159143
+=== www mirror ===
+http=200 size=2159143 time=1.953122s ctype=text/html; charset=UTF-8
+33e4d0ec9a186ce97a06ae18e2e4bdfbf4356dcd70ebde6d5aa46ac4dcd5ab82  fragen_www.bin
+2159143
+[0m
+Baseline was 2,159,141 B sha256 fd925227…. Now both are 2,159,143 B — a delta of +2 bytes. Wait, that matches the previously observed pattern: "24h smoke executed 2026-10-15 17:14 UTC: 2,159,141 B, sha256 fd925227…, Δ+2 B (0.00009%)."
+
+So now it's 2,159,143 B again, delta +2 from the 2,159,141 baseline. Hmm, actually wait. The baseline for the last smoke was 2,159,141 B. Now it's 2,159,143. So Δ = +2 bytes again. That's consistent with the cache-buster/counter model.
+
+But also note the two mirrors now differ in sha256 (0e52... vs 33e4...) despite identical size 2,159,143. Previously the www mirror was "identical modulo 1-byte cache-buster." Let me investigate the diff. Both are 2,159,143 bytes but different hashes — so content differs. Let me diff them to see what changed. That's the interesting finding.
+
+Let me compare the two files to find the differing bytes. Since they're 2.16MB, let me find first differing offset.
+
+This could reveal a nonce/cache-buster or dynamic content. Let me diff.
+
+Also compare against the previous baseline file if it's still around? Probably not saved. But we have the sha256 baseline. Let me focus on the primary vs www diff.
+
+Let me run cmp to find first difference, and extract context.</think>NO_DELTA class: +2 B vs baseline (2,159,143 vs 2,159,141). But the two mirrors now differ in sha256 despite identical size — worth a diff (previously identical modulo cache-buster).
+[0m$ [0mcd /tmp/opencode
+echo "=== byte-level compare primary vs www ==="
+cmp fragen_primary.bin fragen_www.bin
+echo "--- first differing byte offset (decimal) above ---"
+echo "=== count differing bytes ==="
+cmp -l fragen_primary.bin fragen_www.bin | wc -l
+echo "=== context around first diff (line numbers) ==="
+diff <(tr ',' '\n' < fragen_primary.bin) <(tr ',' '\n' < fragen_www.bin) | head -40
+=== byte-level compare primary vs www ===
+fragen_primary.bin fragen_www.bin differ: byte 712, line 21
+--- first differing byte offset (decimal) above ---
+=== count differing bytes ===
+1
+=== context around first diff (line numbers) ===
+23c23
+< <script src="/js/standard.js?v=1792179811"></script>
+---
+> <script src="/js/standard.js?v=1792179815"></script>
+[0m
+The difference is exactly the cache-buster query string on standard.js: `?v=1792179811` vs `?v=1792179815`. So the two mirrors differ only by that 4-byte... wait, but size is identical. 1792179811 vs 1792179815 — same length (10 digits). So identical size, single differing byte? The count of differing bytes = 1? That seems odd: "1792179811" vs "1792179815" — only the last digit differs: 1 vs 5. So exactly 1 byte differs. That explains count=1.
+
+So it's just a cache-buster version number that differs between primary and www (and likely increments over time). This is the known "1-byte cache-buster" phenomenon. So both mirrors are semantically identical; only the `?v=` cache-buster differs.
+
+Now the +2 bytes vs baseline. The baseline was 2,159,141 B. Now 2,159,143 B. Delta +2. The cache-buster is 10 digits. If it was previously 8 digits or the version number increased in length... Actually 1792179811. If baseline had a shorter number, e.g. 179217981 (9 digits), then +1 byte, not +2. Hmm +2 bytes. Could be two cache-busters each +1, or one +2... Actually the previous note said Δ+2 B from 2,159,141 → 2,159,143 at 2026-10-15. So maybe baseline grew by 2 bytes due to version digit length.
+
+Anyway, this is a benign dynamic cache-buster, not a data-shape change. The substantive corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData) is presumably unchanged.
+
+Key question: does +2 bytes indicate content change or just cache-buster? To verify, I should strip the cache-buster and compare content hash ignoring the `?v=` token. But I don't have the baseline file. However I can reason: the only difference between the two current mirrors is the cache-buster digit, and size matches. The +2B vs baseline is almost certainly the cache-buster version length/growth.
+
+Let me verify by normalizing the cache-buster and checking that the rest is stable across the two current fetches, and maybe do a second fetch to see if the `?v=` increments (dynamic per request). Let me fetch primary again after 2s and compare — if the only diff is the `?v=`, it's confirmed dynamic cache-buster.
+
+Actually I already have two independent fetches (primary + www) differing only in that token, which demonstrates the token is dynamic per-response (or per-host). That's sufficient evidence. But a second primary fetch strengthens it. Let me do one more fetch of primary and diff against fragen_primary.bin. Rate-limited.
+
+Also I should check whether the corpus payload (the actual tariff data) changed. Without baseline I can't hash-compare, but I can at least verify the data block is present and stable. Let me grep for the known data keys and their sizes, and normalize out the cache-buster to produce a stable content hash for future comparison.
+
+Let me do: 
+1. second primary fetch
+2. diff to confirm only `?v=` changes
+3. normalize `?v=\d+` → `?v=X`, re-hash all three, show they converge to one hash
+4. extract the data-structure markers (ucatKkData etc.) and count/size
+
+This gives a clean stable baseline hash for future runs.</think>Only difference is the dynamic `?v=` cache-buster on `standard.js` (1 digit). Let me confirm it's per-response dynamic and establish a stable normalized hash for future runs.
+[0m$ [0mcd /tmp/opencode
+sleep 2
+echo "=== second primary fetch ==="
+curl -sS -o fragen_primary2.bin -w 'http=%{http_code} size=%{size_download} time=%{time_total}s\n' \
+  -A 'Mozilla/5.0 (compatible; kk-recon/1.0)' --max-time 60 \
+  'https://kassenkompass.de/bonusrechner_fragen.php'
+sha256sum fragen_primary2.bin
+echo "=== diff primary vs primary2 ==="
+diff <(tr ',' '\n' < fragen_primary.bin) <(tr ',' '\n' < fragen_primary2.bin) | head -20
+echo "=== normalized hashes (cache-buster ?v=N -> ?v=X) ==="
+for f in fragen_primary.bin fragen_primary2.bin fragen_www.bin; do
+  sed -E 's/\?v=[0-9]+/?v=X/g' "$f" | sha256sum | sed "s|-|$f|"
+done
+echo "=== data-structure markers present ==="
+for k in ucatKkData globalbudgetsData dataant kombiboniData pseudoKkIds; do
+  printf '%-20s count=%s\n' "$k" "$(grep -o "$k" fragen_primary.bin | wc -l)"
+done
+=== second primary fetch ===
+http=200 size=2159143 time=0.567311s
+6bb5fc0a8c164c59322633787e214c655fd2389c187bbdf3b147f440f36fdd93  fragen_primary2.bin
+=== diff primary vs primary2 ===
+23c23
+< <script src="/js/standard.js?v=1792179811"></script>
+---
+> <script src="/js/standard.js?v=1792179841"></script>
+=== normalized hashes (cache-buster ?v=N -> ?v=X) ===
+df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd  fragen_primary.bin
+df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd  fragen_primary2.bin
+df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd  fragen_www.bin
+=== data-structure markers present ===
+ucatKkData           count=7
+globalbudgetsData    count=4
+dataant              count=8
+kombiboniData        count=4
+pseudoKkIds          count=3
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "=== cache-buster tokens in current primary ==="
+grep -o '?v=[0-9]*' fragen_primary.bin | sort | uniq -c
+echo "=== script srcs ==="
+grep -o '<script src="[^"]*"' fragen_primary.bin | sort -u
+=== cache-buster tokens in current primary ===
+     12 ?v=
+      2 ?v=1755176426
+      2 ?v=1757074330
+      2 ?v=1757075467
+      2 ?v=1757075558
+      2 ?v=1757075582
+      2 ?v=1757075686
+      2 ?v=1757075705
+      2 ?v=1757075740
+      2 ?v=1757075967
+      1 ?v=1757076145
+      2 ?v=1757076208
+      3 ?v=1757076251
+      3 ?v=1757076469
+      2 ?v=1757076536
+      2 ?v=1757077215
+      3 ?v=1757077958
+      2 ?v=1757078142
+      3 ?v=1757083551
+      2 ?v=1758042617
+      2 ?v=1758043088
+      2 ?v=1758043183
+      2 ?v=1758050090
+      2 ?v=1758050697
+      2 ?v=1758051096
+      2 ?v=1758052848
+      2 ?v=1758124956
+      1 ?v=1758139638
+      1 ?v=1758381676
+      1 ?v=1758814968
+      1 ?v=1759323021
+      1 ?v=1759323181
+      1 ?v=1759323213
+      1 ?v=1759323229
+      1 ?v=1759323249
+      1 ?v=1759323562
+      1 ?v=1759323689
+      1 ?v=1759327499
+      1 ?v=1759327524
+      1 ?v=1759331184
+      3 ?v=1759349561
+      3 ?v=1759349628
+      3 ?v=1759388902
+      2 ?v=1759508453
+      3 ?v=1759855731
+      3 ?v=1760360764
+      2 ?v=1760360825
+      2 ?v=1760437070
+      2 ?v=1760549715
+      2 ?v=1760550607
+      2 ?v=1760550792
+      2 ?v=1760613283
+      2 ?v=1760689624
+      2 ?v=1760689887
+      2 ?v=1760692814
+      2 ?v=1760692828
+      2 ?v=1760693098
+      2 ?v=1760695181
+      2 ?v=1760695201
+      3 ?v=1760695313
+      3 ?v=1760695381
+      1 ?v=1760965012
+      1 ?v=1760965026
+      1 ?v=1760965036
+      3 ?v=1760965338
+      3 ?v=1760965366
+      1 ?v=1761037575
+      2 ?v=1761119770
+      2 ?v=1761119896
+      2 ?v=1761120401
+      3 ?v=1761122043
+      3 ?v=1761122066
+      2 ?v=1761122474
+      2 ?v=1761122960
+      2 ?v=1761306232
+      2 ?v=1761306313
+      2 ?v=1761306369
+      3 ?v=1761306531
+      2 ?v=1761642007
+      2 ?v=1762190372
+      2 ?v=1762190753
+      2 ?v=1762190979
+      2 ?v=1762191203
+      2 ?v=1762191789
+      2 ?v=1762191831
+      2 ?v=1762191894
+      2 ?v=1762191934
+      2 ?v=1762191990
+      2 ?v=1762192003
+      2 ?v=1762192337
+      1 ?v=1762192450
+      3 ?v=1762192558
+      2 ?v=1762192954
+      3 ?v=1762193642
+      3 ?v=1762193696
+      3 ?v=1762193739
+      3 ?v=1762193747
+      2 ?v=1762193770
+      2 ?v=1762193797
+      3 ?v=1762193990
+      3 ?v=1762194351
+      2 ?v=1762194502
+      3 ?v=1762194740
+      3 ?v=1762194759
+      3 ?v=1762194837
+      3 ?v=1762194849
+      3 ?v=1762194868
+      2 ?v=1762194957
+      2 ?v=1762195092
+      2 ?v=1762195204
+      3 ?v=1762195537
+      3 ?v=1762195578
+      3 ?v=1762195694
+      3 ?v=1762195733
+      3 ?v=1762195903
+      2 ?v=1762196281
+      2 ?v=1762196559
+      2 ?v=1762196618
+      2 ?v=1762196732
+      2 ?v=1762196777
+      3 ?v=1762196916
+      3 ?v=1762196982
+      3 ?v=1762428723
+      2 ?v=1762428748
+      3 ?v=1762789805
+      3 ?v=1762789819
+      3 ?v=1762789831
+      2 ?v=1762942229
+      1 ?v=1762942249
+      3 ?v=1762942418
+      2 ?v=1762942468
+      1 ?v=1762945415
+      2 ?v=1762945518
+      2 ?v=1762945554
+      2 ?v=1762945579
+      2 ?v=1762945602
+      1 ?v=1762945625
+      2 ?v=1762946119
+      2 ?v=1763375712
+      2 ?v=1763377220
+      2 ?v=1763377292
+      2 ?v=1763383188
+      3 ?v=1763384053
+      3 ?v=1763384066
+      3 ?v=1763384079
+      2 ?v=1763384835
+      2 ?v=1763384879
+      2 ?v=1763385051
+      2 ?v=1763386249
+      2 ?v=1763386326
+      2 ?v=1763386718
+      2 ?v=1763387059
+      2 ?v=1763387251
+      2 ?v=1763387307
+      2 ?v=1763387368
+      2 ?v=1763387470
+      2 ?v=1763455641
+      2 ?v=1764757377
+      2 ?v=1764757389
+      2 ?v=1764757415
+      2 ?v=1764757427
+      2 ?v=1764757524
+      2 ?v=1764757537
+      3 ?v=1764867935
+      3 ?v=1764867959
+      3 ?v=1765214432
+      3 ?v=1765214714
+      2 ?v=1765214781
+      2 ?v=1765271754
+      3 ?v=1765275231
+      3 ?v=1765275396
+      3 ?v=1765381527
+      3 ?v=1765381549
+      3 ?v=1765381574
+      1 ?v=1765461910
+      1 ?v=1765818487
+      2 ?v=1765981726
+      2 ?v=1766078671
+      2 ?v=1766078687
+      1 ?v=1766145149
+      2 ?v=1766145233
+      1 ?v=1766398205
+      1 ?v=1766416276
+      1 ?v=1766424149
+      2 ?v=1766480389
+      2 ?v=1766480497
+      2 ?v=1766502803
+      1 ?v=1766502974
+      1 ?v=1766503189
+      1 ?v=1766503214
+      2 ?v=1766503226
+      2 ?v=1766503637
+      1 ?v=1766503883
+      1 ?v=1766504037
+      1 ?v=1766504251
+      1 ?v=1766505904
+      1 ?v=1766505951
+      1 ?v=1766505963
+      1 ?v=1766505985
+      1 ?v=1766506276
+      1 ?v=1766506299
+      1 ?v=1766506310
+      1 ?v=1766506327
+      1 ?v=1766506352
+      1 ?v=1766508388
+      2 ?v=1766508426
+      1 ?v=1766508663
+      1 ?v=1766997020
+      1 ?v=1767015183
+      2 ?v=1767016532
+      2 ?v=1767017117
+      2 ?v=1767017264
+      2 ?v=1767017284
+      2 ?v=1767017295
+      2 ?v=1767017320
+      2 ?v=1767017335
+      2 ?v=1767017381
+      2 ?v=1767017398
+      1 ?v=1767017454
+      2 ?v=1767020806
+      2 ?v=1767020829
+      2 ?v=1767021640
+      2 ?v=1767021840
+      2 ?v=1767021850
+      2 ?v=1767022224
+      2 ?v=1767022370
+      2 ?v=1767022584
+      2 ?v=1767022629
+      2 ?v=1767023340
+      1 ?v=1767023504
+      2 ?v=1767024305
+      1 ?v=1767085180
+      2 ?v=1767098299
+      2 ?v=1767098471
+      2 ?v=1767605609
+      2 ?v=1767607089
+      2 ?v=1767950551
+      1 ?v=1767981912
+      2 ?v=1768558566
+      2 ?v=1768558619
+      3 ?v=1768824654
+      3 ?v=1768824673
+      3 ?v=1768824687
+      2 ?v=1768825541
+      2 ?v=1770120997
+      2 ?v=1772122935
+      2 ?v=1772122946
+      1 ?v=1782127898
+      2 ?v=1782486607
+      3 ?v=1784039605
+      2 ?v=1784039728
+      2 ?v=1788511563
+      2 ?v=1788511589
+      2 ?v=1788511611
+      2 ?v=1788511623
+      3 ?v=1788511779
+      3 ?v=1788511816
+      3 ?v=1788511861
+      3 ?v=1788511885
+      2 ?v=1791363588
+      1 ?v=1792179811
+=== script srcs ===
+<script src="/js/standard.js?v=1792179811"
+<script src="js/ajax.js?v=v2.6.11"
+<script src="js/drawflow-manager.js?v=v2.6.11"
+<script src="js/live-calculation.js?v=v2.6.11"
+<script src="js/question-logic.js?v=v2.6.11"
+<script src="js/whitelabel_live.js?v=v2.6.11"
+[0m
+Confirmed: the cache-buster `?v=` increments on every request (1792179811 → 1792179841, +30 in ~4 seconds — a timestamp-ish/hash value). All three fetches normalize to the exact same sha256 `df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd`. So the substantive corpus is byte-identical across all fetches; size delta vs old baseline is solely the cache-buster token length.
+
+So this is a clean NO_DELTA with a normalized stable hash now established: `df5cd456…`.
+
+Wait — the baseline size was 2,159,141 and now 2,159,143 (+2). If the cache-buster token is 10 digits now. If previously it was 10 digits too, then size wouldn't change. The +2 must come from something else. Hmm. Let me think: maybe there are TWO cache-buster tokens and each grew... no. Or maybe the version number crossed a digit boundary: 999999999 (9 digits) → 1000000000 (10 digits) = +1. But +2 requires two such boundaries or two tokens.
+
+Actually, wait. The known note said the 2026-10-15 smoke was ALSO 2,159,141 and "Δ+2 B". And the very original baseline in the summary was 2,159,141 B sha256 fd925227…. And now we're at 2,159,143. So both the 10-15 smoke and today are 2,159,143? No: the summary says 10-15 smoke result was "2,159,141 B, sha256 fd925227…, Δ+2 B (0.00009%)." So on 10-15, latest=2,159,141, delta +2 from an earlier 2,159,139. And baseline fd925227 was 2,159,141.
+
+Hmm, so today is 2,159,143 = +2 over the fd925227 baseline of 2,159,141. Consistent again with cache-buster token growing by 2 digits overall. Possibly there are two `?v=` tokens (standard.js and maybe live-calculation.js) each at a digit boundary. Not important.
+
+The key: normalized content hash is now df5cd456…, stable. The old baseline fd925227 was the raw hash. I can't compare normalized-to-raw directly, but the fact that across all three current fetches only the `?v=` token varies, and the size delta is only +2, strongly indicates no data change.
+
+Actually — could the +2 be a REAL change in the corpus plus the cache-buster staying same length? No: the raw hash changed from fd925227 (2,159,141) to 0e5222fe (2,159,143), and the only intra-run variable is `?v=`. If the version token is same digit-length as before, then the +2 bytes must be elsewhere. But normalized hash can't tell us vs old.
+
+Let me be rigorous: I can check if the `?v=` token is the ONLY source of the extra bytes by counting. If standard.js v= is 10 digits now. Let me check how many `?v=` occurrences there are. If there are two, each could contribute. Actually let me just grep for `?v=`.
+
+Let me count cache-buster tokens to explain the +2. But honestly this is a minor point. The important operational outcome: corpus is stable (normalized hash identical across 3 fetches), cache-buster is per-response dynamic, so raw-hash drift is expected and NOT a data change.
+
+Let me quickly count `?v=` tokens to explain +2 bytes, then write the state/leads per the required STEP 1-7 format.
+
+Actually the role brief says produce structured output blocks. Let me recall the format from the summary: [PRIO]/[HYP]/[NEXT]/[LEARN]/[RISK]. I don't have the exact brief text in this turn, but the summary references "STEP 1–7 output blocks". I should produce the required structured output. But I only have the summary. Let me focus on producing the standard lead update file update and a concise structured response.
+
+Given uncertainty about exact required format, I'll keep to the established artifact style: update lead_bigpickle.txt with a new entry and state. Let me check the actual files to match format.
+
+Let me read the existing leads file to match format and append correctly.</think>Confirmed dynamic cache-buster: `?v=` incremented 1792179811→1792179841 across ~4s. All three fetches normalize to identical content hash `df5cd456…` — substantive corpus stable; raw drift is cache-buster only. Let me count tokens to explain the +2 B and read the existing lead format.
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt 2>/dev/null; echo '---'; ls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/*.txt /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/*.json 2>/dev/null
+total 1536
+drwxr-xr-x 12 runner runner   4096 Oct 16 19:42 .
+drwxr-xr-x  3 runner runner   4096 Oct 16 19:41 ..
+drwxr-xr-x  7 runner runner   4096 Oct 16 19:42 .git
+drwxr-xr-x  3 runner runner   4096 Oct 16 19:42 .github
+-rw-r--r--  1 runner runner   1767 Oct 16 19:42 README.md
+-rw-r--r--  1 runner runner  29884 Oct 16 19:44 analyst-out.txt
+-rw-r--r--  1 runner runner 667661 Oct 16 19:42 analyst-prompt.txt
+-rw-r--r--  1 runner runner 663843 Oct 16 19:42 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 leads
+-rw-r--r--  1 runner runner 103196 Oct 16 19:42 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 reports
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 16 19:42 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 16 19:42 scripts
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 16 19:42 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 16 19:42 triage
+---
+-rw-r--r-- 1 runner runner  29884 Oct 16 19:44 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-out.txt
+-rw-r--r-- 1 runner runner 667661 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/analyst-prompt.txt
+-rw-r--r-- 1 runner runner 663843 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/ctx.txt
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_bigpickle.json
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_laguna.json
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_ling3.json
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_longcat.json
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_mimo.json
+-rw-r--r-- 1 runner runner     33 Oct 16 19:42 /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/state_nemotron3.json
+[0m
+[0m$ [0mcd /tmp/opencode
+echo "fetch-time epoch (approx, now): $(date -u +%s)"
+echo "1792179811 -> $(date -u -d @1792179811 '+%Y-%m-%d %H:%M:%S UTC')"
+echo "1792179841 -> $(date -u -d @1792179841 '+%Y-%m-%d %H:%M:%S UTC')"
+echo "1792179815 -> $(date -u -d @1792179815 '+%Y-%m-%d %H:%M:%S UTC')"
+fetch-time epoch (approx, now): 1792179871
+1792179811 -> 2026-10-16 19:43:31 UTC
+1792179841 -> 2026-10-16 19:44:01 UTC
+1792179815 -> 2026-10-16 19:43:35 UTC
+[0m
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/ 2>/dev/null | head -60
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/:
+total 4648
+drwxr-xr-x  2 runner runner    4096 Oct 16 19:42 .
+drwxr-xr-x 12 runner runner    4096 Oct 16 19:42 ..
+-rw-r--r--  1 runner runner 1935840 Oct 16 19:42 lead-bigpickle.md
+-rw-r--r--  1 runner runner   12495 Oct 16 19:42 lead-laguna.md
+-rw-r--r--  1 runner runner   12250 Oct 16 19:42 lead-ling3.md
+-rw-r--r--  1 runner runner   12740 Oct 16 19:42 lead-longcat.md
+-rw-r--r--  1 runner runner      18 Oct 16 19:42 lead-mimo.md
+-rw-r--r--  1 runner runner 2726202 Oct 16 19:42 lead-nemotron3.md
+-rw-r--r--  1 runner runner   35854 Oct 16 19:42 reposcan-kassenkompass.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/reports/:
+total 11448
+drwxr-xr-x  2 runner runner    4096 Oct 16 19:42 .
+drwxr-xr-x 12 runner runner    4096 Oct 16 19:42 ..
+-rw-r--r--  1 runner runner 7069940 Oct 16 19:42 analyst-bigpickle.log
+-rw-r--r--  1 runner runner   53165 Oct 16 19:42 analyst-laguna.log
+-rw-r--r--  1 runner runner   52920 Oct 16 19:42 analyst-ling3.log
+-rw-r--r--  1 runner runner   53410 Oct 16 19:42 analyst-longcat.log
+-rw-r--r--  1 runner runner 3550515 Oct 16 19:42 analyst-nemotron3.log
+-rw-r--r--  1 runner runner     448 Oct 16 19:42 hypotheses-bigpickle.txt
+-rw-r--r--  1 runner runner      51 Oct 16 19:42 hypotheses-laguna.txt
+-rw-r--r--  1 runner runner      50 Oct 16 19:42 hypotheses-ling3.txt
+-rw-r--r--  1 runner runner      52 Oct 16 19:42 hypotheses-longcat.txt
+-rw-r--r--  1 runner runner      54 Oct 16 19:42 hypotheses-nemotron3.txt
+-rw-r--r--  1 runner runner  971942 Oct 16 19:42 hypotheses.md
+-rw-r--r--  1 runner runner   11540 Oct 16 19:42 valid-bugs.md
+
+/home/runner/work/kassenkompass-hunt/kassenkompass-hunt/triage/:
+total 1164
+drwxr-xr-x  2 runner runner 16384 Oct 16 19:42 .
+drwxr-xr-x 12 runner runner  4096 Oct 16 19:42 ..
+-rw-r--r--  1 runner runner     0 Oct 16 19:42 .gitkeep
+-rw-r--r--  1 runner runner   212 Oct 16 19:42 run-2026-09-02-21-39.md
+-rw-r--r--  1 runner runner   225 Oct 16 19:42 run-2026-09-02-23-33.md
+-rw-r--r--  1 runner runner   568 Oct 16 19:42 run-2026-09-03-01-26.md
+-rw-r--r--  1 runner runner   200 Oct 16 19:42 run-2026-09-03-06-29.md
+-rw-r--r--  1 runner runner   182 Oct 16 19:42 run-2026-09-03-11-42.md
+-rw-r--r--  1 runner runner   190 Oct 16 19:42 run-2026-09-03-15-55.md
+-rw-r--r--  1 runner runner   210 Oct 16 19:42 run-2026-09-03-19-08.md
+-rw-r--r--  1 runner runner   193 Oct 16 19:42 run-2026-09-03-21-45.md
+-rw-r--r--  1 runner runner   184 Oct 16 19:42 run-2026-09-03-23-49.md
+-rw-r--r--  1 runner runner   207 Oct 16 19:42 run-2026-09-04-03-15.md
+-rw-r--r--  1 runner runner   209 Oct 16 19:42 run-2026-09-04-08-04.md
+-rw-r--r--  1 runner runner   183 Oct 16 19:42 run-2026-09-04-12-46.md
+-rw-r--r--  1 runner runner   248 Oct 16 19:42 run-2026-09-04-16-46.md
+-rw-r--r--  1 runner runner 14355 Oct 16 19:42 run-2026-09-04-18-00.md
+-rw-r--r--  1 runner runner  2008 Oct 16 19:42 run-2026-09-04-19-20.md
+-rw-r--r--  1 runner runner   183 Oct 16 19:42 run-2026-09-04-21-35.md
+-rw-r--r--  1 runner runner   191 Oct 16 19:42 run-2026-09-04-23-18.md
+-rw-r--r--  1 runner runner   170 Oct 16 19:42 run-2026-09-05-01-06.md
+-rw-r--r--  1 runner runner   248 Oct 16 19:42 run-2026-09-05-05-51.md
+-rw-r--r--  1 runner runner   195 Oct 16 19:42 run-2026-09-05-10-04.md
+-rw-r--r--  1 runner runner   211 Oct 16 19:42 run-2026-09-05-13-28.md
+-rw-r--r--  1 runner runner   207 Oct 16 19:42 run-2026-09-05-16-14.md
+-rw-r--r--  1 runner runner   245 Oct 16 19:42 run-2026-09-05-18-24.md
+-rw-r--r--  1 runner runner   193 Oct 16 19:42 run-2026-09-05-20-44.md
+-rw-r--r--  1 runner runner   163 Oct 16 19:42 run-2026-09-05-22-41.md
+-rw-r--r--  1 runner runner   888 Oct 16 19:42 run-2026-09-06-00-38.md
+[0m
+Interesting! Wait. The `?v=` tokens are mostly static historical build hashes across the page (many different values, mostly appearing 2-3 times). But the standard.js one is `1792179811` and it's dynamic. Actually wait — I see `?v=1792179811` appears once. And there are hundreds of other `?v=` values which are static (CSS/asset build hashes). So the dynamic one is specifically standard.js's `?v=`.
+
+Hold on — actually the dynamic behavior: primary had 1792179811, www had 1792179815, primary2 had 1792179841. These are the standard.js cache-buster. But wait, why would standard.js get a per-response dynamic cache-buster while other assets have static hashes? That's odd. Unless... the standard.js `?v=` is actually a cache-busting timestamp generated server-side per page render. Hmm.
+
+Actually, wait. Let me reconsider. The value 1792179811 → 1792179815 (+4) → 1792179841 (+30). These look like they could be Unix timestamps? 1792179811 seconds = year 2026... Let me check: 1792179811 / 31536000 ≈ 56.8 years after 1970 → ~2026.8. Yes! 1792179811 is a Unix timestamp around Oct 16, 2026. Let me verify: 1792179841 corresponds to... roughly 2026-10-16. Yes, that's current time-ish. Actually current time is 2026-10-16 19:42 UTC. Unix ts for that ≈ 1792199000-ish? Let me compute: 2026-10-16 19:42 UTC. Hmm, 1792179841 vs actual current epoch.
+
+Let me compute: date -d '2026-10-16 19:42:43 UTC' +%s. I'll just note it's likely a timestamp-based cache buster.
+
+Anyway, the important discovery: the +2 bytes. Now I realize the corpus is 2,159,143 bytes with the standard.js cache-buster being 10 digits. The many static `?v=` values are unrelated. The +2 vs older baseline is small.
+
+But here's a subtle thing: if the standard.js `?v=` is a per-request Unix timestamp, its digit count will grow from 10 to 11 in ~2286, so length is stable now. Then where does +2 come from? Possibly the baseline fd925227 (2,159,141) had a 8-digit... no.
+
+Hmm, I'm overanalyzing. Actually maybe the earlier baselines were taken when standard.js v= was a different length OR there was a different count of assets. The net: normalized content hash now df5cd456, stable across 3 fetches. That's what matters.
+
+Actually, let me reconsider the "+2 B". Maybe the difference is real but tiny. Let me not chase it — but I should note I can't fully compare normalized vs the old raw fd925227 baseline. However, since content normalized hash is identical across all 3 current samples, and the size is within +2 B, the responsible conclusion is: corpus stable, no evidence of data-shape drift. The raw hash drift is entirely the standard.js cache-buster token.
+
+Hmm wait, but if the standard.js token is a Unix timestamp and it changes every request, then the RAW hash will change every request. The old baseline fd925227 was a raw hash, so it's not reproducible. The normalized hash df5cd456 is the correct stable baseline going forward. Good.
+
+Now, is the standard.js `?v=` being a server-generated timestamp interesting from a security standpoint? It reveals server time skew maybe, but not a vulnerability. Not worth much.
+
+Let me check the actual value: is 1792179811 close to the wall clock? Current epoch at 19:42:43 UTC 2026-10-16. Let me compute.
+
+Actually, let me just run date -d. This could be a nice data point (server time leak). Let me check. If 1792179841 ≈ fetch time, then it's a request-time Unix timestamp. That's a minor info leak (server time), not reportable.
+
+Let me confirm and then write up. Also I should read the existing lead file to append in the correct format. Let me look at the leads directory.
+
+The role output format from summary: STEP 1–7 blocks [PRIO]/[HYP]/[NEXT]/[LEARN]/[RISK]. But I don't have the exact prompt text. Let me look at the leads directory and the existing lead file for bigpickle.
+
+Let me explore the relevant files.</think>The vast majority of `?v=` are static historical asset build-hashes, but the `standard.js` token is a per-response Unix-timestamp-style value. Let me confirm it tracks server time and inspect the lead-file format.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+echo "=== search stored baseline hash / size ==="
+grep -rl 'fd925227' . 2>/dev/null | head
+grep -rl '2159141' . 2>/dev/null | head
+echo "=== any saved corpus/html/bin ==="
+find . -iname '*fragen*' -o -iname '*.bin' -o -iname '*corpus*' 2>/dev/null | head
+echo "=== recon-notes / knowledge ==="
+ls recon-notes knowledge inventory
+=== search stored baseline hash / size ===
+./leads/lead-bigpickle.md
+./leads/lead-nemotron3.md
+./analyst-out.txt
+./reports/hypotheses.md
+./reports/analyst-nemotron3.log
+./reports/hypotheses-bigpickle.txt
+./reports/analyst-bigpickle.log
+./ctx.txt
+./knowledge/index.md
+./inventory/kassenkompass.md
+./reports/analyst-nemotron3.log
+./reports/analyst-bigpickle.log
+=== any saved corpus/html/bin ===
+=== recon-notes / knowledge ===
+inventory:
+kassenkompass.md
+
+knowledge:
+index.md
+
+recon-notes:
+DEDICATED-DEEP.md
+[0m
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+wc -l leads/lead-bigpickle.md
+echo "=== last 90 lines ==="
+sed -n "$(($(wc -l < leads/lead-bigpickle.md)-90)),\$p" leads/lead-bigpickle.md
+11641 leads/lead-bigpickle.md
+=== last 90 lines ===
+asset: api.kassenkompass.de
+[CHANGED] none
+[NEW] /post-app auth-ordering differential (HEAD, controlled set):
+[NEW] `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, differing sha256 (`4c171226…` apex vs `c5de3f25…` www) = identical-modulo-cache-buster
+[CHANGED] `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+[CHANGED] Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-only (GET 0-differential)** and program rules allow **GET/HEAD/OPTIONS only** → both queued NEXTs are non-actionable (one inert, one disallowed)
+[CHANGED] No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological blind spot on the only route to the AUTH_HELPED finals
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,7.60,attack_surface=9,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=7
+[PRIO] kassenkompass.de/js (public bundles),7.25,attack_surface=7,business_value=8,tech_exposure=6,gate_ease=10,cloud_surface=3,freshness=8
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,8.50,axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php,7.00,axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+[PRIO] api.kassenkompass.de/post/create_user,6.60,axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: Carried unchanged — apex+www serve 2,159,141 B unauthenticated (last smoke 2026-10-15 17:14, sha256 fd925227…), no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant (138 q / 375 rule edges) + pseudoKkIds=[99,100,101]; credential vector fully excluded (0/13 corpus patterns + 0/4 public JS bundles). Severity gated solely on vendor data classification.
+evidence_needed: vendor data classification — intended-public marketing calculator data vs licensed partner tariff data.
+verify_steps: no further probing; classification question only. Next scheduled observation is the 24h smoke >=2026-10-16 17:14 UTC (single GET <=1 rps).
+impact: full tariff + budget + combination-rule corpus readable by any anonymous visitor — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: Carried unchanged — unauthenticated invalid-action => 200/59 B {"message":"Fehler: Ungültige Action"} vs sibling endpoints 200/46 B {"message":"Fehler: Nicht angemeldet"}; action param is POST-only (GET 0-differential, re-confirmed in peer-contradiction note); every action value tested returned 59 B; a valid action yielding 46 B never observed.
+evidence_needed: a recognized action value yielding != 59 B unauthenticated (requires POST under approval).
+verify_steps: POST to https://kassenkompass.de/php/mark_all_read.php with action in {mark_all_read, mark_read, send_message, load_messages}, no session cookies; compare body/length vs 59 B baseline; no state mutation intended.
+impact: router-ordering disclosure now; unauthenticated mutation only if a valid pre-auth action exists and executes without session — LOW, unproven.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: Carried unchanged — /post/* is a separately mounted app outside the X-API-Secret dependency (HEAD differential vs /delete/ and /state/); GET /post/help 200/344 B advertises POST /post/create_user; namespace closed at 2 members; 405-on-POST-only routes method-confounded by gated /cat_detail/; no ACAO on preflight.
+evidence_needed: credentialed POST with negative control (valid X-API-Secret vs invalid/missing) and minimal JSON body; record status/body/headers. Do not test unauthenticated write.
+verify_steps: (AUTH_HELPED) POST with valid secret to https://api.kassenkompass.de/post/create_user using minimal valid JSON; repeat without/invalid secret; compare. Stop if any test would create live user data.
+impact: unauthenticated user provisioning if write succeeds without credential — HIGH, unproven. Current evidence insufficient to assert impact.
+testability: AUTH_HELPED
+[PARKED] Undocumented User Provisioning on /post/create_user — confidence 45 < 50; AUTH_HELPED credentialed POST + negative control unavailable under read-only rules; 405 method-confound blocks read-only verification. Park pending AUTH_HELPED.
+[PARKED] awv.kassenkompass.de root 400-vs-404 — RESOLVED this cycle (browser-UA control run: 400 under both UAs, UA-independent); prior inventory "404" entries falsified. No further discriminator pending on this host.
+[FINAL] survivors ranked: (1) Tariff Leak, conf 70, MISCONFIG, HUMAN — classification question only; (2) mark_all_read Router Asymmetry, conf 50, AUTH, HUMAN_ONLY — POST vocabulary test needs approval; (3) /post/create_user Provisioning, conf 45, AUTH, AUTH_HELPED — credentialed POST + negative control needed. No autonomous verification remains.
+[NEXT] (a) HOLD until >=2026-10-16 17:14 UTC, then single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at <=1 rps; compare size/hash to 2,159,141 B / fd925227… — otherwise NO_DELTA. (b) HUMAN: ask program owner whether the 2.16 MB fragen.php corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) is intended-public or licensed partner data; single answer moves hypothesis 1 to reportable MISCONFIG or to REJECTED. (c) HUMAN approval for mark_all_read.php valid-action POST vocabulary test. (d) AUTH_HELPED for /post/create_user credentialed POST + negative control.
+[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 observation is closed single-valued (UA-independent 400); no Set-Cookie under either UA re-confirms awv is not a cross-subdomain cookie-delivery primitive for data_sparsum.
+[LEARN] REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are header-derived infra detail, not a reportable class per program rules.
+[RISK] KassenKompass GmbH: 70 (unchanged) — unauthenticated 2.16 MB tariff corpus remains the top exposure (MEDIUM-HIGH, classification-gated; credential vector fully excluded: 0/13 corpus + 0/4 bundles); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); awv discriminator resolved with no security impact; api catalog/legacy 200 envelope informational; no credential compromise or PII exposure observed. Passive surface now fully exhausted including the last parked read-only discriminator; remaining work is entirely human-gated.
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: Carried unchanged — 2,159,141 B served unauthenticated (last smoke 17:14 10-15, sha256 `fd925227…`), no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant (138 q/375 edges) + pseudoKkIds=[99,100,101]; credential vector fully excluded (0/13 corpus + 0/4 JS bundles). Severity hinges solely on data classification.
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; next observation is the scheduled 24h smoke ≥2026-10-16 17:14 UTC (single GET ≤1 rps).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: Carried unchanged — invalid action → 200/59 B `Ungültige Action` vs siblings 200/46 B `Nicht angemeldet`; action param POST-only (GET 0-differential); no action value yet yields 46 B unauthenticated.
+evidence_needed: recognized action yielding ≠ 59 B unauthenticated (POST under approval).
+verify_steps: POST action ∈ {mark_all_read, mark_read, send_message, load_messages} with no session; compare vs 59 B baseline; no state mutation.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: Carried unchanged — /post/* separately mounted outside X-API-Secret (HEAD differential); `/post/help` advertises `POST /post/create_user`; namespace closed at 2; 405-on-POST method-confounded by gated `/cat_detail/`; no ACAO on preflight.
+evidence_needed: credentialed POST with negative control (valid vs invalid/missing X-API-Secret) + minimal JSON body.
+verify_steps: (AUTH_HELPED) POST valid-secret, then without/invalid secret; compare; stop if any test would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+[PARKED] /post/create_user — conf 45 < 50; AUTH_HELPED control unavailable under read-only rules; 405 method-confound blocks read-only closure.
+[PARKED] awv root 400-vs-404 — **RESOLVED this cycle** (paired UA control: 400 under both, UA-independent); no further discriminator pending on this host.
+[FINAL] survivors: (1) Tariff Leak 70 / MISCONFIG / HUMAN; (2) mark_all_read asymmetry 50 / AUTH / HUMAN_ONLY; (3) /post/create_user 45 / AUTH / AUTH_HELPED. No autonomous verification remains.
+[NEXT] (a) HOLD until ≥2026-10-16 17:14 UTC → single GET `bonusrechner_fragen.php` + www mirror, ≤1 rps, compare vs 2,159,141 B / `fd925227…`; otherwise NO_DELTA. (b) HUMAN: one question to program owner — is the 2.16 MB corpus intended-public or licensed partner data? (c) HUMAN approval for mark_all_read POST vocabulary test. (d) AUTH_HELPED for /post/create_user.
+[LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; no Set-Cookie under either UA re-confirms awv is not a cross-subdomain cookie-delivery primitive for `data_sparsum`.
+[LEARN] REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
+[RISK] KassenKompass GmbH: **70** (unchanged) — 2.16 MB unauthenticated tariff corpus top exposure (classification-gated; credential vector fully excluded); router asymmetry LOW/unproven; provisioning unproven; awv discriminator resolved with zero security impact; passive surface now fully exhausted including the last parked read-only test. Remaining work is entirely human-gated.
+## 2026-10-16 11:56:39 UTC [target] (model bigpickle)
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+## 2026-10-16 16:47:17 UTC [target] (model bigpickle)
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+[0m
+Confirmed: `?v=` = server request-time Unix timestamp (1792179811 = 19:43:31 UTC, fetch was ~19:43:31). So standard.js is cache-busted with the page-render timestamp. Minor server-time leak, not reportable.
+
+Important: since the cache-buster is a per-request timestamp, the raw sha256 of the page NEVER matches a stored baseline. The old baseline `fd925227` (size 2,159,141) — at that time the timestamp would have been 10 digits too (e.g., 1791xxxxxx), so same length. Then why 2,159,141 vs 2,159,143 (+2)? 
+
+Hmm. Actually maybe at the earlier baseline, the timestamp was 9 digits? No, Unix time crossed 1e9 in 2001, so always 10 digits now. So the +2 can't be the standard.js token.
+
+Wait — maybe the +2 comes from a DIFFERENT dynamic value elsewhere. Let me reconsider: I compared primary vs www vs primary2 and found ONLY the standard.js `?v=` differs between them (1 byte diff). But the +2 vs the OLD baseline (2,159,141) is unexplained by within-run variance.
+
+Possibility: The old baseline had a shorter standard.js timestamp? No.
+
+Alternative: The old baseline of 2,159,141 might not have had the extra 2 bytes because the page content actually grew by 2 bytes at some point (e.g., a new visible question added). But the current normalized hash is stable across 3 fetches.
+
+I can't resolve without the old file. But note the prior note said the 10-15 smoke was ALSO 2,159,141 with "Δ+2 B". So on 10-15 it was 2,159,141 and delta +2 from a 2,159,139 prior. Now 10-16 it's 2,159,143, +2 from 2,159,141. This looks like the page grows by 2 bytes roughly every 24h... which would be suspicious. OR the standard.js timestamp at those times happened to be... no.
+
+Hmm, wait: Actually there could be MULTIPLE dynamic timestamps in the page, not just standard.js. But I diffed two fetches ~30s apart and only standard.js differed. If there were another timestamp, it'd differ between the two fetches too (unless it's stable per-hour or per-day). Let me check: are there other server-side dynamic values that change daily? The `?v=v2.6.11` are static. Let me look for other epoch-like values.
+
+Actually, the +2 B pattern is suspicious and worth one more check: compare the current page's total size when I strip the standard.js token. Actually the cleaner approach: fetch a THIRD time and also check if size stays exactly 2,159,143. It did stay 2,159,143 across 3 fetches. So current stable size = 2,159,143.
+
+To understand the +2 vs yesterday, I'd need yesterday's file. Do we have it? The summary says 10-15 smoke result but not saved here. Let me check recon-notes/ and knowledge/ for stored corpora or baselines.
+
+Hmm, but this could be a real (if tiny) daily content growth — e.g., a quiz answer or a counter. Let me search the page for numeric counters that could grow. But honestly, a +2 byte growth is within noise for a page with a timestamp.
+
+Actually! Here's the resolution: The timestamp `?v=1792179811` is 10 digits. But maybe the OLD baseline had `?v=` with an 8-digit value? No.
+
+Wait, maybe the +2 is from the fact that in the old baseline, TWO timestamp tokens existed but one had... Let me count: grep showed `?v=1792179811` count=1. Only ONE standard.js link. And `?v=1791363588` count=2 (previous session?). Hmm.
+
+Let me step back. The +2 bytes is a red herring unless I have the old file. Let me check recon-notes for a saved corpus or the previous hash.
+
+Let me look at the inventory and knowledge dirs, and the recon-notes.
+
+Actually, the most productive thing now: the scheduled smoke is DONE. Result: content stable (normalized hash df5cd456). The +2 vs stored baseline is explained by the dynamic standard.js cache-buster? No, that doesn't add 2 bytes.
+
+Let me actually verify the hypothesis that the stored size 2,159,141 corresponds to a page WITHOUT the 2 extra bytes. Since normalized hash of the current page = df5cd456 and I don't have the old normalized hash, I can't compare.
+
+BUT — I can reconstruct: if the ONLY dynamic content is the standard.js token, then normalizing it gives the true static content. The old baseline raw hash fd925227 was computed with whatever token then. If the static content were unchanged, then old normalized == current normalized. I can't verify without old file.
+
+Let me check if any prior corpus file exists on disk (recon-notes or knowledge). Let me search.
+
+Let me read the relevant dirs and search for the baseline hash fd925227 and prior saved .bin/.html.
+
+Let me do that and also read the lead-bigpickle.md tail to match format. The lead file is 1.9MB — I should read the tail.
+
+Let me batch: list recon-notes & knowledge, grep for fd925227 and 2159141 across repo, read tail of lead-bigpickle.md.
+
+Given lead-bigpickle.md is 1.9MB, reading the tail via read with offset requires knowing line count. Let me use wc -l first, or just read with a large offset. Better: use bash `tail`? Instructions say avoid tail; prefer Read. But for a 1.9MB file, Read up to 2000 lines from an offset. Let me get line count.
+
+Let me batch commands.</think>Confirmed: `?v=` is the page-render Unix timestamp (1792179811 = fetch time 19:43:31 UTC) — a benign server-time/anti-cache token, not reportable. Let me check for a saved prior corpus to explain the +2 B, and read the lead format.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+echo "=== STEP references in prompt ==="
+grep -n -i 'STEP [1-7]' analyst-prompt.txt | head -40
+=== STEP references in prompt ===
+2846:- CHANGED Peer leads still single-writer: mimo 18 B, laguna/ling3/longcat header-only, nemotron3 reprints "unauthenticated user provisioning likely" — refuted on its own terms (STEP 4).
+3609:STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface. [NEW]/[CHANGED] one line each, or NO_DELTA.
+3610:STEP 2 — PRIORITIZE: score top new (or existing) assets 0-10 on attack_surface, business_value, tech_exposure (GraphQL/OAuth/JWT/upload/admin/uncommon), gate_ease (10=no auth), cloud_surface, freshness. priority=0.25a+0.25b+0.15t+0.15g+0.10c+0.10f. Emit [PRIO] asset,score,axis.
+3611:STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema, one field per line under [HYP] title line:
+3622:STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps. [PARKED] <title>: <why>. [FINAL] survivors ranked.
+3623:STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>: <one concrete action, exact endpoint if PROBE>.
+3624:STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>: <reason>.
+3625:STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+[0m
+Now I understand the format. I see prior note: at some point apex+www were "2,159,139 B (prior latest 2,158,667 B; +472 B)" — wait, that shows the corpus DOES change. And then 2,159,141. Now 2,159,143. So there's a slow growth of +2/day roughly. But that's tiny and within the ±0.3% band. The important thing: the content IS being updated/regenerated by the vendor, so raw hash drift is expected; the drift model (drift-on-refresh ±0.3%) covers this.
+
+Now the +2 B: could be a real 2-byte content change (e.g., a version string). Since I normalized only `?v=<digits>` and got identical hash across 3 fetches, and size stable at 2,159,143, the current content is stable. The +2 vs yesterday's baseline is consistent with the documented slow drift.
+
+Actually, wait — I should double check: is the standard.js timestamp really per-request, or per-something-else? primary=1792179811 (19:43:31), www=1792179815 (19:43:35), primary2=1792179841 (19:44:01). The fetches were sequential: primary at ~19:43:31, www ~19:43:35 (after sleep 2), primary2 at ~19:44:01. So the timestamp EQUALS the fetch time exactly. Confirmed per-request server-time cache-buster.
+
+Great. So the smoke outcome:
+- HTTP 200, size 2,159,143 B (Δ+2 vs 2,159,141 baseline; +0.00009%, inside ±0.3% band) → NO_DELTA / no drift breach.
+- Normalized content hash (cache-buster `?v=<unix-ts>` → `?v=X`) = sha256 `df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd`, identical across apex, www, and a repeat apex fetch.
+- Raw sha differs per request solely due to the per-request server-time cache-buster on `/js/standard.js?v=<epoch>`.
+- Data structures intact: ucatKkData, globalbudgetsData, dataant, kombiboniData, pseudoKkIds all present.
+- New methodological improvement: future smokes MUST compare normalized hash, not raw sha256, because raw sha is unreproducible. Also record size only.
+
+Minor finding: server wall-clock time disclosure via standard.js cache-buster (matches request time to the second). Not reportable (low/info) — but worth a note.
+
+Also `?v=1766503226` etc are historical static asset hashes. Fine.
+
+Now, per the role: produce STEP output blocks. But I only have the summary of the format, not the exact 7 steps. Let me look at analyst-out.txt (29KB) and analyst-prompt.txt header to understand required output format. Actually the task says "produce structured STEP 1–7 output blocks ([PRIO]/[HYP]/[NEXT]/[LEARN]/[RISK])". Let me quickly check analyst-prompt.txt for the step definitions, or analyst-out.txt to see expected format.
+
+Actually, analyst-out.txt is likely the expected deliverable format. Let me read it. But it's 29KB. Let me read the beginning.
+
+Hmm, but context is limited. Let me read the top of analyst-out.txt and maybe the prompt's output-format section.
+
+Actually, I think the right move: the task is a long-running engagement where each cycle I append to leads/lead-bigpickle.md. The summary/role says produce STEP 1–7 structured blocks. Let me check analyst-prompt.txt for the exact required format (search for "STEP").
+
+Let me grep the prompt for STEP and output format.</think>Now I have the format. The prior log shows the corpus also drifts slowly (2,158,667→2,159,139→2,159,141→2,159,143). Let me check the exact required STEP 1–7 output format before writing the cycle entry.
+[0m$ [0mcd /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+echo "=== head of analyst-out.txt ==="
+sed -n '1,120p' analyst-out.txt
+=== head of analyst-out.txt ===
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-16 19:42:43 UTC
+[0m
+The user wants a structured summary of the conversation. This is a long-running bug bounty recon engagement against KassenKompass GmbH, in the POC phase, target api. I need to produce the anchored summary in the exact template format.
+
+Let me distill the key facts:
+
+Objective: Bug bounty hunting against KassenKompass GmbH (report channel bugs.olivermaicher.eu), in-scope: all company-owned infrastructure. Currently in POC phase, target api.
+
+Key facts to preserve:
+- Scope: api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com
+- Passive-first, ≤1 rps, GET/HEAD/OPTIONS only, no auth-bypass or mutating tests
+- api.kassenkompass.de: 15 v1 endpoints + 1 v2 (insurance_info); auth X-API-Secret sole channel; auth map 15/15; middleware A/B; /sync/ HTTP 200 legacy envelope 67 B sha256 b93be961...; root 1167 B sha256 644b1ec7...; /health/ 22 B unprotected
+- v2 enumeration saturated at 42 names
+- Normalization matrix complete 17 families; percent-decode-before-match; case-sensitive; single-level decode; encoded separators decode
+- /post/create_user confirmed separately mounted outside X-API-Secret; POST-only; auth unproven (AUTH_HELPED)
+- kassenkompass.de/bonusrechner_fragen.php: 2.16 MB tariff corpus unauthenticated, no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; drift ±0.3% model; baseline 2,159,141 B sha256 fd925227...; classification question HUMAN
+- 7 funnel mirrors
+- kassenkompass.de/php/mark_all_read.php: pre-auth action router, unauthenticated invalid action → 200/59B "Ungültige Action" vs valid → 46B "Nicht angemeldet"; action param POST-only; HUMAN_ONLY
+- kk-s3-01: qid 1..180, images-only, no confidentiality impact
+- awv root 400 under both UAs (resolved)
+- 3 survivor hypotheses: Tariff Leak 70 HUMAN; mark_all_read 50 HUMAN_ONLY; /post/create_user 45 AUTH_HELPED
+- Risk 70
+- PRIO scores: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60
+- Last leads: [NEXT] HOLD until ≥2026-10-16 17:14 UTC then single GET bonusrechner_fragen.php (+ www mirror) at ≤1 rps, compare vs 2,159,141 B / fd925227...
+- Last model runs at 11:56 and 16:47 2026-10-16: no change, survivors HUMAN-gated
+- Pipeline observability gap: 25+ consecutive empty triage cycles
+- Credential vector excluded: 0/13 patterns in corpus, 0/4 JS bundles
+- 4 public JS bundles: standard.js 67,969 B, live-calculation.js 36,499 B, param_passthrough.js (web1.0.1), whitelabel_live.js 11,359 B
+
+Current state/time: last entries 2026-10-16 16:47:28 UTC. Next move: HOLD until 17:14 UTC then probe.
+
+Also the analyst role prompt appears at the end (the STEP 1-7 output requirements). That's the system/user instruction for the agent's output format.
+
+Let me write this concisely. I should keep section order: Objective, Important Details, Work State (Completed, Active, Blocked), Next Move, Relevant Files.
+
+"Relevant files" — I don't have explicit file paths in the conversation beyond artifacts: reports/hypotheses-nemotron3.txt, lead_bigpickle.txt, state_bigpickle.json, state_nemotron3.json, hypotheses-bigpickle.txt, inventory/kassenkompass.md, scope.yml, probe-results.md. I should list them as context.
+
+Let me draft.
+
+I must not mention summarization. Keep bullets terse. Preserve exact identifiers.
+
+I'll write it now.</think>## Objective
+- Continue passive-first bug bounty recon/hunting on KassenKompass GmbH (report channel: bugs.olivermaicher.eu); program phase POC, target `api`.
+- Produce structured STEP 1–7 output blocks ([PRIO]/[HYP]/[NEXT]/[LEARN]/[RISK]) per the analyst role brief.
+
+## Important Details
+- Rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only for live probes; no auth-bypass or mutating tests against live customer data; sha256 any secret; scanner output needs manual validation; no REJECTED classes; facts vs hypotheses separated.
+- Scope (from scope.yml + inventory/kassenkompass.md): all KassenKompass GmbH infra; observed hosts: `api.kassenkompass.de`, `kassenkompass.de`, `www.kassenkompass.de`, `kassenkompass.net`, `awv.kassenkompass.de`, `load.awv.kassenkompass.de`, `kk-s3-01.s3.eu-central-1.amazonaws.com`.
+- API auth: `X-API-Secret` header is sole channel; query-string/cookie source-merge REJECTED on A/B/v2. Auth map 15/15: middleware A (8 routes, "…ist ungültig oder nicht berechtigt"), middleware B (3 routes {`/user/{ext_id}`, `/delete/{id}`, `/cancel/{id}`}, "X-API-Secret Header fehlt"), 1 method-checked-first (`/cat_detail/`), 3 no credential check (`/health/`, `/sync/`, `/post/`).
+- Stable hashes: root 1167 B sha256 `644b1ec74036ec90…` (15 v1 ver 1.0 + 1 v2 ver 2.0); `/sync/` 67 B sha256 `b93be961f0da5eb4…` (HTTP 200 legacy envelope); `/health/` 22 B sha256 `4af26797ca98dbf2…`; static-handler 404 1245 B sha256 `dc1d54dab6ec8c00…`.
+- v2: `insurance_info` sole route, enumeration saturated at 42 names; greedy segment match; `/v2/insurance_info/1` → 401/236 B sha256 `05b459dd38af015d…`.
+- Normalization: percent-decode-before-match host-wide (v1+v2), case-sensitive, single decode level, encoded separators decode (`/delete%2f1` → 401/182 B `46bd50c0c679e09f…`); 17-family matrix complete (0 divergences); 3 pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- `kassenkompass.de/bonusrechner_fragen.php`: 2.16 MB tariff corpus unauthenticated, `no-store`+`CF-DYNAMIC`, no ETag/Last-Modified, no rate limit; drift-on-refresh ±0.3% model; last baseline 2,159,141 B sha256 `fd925227…`; www mirror identical modulo 1-byte cache-buster.
+- Credential vector excluded: 0/13 secret-shaped patterns in 2.16 MB corpus; 0 sourceMappingURL/.map/credentials across all 4 public JS bundles (standard.js 67,969 B, live-calculation.js 36,499 B, param_passthrough.js web1.0.1, whitelabel_live.js 11,359 B).
+- `kassenkompass.de/php/mark_all_read.php`: action evaluated pre-auth; unauthenticated invalid action → 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}` vs valid siblings → 46 B `Nicht angemeldet`; action param POST-only (GET inert).
+- `api.kassenkompass.de/post/create_user`: `/post/*` separately mounted outside X-API-Secret (HEAD differential); namespace closed at 2 members (`help`, `create_user`); 405 method-confounded by gated POST-only `/cat_detail/`; unauthenticated write unproven.
+- Pipeline observability gap: 25+ consecutive triage cycles with header-only/stub peer leads; peers reprint refuted claims (encoded-separator WAF bypass @90/88, nemotron3 provisioning).
+- Standing RISK: KassenKompass GmbH = 70.
+
+## Work State
+### Completed
+- API surface fully mapped and drift-free since 2026-09-07: 15/15 v1 + v2 auth map, verb+auth matrix from `access-control-allow-methods`, `/post/` namespace closed, normalization matrix complete.
+- All passive JS/RAG credential routes exhausted (4 bundles); 2.16 MB corpus credential grep closed.
+- `kk-s3-01`: qid axis 1..180 enumerated (images-only, byte-identical duplicates, non-image keys 403) — no confidentiality impact; `?versionId=null` → 403.
+- `kassenkompass.net`: blanket 302 on all app-handled paths → no existence oracle; parser differential REJECTED; host-only cookies.
+- `awv.kassenkompass.de` root 400-vs-404 discriminator RESOLVED (400 under default-curl and Chrome/131 UA).
+- `kassenkompass.de/bonusrechner_fragen.php` 24h smoke executed 2026-10-15 17:14 UTC: 2,159,141 B, sha256 `fd925227…`, Δ+2 B (0.00009%).
+- Funnel stuffing surface confirmed at 7 mirror entries with divergent alias maps; GET branch closed 7/7 (cookie consumption strictly POST/portal-path).
+- `bonusrechner_abschluss.php`: one-shot stuffing→register chain REFUTED (GET vs POST differential; "Account-ID nicht gefunden" only on valid POST) — confidence corrected 85→65.
+
+### Active
+- Holding discipline: no probe due until ≥2026-10-16 17:14 UTC (24h fragen smoke window).
+- 3 survivor hypotheses carried: (1) Tariff Leak conf 70 / MISCONFIG / HUMAN (classification-gated); (2) mark_all_read pre-auth router asymmetry conf 50 / AUTH / HUMAN_ONLY; (3) `/post/create_user` provisioning conf 45 / AUTH / AUTH_HELPED.
+- PRIO standing: `kassenkompass.de/bonusrechner_fragen.php` 8.50, `kassenkompass.de/php/mark_all_read.php` 7.00, `api.kassenkompass.de/post/create_user` 6.60.
+
+### Blocked
+- Tariff Leak: severity hinges solely on vendor data classification (intended-public vs licensed partner data) — HUMAN input required.
+- mark_all_read: valid-action POST vocabulary test disallowed under read-only rules — HUMAN approval required.
+- `/post/create_user`: credentialed POST + negative control unavailable under read-only rules — AUTH_HELPED required (do not test unauthenticated write).
+- Peer pipeline silent 25+ cycles; backend "Unexpected server error" / "No leads provided" in triage runs.
+
+## Next Move
+1. HOLD until ≥2026-10-16 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ `www` mirror) at ≤1 rps; compare size/sha256 vs 2,159,141 B / `fd925227…`; otherwise emit NO_DELTA.
+2. HUMAN: ask program owner whether the 2.16 MB fragen.php corpus (ucatKkData / globalbudgetsData / dataant / kombiboniData / pseudoKkIds=[99,100,101]) is intended-public or licensed partner data — single answer moves hypothesis 1 to reportable MISCONFIG or REJECTED.
+
+## Relevant Files
+- `scope.yml`: in-scope asset definition (all KassenKompass GmbH infra).
+- `inventory/kassenkompass.md`: host inventory + dated passive-recon log (hosts, endpoints, header/tech facts).
+- `reports/hypotheses-nemotron3.txt`: peer ledger still ranking refuted encoded-separator WAF-bypass finals @90/88 + queued probes for them.
+- `hypotheses-bigpickle.txt`: own NEXT/HYP/PRIO/LEARN/RISK lead file (HOLD + probe instructions).
+- `lead_bigpickle.txt`: carries top-ranked Tariff Leak hypothesis (conf 70).
+- `state_bigpickle.json`, `state_nemotron3.json`: both `{"phase": "POC", "target": "api"}` (33-byte stubs).
+- `probe-results.md`: raw read-only probe output (harness artifact noted: "GET /post/help -> HTTP 405" at 2026-09-28 17:03 is a probe-script artifact, not target drift).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+The window is open (19:42 UTC > 17:14 UTC). Time to execute the scheduled smoke test: single GET on bonusrechner_fragen.php (+ www mirror) at ≤1 rps, compare vs baseline 2,159,141 B / sha256 fd925227…, otherwise NO_DELTA.
+
+Let me do this. Read-only GET, rate limited. Let me run the probe.
+
+I should do the primary GET, then the mirror, spaced ≥1s apart. Compute size and sha256. Let me be careful to not hammer.
+
+Let me run with curl. I'll fetch the body, compute size and sha256, and also capture headers/status and transfer time.
+
+Let me do it in one command for the primary, then the mirror after 1s. Actually I'll do two separate calls with a sleep. But parallel tool calls would violate ≤1 rps? They're different hosts (kassenkompass.de and www.kassenkompass.de). Still, safer to do sequentially with sleep. Let me just run a single bash command that does both with a 2s gap.
+
+Let me write the command carefully. Use curl with -s -o to a temp file, get http_code, size_download, time_total. Then sha256sum.
+
+Let me do it.</think>Window is open. Executing the scheduled single-GET smoke on the fragen corpus (+ www mirror), ≤1 rps.
+[0m$ [0mcd /tmp/opencode
+echo "=== primary kassenkompass.de/bonusrechner_fragen.php ==="
+curl -sS -o fragen_primary.bin -w 'http=%{http_code} size=%{size_download} time=%{time_total}s ctype=%{content_type}\n' \
+  -A 'Mozilla/5.0 (compatible; kk-recon/1.0)' \
+  --max-time 60 \
+  'https://kassenkompass.de/bonusrechner_fragen.php'
+sha256sum fragen_primary.bin
+wc -c < fragen_primary.bin
+sleep 2
+[0m
+[0m→ [0mRead analyst-prompt.txt[90m [offset=3600, limit=60][0m
+I have the analyst-out.txt format now. The STEP 1-7 format is:
+
+STEP 1 — DELTA: compare inventory+knowledge+last leads against current surface. [NEW]/[CHANGED] one line each, or NO_DELTA.
+STEP 2 — PRIORITIZE: score top assets.
+STEP 3 — HYPOTHESES: top 3 assets, max 1 hypothesis each. Strict schema.
+STEP 4 — SELF-CRITIQUE: drop confidence<40 or REJECTED-class or no-verify-steps.
+STEP 5 — NEXT ACTION: exactly one [NEXT] <PROBE|SCAN|RAG|HUMAN>.
+STEP 6 — LEARNING: [LEARN] REJECTED/ACCEPTED <class> @ <asset>.
+STEP 7 — RISK: [RISK] <program>: <0-100> reason.
+
+Wait, but the lead file format has MULTIPLE [NEXT] etc. The prompt says exactly one [NEXT]. Hmm. But the existing lead entries have multiple. Let me look at the exact schema for STEP 3 and the required output.
+
+Let me read lines 3605-3640 of analyst-prompt.txt for the full step definitions and schema.
+
+Actually the analyst-out.txt is the previous cycle's output (the summary + this session). The task now is to produce THIS cycle's output following STEP 1-7.
+
+Let me read the full step definitions and the HYP schema (lines 3600-3640).
+
+Also I should read the tail of analyst-out.txt to see the final format expected (since it's the output being generated). Actually analyst-out.txt begins with the summary and then this session's transcript — it seems to be the live output file.
+
+Let me read the prompt section 3600-3645.</think>I have STEP 1–7 now. Let me read the full step definitions and HYP schema.
+Now I have the exact required format. The output should be ONLY structured blocks following STEP 1-7. Exactly one [NEXT].
+
+Now I've done the smoke. Let me finalize the outcome and produce the cycle output.
+
+Results:
+- STEP 1 DELTA: `kassenkompass.de/bonusrechner_fragen.php` apex+www now 2,159,143 B (prior latest 2,159,141 B; +2 B / +0.00009%, inside ±0.3% band). NEW methodological finding: the page's `/js/standard.js?v=<unix-epoch>` cache-buster is regenerated per request to the server wall-clock second (1792179811 = 19:43:31 UTC = fetch time), so RAW sha256 of the page is unreproducible; normalized content hash (`?v=<digits>` → `?v=X`) = sha256 `df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd`, identical across apex, www, and a repeat apex fetch. Corpus data structures intact (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds).
+
+- STEP 2 PRIO: keep same scores; maybe update freshness. I'll re-emit the three.
+
+- STEP 3 HYP: same 3 hypotheses, with updated reasoning for Tariff Leak (raw hash irreproducible; normalized hash stable; size +2 B within band).
+
+- STEP 4: park/final.
+
+- STEP 5 NEXT: exactly one. Given the smoke done, next = HUMAN (the classification question) OR schedule next smoke. The rules say exactly one [NEXT]. I'll choose HUMAN: ask program owner the classification question — that's the gating item. But also there's the next smoke in 24h. Hmm. "exactly one". The highest-value is HUMAN classification. But an automated scheduled probe is also valid. I think the single most valuable NEXT is HUMAN (classification), because that's the unlock. But the previous cycles used [NEXT] with multiple (a)-(d). The strict rule says exactly one. I'll emit one primary [NEXT] HUMAN. Actually, let me emit a single [NEXT] HUMAN as required.
+
+Hmm, but the operational cadence wants a scheduled next smoke. The rule is strict: exactly one. Given ambiguity, I'll pick the one that advances the program: HUMAN (classification question). I can mention the smoke cadence within reasoning elsewhere? The rule says one [NEXT]. I'll do one [NEXT] HUMAN.
+
+Wait, but actually the next automated thing would be the 24h smoke again at ~17:14 10-17. But that's routine. The single highest-value action is the HUMAN classification. I'll emit that.
+
+- STEP 6 LEARN: 
+  - [LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: per-request `standard.js?v=<unix-epoch>` cache-buster equals server wall-clock to the second → page raw sha256 is inherently unreproducible; smokes must diff a normalized hash, not raw sha.
+  - Maybe [LEARN] REJECTED MISCONFIG @ ...: server-time disclosure via cache-buster — informational, non-reportable (descriptive header/token only, no security impact).
+
+- STEP 7 RISK: 70 unchanged.
+
+Also I must write the cycle entry into leads/lead-bigpickle.md (the convention). Let me append a new dated section.
+
+Let me append to the lead file. The last section header format: `## 2026-10-16 16:47:17 UTC [target] (model bigpickle)`. I'll add `## 2026-10-16 19:4x UTC [target] (model bigpickle)`.
+
+Let me get exact current time again and append.
+
+Let me write the entry.
+
+Also should I update state_bigpickle.json? It's a 33-byte stub {"phase": "POC", "target": "api"}. Leave it.
+
+Let me append to lead-bigpickle.md.
+
+Content:
+
+## 2026-10-16 19:45:xx UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: Carried unchanged ... now 2,159,143 B at 2026-10-16 19:43 UTC (prior latest 2,159,141; +2 B / +0.00009%, inside ±0.3% drift band); no-store+CF-DYNAMIC, no validators, no rate limit; data structures intact; credential vector excluded (0/13 corpus + 0/4 bundles). Raw page sha256 now known to be per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; normalized content sha256 = df5cd456… stable across apex/www/repeat. Severity gated solely on data classification.
+...
+[NEXT] HUMAN: ask program owner...
+[LEARN] ...
+[RISK] KassenKompass GmbH: 70 ...
+
+Let me do it. Get the timestamp.
+
+Actually let me just append with a precise timestamp from date.
+
+Let me write via bash? Instructions say prefer Write/Edit. But appending to a 1.9MB file via Edit requires unique oldString. I can use Edit with the last line as anchor. The last line is `[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.` — unique. I'll edit appending after it.
+
+Let me construct the newString = oldString + "\n" + new entry.
+
+Let me get timestamp first.</think>I have the exact STEP 1–7 schema. Now recording the completed smoke result into the lead file, then emitting this cycle's structured output.
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-16 19:45:36 UTC
+[0m
+Let me append to the lead file using Edit. I'll read the last line to confirm exact text. From the earlier tail output, the last line is:
+
+`[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.`
+
+Let me use Edit with that as oldString. But it appears twice (11:56 and 16:47 entries). So not unique. I need more context. The 16:47 entry is followed by end of file. So I can anchor on the full 16:47 section:
+
+```
+## 2026-10-16 16:47:17 UTC [target] (model bigpickle)
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+```
+
+This whole block is unique (the 16:47 header). I'll append after it.
+
+Let me write the edit.</think>
+[0m← [0mEdit leads/lead-bigpickle.md
+Index: /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/lead-bigpickle.md
+===================================================================
+--- /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/lead-bigpickle.md
++++ /home/runner/work/kassenkompass-hunt/kassenkompass-hunt/leads/lead-bigpickle.md
+@@ -11638,4 +11638,44 @@
+ ## 2026-10-16 16:47:17 UTC [target] (model bigpickle)
+ [PRIO] No change; survivors remain HUMAN-gated:
+ [NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+ [RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
++## 2026-10-16 19:45:36 UTC [target] (model bigpickle)
++[SMOKE DONE] `kassenkompass.de/bonusrechner_fragen.php` apex+www = HTTP 200 / **2,159,143 B** (prior latest 2,159,141 B; Δ+2 B = +0.00009%, inside ±0.3% drift band); corpus structures intact (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) → **NO_DELTA / no drift breach**.
++[CHANGED] Raw page sha256 is **per-request unreproducible**: `/js/standard.js?v=<unix-epoch>` is a server wall-clock cache-buster regenerated every request (1792179811=19:43:31, 1792179815=19:43:35, 1792179841=19:44:01 UTC = exact fetch times). Normalized content sha256 (`?v=<digits>`→`?v=X`) = `df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd`, **identical across apex, www, and repeat apex fetch**. Adopt normalized-hash comparison for all future fragen smokes; raw `fd925227…`/size no longer a valid comparator.
++[NEW] Minor info disclosure: page render leaks server wall-clock to the second via the standard.js cache-buster. Informational only (descriptive token, no security impact) — non-reportable per program REJECTED classes.
++[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
++[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
++[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
++[HYP] Unauthenticated Competitive Intelligence Tariff Leak
++class: MISCONFIG
++asset: kassenkompass.de/bonusrechner_fragen.php
++confidence: 70
++reasoning: Carried unchanged — apex+www serve ~2.16 MB unauthenticated; updated smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B vs prior, inside ±0.3% band); no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant (138 q / 375 rule edges) + pseudoKkIds=[99,100,101]; credential vector fully excluded (0/13 corpus + 0/4 public JS bundles). Severity gated solely on vendor data classification.
++evidence_needed: vendor data classification — intended-public marketing calculator data vs licensed partner tariff data.
++verify_steps: no further probing; normalized-hash smoke cadence only. Next observation ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 `df5cd456…`).
++impact: full tariff + budget + combination-rule corpus readable by any anonymous visitor — MEDIUM-HIGH if licensed partner data, informational if intended-public.
++testability: HUMAN
++[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
++class: AUTH
++asset: kassenkompass.de/php/mark_all_read.php
++confidence: 50
++reasoning: Carried unchanged — unauthenticated invalid-action => 200/59 B {"message":"Fehler: Ungültige Action"} vs sibling endpoints 200/46 B {"message":"Fehler: Nicht angemeldet"}; action param POST-only (GET 0-differential); every action value tested returned 59 B; a valid action yielding 46 B never observed.
++evidence_needed: a recognized action value yielding != 59 B unauthenticated (requires POST under approval).
++verify_steps: POST to https://kassenkompass.de/php/mark_all_read.php with action in {mark_all_read, mark_read, send_message, load_messages}, no session cookies; compare body/length vs 59 B baseline; no state mutation intended.
++impact: router-ordering disclosure now; unauthenticated mutation only if a valid pre-auth action exists and executes without session — LOW, unproven.
++testability: HUMAN_ONLY
++[HYP] Undocumented User Provisioning on /post/create_user
++class: AUTH
++asset: api.kassenkompass.de/post/create_user
++confidence: 45
++reasoning: Carried unchanged — /post/* separately mounted outside X-API-Secret (HEAD differential); GET /post/help 200/344 B advertises POST /post/create_user; namespace closed at 2 members; 405-on-POST-only routes method-confounded by gated /cat_detail/; no ACAO on preflight.
++evidence_needed: credentialed POST with negative control (valid X-API-Secret vs invalid/missing) and minimal JSON body; record status/body/headers. Do not test unauthenticated write.
++verify_steps: (AUTH_HELPED) POST with valid secret to https://api.kassenkompass.de/post/create_user using minimal valid JSON; repeat without/invalid secret; compare. Stop if any test would create live user data.
++impact: unauthenticated user provisioning if write succeeds without credential — HIGH, unproven.
++testability: AUTH_HELPED
++[PARKED] Undocumented User Provisioning on /post/create_user — conf 45 < 50; AUTH_HELPED credentialed POST + negative control unavailable under read-only rules; 405 method-confound blocks read-only closure.
++[FINAL] survivors ranked: (1) Tariff Leak, conf 70, MISCONFIG, HUMAN — classification question only; (2) mark_all_read Router Asymmetry, conf 50, AUTH, HUMAN_ONLY — POST vocabulary test needs approval; (3) /post/create_user Provisioning, conf 45, AUTH, AUTH_HELPED — credentialed POST + negative control needed. No autonomous verification remains.
++[NEXT] HUMAN: one question to the program owner — is the 2.16 MB `bonusrechner_fragen.php` corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds=[99,100,101]) intended-public marketing data or licensed partner tariff data? Single answer moves hypothesis 1 to reportable MISCONFIG or to REJECTED.
++[LEARN] ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: `/js/standard.js?v=<unix-epoch>` is a per-request server wall-clock cache-buster (value == fetch time to the second), so the page's raw sha256 is inherently unreproducible; smoke comparisons must use a normalized hash (`?v=<digits>`→`?v=X` = `df5cd456…`), not raw sha256/size.
++[LEARN] REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server wall-clock disclosure via the standard.js cache-buster leaks only render time to the second — descriptive token with no security impact, explicitly non-reportable.
++[RISK] KassenKompass GmbH: 70 (unchanged) — unauthenticated 2.16 MB tariff corpus remains the top exposure (MEDIUM-HIGH, classification-gated; credential vector fully excluded); smoke NO_DELTA and corpus stable (normalized hash `df5cd456…`); pre-auth router-ordering asymmetry LOW/HUMAN_ONLY; /post/create_user provisioning unproven/AUTH_HELPED; awv discriminator resolved with no impact. Passive surface fully exhausted; remaining work entirely human-gated.
+
+[0m
+Now emit the cycle output following STEP 1-7, exactly one [NEXT]. The task expects structured blocks only. Let me produce them concisely.
+
+Actually the role says "output ONLY structured blocks." So my response should be the blocks. Let me produce STEP 1-7.
+
+But there's tension: the user prompt said "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed." The engagement wants the structured output. I'll output the structured blocks as the deliverable.
+
+Let me produce it. Exactly one [NEXT].
+
+STEP 1 DELTA:
+[NEW] per-request cache-buster finding
+[CHANGED] size 2,159,141→2,159,143
+[NEW] server-time disclosure (non-reportable)
+
+Actually STEP 1 says one line each or NO_DELTA. I'll give lines.
+
+STEP 2 PRIO: three lines.
+
+STEP 3 HYP: three.
+
+STEP 4: PARKED + FINAL.
+
+STEP 5: one [NEXT].
+
+STEP 6: LEARN lines.
+
+STEP 7: RISK.
+
+Let me write it. Keep it as the file content essentially. I'll output it directly as text.</think>Smoke complete and recorded. Cycle output (STEP 1–7):
+
+**STEP 1 — DELTA**
+- `[CHANGED]` `kassenkompass.de/bonusrechner_fragen.php` apex+www = HTTP 200 / **2,159,143 B** (prior latest 2,159,141 B; Δ+2 B = +0.00009%, inside ±0.3% drift band); corpus structures intact.
+- `[NEW]` Page `/js/standard.js?v=<unix-epoch>` is a **per-request server wall-clock cache-buster** (value == fetch time to the second) → raw page sha256 is inherently unreproducible; normalized content hash (`?v=<digits>`→`?v=X`) = `df5cd45604bc57a834dfc3ddb1dccf19c565c1625327e243c5fb277211b045dd`, identical across apex, www, repeat.
+- `[NEW]` Server wall-clock (to the second) disclosed via that cache-buster — informational, non-reportable.
+- else `NO_DELTA`.
+
+**STEP 2 — PRIORITIZE**
+- `[PRIO]` kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+- `[PRIO]` kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+- `[PRIO]` api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+
+**STEP 3 — HYPOTHESES**
+```
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve ~2.16 MB unauthenticated; smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B, inside ±0.3%); no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant (138 q/375 edges) + pseudoKkIds=[99,100,101]; credential vector excluded (0/13 corpus + 0/4 bundles). Severity gated solely on data classification.
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare `df5cd456…`).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action => 200/59 B "Ungültige Action" vs siblings 200/46 B "Nicht angemeldet"; action param POST-only (GET 0-differential); no value yet yields 46 B.
+evidence_needed: recognized action yielding != 59 B unauthenticated (POST under approval).
+verify_steps: POST mark_all_read.php action ∈ {mark_all_read, mark_read, send_message, load_messages}, no session; compare vs 59 B; no mutation.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* separately mounted outside X-API-Secret (HEAD differential); /post/help advertises POST /post/create_user; namespace closed at 2; 405 method-confounded by gated /cat_detail/; no ACAO on preflight.
+evidence_needed: credentialed POST + negative control (valid vs invalid/missing X-API-Secret), minimal JSON.
+verify_steps: (AUTH_HELPED) POST valid secret, then without/invalid; compare; stop if it would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+```
+
+**STEP 4 — SELF-CRITIQUE**
+- `[PARKED]` /post/create_user — conf 45 < 50; AUTH_HELPED control unavailable under read-only; 405 method-confound blocks read-only closure.
+- `[FINAL]` survivors ranked: (1) Tariff Leak 70 / MISCONFIG / HUMAN; (2) mark_all_read asymmetry 50 / AUTH / HUMAN_ONLY; (3) /post/create_user 45 / AUTH / AUTH_HELPED. No autonomous verification remains.
+
+**STEP 5 — NEXT ACTION**
+- `[NEXT]` HUMAN: one question to the program owner — is the 2.16 MB `bonusrechner_fragen.php` corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds=[99,100,101]) intended-public marketing data or licensed partner tariff data? Single answer moves hypothesis 1 to reportable MISCONFIG or to REJECTED.
+
+**STEP 6 — LEARNING**
+- `[LEARN]` ACCEPTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: `/js/standard.js?v=<unix-epoch>` is a per-request wall-clock cache-buster, so raw sha256 is unreproducible; smokes must compare a normalized hash (`df5cd456…`), not raw sha256/size.
+- `[LEARN]` REJECTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: server wall-clock disclosure via the cache-buster leaks only render time — descriptive token, non-reportable.
+
+**STEP 7 — RISK**
+- `[RISK]` KassenKompass GmbH: **70** (unchanged) — unauthenticated 2.16 MB tariff corpus top exposure (MEDIUM-HIGH, classification-gated; credential vector fully excluded); smoke NO_DELTA, corpus stable; router asymmetry LOW/HUMAN_ONLY; provisioning unproven/AUTH_HELPED; awv resolved. Passive surface exhausted; remaining work human-gated.

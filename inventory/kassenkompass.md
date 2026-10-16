@@ -1920,3 +1920,14 @@ www.kassenkompass.de
 ## 2026-10-16 12:14:09 UTC
 
 ## 2026-10-16 16:47:28 UTC
+
+## 2026-10-16 19:53:41 UTC
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+- NEW `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, 
+- CHANGED `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+- CHANGED Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-o
+- CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
+- NEW per-request cache-buster finding
+- CHANGED size 2,159,141→2,159,143
+- NEW server-time disclosure (non-reportable)

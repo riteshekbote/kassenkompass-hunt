@@ -1568,3 +1568,4 @@
 - 2026-10-16 REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are header-derived infra detail, not a reportable class per program rules.
 - 2026-10-16 ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; no Set-Cookie under either UA re-confirms awv is not a cross-subdomain cookie-delivery primitive for `data_sparsum`.
 - 2026-10-16 REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
+- 2026-10-16 ...

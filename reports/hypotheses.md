@@ -6136,3 +6136,12 @@
 
 ## RANKED HYPOTHESES 2026-10-16 16:47:28 UTC
 - NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+
+## RANKED HYPOTHESES 2026-10-16 19:53:41 UTC
+- [70] api.kassenkompass.de: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): (a) HOLD until >=2026-10-16 17:14 UTC, then single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at <=1 rps; compare size/hash to 2,159,14
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 obs
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
+- LEARN: ...
