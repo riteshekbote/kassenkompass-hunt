@@ -1916,3 +1916,5 @@ www.kassenkompass.de
 - CHANGED `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
 - CHANGED Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-o
 - CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
+
+## 2026-10-16 12:14:09 UTC

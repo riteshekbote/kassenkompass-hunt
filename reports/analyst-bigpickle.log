@@ -80856,3 +80856,72 @@ testability: AUTH_HELPED
 [RISK] KassenKompass GmbH: **70** (unchanged) — 2.16 MB unauthenticated tariff corpus top exposure (classification-gated; credential vector fully excluded); router asymmetry LOW/unproven; provisioning unproven; awv discriminator resolved with zero security impact; passive surface now fully exhausted including the last parked read-only test. Remaining work is entirely human-gated.
 
 **Stopped here** — the only scheduled probe opens at 17:14 UTC (~11h away). To go further I need input on any of: the fragen.php data-classification question, approval for the mark_all_read POST vocabulary test, or an X-API-Secret credential for the /post/create_user negative-control test.
+===== ANALYST bigpickle 2026-10-16 12:14:09 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-16 11:54:45 UTC
+[0m
+## Objective
+- Act as senior bug bounty analyst for KassenKompass GmbH (report channel: bugs.olivermaicher.eu), running an 8-step hypothesis/prioritization loop over read-only recon of in-scope assets (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, kk-s3-01 S3 bucket).
+- Emit only structured blocks: [PRIO]/[HYP]/[PARKED]/[FINAL]/[NEXT]/[LEARN]/[RISK]; passive-first, ≤1 rps, GET/HEAD/OPTIONS only, no mutating tests.
+
+## Important Details
+- Scope: ONLY company-owned infra/platforms/portals/APIs/domains of KassenKompass GmbH. OUT OF SCOPE classes are extensive (DoS, descriptive errors/headers, OPTIONS/TRACE, cookie flags on non-sensitive data, username enumeration, rate-limit/lockout, TLS best-practice, clickjack w/o exploit, mail config, header-derived infra disclosure like AWSALB/trace-id/x-robots-tag, etc.).
+- My state: `{"phase": "POC", "target": "api"}`.
+- Key pinned facts (byte-stable):
+  - api root = 200 / 1167 B / sha256 `644b1ec74036ec90…`, 15 v1 endpoints ver 1.0 + v2 ver 2.0 (sole `/v2/insurance_info`), accurate content-length.
+  - `/sync/` = HTTP/2 200 / 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` / sha256 `b93be961f0da5eb4…` / allow-methods POST,OPTIONS.
+  - `/health/` = 200 / 22 B / sha256 `4af26797ca98dbf2…`, unauthenticated, depth-invariant.
+  - `/v2/insurance_info/1` = 401 / 236 B middleware A.
+  - fragen.php payload: last smoke 2026-10-15 17:14 UTC = 2,159,141 B, sha256 `fd925227…`; drift-on-refresh ±0.3%; next rotation ≥2026-10-16 17:14 UTC (per my [NEXT]); baseline record also 2,159,139 B.
+  - `/v3/` returns byte-identical 1167 B v1 catch-all — no v3 router.
+  - www mirror differs from apex by exactly 1 byte (cache-buster `/js/standard.js?v=<unix>`).
+- Rejected/closed classes (do not re-emit as new): encoded-separator access-control bypass (encoded ≡ literal, same sha256); HEAD for route-membership (CL:0, omits `instance`); Host-header vhost FP; CORS on .net/funnel; wider S3 footprint (5 sibling buckets, all deny ListBucket); "unauthenticated user provisioning" (405 method-confounded); auth source-merge (query/cookie X-API-Secret); CRLF on .net; embedded-credential in fragen corpus (0/13 patterns) and in all 4 JS bundles (0 sourceMappingURL, 0 credential literals — passive credential route CLOSED).
+- Method rules learned: 405 never evidence about credentials; only 401 is; HEAD structurally cannot close membership; discriminators must be injective; idempotent re-run emits NO_DELTA; priorities always re-derived from own emitted axes; composition claims need both axes on same request; awv root = 400 UA-independent (prior "404" falsified).
+- auth map: middleware A (v1 majority + v2), middleware B = {user/{ext_id}, delete/{id}, cancel/{id}}, `/cat_detail/` GET→405 pre-auth / HEAD→401 post-auth, no-cred-check = {/health/, /sync/, /post/}.
+- `/post/` app: members = help (200/344 B json) + create_user (405 POST-only); unregistered children = 200/0 B text/html; no ACAO on preflight; write auth unassessed (AUTH_HELPED).
+- `kassenkompass.de/php/mark_all_read.php`: pre-auth action router — invalid action → 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}`; sibling handlers (mark_read/send_message/load_messages) → 46 B "Nicht angemeldet"; action param POST-only; no action value ever yielded 46 B unauthenticated; router HUMAN_ONLY (POST disallowed under read-only rules).
+- 7 funnel cookie-mirror entries confirmed; stuffing chain server-side consumption REFUTED on fragen funnel (client-side engine; data_sparsum write commented out, live-calculation.js:642).
+- Pipeline: 25+ consecutive triage cycles with empty/header-only peer leads (observability gap; loop is effectively single-writer).
+- Report channel: bugs.olivermaicher.eu.
+
+## Work State
+### Completed
+- 15/15 verb+auth matrix complete on api (via access-control-allow-methods).
+- Normalization matrix COMPLETE: 17 route families, 0 divergences; percent-decode-before-match host-wide (v1+v2), single-level decode, case-sensitive, three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+- fragen.php 24h smoke discipline running since 09-18; last executed 2026-10-15 17:14 UTC (2,159,141 B, +2 B vs baseline).
+- Passive credential surface exhausted: fragen corpus 0/13 patterns; all 4 JS bundles (standard.js 67,969 B, live-calculation.js 37,225 B, param_passthrough.js 5,449 B, whitelabel_live.js 11,359 B) clean.
+- awv root 400-vs-404 discriminator resolved (UA-independent 400); no Set-Cookie → not a cross-subdomain cookie-delivery primitive.
+- Priorities re-derived from own axes and reproduce exactly: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60.
+- Risk held at 70; final survivors: (1) Tariff Leak 70 MISCONFIG HUMAN, (2) mark_all_read asymmetry 50 AUTH HUMAN_ONLY, (3) /post/create_user 45 AUTH AUTH_HELPED.
+
+### Active
+- Standing 24h smoke rotation for fragen.php (window opens ≥2026-10-16 17:14 UTC); otherwise NO_DELTA.
+- All remaining verification is human-gated.
+
+### Blocked
+- fragen.php severity: blocked on vendor data classification (intended-public vs licensed partner data) — HUMAN question to program owner.
+- mark_all_read.php unauthenticated mutation: requires POST to action vocabulary — HUMAN_ONLY (read-only rules forbid; GET variants inert).
+- /post/create_user provisioning: requires credentialed POST + negative control (AUTH_HELPED); 405 method-confound blocks read-only closure.
+
+## Next Move
+1. HOLD until ≥2026-10-16 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ www mirror) at ≤1 rps; compare size/hash to 2,159,141 B / `fd925227…`; otherwise emit NO_DELTA.
+2. HUMAN: ask program owner whether the 2.16 MB fragen.php corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) is intended-public or licensed partner data; plus HUMAN approval for mark_all_read POST vocabulary test and AUTH_HELPED for /post/create_user.
+
+## Relevant Files
+- (none — all work is read-only HTTP probing against live hosts; no local files created or modified in this conversation)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[NO_DELTA] 2026-10-16 11:54 UTC — fragen.php smoke window not yet open (opens ≥17:14 UTC, ~5.3h away). No probe run.
+
+[PRIO] No change; survivors remain HUMAN-gated:
+1. Tariff Leak — 70 MISCONFIG HUMAN (await data-classification answer)
+2. mark_all_read.php router asymmetry — 50 AUTH HUMAN_ONLY (POST forbidden)
+3. /post/create_user provisioning — 45 AUTH AUTH_HELPED (needs credentialed POST + control)
+
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+
+Stopping here — need your input or the 17:14 window.

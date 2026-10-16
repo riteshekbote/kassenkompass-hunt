@@ -6130,3 +6130,6 @@
 - LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
 - LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
 - LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
+
+## RANKED HYPOTHESES 2026-10-16 12:14:09 UTC
+- NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.

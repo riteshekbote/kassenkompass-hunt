@@ -11631,3 +11631,7 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; no Set-Cookie under either UA re-confirms awv is not a cross-subdomain cookie-delivery primitive for `data_sparsum`.
 [LEARN] REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
 [RISK] KassenKompass GmbH: **70** (unchanged) — 2.16 MB unauthenticated tariff corpus top exposure (classification-gated; credential vector fully excluded); router asymmetry LOW/unproven; provisioning unproven; awv discriminator resolved with zero security impact; passive surface now fully exhausted including the last parked read-only test. Remaining work is entirely human-gated.
+## 2026-10-16 11:56:39 UTC [target] (model bigpickle)
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
