@@ -11635,3 +11635,7 @@ testability: AUTH_HELPED
 [PRIO] No change; survivors remain HUMAN-gated:
 [NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
 [RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+## 2026-10-16 16:47:17 UTC [target] (model bigpickle)
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.

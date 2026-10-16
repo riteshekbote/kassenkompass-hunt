@@ -6133,3 +6133,6 @@
 
 ## RANKED HYPOTHESES 2026-10-16 12:14:09 UTC
 - NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+
+## RANKED HYPOTHESES 2026-10-16 16:47:28 UTC
+- NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.

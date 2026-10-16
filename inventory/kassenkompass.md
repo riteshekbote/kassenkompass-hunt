@@ -1918,3 +1918,5 @@ www.kassenkompass.de
 - CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
 
 ## 2026-10-16 12:14:09 UTC
+
+## 2026-10-16 16:47:28 UTC
