@@ -6112,3 +6112,21 @@
 - LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived f
 - LEARN: REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried
 - LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, 
+
+## RANKED HYPOTHESES 2026-10-16 06:41:59 UTC
+- [70] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Ask program owner/vendor whether the 2,159,141 B bonusrechner_fragen.php corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) is inten
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store headers and no rate limiting; leakage severit
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth router ordering observed (action evaluated before session) but unauthenticated mutation unprove
+- LEARN: PARKED AUTH @ api.kassenkompass.de/post/create_user: write namespace outside X-API-Secret proven via HEAD differential, but 405 method-confound prevents conclus
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401/189 B, same sha256) 
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store headers and no rate limiting; leakage severit
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth router ordering observed (action evaluated before session) but unauthenticated mutation unprove
+- LEARN: PARKED AUTH @ api.kassenkompass.de/post/create_user: write namespace outside X-API-Secret proven via HEAD differential, but 405 method-confound prevents conclus
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 obs
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
