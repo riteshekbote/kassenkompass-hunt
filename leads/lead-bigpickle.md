@@ -11423,3 +11423,43 @@ testability: AUTH_HELPED
 [LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/enum/sanitized-font values into a <style> block (no HTML sink) — integrity-only, NOT XSS; consistent with prior whitelabel finding. Comment discloses server path htmlincludes/whitelabel/whitelabel_styles.php (descriptive-only, out-of-scope disclosure class).
 [LEARN] ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work human-gated, so analysis halts pending external input.
 [RISK] KassenKompass GmbH: 70 — unauthenticated 2.16MB tariff corpus (MEDIUM-HIGH, classification-gated, credential vector fully excluded); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); no credential compromise or PII exposure observed. Passive surface exhausted; no further autonomous probes warranted.
+## 2026-10-16 01:35:10 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve unauthenticated tariff corpus (2,159,141 B) with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limiting observed across sustained 1 rps. Corpus contains ucatKkData (~1.79MB per-KK resolved refs), globalbudgetsData, kombiboniData, dataant (138 questions/375 rule edges), pseudoKkIds=[99,100,101]. Data freshness ≤2025-12-22 (lastchange epochs 2025). Credential vector excluded (0/13 corpus patterns + 0/4 public JS bundles). sessionData null under stuffed jar. Leakage severity gated on vendor data classification.
+evidence_needed: vendor data classification — is the corpus intended-public marketing calculator data or licensed partner tariff data?
+verify_steps: no further probing (classification question only); do not resweep endpoint.
+impact: full tariff + budget + combination rule corpus accessible to any anonymous visitor — MEDIUM-HIGH if licensed partner data; informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: Shared /php/ action router evaluates action parameter before session check. Unauthenticated requests with invalid action return 200/59 B `{"success":false,"message":"Fehler: Ungültige Action"}` while siblings (mark_read/send_message/load_messages) return 200/46 B `{"success":false,"message":"Fehler: Nicht angemeldet"}` unauthenticated. Action param is POST-only (GET variants show 0-differential). Namespace includes mark_all_read/mark_read/send_message/load_messages.
+evidence_needed: a recognized action vocabulary yielding != 59 B unauthenticated response (requires POST to valid action values).
+verify_steps: POST to https://kassenkompass.de/php/mark_all_read.php with action in {mark_all_read, mark_read, send_message, load_messages} and no session cookies; compare body/length vs 59 B baseline. Do not attempt to mutate state; only enumerate response shape.
+impact: router-ordering disclosure now; unauthenticated mutation only if a valid pre-auth action exists and executes without session — LOW severity, unproven.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* is a separately mounted application outside X-API-Secret dependency (HEAD /delete/1→401, HEAD /state/→401 vs HEAD /post/→405, HEAD /post/create_user→405 on same host/method). GET /post/help returns 200/344 B application/json advertising `POST /post/create_user` ("Erstellt einen neuen User. Erwartet JSON im Body.") and `POST /post/help`. Namespace closed at exactly 2 members. 405-on-POST-only routes is method-confounded by gated /cat_detail/; write auth not proven with read-only methods. CORS test: no ACAO for arbitrary Origin on /post/create_user preflight (browser cross-origin write path closed at CORS level; form-encoded simple request is a separate class but not tested).
+evidence_needed: credentialed POST with negative control (valid API secret vs invalid/missing) and minimal JSON body to /post/create_user; record status/body/headers. Do not test unauthenticated write.
+verify_steps: (AUTH_HELPED) POST with X-API-Secret header to https://api.kassenkompass.de/post/create_user using minimal valid JSON; repeat without/invalid secret; compare responses. Stop if any test would create live user data.
+impact: unauthenticated user provisioning if write succeeds without credential — HIGH, unproven. Current evidence insufficient to assert impact.
+testability: AUTH_HELPED
+[PARKED] Undocumented User Provisioning on /post/create_user: confidence 45 < 50 and testability AUTH_HELPED requires credentialed POST with negative control which is not available under autonomous read-only rules; method-confound (405-on-POST-only routes) prevents conclusive verification without credentialed testing. Park pending AUTH_HELPED with strict negative control.
+[FINAL] survivors ranked: 
+[NEXT] HUMAN: Ask program owner/vendor whether the 2,159,141 B bonusrechner_fragen.php corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) is intended-public marketing-calculator data or licensed partner tariff data. A single answer moves hypothesis 1 (70) to reportable MISCONFIG (if licensed partner data) or to REJECTED (if intended-public). No further autonomous probing warranted; passive surface exhausted.
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store headers and no rate limiting; leakage severity gated on vendor data classification (intended public vs licensed partner data). Drift ±0.3% confirms drift-on-refresh model.
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth router ordering observed (action evaluated before session) but unauthenticated mutation unproven; requires POST to valid action vocabulary (GET variants inert). HUMAN_ONLY.
+[LEARN] PARKED AUTH @ api.kassenkompass.de/post/create_user: write namespace outside X-API-Secret proven via HEAD differential, but 405 method-confound prevents conclusive unauthenticated provisioning claim; requires credentialed POST with negative control (AUTH_HELPED).
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edge conditions; percent-decode-before-match is routing normalization quirk, not access-control/WAF bypass.
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounded); requires credentialed POST + negative control.
+[RISK] KassenKompass GmbH: 70 — unauthenticated 2.16 MB tariff corpus (MEDIUM-HIGH, classification-gated; credential vector fully excluded: 0/13 corpus + 0/4 bundles); pre-auth router-ordering asymmetry with no demonstrated mutation (LOW, HUMAN_ONLY); /post/create_user provisioning unproven (AUTH_HELPED); api.kassenkompass.de catalog/legacy 200 auth-envelope are informational; no credential compromise or PII exposure observed in passive corpus. Passive surface exhausted; no further autonomous probes warranted.
