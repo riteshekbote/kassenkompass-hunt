@@ -1609,3 +1609,6 @@
 - 2026-10-17 ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
 - 2026-10-17 REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried as coverage-gap only, not re-emitted as a new finding.
 - 2026-10-17 ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js) — no unswept passive JS remains; all remaining work is human-gated.
+- 2026-10-17 REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
+- 2026-10-17 ...
+- 2026-10-17 Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to hard-error — treat triage errors as absence of signal, not as a finding.

@@ -83104,3 +83104,1352 @@ Continue if you have next steps, or stop and ask for clarification if you are un
 ---
 
 Blocked on you — three decisions from [NEXT]#2 are the only thing that moves this engagement off HOLD. Which do you want to answer first (or decline all → I stay parked until the 17:14 UTC smoke window)?
+===== ANALYST bigpickle 2026-10-17 05:44:52 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-17 05:42:38 UTC
+[0m
+## Objective
+- Operate as a senior bug bounty analyst for the KassenKompass GmbH program (report channel: bugs.olivermaicher.eu), running the fixed 8-step analysis cycle (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARN → RISK) against the KassenKompass surface.
+- Current phase: POC, target: api; program is in a state where all remaining findings are human-gated — the agent's job each cycle is to hold posture, verify only due probes, and avoid re-deriving closed conclusions.
+
+## Important Details
+- Scope (ONLY these): all KassenKompass GmbH-owned infra — api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, load.awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com.
+- Probe rules: passive-first, ≤1 rps, GET/HEAD/OPTIONS only; no mutating tests on live customer data; no burst traffic (2026-09-11 burst triggered transient WAF IP-block — ≤1 rps is a standing discipline); POST on any live endpoint requires human approval.
+- Out-of-scope classes (rejected list) as given in prompt: DoS, descriptive errors, robots.txt, OPTIONS/TRACE, cookie flags on non-sensitive data, self-XSS, rate-limit policy, TLS best practice, clickjacking w/o exploit, mail config, etc.
+- Key standing technical facts:
+  - api.kassenkompass.de: root discloses full catalog (1167 B, 15 v1 + 1 v2, sha256 644b1ec7…), content-length drift class CL:0→absent→accurate (cosmetic); /sync/ legacy envelope 200 + 67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (sha256 b93be961…); /health/ 22 B `{"status":"ok"}` (sha256 4af26797…); v2 = sole route /v2/insurance_info/{kk_id} (401/236 B); auth map: 8 middleware A, 3 middleware B ({user/{ext_id}, delete/{id}, cancel/{id)}), /cat_detail/ GET 405 / HEAD 401 (auth-gated, method-first ordering), /post/ separately-mounted app outside X-API-Secret (namespace closed at exactly 2 members: help 200/344 B json, create_user 405 POST-only); /v3/ returns v1 catch-all → version discovery terminates at v2.
+  - Normalization: percent-decode-before-match is host-wide (v1+v2), single decode level, case-sensitive, encoded separators decode (/delete%2f1 ≡ /delete/1), suffix absorption unbounded; 17-family matrix complete, 0 divergences; three pre-auth canonicalisation oracles (401 `instance`, 405 `instance`, v2 404 `detail`).
+  - REJECTED: encoded-separator access-control bypass (encoded == literal byte-identical, no differential); "unauthenticated user provisioning" (405 method-confounded, requires credentialed POST); HEAD for route-membership (catch-all returns CL:0, omits `instance`); auth via query/cookie (header strictly sole channel); SSRF, JWT alg confusion, CORS, CRED_REUSE (KKX3382745), Host-header vhost, wider-S3 anonymous exposure.
+  - kassenkompass.de/bonusrechner_fragen.php: ~2.16 MB unauthenticated tariff corpus (latest 2,159,143 B, prior 2,159,141 B @2026-10-15 17:14 UTC, sha256 fd925227…, normalized df5cd456…), no-store+CF-DYNAMIC, no validators, no rate limit, drift ±0.3% band; raw sha256 is per-request unstable due to server-epoch `/js/standard.js?v=` cache-buster — ALWAYS normalize before compare; severity gated solely on vendor data classification; credential vector excluded (0/13 patterns in corpus, 0 credential literals in 4 JS bundles).
+  - kassenkompass.de/php/mark_all_read.php: pre-auth action-router ordering (invalid action → 59 B "Ungültige Action"; siblings → 46 B "Nicht angemeldet"); action param is POST-only; "valid action → 46 B" is FALSE/unproven — no pre-auth mutation established; HUMAN_ONLY (POST requires approval).
+  - JS bundles: standard.js (67,969 B), live-calculation.js, param_passthrough.js (v=web1.0.1), whitelabel_live.js (11,359 B) — passive credential-discovery surface exhausted; no sourceMappingURL; only encoded blob is stape sGTM `b=` (container ahcfuvbcz) — not a secret.
+  - whitelabel_live.js: postMessage receiver lacks event.origin/event.source check; integrity-only (textContent/CSS-variable sink), NOT XSS; not loaded on bonusrechner.php.
+  - Scoring integrity rule: priority must always be recomputed from own emitted axes, never copied from peer [PRIO] lines; idempotent re-runs must emit NO_DELTA rather than re-deriving closed conclusions.
+  - Pipeline observability gap: 25+ consecutive triage cycles with header-only/stub peer leads; loop effectively single-writer.
+- Standing RISK: KassenKompass GmbH = 70.
+- Standing priorities (re-derived): fragen 8.50, mark_all_read 7.00, /post/create_user 6.60.
+
+## Work State
+### Completed
+- Full API surface mapped and closed: 15/15 v1 verb+auth matrix, v2 single-route, v3 absent, /post/ namespace closed at 2 members, normalization matrix complete (17 families).
+- All previously queued probes executed and closed: encoded-separator bypass rejected, HEAD-methodology rejected, /post/create_user provisioning parked pending AUTH_HELPED, source-map/credential RAG closed across all 4 JS bundles.
+- Fragile observations resolved: awv root = 400 (UA-independent, both default-curl and Chrome/131), no Set-Cookie — "root 404" claims falsified; not a cookie-delivery primitive.
+- Last live fragen smoke: 2026-10-15 17:14 UTC — 2,159,141 B (fd925227…); a later cycle measured 2,159,143 B (Δ+2 B, inside ±0.3% band); next rotation due ≥2026-10-17 17:14 UTC (window has now opened per current date 2026-10-17 01:15 — not yet due at the latest snapshot, but close).
+
+### Active
+- Cycle output from the most recent state (2026-10-17 01:15:35 UTC) was NO_DELTA/idempotent: no probe due, standing scores reproduce exactly (8.50/7.00/6.60), analysis held pending human input.
+
+### Blocked
+- All survivors are human-gated:
+  - fragen.php corpus classification (intended-public vs licensed partner data) needed to finalize severity.
+  - POST approval for mark_all_read.php action test (HUMAN_ONLY).
+  - Credentialed X-API-Secret POST + negative control for /post/create_user (AUTH_HELPED).
+- Peer pipeline produces zero usable signal (observability gap, 25+ cycles).
+
+## Next Move
+1. HOLD until ≥2026-10-17 17:14 UTC, then single GET of `https://kassenkompass.de/bonusrechner_fragen.php` (+ www mirror) at ≤1 rps; compare NORMALIZED content (not raw sha256 — cache-buster makes raw hash per-request unstable) against 2,159,143 B / df5cd456…; emit NO_DELTA if within ±0.3% band.
+2. If no human input arrives (classification, POST approval, credentials), continue emitting idempotent NO_DELTA cycles with RISK held at 70; do not re-probe api.kassenkompass.de — its surface is fully mapped and within drift window.
+
+## Relevant Files
+- (none — no local file operations; all state lives in the injected knowledge base, inventory/kassenkompass.md, and peer lead files: reports/hypotheses-nemotron3.txt, state_bigpickle.json, state_nemotron3.json)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mls -la state_bigpickle.json state_nemotron3.txt reports/hypotheses-nemotron3.txt 2>/dev/null; echo "---"; ls reports/ 2>/dev/null | head -30
+-rw-r--r-- 1 runner runner 17437 Oct 17 05:41 reports/hypotheses-nemotron3.txt
+-rw-r--r-- 1 runner runner    33 Oct 17 05:41 state_bigpickle.json
+---
+analyst-bigpickle.log
+analyst-laguna.log
+analyst-ling3.log
+analyst-longcat.log
+analyst-nemotron3.log
+hypotheses-bigpickle.txt
+hypotheses-laguna.txt
+hypotheses-ling3.txt
+hypotheses-longcat.txt
+hypotheses-nemotron3.txt
+hypotheses.md
+valid-bugs.md
+[0m
+[0m$ [0mtail -80 state_bigpickle.json 2>/dev/null || echo "no state file"
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mtail -120 reports/hypotheses-nemotron3.txt
+## 2026-10-17 01:15:25 UTC [target] (model nemotron3)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php,9.50,attack_surface=10,business_value=9,tech_exposure=8,gate_ease=10,cloud_surface=6,freshness=8
+[PRIO] kassenkompass.de/php/mark_all_read.php,7.80,attack_surface=8,business_value=7,tech_exposure=6,gate_ease=10,cloud_surface=5,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user,7.20,attack_surface=7,business_value=8,tech_exposure=7,gate_ease=5,cloud_surface=6,freshness=7
+[PRIO] api.kassenkompass.de/,6.90,attack_surface=7,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=5,freshness=6
+[PRIO] kassenkompass.de/bonusrechner.php,6.60,attack_surface=8,business_value=6,tech_exposure=5,gate_ease=10,cloud_surface=4,freshness=7
+[PRIO] api.kassenkompass.de/v2/insurance_info/{kk_id},6.55,attack_surface=6,business_value=7,tech_exposure=6,gate_ease=2,cloud_surface=5,freshness=6
+[PRIO] kk-s3-01.s3.eu-central-1.amazonaws.com,6.50,attack_surface=6,business_value=5,tech_exposure=5,gate_ease=10,cloud_surface=8,freshness=7
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 95
+reasoning: 2.15MB tariff corpus (ucatKkData 1.79MB, globalbudgetsData, kombiboniData, dataant 138 questions, pseudoKkIds) served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across 100 req at 1 rps; apex+www mirror identical modulo cache-buster; data freshness ≤2025-12-22; sessionData null under stuffed cookies proves server-side consumption only on POST/portal
+evidence_needed: Vendor classification of corpus as public vs licensed partner data
+verify_steps: GET https://kassenkompass.de/bonusrechner_fragen.php (PASSIVE) — confirm 200, 2.15MB, no-store, CF-DYNAMIC; GET https://www.kassenkompass.de/bonusrechner_fragen.php — confirm mirror
+impact: Full tariff logic, budgets, combination bonuses, question tree exposed to competitors; severity gated on data classification (HIGH if licensed, INFO if public)
+testability: PASSIVE
+[HYP] Pre-Auth Action Router State Mutation
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 75
+reasoning: Action parameter evaluated before session check — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated on apex+www+.net; valid actions (mark_read, mark_all_read, send_message, load_messages) return 200/46B `Nicht angemeldet`; action is POST-only (GET 0-differential); 4 handlers confirmed in /php/ namespace
+evidence_needed: Valid action vocabulary enumeration via POST to confirm mutation reachability
+verify_steps: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and mark_read, send_message, load_messages) at ≤1 rps — confirm 46B pre-auth differential reaches session check
+impact: Unauthenticated state mutation surface if valid action bypasses auth; currently only error differential proven (MEDIUM)
+testability: AUTH_HELPED (requires POST; read-only disallowed)
+[HYP] Unauthenticated Write Endpoint in Separately Mounted App
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 65
+reasoning: /post/ is separately mounted app outside X-API-Secret dependency — HEAD /delete/1→401, HEAD /state/→401 (gated v1), HEAD /post/→405, HEAD /post/create_user→405 (both /post app); GET /post/help→200/344B JSON advertising `POST /post/create_user` ("Erstellt einen neuen User. Erwartet JSON im Body."); namespace closed at exactly 2 members (help, create_user); 30 candidate sub-names return 200/0B text/html; X-HTTP-Method-Override ignored; CORS preflight returns allow-methods/headers but NO access-control-allow-origin
+evidence_needed: Credentialed POST to /post/create_user with negative control (valid secret) to prove write auth requirement; or proof unauthenticated POST succeeds
+verify_steps: GET https://api.kassenkompass.de/post/help (PASSIVE) — confirm 200/344B JSON advertising create_user; POST https://api.kassenkompass.de/post/create_user with minimal JSON body (AUTH_HELPED) — requires valid X-API-Secret for conclusive verification
+impact: If unauthenticated POST succeeds → user provisioning without auth (HIGH); if auth required → finding invalid; current evidence method-confounded (405 on POST-only route), write auth unproven
+testability: AUTH_HELPED
+[PARKED] api.kassenkompass.de/user/{ext_id}: IDOR Cross-User PII Access — middleware B distinct but tenant scoping unproven; AUTH_HELPED only
+[PARKED] api.kassenkompass.de/v2/insurance_info/{kk_id}: v2 Insurance Info BOLA Cross-Tenant Read — draft data value downgraded (publicly replicated by fragen.php ucatKkData); AUTH_HELPED only
+[PARKED] Encoded Separator + Suffix Absorption Access-Control Bypass — Fresh measurements show `/delete%2f1%2fextra` and `/delete/1/extra` byte-identical (401/189B, same sha256) under identical Cloudflare/origin edge conditions; bypass requires literal-blocked vs encoded-passed differential; none observed
+[PARKED] CORS-based postMessage Exploit via whitelabel_live.js — guard has no provenance check (no event.origin/event.source), but delivery requires window.open + postMessage context (private editor only); no attacker-controlled delivery vector identified
+[PARKED] S3 Bucket Anonymous Enumeration via qid Axis — qid 1..180 confirmed, all byte-identical duplicates (questionnaire PNGs); no confidentiality impact demonstrated; non-image keys 403; listing AccessDenied; LOW impact
+[PARKED] kassenkompass.de/bonusrechner.php: Cookie Stuffing → Account Creation Chain via 7 Funnel Entries — lead gate requires prior funnel completion (Account-ID from completed questionnaire); one-shot stuffing→register REFUTED; HUMAN_ONLY for lead generation
+[FINAL] 1. kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (confidence 95, PASSIVE)
+[FINAL] 2. kassenkompass.de/php/mark_all_read.php: Pre-Auth Action Router Unauthenticated State Mutation (confidence 75, PASSIVE)
+[FINAL] 3. api.kassenkompass.de/post/create_user: Unauthenticated Write Endpoint in Separately Mounted App (confidence 65, AUTH_HELPED)
+[NEXT] PROBE: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid actions at ≤1 rps to confirm pre-auth differential reaches session check
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 method-confounded by gated POST-only routes); credentialed POST + negative control required
+[LEARN] REJECTED MISCONFIG @ api.kassenkompass.de (encoded separators): encoded and literal composed forms byte-identical (401) under identical edge conditions — routing normalization quirk, not access-control bypass
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit observed across sustained 1 rps; drift ±0.3% confirms drift-on-refresh model; severity gated on vendor data classification
+[LEARN] REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59 B "Ungültige Action"; the recorded POST success response was never observed
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2 handlers" corrected
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167B catalog, /sync/ 67B, /health/ 22B, /v2/insurance_info/1 401/236B, fragen 2,158,671B)
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate limit across sustained 1 rps; payload drift within ±0.3% band (model fit), data freshness ≤2025-12-22; www mirror identical; sessionData null under stuffed jar
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolved; catalog substance unchanged (15 v1 + 1 v2, ver 1.0/2.0)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transported as 2xx on legacy path
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not validated at routing
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (afilcode non-HttpOnly, others HttpOnly)
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server validates Account-ID on form submission, not page render; lead gate confirmed
+[LEARN] REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edge conditions; percent-decode-before-match is routing normalization quirk, not access-control/WAF bypass
+[LEARN] REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounded; GET/HEAD/OPTIONS insufficient). Requires credentialed POST + negative control
+[LEARN] REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1, non-image keys 403). Existence oracle established but impact insufficient
+[LEARN] ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method-override ignored on /post app; GET/HEAD divergence on /cat_detail/ proves method-check order differs by route
+[LEARN] ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 detail); single-level decode only (double-encode fails); unauthenticated envelopes also normalize
+[LEARN] ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; suppresses 5 real statutory/trust elements via textContent (integrity-only, not XSS); wildcard targetOrigin '*'; not loaded on bonusrechner.php
+[LEARN] ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, re-injected into same-host funnel anchors and onclick CTAs for entire tab session; marketing-site/app split means propagation to downstream funnel pages
+[LEARN] REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-images, kk-docs) but all deny s3:ListBucket (403 on nonexistent-key probes, zero content returned) and none is referenced by any in-scope asset, DNS record or public source → no anonymous enumeration path exists; ownership attribution is a HUMAN gate, not a probe gate
+[LEARN] ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distinguishes from 404 NoSuchBucket); `s3:ListBucket` posture is readable without touching content via HEAD/GET of a nonexistent key (403 = private listing, 404 NoSuchKey = public listing)
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[LEARN] ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.30 and /post/create_user 6.75→6.55; all other stored scores reproduce exactly. Priority must always be re-derived from emitted axes
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on the legacy envelope or catalog since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second spread) — mirror is a live independent render, not a shared byte cache; prior "byte-identical" claim corrected to "identical modulo dynamic cache-buster"
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; no-store+CF-DYNAMIC, no ETag/Last-Modified, unauthenticated
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy auth-envelope byte-frozen since 2026-10-09 02:36 UTC
+[LEARN] ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+[LEARN] ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within ±0.3%; independent renders, identical length modulo cache-buster
+[LEARN] ACCEPTED OTHER @ api.kassenkompass.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+[LEARN] REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's POST variant is disallowed by read-only rules; router is HUMAN_ONLY
+[LEARN] ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen corpus; re-deriving with `gate_ease=2` for credentialed endpoints drops `/user/{ext_id}` 7.75→6.90 and `/v2/insurance_info` 7.15→6.55 below fragen (7.60)
+[LEARN] ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycles without exhausting the one passive route to their credential
+[LEARN] ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/enum/sanitized-font values into a <style> block (no HTML sink) — integrity-only, NOT XSS; consistent with prior whitelabel finding. Comment discloses server path htmlincludes/whitelabel/whitelabel_styles.php (descriptive-only, out-of-scope disclosure class).
+[LEARN] ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work human-gated, so analysis halts pending external input.
+[LEARN] ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+[LEARN] REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried as coverage-gap only, not re-emitted as a new finding.
+[LEARN] ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js) — no unswept passive JS remains; all remaining work is human-gated.
+[RISK] KassenKompass GmbH: 88 — API catalog disclosure + sensitive endpoints (user data, deletion, financial reports, insurance switch cancellation) behind single custom header auth; MAIN FINDING: unauthenticated 2.15MB tariff corpus (bonusrechner_fragen.php) sustained scrapable at 1 rps with full client-side rating engine exposed; /post/ write namespace auth status unproven (method-confounded by /cat_detail/ 405); main funnel handles PII/health data with unvalidated 1-year cookie injection across 7 entry points with divergent alias maps; three privileged login portals; AWS ALB + Cloudflare WAF but app-layer authz untested; two-tier auth middleware suggests scoping complexity with delegation to webapp; v2 router exposes unreleased draft data surface with greedy segment match; cross-domain cookie stuffing via canonical .net backend; new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface; S3 bucket with 180-question image corpus publicly readable; no public vuln disclosure program visibility beyond bugs.olivermaicher.eu
+[0m
+[0m$ [0mtail -60 reports/analyst-bigpickle.log 2>/dev/null; echo "==="; ls -la reports/hypotheses-bigpickle.txt 2>/dev/null && tail -80 reports/hypotheses-bigpickle.txt
+- Scope: only KassenKompass GmbH-owned infrastructure (scope.yml + inventory/kassenkompass.md); rejected classes list is long (DoS, descriptive-headers-only, robots.txt, OPTIONS/TRACE, cookie flags on non-sensitive data, username enumeration, rate-limit policy, clickjacking w/o exploit, mail config, etc.).
+- My state: `{"phase": "POC", "target": "api"}`.
+- Passive-first; no mutating probes; no credentialed tests without AUTH_HELPED/HUMAN approval; sha256 any secret; ≤1 rps (a 2026-09-11 burst triggered a transient WAF IP-block "Ihre IP wurde voruebergehend gesperrt").
+- Standing scores must always be re-derived from own emitted axes, never copied (peers' [PRIO] lines reproducibly don't reproduce: gate_ease=10 on AUTH_HELPED endpoints inflates them).
+- Idempotent re-runs must emit NO_DELTA; do not re-emit refuted peer finals.
+- Current standing priorities (formula-consistent): fragen 8.50 (attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10), mark_all_read 7.00, /post/create_user 6.60.
+- Standing risk: KassenKompass GmbH = 70 (held).
+
+## Work State
+
+### Completed
+- api.kassenkompass.de fully mapped: 15 v1 + 1 v2 (`/v2/insurance_info/{kk_id}`) catalog disclosed unauthenticated (root 1167 B, sha256 `644b1ec7…`, accurate content-length; CL:0→absent→accurate drift class resolved as cosmetic).
+- Auth map: middleware A (8 routes + v2), middleware B = kk_webapp-delegation `{user/{ext_id}, delete/{id}, cancel/{id}}`, `/sync/` legacy HTTP-200 envelope (67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, sha256 `b93be961…`), `/health/` (22 B `{"status":"ok"}`, sha256 `4af26797…`) unauthenticated; `/post/` separately mounted outside X-API-Secret, namespace closed at 2 members (`help`, `create_user`).
+- Normalization matrix COMPLETE: 17 route families, 0 divergences; percent-decode-before-match host-wide (v1+v2), single decode level, encoded separators decode, case-sensitive; three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`); HEAD structurally unable to close route-membership (catch-all returns CL:0, omits `instance`).
+- REJECTED classes firmly closed: encoded-separator access-control bypass (byte-identical encoded vs literal, no differential); "unauthenticated user provisioning" via /post/create_user (405 method-confounded by gated POST-only /cat_detail/); CORS on api/.net/funnel (no ACAO anywhere); Host-header vhost FP; CRLF injection on .net; wider S3 footprint (5 sibling buckets exist but all deny ListBucket); source-map/embedded-secret RAG over all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js) — 0 sourceMappingURL, 0 credential literals; fragen corpus credential grep 0/13 patterns.
+- kassenkompass.de: 7 funnel cookie-mirror entries confirmed; fragen.php unauthenticated ~2.16 MB tariff corpus (no-store+CF-DYNAMIC, no validators, no rate limit across 100 req @1 rps), drift-on-refresh ±0.3% model; abschluss.php GET-vs-POST lead gate ("Account-ID nicht gefunden"); whitelabel_live.js postMessage no origin/source check (integrity-only, NOT XSS); param_passthrough.js 16 params/sessionStorage propagation; debug API (7 window.* functions).
+- awv root 400-vs-404 parked observation RESOLVED (400 under both UAs, no Set-Cookie) — no security impact.
+- Last cycle (2026-10-16 22:54 UTC): fragen smoke executed — 2,159,143 B (Δ+2 B vs 2,159,141), normalized content sha256 `df5cd456…` stable across apex/www/repeat; discovered raw-page sha256 is per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; server-time disclosure noted as non-reportable.
+
+### Active
+- Survivors (all human-gated): (1) Tariff Leak 70/MISCONFIG/HUMAN; (2) mark_all_read asymmetry 50/AUTH/HUMAN_ONLY; (3) /post/create_user 45/AUTH/AUTH_HELPED. No autonomous verification remains.
+
+### Blocked
+- fragen severity gated on vendor data classification — needs HUMAN question: intended-public calculator data vs licensed partner tariff data.
+- mark_all_read decisive test needs HUMAN approval for POST with action vocabulary {mark_all_read, mark_read, send_message, load_messages} (GET is inert — action is POST-only; every unauth action returns 59 B "Ungültige Action", no value yields 46 B "Nicht angemeldet").
+- /post/create_user needs AUTH_HELPED: credentialed POST + negative control.
+- Peer pipeline observability gap: 25+ consecutive triage cycles with header-only/stub leads; reposcan "TARGET_ORG not configured".
+
+## Next Move
+1. HOLD until ≥2026-10-17 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ www mirror) at ≤1 rps; compare normalized content sha256 vs `df5cd456…` (raw size baseline 2,159,143 B at 2026-10-16 19:43 UTC); otherwise emit NO_DELTA.
+2. HUMAN asks program owner the corpus-classification question; HUMAN approval for mark_all_read POST test; AUTH_HELPED for /post/create_user.
+
+## Relevant Files
+- (none — conversation context is a knowledge-base/state dump; no local files referenced)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[DELTA] NO_DELTA — no new probe due (next fragen smoke window ≥2026-10-17 17:14 UTC; now 01:13 UTC), no new peer/program input, state unchanged (`{"phase": "POC", "target": "api"}`).
+
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+
+[HYP] Standing survivors only (all human-gated):
+1. Tariff Leak — fragen corpus 2.16 MB unauthenticated — 70/MISCONFIG/HUMAN — intact, hash baseline `df5cd456…` (normalized), size 2,159,143 B.
+2. mark_all_read asymmetry — 50/AUTH/HUMAN_ONLY — GET inert, POST-only action untested.
+3. /post/create_user provisioning — 45/AUTH/AUTH_HELPED — method-confounding unresolved without credentialed control.
+
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+
+[NEXT]
+1. HOLD — single GET `https://kassenkompass.de/bonusrechner_fragen.php` + www mirror at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs `df5cd456…`, raw size vs 2,159,143 B; Δ>~0.3% beyond epoch-buster noise ⇒ escalate drift note, else NO_DELTA.
+2. HUMAN decision needed to unblock (3 items):
+   - Is the fragen tariff corpus intended-public calculator data or licensed partner data? (determines whether #1 is reportable at all)
+   - Approve POST to `/` with action vocabulary {mark_all_read, mark_read, send_message, load_messages}? (unauth GET shows no value leak; POST is the only decisive test)
+   - AUTH_HELPED: credentialed POST to `/post/create_user` + negative control?
+
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+
+---
+
+Blocked on you — three decisions from [NEXT]#2 are the only thing that moves this engagement off HOLD. Which do you want to answer first (or decline all → I stay parked until the 17:14 UTC smoke window)?
+===
+-rw-r--r-- 1 runner runner 844 Oct 17 05:41 reports/hypotheses-bigpickle.txt
+## 2026-10-17 01:14:38 UTC [target] (model bigpickle)
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+[HYP] Standing survivors only (all human-gated):
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+[NEXT]
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+[0m
+[0m$ [0mfind . -newermt '2026-10-17 01:15' -type f -not -path './.git/*' 2>/dev/null | head -40; echo "--- git log ---"; git log --oneline -5 2>/dev/null
+./leads/lead-mimo.md
+./leads/lead-laguna.md
+./leads/lead-ling3.md
+./leads/lead-longcat.md
+./leads/reposcan-kassenkompass.md
+./leads/lead-bigpickle.md
+./leads/lead-nemotron3.md
+./scope.yml
+./state_ling3.json
+./state_laguna.json
+./analyst-out.txt
+./state_bigpickle.json
+./probe-results.md
+./reports/hypotheses.md
+./reports/analyst-longcat.log
+./reports/hypotheses-ling3.txt
+./reports/hypotheses-laguna.txt
+./reports/analyst-nemotron3.log
+./reports/valid-bugs.md
+./reports/hypotheses-bigpickle.txt
+./reports/hypotheses-nemotron3.txt
+./reports/analyst-ling3.log
+./reports/analyst-laguna.log
+./reports/hypotheses-longcat.txt
+./reports/analyst-bigpickle.log
+./.github/workflows/sync-issues.yml
+./.github/workflows/triage.yml
+./.github/workflows/reposcan.yml
+./.github/workflows/hunt.yml
+./recon-notes/DEDICATED-DEEP.md
+./state_mimo.json
+./scripts/sync-issues.py
+./ctx.txt
+./state_longcat.json
+./knowledge/index.md
+./README.md
+./reposcan-raw/summary.txt
+./inventory/kassenkompass.md
+./triage/run-2026-09-30-01-51.md
+./triage/run-2026-10-04-09-24.md
+--- git log ---
+9a0180a triage 2026-10-17-04-57
+[0m
+Let me assess the current state. It's 2026-10-17 05:42 UTC. Next fragen smoke window is ≥2026-10-17 17:14 UTC — not yet due. All survivors are human-gated. The last cycle emitted NO_DELTA.
+
+The user asks: "Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed."
+
+I already ran `date -u` and confirmed 2026-10-17 05:42 UTC. The next probe window is ≥17:14 UTC — about 11.5 hours away. So no probe is due. All work is human-gated.
+
+The state is fully idempotent. The right move is to emit an idempotent NO_DELTA cycle and stop, asking human for clarification. There's genuinely nothing new to do.
+
+But wait — let me check whether there's anything passive I've not done. The KE says passive surface exhausted. But as a senior analyst, maybe I should consider one thing: the mark_all_read.php sits on kassenkompass.de under /php/ — this is the main domain. Have I fully checked the /php/ namespace? The KB says 4 handlers confirmed. Hmm.
+
+Also, I should double check: is there any new KB entry since last cycle? The tail of hypotheses-nemotron3.txt (timestamp 2026-10-17 01:15:25) is the nemotron3 peer's output, which has stale/imprecise data — worth noting the peer scores differ (9.50, 7.80, 7.20) using gate_ease=10 on AUTH_HELPED. My scoring rule says don't copy.
+
+Given the environment (a repo, possibly this is a CI job that appends to hypotheses files), the expected output might be to append a new cycle block to reports/hypotheses-bigpickle.txt. Let me check the file structure — hypotheses-bigpickle.txt with my timestamped block. The pattern suggests each cycle writes a block. Let me look at the full file to understand the format.
+
+Actually the bigpickle file is only 844 bytes and contains just the last block. Interesting — maybe it's overwritten each cycle, or maybe it's truncated. Let me read it fully.
+
+Let me also check the analyst log.
+
+Actually, the task seems to be an autonomous bug bounty loop. Given current time 05:42, no probe due until 17:14. The correct action: emit NO_DELTA and hold.
+
+But the instruction says "Continue if you have next steps, or stop and ask for clarification." Since all is blocked on human, I should stop and ask. But maybe I should also consider doing something productive that isn't human-gated — e.g., re-verify a passive assertion, or look for anything missed.
+
+Let me think about whether there is a genuinely useful passive next step. The engagement has been idling for many cycles. The "NEXT" says HOLD. A good analyst might question whether the HOLD is right, or whether there's an unexhausted passive avenue.
+
+One thing: the AWV subdomain (load.awv.kassenkompass.de, awv.kassenkompass.de) — "new SGTM proxy subdomain". Has its surface been mapped? The KB mentions awv root 400 resolved. Server-side GTM (sGTM) proxying. Possibly worth passive mapping? But awv is in scope. The KB says "new SGTM proxy subdomain (awv.kassenkompass.de) expands attack surface". Hmm, but not much detail.
+
+However, I shouldn't go rogue and start probing. Rules: passive-first, ≤1 rps. A single passive GET to awv would be within rules. But my standing state says all work human-gated and "do not re-probe".
+
+Let me be disciplined. The cycle rules require one [NEXT]. Given nothing is due, emit [NEXT] HUMAN with the three decisions. And I should present the block to the user and ask.
+
+Actually — I'm an interactive CLI agent. The user gave me the standing prompt and asked me to continue. The realistic deliverable is to produce this cycle's analysis output and then stop to ask. Let me write the cycle block to the reports file (following the established pattern) — that's the "action."
+
+But wait, should I write to files? The standing instructions say these are reports/*.txt files. The last bigpickle block is in reports/hypotheses-bigpickle.txt. It seems the harness expects output written there, or maybe it just captures stdout. Hmm. The file currently contains exactly my last cycle block. It's plausible the agent overwrites it each cycle, OR the harness appends stdout into it.
+
+Given ambiguity, I think the safest is to output the cycle in my response (as the last cycle did — the response text ends with the cycle block). The previous turn's assistant output IS the cycle content. So I should produce the cycle block as my response, then ask the human.
+
+Let me verify there's no new KB/program input since 01:14. Let me check for any new files or messages. Let me look at the repo for anything updated recently.</think>
+[0m$ [0mcat reports/hypotheses-bigpickle.txt; echo "=== other state files ==="; for f in state_*.json; do echo "-- $f"; cat "$f" 2>/dev/null; echo; done; echo "=== valid-bugs ==="; tail -20 reports/valid-bugs.md 2>/dev/null
+## 2026-10-17 01:14:38 UTC [target] (model bigpickle)
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+[HYP] Standing survivors only (all human-gated):
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+[NEXT]
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+=== other state files ===
+-- state_bigpickle.json
+{"phase": "POC", "target": "api"}
+-- state_laguna.json
+{"phase": "POC", "target": "api"}
+-- state_ling3.json
+{"phase": "POC", "target": "api"}
+-- state_longcat.json
+{"phase": "POC", "target": "api"}
+-- state_mimo.json
+{"phase": "POC", "target": "api"}
+-- state_nemotron3.json
+{"phase": "POC", "target": "api"}
+=== valid-bugs ===
+  - **Verdict: HOLD** — Park until valid API key obtained. Insufficient evidence for submission.
+  - | Q4 Provable? | **NO** — requires valid scoped X-API-Secret |
+  - | Q4 Provable? | **NO** — requires valid X-API-Secret |
+  - | 1 | API Catalog Disclosure | **VALID** |
+
+- 14 lead(s) marked VALID at 2026-09-20 18:57:41 UTC
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret to test. All passive probes returned 401. Cannot verify without auth |
+  - **Verdict: HOLD** — Blocked on Q4. Requires valid X-API-Secret to prove cross-user access. Confidence 62 is insufficient without PoC.
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret. Cannot verify cross-tenant access passively |
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Same blocker as Lead 2. Cannot prove cross-tenant access without valid key |
+  - **Verdict: HOLD** — Blocked on Q4. Needs valid X-API-Secret + cross-tenant test.
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret to confirm v2 returns draft fields vs v1 |
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Cannot confirm data differential (draft vs v1) without valid key |
+  - **Verdict: HOLD** — Blocked on Q4. Needs valid X-API-Secret for v2 vs v1 body comparison.
+  - | Q4 | Provable non-invasively? | Partially — error message mapping confirmed (message A on 8 endpoints, message B on /user/{ext_id}). But exploitability requires valid key to test cross-middleware se
+  - | Q7 | Would reasonable triager accept? | **HOLD** — Architectural signal only. Not a standalone vulnerability. Would need a valid key proving cross-middleware authorization bypass to become reportabl
+  - | Q7 | Would reasonable triager accept? | **VALID** — but with caveat: downstream impact (commission hijack) requires partner-portal access to confirm. The injection itself is proven. Report as "Unval
+  - **Verdict: VALID** (with caveat on downstream impact)
+  - | Q4 | Provable non-invasively? | **NO** — requires valid X-API-Secret. Also, DELETE method is destructive — violates passive-first principle |
+  - | 9 | **Funnel Cookie Injection** | **VALID** | **Reportable** — injection proven, downstream impact caveat |
+[0m
+[0m$ [0mecho "===== probe-results.md ====="; cat probe-results.md 2>/dev/null | tail -100; echo; echo "===== reports/hypotheses.md ====="; cat reports/hypotheses.md 2>/dev/null | tail -100
+===== probe-results.md =====
+https://api.kassenkompass.de/sync/ -> 200 len=0
+https://api.kassenkompass.de/ -> 200 len=0
+
+## 2026-10-14 15:49:58 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/js/standard.js -> 200 len=?
+https://kassenkompass.de/js/live-calculation.js -> 200 len=37225
+https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1 -> 200 len=5449
+
+## 2026-10-14 19:46:35 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://kassenkompass.de/js/standard.js -> 200 len=?
+https://kassenkompass.de/js/live-calculation.js -> 200 len=37225
+https://kassenkompass.de/js/param_passthrough.js?v=web1.0.1 -> 200 len=5449
+https://awv.kassenkompass.de/{container -> HTTP 404
+
+## 2026-10-14 23:15:47 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 01:36:51 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 06:31:39 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 12:15:32 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 17:17:28 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-15 20:28:29 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/js/whitelabel_live.js -> 200 len=11359
+
+## 2026-10-15 23:20:03 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-16 01:35:31 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-16 06:42:04 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-10-16 12:14:09 UTC
+
+
+## 2026-10-16 16:47:28 UTC
+
+
+## 2026-10-16 19:53:47 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-10-16 23:03:19 UTC
+
+
+## 2026-10-17 01:15:43 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+===== reports/hypotheses.md =====
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-imag
+- LEARN: ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distin
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on th
+- LEARN: ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second sp
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+- LEARN: REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's 
+- LEARN: ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen co
+- LEARN: ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycle
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work hum
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived f
+- LEARN: REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, 
+
+## RANKED HYPOTHESES 2026-10-16 06:41:59 UTC
+- [70] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: Ask program owner/vendor whether the 2,159,141 B bonusrechner_fragen.php corpus (ucatKkData/globalbudgetsData/dataant/kombiboniData/pseudoKkIds) is inten
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store headers and no rate limiting; leakage severit
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth router ordering observed (action evaluated before session) but unauthenticated mutation unprove
+- LEARN: PARKED AUTH @ api.kassenkompass.de/post/create_user: write namespace outside X-API-Secret proven via HEAD differential, but 405 method-confound prevents conclus
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401/189 B, same sha256) 
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store headers and no rate limiting; leakage severit
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: pre-auth router ordering observed (action evaluated before session) but unauthenticated mutation unprove
+- LEARN: PARKED AUTH @ api.kassenkompass.de/post/create_user: write namespace outside X-API-Secret proven via HEAD differential, but 405 method-confound prevents conclus
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 obs
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
+
+## RANKED HYPOTHESES 2026-10-16 12:14:09 UTC
+- NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+
+## RANKED HYPOTHESES 2026-10-16 16:47:28 UTC
+- NEXT(hypotheses-bigpickle.txt): HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+
+## RANKED HYPOTHESES 2026-10-16 19:53:41 UTC
+- [70] api.kassenkompass.de: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): (a) HOLD until >=2026-10-16 17:14 UTC, then single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at <=1 rps; compare size/hash to 2,159,14
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 obs
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
+- LEARN: ...
+
+## RANKED HYPOTHESES 2026-10-16 23:03:19 UTC
+
+## RANKED HYPOTHESES 2026-10-17 01:15:35 UTC
+- [95] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_nemotron3.txt)
+- [0] ?: Standing survivors only (all human-gated): (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid actio
+- LEARN: Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift sign
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 method-confounded by gated POST-only
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (encoded separators): encoded and literal composed forms byte-identical (401) under identical edge conditions — routin
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate li
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167B catalog, /sync/ 67B, /health/ 22B, /v2/
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transp
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; supp
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-imag
+- LEARN: ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distin
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on th
+- LEARN: ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second sp
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+- LEARN: REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's 
+- LEARN: ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen co
+- LEARN: ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycle
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work hum
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived f
+- LEARN: REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js,
+[0m
+There's a fresh `reports/hypotheses.md` and `probe-results.md`, `analyst-out.txt`, `ctx.txt` and leads. The git log shows a triage commit at 2026-10-17-04-57 — so there may be NEW input. Let me look at the most recent triage files and probe-results, since those are newer than my last cycle (01:14). The find showed many files newer than 01:15, including probe-results.md, reports/hypotheses.md, analyst-out.txt, ctx.txt, and repo-scan files.
+
+Let me read the fresh content: probe-results.md, reports/hypotheses.md, analyst-out.txt, ctx.txt, reposcan-raw/summary.txt, leads/lead-bigpickle.md, knowledge/index.md. These could contain new KB entries / delta.
+
+This is important — the DELTA step requires checking for new input. Let me read them.</think>New triage commit at 04:57 and fresh files. Let me check for new input since my last cycle.
+[0m$ [0mecho "===== analyst-out.txt ====="; cat analyst-out.txt 2>/dev/null | tail -60; echo; echo "===== ctx.txt ====="; cat ctx.txt 2>/dev/null | tail -60
+===== analyst-out.txt =====
+- [70] api.kassenkompass.de: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): (a) HOLD until >=2026-10-16 17:14 UTC, then single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at <=1 rps; compare size/hash to 2,159,14
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root returns HTTP/2 400 with 0-byte body under BOTH default-curl and Chrome/131 UA — the parked two-valued 400-vs-404 obs
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims (2026-09 entries) falsified by controlled paired measurement; trace-id / x-robots-tag are hea
+- LEARN: ACCEPTED OTHER @ awv.kassenkompass.de: root = HTTP/2 400, 0 B, under both default-curl and Chrome/131 UA — parked two-valued observation closed single-valued; n
+- LEARN: REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infr
+- LEARN: ...
+
+## RANKED HYPOTHESES 2026-10-16 23:03:19 UTC
+
+## RANKED HYPOTHESES 2026-10-17 01:15:35 UTC
+- [95] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_nemotron3.txt)
+- [0] ?: Standing survivors only (all human-gated): (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-nemotron3.txt): PROBE: POST https://kassenkompass.de/php/mark_all_read.php with action=mark_all_read (and action=mark_read, send_message, load_messages) — enumerate valid actio
+- LEARN: Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift sign
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 method-confounded by gated POST-only
+- LEARN: REJECTED MISCONFIG @ api.kassenkompass.de (encoded separators): encoded and literal composed forms byte-identical (401) under identical edge conditions — routin
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: unauthenticated 2.16 MB tariff corpus with no-store+CF-DYNAMIC, no ETag/Last-Modified, no rate li
+- LEARN: REJECTED AUTH @ kassenkompass.de/php/mark_all_read.php: "valid action → 46 B Nicht angemeldet" is FALSE — every action value and alternate param name returns 59
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/php/: namespace not saturated — 4 handlers confirmed (mark_read, mark_all_read, send_message, load_messages); prior "exactly 2
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/js/param_passthrough.js: served version bumped v=web1.0.0 → v=web1.0.1 (home + login pages)
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de + kassenkompass.de/bonusrechner_fragen.php: zero drift vs prior KB (root 1167B catalog, /sync/ 67B, /health/ 22B, /v2/
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: 2,158,671B tariff corpus served unauthenticated with no-store+CF-DYNAMIC, no ETag/Last-Modified, 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de: root content-length consistently accurate 1167 matching body — cosmetic CL drift class (CL:0→absent→accurate) resolve
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/sync/: HTTP/2 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B) — auth verdict transp
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v2/insurance_info/: greedy segment match confirmed — /v2/insurance_info/1/extra reaches auth handler (401); kk_id not 
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner.php: stuffing mirror re-confirmed live — lizenz/jid/agn/ppn→4 1yr cookies exact, attribute asymmetry intact (
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/bonusrechner_abschluss.php: GET vs POST differential — "Account-ID nicht gefunden" present ONLY on valid form POST; server 
+- LEARN: REJECTED MISCONFIG (encoded-separator access-control bypass) @ api.kassenkompass.de: encoded and literal composed forms byte-identical (401) under identical edg
+- LEARN: REJECTED OTHER @ api.kassenkompass.de/post/: unauthenticated user provisioning cannot be proven with read-only methods (405 on POST-only routes method-confounde
+- LEARN: REJECTED MISCONFIG @ kk-s3-01.s3.eu-central-1.amazonaws.com: anonymous questionnaire PNG corpus has no confidentiality impact (byte-identical duplicates at n=1,
+- LEARN: ACCEPTED OTHER @ method: HEAD structurally cannot close route-membership on this host (catch-all returns CL:0 on HEAD); body comparison via GET required. method
+- LEARN: ACCEPTED OTHER @ method (normalization): 17-family matrix complete (0 divergences); three pre-auth canonicalization oracles (401 instance, 405 instance, v2 404 
+- LEARN: ACCEPTED XSS @ kassenkompass.de/js/whitelabel_live.js: postMessage receiver has no event.origin/event.source check (type-and-shape only); forces wl-active; supp
+- LEARN: ACCEPTED BUSLOGIC @ kassenkompass.de/js/param_passthrough.js: 16 URL params harvested with length cap 128 only, persisted to sessionStorage kkweb_pass_params, r
+- LEARN: REJECTED MISCONFIG (wider S3 footprint with anonymous exposure) @ aws: 19-name sweep found 5 existing sibling buckets (kk-assets, kk-uploads, kk-backup, kk-imag
+- LEARN: ACCEPTED OTHER @ method: `301 PermanentRedirect` + `x-amz-bucket-region` on a regional S3 endpoint is a valid existence oracle for out-of-region buckets (distin
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED OTHER @ method (scoring integrity): recomputing stored priorities from their own emitted axes corrects two stale values — api.kassenkompass.de/ 6.35→7.
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/ + /sync/: both byte-stable across the ~14h probe gap (root 644b1ec7…; /sync/ 67B b93be961…) — confirms no drift on th
+- LEARN: ACCEPTED OTHER @ kassenkompass.de mirror: apex vs www bonusrechner_fragen.php differ by exactly one byte (cache-buster `/js/standard.js?v=<unix>`; two-second sp
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,158,671B measurement (−48B vs 10-07, inside ±0.3% band) confirms drift-on-refresh model; 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root (1167B / 644b1ec7…) and /sync/ (67B / b93be961…) reproduce prior hashes exactly across the gap — catalog and legacy 
+- LEARN: ACCEPTED MISCONFIG @ api.kassenkompass.de/v3/: `GET /v3/` returns the byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 ro
+- LEARN: ACCEPTED MISCONFIG @ kassenkompass.de/bonusrechner_fragen.php: fresh 2,159,139 B apex+www measurement (+0.022% vs 10-13 KB) re-confirms drift-on-refresh within 
+- LEARN: ACCEPTED OTHER @ api.kassenkompass.de: root `/sync/` `/health/` byte-stable this cycle — catalog + legacy auth-envelope frozen since 2026-10-09
+- LEARN: REJECTED OTHER @ kassenkompass.de/php/mark_all_read.php: queued NEXT is non-actionable — bigpickle's GET variant is inert (action is POST-only) and nemotron3's 
+- LEARN: ACCEPTED OTHER @ priority scoring: peer `[PRIO]` lines set `gate_ease=10` on AUTH_HELPED API endpoints, inflating them above the truly unauthenticated fragen co
+- LEARN: ACCEPTED OTHER @ method: no source-map/embedded-secret search has ever been run on the 3 public bundles — the AUTH_HELPED finals have been carried for 30+ cycle
+- LEARN: ACCEPTED OTHER @ kassenkompass.de/js/whitelabel_live.js: pure CSS-variable mirror; postMessage handler (line 226) lacks origin/source check but writes only hex/
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface now exhausted across all 4 public JS bundles — no unswept passive JS remains; all further work hum
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due (fragen window ≥2026-10-16 17:14 UTC; API within drift window); priorities re-derived f
+- LEARN: REJECTED OTHER @ kassenkompass.de/bonusrechner_fragen.php: embedded-credential sub-hypothesis already closed 10-15 (0/13 patterns, 0 sourceMappingURL) — carried
+- LEARN: ACCEPTED OTHER @ method: passive credential-discovery surface exhausted across all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js,
+[0m
+There's a fresh `reports/hypotheses.md` and `probe-results.md`, `analyst-out.txt`, `ctx.txt` and leads. The git log shows a triage commit at 2026-10-17-04-57 — so there may be NEW input. Let me look at the most recent triage files and probe-results, since those are newer than my last cycle (01:14). The find showed many files newer than 01:15, including probe-results.md, reports/hypotheses.md, analyst-out.txt, ctx.txt, and repo-scan files.
+
+Let me read the fresh content: probe-results.md, reports/hypotheses.md, analyst-out.txt, ctx.txt, reposcan-raw/summary.txt, leads/lead-bigpickle.md, knowledge/index.md. These could contain new KB entries / delta.
+
+This is important — the DELTA step requires checking for new input. Let me read them.</think>New triage commit at 04:57 and fresh files. Let me check for new input since my last cycle.
+
+===== ctx.txt =====
+- NEW kassenkompass.de/php/mark_all_read.php: Pre-auth action router confirmed LIVE on apex+www+.net — invalid action returns 200/59B `{"success":false,"message":"Fehler: Ungültige Action"}` unauthenticated
+- NEW kassenkompass.de/bonusrechner_fragen.php: apex+www both 2,159,139 B this cycle (+0.022% vs prior, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length modulo cache-buster
+- NEW api.kassenkompass.de/v3/: `GET /v3/` returns byte-identical 1167B v1 catch-all catalog (sha256 644b1ec7…) — no separately-mounted v3 router; version-prefix discovery terminates at v2
+- CHANGED api.kassenkompass.de root catalog stable — 200/1167B accurate content-length, 15 v1 + 1 v2 endpoints, ver 1.0/2.0; zero drift since 2026-10-09
+- CHANGED /sync/ legacy envelope stable — HTTP 200 with {"table":401,"success":false,"message":"X-API-Secret Header fehlt"} (67B, sha256 b93be961…)
+- CHANGED v2/insurance_info/{kk_id} greedy segment match confirmed — /1/extra reaches auth handler (401 middleware A); enumeration saturated at 42 names
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog, v2, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 01:36:44 UTC
+
+## 2026-10-15 06:31:32 UTC
+
+## 2026-10-15 12:15:24 UTC
+
+## 2026-10-15 17:17:19 UTC
+- NEW kassenkompass.de/bonusrechner_fragen.php: 24h smoke executed 2026-10-15 17:14 UTC — HTTP 200, decompressed 2,159,141 B (baseline 2,159,139 B, Δ+2 B = 0.00009%, well within ±0.3% band), sha256 `fd92522
+- NEW kassenkompass.de/bonusrechner_fragen.php: full 2.16MB corpus credential grep — **0 hits** across 13 patterns (X-API-Secret, api_secret, PEM BEGIN variants, Bearer ≥10, password/token assignment, AWS4-
+- NEW infra note: AWSALB+AWSALBCORS stickiness cookies present — origin behind AWS ALB under Cloudflare; observation only (header-derived infra disclosure is not a reportable class).
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 20:28:19 UTC
+- NEW kassenkompass.de/js/whitelabel_live.js: source-map/embedded-secret RAG (closed 2026-10-15) covered only 3 bundles (standard.js, live-calculation.js, param_passthrough.js) — this 4th public bundle (11,
+- NEW kassenkompass.de/bonusrechner_fragen.php: 24h smoke 2026-10-15 17:14 UTC — HTTP 200, 2,159,141 B (Δ+2 B vs baseline 2,159,139 B, 0.00009%), sha256 fd925227…, no-store+CF-DYNAMIC, no ETag/Last-Modified
+- NEW kassenkompass.de/bonusrechner_fragen.php: full 2.16MB corpus credential grep — 0 hits across 13 secret-shaped patterns (X-API-Secret, api_secret, PEM BEGIN, Bearer≥10, password/token assignment, AWS4-
+- NEW infra: AWSALB/AWSALBCORS stickiness cookies present on responses — confirms AWS ALB origin behind Cloudflare; header-derived infra disclosure, not a reportable class
+- CHANGED Peer pipeline: 25+ consecutive triage cycles consumed header-only/stub leads — observability gap persists, zero new signal
+- CHANGED No new attack surface introduced since 2026-09-07 — all major surfaces stable (API catalog 15+1, v2 insurance_info sole route, 7 funnel mirrors, auth map 15/15, S3, whitelabel, param_passthrough)
+
+## 2026-10-15 23:19:54 UTC
+
+## 2026-10-16 01:35:22 UTC
+
+## 2026-10-16 06:41:59 UTC
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+- NEW `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, 
+- CHANGED `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+- CHANGED Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-o
+- CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
+
+## 2026-10-16 12:14:09 UTC
+
+## 2026-10-16 16:47:28 UTC
+
+## 2026-10-16 19:53:41 UTC
+- CHANGED none
+- NEW /post-app auth-ordering differential (HEAD, controlled set):
+- NEW `kassenkompass.de/bonusrechner_fragen.php` apex+www both **2,159,139 B** this cycle (prior latest 2,158,667 B; +472 B = +0.022%, inside ±0.3% band) — drift-on-refresh model re-confirmed; same length, 
+- CHANGED `api.kassenkompass.de/` root 1167 B / `644b1ec7…`, `/sync/` 67 B / `b93be961…`, `/health/` 22 B / `4af26797…` — all byte-stable vs KB (no drift); `x-powered-by: PHP/8.4.3`, CF DYNAMIC
+- CHANGED Contradiction in peer NEXT queue: bigpickle queues `GET …/mark_all_read.php?action=…` while nemotron3 queues `POST …/mark_all_read.php?action=…`. KB measured the action router as **action-param POST-o
+- CHANGED No source-map / embedded-secret audit exists anywhere in KB despite 3 public JS bundles (`standard.js` 67,969 B, `live-calculation.js` 36,499 B, `param_passthrough.js` web1.0.1) — a methodological bli
+- NEW per-request cache-buster finding
+- CHANGED size 2,159,141→2,159,143
+- NEW server-time disclosure (non-reportable)
+
+## 2026-10-16 23:03:19 UTC
+
+## 2026-10-17 01:15:35 UTC
+[0m
+[0m$ [0mgit show --stat HEAD; echo "=== DIFF ==="; git show HEAD -- reports/hypotheses.md ctx.txt probe-results.md 2>/dev/null | head -120
+commit 9a0180aca22b1c9801292f718a803479825b4fdc
+Author: github-actions <actions@github.com>
+Date:   Sat Oct 17 04:57:39 2026 +0000
+
+    triage 2026-10-17-04-57
+
+ .github/workflows/hunt.yml        |   250 +
+ .github/workflows/reposcan.yml    |   109 +
+ .github/workflows/sync-issues.yml |    44 +
+ .github/workflows/triage.yml      |   138 +
+ README.md                         |    34 +
+ inventory/kassenkompass.md        |  1937 +
+ knowledge/index.md                |  1611 +
+ leads/lead-bigpickle.md           | 11783 +++++
+ leads/lead-laguna.md              |   248 +
+ leads/lead-ling3.md               |   248 +
+ leads/lead-longcat.md             |   248 +
+ leads/lead-mimo.md                |     1 +
+ leads/lead-nemotron3.md           | 14119 ++++++
+ leads/reposcan-kassenkompass.md   |   638 +
+ probe-results.md                  |  2057 +
+ recon-notes/DEDICATED-DEEP.md     |    21 +
+ reports/analyst-bigpickle.log     | 83106 ++++++++++++++++++++++++++++++++++++
+ reports/analyst-laguna.log        |  1984 +
+ reports/analyst-ling3.log         |  1984 +
+ reports/analyst-longcat.log       |  1984 +
+ reports/analyst-nemotron3.log     | 31157 ++++++++++++++
+ reports/hypotheses-bigpickle.txt  |     7 +
+ reports/hypotheses-laguna.txt     |     1 +
+ reports/hypotheses-ling3.txt      |     1 +
+ reports/hypotheses-longcat.txt    |     1 +
+ reports/hypotheses-nemotron3.txt  |    85 +
+ reports/hypotheses.md             |  6194 +++
+ reports/valid-bugs.md             |   135 +
+ reposcan-raw/summary.txt          |     1 +
+ scope.yml                         |    55 +
+ scripts/sync-issues.py            |   429 +
+ state_bigpickle.json              |     1 +
+ state_laguna.json                 |     1 +
+ state_ling3.json                  |     1 +
+ state_longcat.json                |     1 +
+ state_mimo.json                   |     1 +
+ state_nemotron3.json              |     1 +
+ triage/.gitkeep                   |     0
+ triage/run-2026-09-02-21-39.md    |     6 +
+ triage/run-2026-09-02-23-33.md    |     6 +
+ triage/run-2026-09-03-01-26.md    |    15 +
+ triage/run-2026-09-03-06-29.md    |     6 +
+ triage/run-2026-09-03-11-42.md    |     6 +
+ triage/run-2026-09-03-15-55.md    |     6 +
+ triage/run-2026-09-03-19-08.md    |     6 +
+ triage/run-2026-09-03-21-45.md    |     6 +
+ triage/run-2026-09-03-23-49.md    |     6 +
+ triage/run-2026-09-04-03-15.md    |     8 +
+ triage/run-2026-09-04-08-04.md    |     6 +
+ triage/run-2026-09-04-12-46.md    |     6 +
+ triage/run-2026-09-04-16-46.md    |     8 +
+ triage/run-2026-09-04-18-00.md    |   198 +
+ triage/run-2026-09-04-19-20.md    |    44 +
+ triage/run-2026-09-04-21-35.md    |     6 +
+ triage/run-2026-09-04-23-18.md    |     8 +
+ triage/run-2026-09-05-01-06.md    |     6 +
+ triage/run-2026-09-05-05-51.md    |     6 +
+ triage/run-2026-09-05-10-04.md    |     6 +
+ triage/run-2026-09-05-13-28.md    |     6 +
+ triage/run-2026-09-05-16-14.md    |     8 +
+ triage/run-2026-09-05-18-24.md    |     8 +
+ triage/run-2026-09-05-20-44.md    |     6 +
+ triage/run-2026-09-05-22-41.md    |     6 +
+ triage/run-2026-09-06-00-38.md    |    17 +
+ triage/run-2026-09-06-05-06.md    |   321 +
+ triage/run-2026-09-06-09-30.md    |     6 +
+ triage/run-2026-09-06-13-06.md    |     6 +
+ triage/run-2026-09-06-16-20.md    |     6 +
+ triage/run-2026-09-06-18-25.md    |     6 +
+ triage/run-2026-09-06-20-48.md    |     6 +
+ triage/run-2026-09-06-22-44.md    |     8 +
+ triage/run-2026-09-07-00-43.md    |    22 +
+ triage/run-2026-09-07-05-44.md    |     6 +
+ triage/run-2026-09-07-11-45.md    |     6 +
+ triage/run-2026-09-07-17-23.md    |     6 +
+ triage/run-2026-09-07-20-46.md    |     6 +
+ triage/run-2026-09-07-23-19.md    |   260 +
+ triage/run-2026-09-08-01-15.md    |     6 +
+ triage/run-2026-09-08-06-01.md    |    20 +
+ triage/run-2026-09-08-11-27.md    |     6 +
+ triage/run-2026-09-08-15-18.md    |     6 +
+ triage/run-2026-09-08-18-48.md    |     6 +
+ triage/run-2026-09-08-21-38.md    |   274 +
+ triage/run-2026-09-08-23-39.md    |     6 +
+ triage/run-2026-09-09-01-32.md    |    12 +
+ triage/run-2026-09-09-06-39.md    |     6 +
+ triage/run-2026-09-09-11-52.md    |     6 +
+ triage/run-2026-09-09-16-02.md    |     6 +
+ triage/run-2026-09-09-19-19.md    |     6 +
+ triage/run-2026-09-09-21-46.md    |     6 +
+ triage/run-2026-09-09-23-51.md    |   136 +
+ triage/run-2026-09-10-03-25.md    |     6 +
+ triage/run-2026-09-10-08-24.md    |   235 +
+ triage/run-2026-09-10-13-06.md    |    22 +
+ triage/run-2026-09-10-17-02.md    |     6 +
+ triage/run-2026-09-10-19-47.md    |     8 +
+ triage/run-2026-09-10-22-18.md    |     6 +
+ triage/run-2026-09-11-00-15.md    |    13 +
+ triage/run-2026-09-11-04-50.md    |   254 +
+ triage/run-2026-09-11-09-23.md    |     6 +
+ triage/run-2026-09-11-13-48.md    |     6 +
+ triage/run-2026-09-11-17-35.md    |     6 +
+ triage/run-2026-09-11-20-02.md    |   253 +
+ triage/run-2026-09-11-22-39.md    |     8 +
+ triage/run-2026-09-12-00-39.md    |     6 +
+ triage/run-2026-09-12-05-05.md    |     6 +
+ triage/run-2026-09-12-09-26.md    |     6 +
+ triage/run-2026-09-12-13-07.md    |     6 +
+ triage/run-2026-09-12-16-22.md    |     6 +
+ triage/run-2026-09-12-18-44.md    |     6 +
+ triage/run-2026-09-12-21-15.md    |     8 +
+ triage/run-2026-09-12-23-05.md    |     6 +
+ triage/run-2026-09-13-01-07.md    |     6 +
+ triage/run-2026-09-13-06-17.md    |     6 +
+ triage/run-2026-09-13-12-04.md    |     6 +
+ triage/run-2026-09-13-16-28.md    |   279 +
+ triage/run-2026-09-13-18-56.md    |     8 +
+ triage/run-2026-09-13-21-17.md    |     8 +
+ triage/run-2026-09-13-23-14.md    |     6 +
+ triage/run-2026-09-14-01-13.md    |     6 +
+ triage/run-2026-09-14-06-26.md    |     6 +
+ triage/run-2026-09-14-13-20.md    |     8 +
+ triage/run-2026-09-14-18-43.md    |     6 +
+ triage/run-2026-09-14-22-17.md    |     6 +
+ triage/run-2026-09-15-00-43.md    |     6 +
+ triage/run-2026-09-15-05-54.md    |     6 +
+ triage/run-2026-09-15-11-15.md    |     6 +
+ triage/run-2026-09-15-15-36.md    |    19 +
+ triage/run-2026-09-15-19-12.md    |     6 +
+ triage/run-2026-09-15-22-19.md    |     6 +
+ triage/run-2026-09-16-00-32.md    |   227 +
+ triage/run-2026-09-16-05-15.md    |   212 +
+ triage/run-2026-09-16-10-03.md    |     6 +
+ triage/run-2026-09-16-15-01.md    |     6 +
+ triage/run-2026-09-16-18-56.md    |     6 +
+ triage/run-2026-09-16-21-57.md    |     6 +
+ triage/run-2026-09-17-00-14.md    |     6 +
+ triage/run-2026-09-17-04-59.md    |     6 +
+ triage/run-2026-09-17-10-01.md    |    18 +
+ triage/run-2026-09-17-14-46.md    |     8 +
+ triage/run-2026-09-17-18-50.md    |     6 +
+ triage/run-2026-09-17-21-56.md    |     6 +
+ triage/run-2026-09-17-23-59.md    |     6 +
+ triage/run-2026-09-18-04-30.md    |     8 +
+ triage/run-2026-09-18-09-11.md    |    13 +
+ triage/run-2026-09-18-13-39.md    |     6 +
+ triage/run-2026-09-18-17-13.md    |     8 +
+ triage/run-2026-09-18-19-42.md    |    12 +
+ triage/run-2026-09-18-22-21.md    |     8 +
+ triage/run-2026-09-19-00-36.md    |     6 +
+ triage/run-2026-09-19-05-02.md    |     8 +
+ triage/run-2026-09-19-09-35.md    |     6 +
+ triage/run-2026-09-19-13-23.md    |     6 +
+ triage/run-2026-09-19-16-48.md    |    23 +
+ triage/run-2026-09-19-19-12.md    |     8 +
+ triage/run-2026-09-19-21-29.md    |     6 +
+ triage/run-2026-09-19-23-30.md    |     6 +
+ triage/run-2026-09-20-01-36.md    |     6 +
+ triage/run-2026-09-20-07-01.md    |    37 +
+ triage/run-2026-09-20-12-13.md    |     6 +
+ triage/run-2026-09-20-16-15.md    |     6 +
+ triage/run-2026-09-20-18-57.md    |   255 +
+ triage/run-2026-09-20-21-11.md    |     8 +
+ triage/run-2026-09-20-23-17.md    |     6 +
+ triage/run-2026-09-21-01-14.md    |     6 +
+ triage/run-2026-09-21-06-29.md    |     6 +
+ triage/run-2026-09-21-13-19.md    |     6 +
+ triage/run-2026-09-21-18-48.md    |     8 +
+ triage/run-2026-09-21-22-28.md    |     6 +
+ triage/run-2026-09-22-01-08.md    |     6 +
+ triage/run-2026-09-22-06-20.md    |     6 +
+ triage/run-2026-09-22-12-01.md    |     9 +
+ triage/run-2026-09-22-17-03.md    |     6 +
+ triage/run-2026-09-22-20-14.md    |     9 +
+ triage/run-2026-09-22-23-00.md    |     9 +
+ triage/run-2026-09-23-01-32.md    |     9 +
+ triage/run-2026-09-23-06-38.md    |     9 +
+ triage/run-2026-09-23-12-10.md    |     9 +
+ triage/run-2026-09-23-17-12.md    |     9 +
+ triage/run-2026-09-23-20-28.md    |     6 +
+ triage/run-2026-09-23-23-07.md    |     9 +
+ triage/run-2026-09-24-01-29.md    |     9 +
+ triage/run-2026-09-24-06-43.md    |     9 +
+ triage/run-2026-09-24-12-34.md    |     9 +
+ triage/run-2026-09-24-17-32.md    |     9 +
+ triage/run-2026-09-24-20-46.md    |     9 +
+ triage/run-2026-09-24-23-46.md    |     9 +
+ triage/run-2026-09-25-03-47.md    |     9 +
+ triage/run-2026-09-25-09-26.md    |     9 +
+ triage/run-2026-09-25-14-43.md    |     9 +
+ triage/run-2026-09-25-19-08.md    |     9 +
+ triage/run-2026-09-25-22-28.md    |     9 +
+ triage/run-2026-09-26-00-51.md    |     9 +
+ triage/run-2026-09-26-05-54.md    |     9 +
+ triage/run-2026-09-26-10-55.md    |     9 +
+ triage/run-2026-09-26-14-54.md    |     9 +
+ triage/run-2026-09-26-18-23.md    |     9 +
+ triage/run-2026-09-26-21-32.md    |     8 +
+ triage/run-2026-09-26-23-51.md    |     9 +
+ triage/run-2026-09-27-04-03.md    |     9 +
+ triage/run-2026-09-27-10-04.md    |     9 +
+ triage/run-2026-09-27-15-11.md    |     9 +
+ triage/run-2026-09-27-19-02.md    |     9 +
+ triage/run-2026-09-27-22-18.md    |     9 +
+ triage/run-2026-09-28-00-55.md    |     9 +
+ triage/run-2026-09-28-06-21.md    |     9 +
+ triage/run-2026-09-28-14-26.md    |     9 +
+ triage/run-2026-09-28-20-46.md    |     9 +
+ triage/run-2026-09-29-00-50.md    |     9 +
+ triage/run-2026-09-29-06-37.md    |     9 +
+ triage/run-2026-09-29-13-19.md    |     9 +
+ triage/run-2026-09-29-18-42.md    |     9 +
+ triage/run-2026-09-29-22-51.md    |     9 +
+ triage/run-2026-09-30-01-51.md    |     9 +
+ triage/run-2026-09-30-08-06.md    |     9 +
+ triage/run-2026-09-30-14-58.md    |     9 +
+ triage/run-2026-09-30-19-55.md    |     9 +
+ triage/run-2026-09-30-23-32.md    |     9 +
+ triage/run-2026-10-01-02-23.md    |     9 +
+ triage/run-2026-10-01-09-24.md    |     9 +
+ triage/run-2026-10-01-16-41.md    |     9 +
+ triage/run-2026-10-01-21-34.md    |     9 +
+ triage/run-2026-10-02-01-04.md    |     9 +
+ triage/run-2026-10-02-07-04.md    |     9 +
+ triage/run-2026-10-02-13-56.md    |     9 +
+ triage/run-2026-10-02-19-03.md    |     9 +
+ triage/run-2026-10-02-23-02.md    |     9 +
+ triage/run-2026-10-03-02-04.md    |     9 +
+ triage/run-2026-10-03-08-15.md    |     9 +
+ triage/run-2026-10-03-13-29.md    |     9 +
+ triage/run-2026-10-03-17-36.md    |     9 +
+ triage/run-2026-10-03-20-11.md    |     9 +
+ triage/run-2026-10-03-23-08.md    |     9 +
+ triage/run-2026-10-04-02-43.md    |     9 +
+ triage/run-2026-10-04-09-24.md    |     9 +
+ triage/run-2026-10-04-14-57.md    |     9 +
+ triage/run-2026-10-04-18-35.md    |     9 +
+ triage/run-2026-10-04-21-54.md    |     9 +
+ triage/run-2026-10-05-00-29.md    |     9 +
+ triage/run-2026-10-05-06-11.md    |     9 +
+ triage/run-2026-10-05-14-55.md    |     9 +
+ triage/run-2026-10-05-21-51.md    |     9 +
+ triage/run-2026-10-06-02-05.md    |     9 +
+ triage/run-2026-10-06-09-05.md    |     9 +
+ triage/run-2026-10-06-16-01.md    |     9 +
+ triage/run-2026-10-06-21-02.md    |     9 +
+ triage/run-2026-10-07-00-47.md    |     9 +
+ triage/run-2026-10-07-06-53.md    |     9 +
+ triage/run-2026-10-07-14-15.md    |     9 +
+ triage/run-2026-10-07-20-01.md    |     9 +
+ triage/run-2026-10-08-00-15.md    |     9 +
+ triage/run-2026-10-08-06-16.md    |     9 +
+ triage/run-2026-10-08-13-42.md    |     9 +
+ triage/run-2026-10-08-19-41.md    |     9 +
+ triage/run-2026-10-09-00-09.md    |     9 +
+ triage/run-2026-10-09-06-19.md    |     9 +
+ triage/run-2026-10-09-13-30.md    |     9 +
+ triage/run-2026-10-09-18-58.md    |     9 +
+ triage/run-2026-10-09-23-09.md    |     9 +
+ triage/run-2026-10-10-02-24.md    |     9 +
+ triage/run-2026-10-10-08-58.md    |     9 +
+ triage/run-2026-10-10-15-13.md    |     9 +
+ triage/run-2026-10-10-19-20.md    |     9 +
+ triage/run-2026-10-10-22-42.md    |     9 +
+ triage/run-2026-10-11-01-35.md    |     9 +
+ triage/run-2026-10-11-07-47.md    |     9 +
+ triage/run-2026-10-11-14-42.md    |     9 +
+ triage/run-2026-10-11-19-22.md    |     9 +
+ triage/run-2026-10-11-23-08.md    |     9 +
+ triage/run-2026-10-12-02-28.md    |     9 +
+ triage/run-2026-10-12-09-43.md    |     9 +
+ triage/run-2026-10-12-19-39.md    |     9 +
+ triage/run-2026-10-13-01-37.md    |     9 +
+ triage/run-2026-10-13-08-25.md    |     9 +
+ triage/run-2026-10-13-16-25.md    |     9 +
+ triage/run-2026-10-13-21-32.md    |     9 +
+ triage/run-2026-10-14-00-35.md    |     9 +
+ triage/run-2026-10-14-05-21.md    |     9 +
+ triage/run-2026-10-14-10-35.md    |     9 +
+ triage/run-2026-10-14-15-27.md    |     9 +
+ triage/run-2026-10-14-19-40.md    |     9 +
+ triage/run-2026-10-14-22-59.md    |     9 +
+ triage/run-2026-10-15-01-23.md    |     9 +
+ triage/run-2026-10-15-06-24.md    |     9 +
+ triage/run-2026-10-15-12-04.md    |     9 +
+ triage/run-2026-10-15-17-09.md    |     9 +
+ triage/run-2026-10-15-20-23.md    |     9 +
+ triage/run-2026-10-15-23-16.md    |     9 +
+ triage/run-2026-10-16-01-29.md    |     9 +
+ triage/run-2026-10-16-06-20.md    |     9 +
+ triage/run-2026-10-16-11-40.md    |     9 +
+ triage/run-2026-10-16-16-12.md    |     9 +
+ triage/run-2026-10-16-19-35.md    |     9 +
+ triage/run-2026-10-16-22-11.md    |     9 +
+ triage/run-2026-10-17-00-34.md    |     9 +
+ triage/run-2026-10-17-04-57.md    |     9 +
+ 296 files changed, 165607 insertions(+)
+=== DIFF ===
+commit 9a0180aca22b1c9801292f718a803479825b4fdc
+Author: github-actions <actions@github.com>
+Date:   Sat Oct 17 04:57:39 2026 +0000
+
+    triage 2026-10-17-04-57
+
+diff --git a/probe-results.md b/probe-results.md
+new file mode 100644
+index 0000000..3eb8c77
+--- /dev/null
++++ b/probe-results.md
+@@ -0,0 +1,2057 @@
++
++## 2026-09-02 21:45:31 UTC
++
++
++## 2026-09-02 23:58:49 UTC
++
++
++## 2026-09-03 04:13:45 UTC
++
++
++## 2026-09-03 09:04:36 UTC
++
++
++## 2026-09-03 13:34:54 UTC
++
++
++## 2026-09-03 17:32:56 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/user/100 -> HTTP 401
++
++## 2026-09-03 20:02:59 UTC
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://kassenkompass.de/login -> HTTP 404
++https://api.kassenkompass.delete/1 -> ERR <urlopen error [Errno -2] Name or service not know
++https://api.kassenkompass.de/sync/ -> 200 len=0
++
++## 2026-09-03 22:32:37 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/sync/ -> 200 len=0
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://api.kassenkompass.delete/1 -> ERR <urlopen error [Errno -2] Name or service not know
++https://api.kassenkompass.de/user/100 -> HTTP 401
++https://kassenkompass.de/login -> HTTP 404
++https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
++
++## 2026-09-04 00:35:52 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/sync/ -> 200 len=0
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://kassenkompass.de/login -> HTTP 404
++https://api.kassenkompass.de/settlement_report/9999/13 -> HTTP 401
++
++## 2026-09-04 05:10:24 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/sync/ -> 200 len=0
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://kassenkompass.de/login -> HTTP 404
++
++## 2026-09-04 09:51:51 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/sync/ -> 200 len=0
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++
++## 2026-09-04 14:21:17 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://api.kassenkompass.de/sync/ -> 200 len=0
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++
++## 2026-09-04 17:44:12 UTC
++https://api.kassenkompass.de/ -> 200 len=0
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/delete/1 -> HTTP 401
++https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
++https://www.kassenkompass.de/ -> 200 len=?
++https://www.kassenkompass.de/login_kd.php -> 200 len=?
++
++## 2026-09-04 20:04:40 UTC
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://api.kassenkompass.de/settlement_report/2024/01 -> HTTP 401
++https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
++https://kassenkompass.de/login_kd.php -> 200 len=?
++https://www.kassenkompass.de/ -> 200 len=?
++https://kassenkompass.de/ -> 200 len=?
++https://www.kassenkompass.de/login_kd.php -> 200 len=?
++
++## 2026-09-04 22:21:40 UTC
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://api.kassenkompass.de/settlement_report/2024/01 -> HTTP 401
++https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
++https://kassenkompass.de/login_kd.php -> 200 len=?
++https://www.kassenkompass.de/ -> 200 len=?
++https://kassenkompass.de/ -> 200 len=?
++https://www.kassenkompass.de/login_kd.php -> 200 len=?
++https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
++
++## 2026-09-05 00:22:39 UTC
++https://api.kassenkompass.de/v2/insurance_info/1 -> HTTP 401
++https://api.kassenkompass.de/user/1 -> HTTP 401
++https://api.kassenkompass.de/insurance_info/1 -> HTTP 401
++https://api.kassenkompass.de/settlement_report/2024/01 -> HTTP 401
++https://kassenkompass.de/pw_reset_partner.php -> 200 len=?
++https://kassenkompass.de/login_kd.php -> 200 len=?
++https://kassenkompass.de/bonusrechner.php?lizzen=SECPROBE1&ppn=77&advisorid=7 -> 200 len=?
++https://kassenkompass.de/bonusrechner.php?lizenz=SECPROBE1&advisorid=7&ppn=77 -> 200 len=?
+[0m
+Let me check the newest triage commit (04:57) and the git show to see if there's new KB content. Let me also check leads/lead-bigpickle.md and knowledge/index.md and reposcan-raw/summary.txt.</think>Let me check the newest triage commit content and the lead files.
+[0m$ [0mecho "=== lead-bigpickle ==="; cat leads/lead-bigpickle.md 2>/dev/null; echo; echo "=== reposcan summary ==="; cat reposcan-raw/summary.txt 2>/dev/null | tail -30
+...output truncated...
+
+Full output saved to: /home/runner/.local/share/opencode/tool-output/tool_14863b256001nFb4ws1XRm0mSu
+
+TARGET_ORG not configured for kassenkompass; skipping public-org deep scan.
+[0m
+[0m$ [0mecho "=== newest triage ==="; cat triage/run-2026-10-17-04-57.md; echo; echo "=== prev triage ==="; cat triage/run-2026-10-17-00-34.md
+=== newest triage ===
+
+===== TRIAGE 2026-10-17 04:57:39 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_f089ebbe"
+  }
+}
+
+=== prev triage ===
+
+===== TRIAGE 2026-10-17 00:34:22 UTC =====
+[91m[1mError: [0m{
+  "name": "UnknownError",
+  "data": {
+    "message": "Unexpected server error. Check server logs for details.",
+    "ref": "err_319a192d"
+  }
+}
+[0m
+This commit is a fresh checkout (all files added new — it's likely the repo was squashed/recreated). The triage at 04:57 just added a triage run file. Let me look at the newest triage run file and the lead-bigpickle.md tail to see if there's an actual NEW input.
+
+Key: The find command showed files newer than 01:15. But most of these are just the checkout. Let me check the newest triage file and whether there's a real human input.
+
+Let me read triage/run-2026-10-17-04-57.md and check the tail of leads/lead-bigpickle.md (11783 lines) for the latest entry.</think>
+[0m$ [0mwc -l leads/lead-bigpickle.md leads/lead-nemotron3.md; echo "=== lead-bigpickle tail ==="; tail -60 leads/lead-bigpickle.md
+11783 leads/lead-bigpickle.md
+  14119 leads/lead-nemotron3.md
+  25902 total
+=== lead-bigpickle tail ===
+[LEARN] REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
+[RISK] KassenKompass GmbH: **70** (unchanged) — 2.16 MB unauthenticated tariff corpus top exposure (classification-gated; credential vector fully excluded); router asymmetry LOW/unproven; provisioning unproven; awv discriminator resolved with zero security impact; passive surface now fully exhausted including the last parked read-only test. Remaining work is entirely human-gated.
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, axis: attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, axis: attack_surface=8, business_value=6, tech_exposure=7, gate_ease=9, cloud_surface=2, freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, axis: attack_surface=7, business_value=9, tech_exposure=8, gate_ease=2, cloud_surface=3, freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: Carried unchanged ... now 2,159,143 B at 2026-10-16 19:43 UTC (prior latest 2,159,141; +2 B / +0.00009%, inside ±0.3% drift band); no-store+CF-DYNAMIC, no validators, no rate limit; data structures intact; credential vector excluded (0/13 corpus + 0/4 bundles). Raw page sha256 now known to be per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; normalized content sha256 = df5cd456… stable across apex/www/repeat. Severity gated solely on data classification.
+[NEXT] HUMAN: ask program owner...
+[LEARN] ...
+[RISK] KassenKompass GmbH: 70 ...
+[PRIO] No change; survivors remain HUMAN-gated:
+[NEXT] HOLD until ≥2026-10-16 17:14 UTC, then single GET `bonusrechner_fragen.php` (+ www mirror), ≤1 rps, compare vs 2,159,141 B / `fd925227…`.
+[RISK] 70 held. Nothing actionable until time window opens or you provide: (a) fragen corpus classification, (b) POST approval for mark_all_read test, (c) credentials for /post/create_user test.
+[NEW] per-request cache-buster finding
+[CHANGED] size 2,159,141→2,159,143
+[NEW] server-time disclosure (non-reportable)
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve ~2.16 MB unauthenticated; smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B, inside ±0.3%); no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant (138 q/375 edges) + pseudoKkIds=[99,100,101]; credential vector excluded (0/13 corpus + 0/4 bundles). Severity gated solely on data classification.
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare `df5cd456…`).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action => 200/59 B "Ungültige Action" vs siblings 200/46 B "Nicht angemeldet"; action param POST-only (GET 0-differential); no value yet yields 46 B.
+evidence_needed: recognized action yielding != 59 B unauthenticated (POST under approval).
+verify_steps: POST mark_all_read.php action ∈ {mark_all_read, mark_read, send_message, load_messages}, no session; compare vs 59 B; no mutation.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* separately mounted outside X-API-Secret (HEAD differential); /post/help advertises POST /post/create_user; namespace closed at 2; 405 method-confounded by gated /cat_detail/; no ACAO on preflight.
+evidence_needed: credentialed POST + negative control (valid vs invalid/missing X-API-Secret), minimal JSON.
+verify_steps: (AUTH_HELPED) POST valid secret, then without/invalid; compare; stop if it would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+## 2026-10-16 22:54:51 UTC [target] (model bigpickle)
+## 2026-10-17 01:14:38 UTC [target] (model bigpickle)
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+[HYP] Standing survivors only (all human-gated):
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+[NEXT]
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+[0m
+[0m$ [0mtail -40 reports/analyst-bigpickle.log
+- Survivors (all human-gated): (1) Tariff Leak 70/MISCONFIG/HUMAN; (2) mark_all_read asymmetry 50/AUTH/HUMAN_ONLY; (3) /post/create_user 45/AUTH/AUTH_HELPED. No autonomous verification remains.
+
+### Blocked
+- fragen severity gated on vendor data classification — needs HUMAN question: intended-public calculator data vs licensed partner tariff data.
+- mark_all_read decisive test needs HUMAN approval for POST with action vocabulary {mark_all_read, mark_read, send_message, load_messages} (GET is inert — action is POST-only; every unauth action returns 59 B "Ungültige Action", no value yields 46 B "Nicht angemeldet").
+- /post/create_user needs AUTH_HELPED: credentialed POST + negative control.
+- Peer pipeline observability gap: 25+ consecutive triage cycles with header-only/stub leads; reposcan "TARGET_ORG not configured".
+
+## Next Move
+1. HOLD until ≥2026-10-17 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ www mirror) at ≤1 rps; compare normalized content sha256 vs `df5cd456…` (raw size baseline 2,159,143 B at 2026-10-16 19:43 UTC); otherwise emit NO_DELTA.
+2. HUMAN asks program owner the corpus-classification question; HUMAN approval for mark_all_read POST test; AUTH_HELPED for /post/create_user.
+
+## Relevant Files
+- (none — conversation context is a knowledge-base/state dump; no local files referenced)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[DELTA] NO_DELTA — no new probe due (next fragen smoke window ≥2026-10-17 17:14 UTC; now 01:13 UTC), no new peer/program input, state unchanged (`{"phase": "POC", "target": "api"}`).
+
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+
+[HYP] Standing survivors only (all human-gated):
+1. Tariff Leak — fragen corpus 2.16 MB unauthenticated — 70/MISCONFIG/HUMAN — intact, hash baseline `df5cd456…` (normalized), size 2,159,143 B.
+2. mark_all_read asymmetry — 50/AUTH/HUMAN_ONLY — GET inert, POST-only action untested.
+3. /post/create_user provisioning — 45/AUTH/AUTH_HELPED — method-confounding unresolved without credentialed control.
+
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+
+[NEXT]
+1. HOLD — single GET `https://kassenkompass.de/bonusrechner_fragen.php` + www mirror at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs `df5cd456…`, raw size vs 2,159,143 B; Δ>~0.3% beyond epoch-buster noise ⇒ escalate drift note, else NO_DELTA.
+2. HUMAN decision needed to unblock (3 items):
+   - Is the fragen tariff corpus intended-public calculator data or licensed partner data? (determines whether #1 is reportable at all)
+   - Approve POST to `/` with action vocabulary {mark_all_read, mark_read, send_message, load_messages}? (unauth GET shows no value leak; POST is the only decisive test)
+   - AUTH_HELPED: credentialed POST to `/post/create_user` + negative control?
+
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+
+---
+
+Blocked on you — three decisions from [NEXT]#2 are the only thing that moves this engagement off HOLD. Which do you want to answer first (or decline all → I stay parked until the 17:14 UTC smoke window)?
+[0m
+Now I understand the actual situation. This is an autonomous bug bounty harness. The triage runs at 00:34 and 04:57 both FAILED with "UnknownError" server errors. There is no new input. The pb/hypotheses files are unchanged since my last cycle at 01:14.
+
+The current time is 05:42 UTC. Next fragen probe window is ≥2026-10-17 17:14 UTC. Not due.
+
+So the correct action: emit an idempotent NO_DELTA cycle. All survivors human-gated. No new input. The triage server is erroring — worth noting as an observability/CHANGED item, but not part of scope.
+
+Actually, let me reconsider. The setup: this is my analyst run. It seems the harness runs an "analyst" (me) + triage. My job per system prompt is the 8-step cycle. The output is written to reports/hypotheses-bigpickle.txt (or stdout captured as analyst-bigpickle.log).
+
+Let me check the analyst-bigpickle.log tail to see the exact output format the harness expects and whether I should write a cycle.
+
+Actually the log is 83106 lines. Let me tail it.
+
+Given the pattern, it seems each cycle I emit a block. The last block is in hypotheses-bigpickle.txt. My response should be the cycle output.
+
+Let me verify the analyst log tail to match formatting.</think>Now I have the full picture. Let me check the analyst log tail to confirm the output format expected.
+Now I have a clear picture. Let me reason about the DELTA:
+
+New since my last cycle at 01:14:38 UTC:
+1. Triage runs at 00:34 and 04:57 failed with server errors ("UnknownError", err_f089ebbe, err_319a192d). No new leads from peer pipeline.
+2. No new probe result since 01:15:43 UTC.
+3. The repo was re-created (all files "new" in git) — but content is the knowledge base dump.
+4. No human input.
+
+Current time: 05:42 UTC. Next fragen window: ≥2026-10-17 17:14 UTC. Not due.
+
+So DELTA = NO_DELTA. But I should note the triage pipeline is now erroring (observability gap worsening).
+
+Actually, wait. Let me reconsider the "delta" — is there genuinely nothing actionable? The instruction from the user is "Continue if you have next steps, or stop and ask for clarification." Given this is an idempotent NO_DELTA state with all work human-gated, the correct response is to emit the cycle and stop/ask.
+
+But should I perform a probe? No probe is due. The window is 11.5 hours away. Probes are on a cadence. Doing an off-cadence probe would be undisciplined and could contribute to the burst-block risk. Better to HOLD.
+
+Let me now produce the cycle block as my output (matching the analyst format), update the reports/hypotheses-bigpickle.txt and state file perhaps, and then ask the human.
+
+Actually — an important consideration: am I supposed to write output files? The harness likely captures stdout. But the file reports/hypotheses-bigpickle.txt contains exactly the last cycle. It's ambiguous whether the harness writes it or I do. Given the git commit shows hypotheses-bigpickle.txt was newly added with 7 lines (my last block), and the analyst-bigpickle.log contains my full narrative output, it seems the harness captures my stdout into the log. The hypotheses-bigpickle.txt is probably derived/copied from my LAST lines.
+
+Actually looking closer: hypotheses-bigpickle.txt has 7 lines total and contains just the cycle tags. analyst-bigpickle.log has my full markdown output. So the harness extracts the tagged lines ([PRIO]/[HYP]/...) into hypotheses-bigpickle.txt. My stdout goes to the log. So I should just output the cycle to stdout as normal.
+
+I'll emit the cycle. Let me write it concisely, following the 8-step format.
+
+STEP 1 DELTA: NO_DELTA. Note: two consecutive triage runs (00:34, 04:57) hard-errored (UnknownError) — peer pipeline now failing, not just stub; zero new signal. No probe due. State unchanged.
+
+STEP 2 PRIORITIZE: Re-derive. Standing axes reproduce 8.50/7.00/6.60. Emit [PRIO] lines with axes.
+
+STEP 3 HYPOTHESES: 3 survivors.
+
+STEP 4 SELF-CRITIQUE: all ≥40, verify steps present, not rejected classes. Fine.
+
+STEP 5 NEXT: HOLD + HUMAN.
+
+STEP 6 LEARN: idempotent NO_DELTA; also note triage pipeline now hard-erroring.
+
+STEP 7 RISK: 70.
+
+Let me write it. Keep it tight.</think>DELTA resolved. Here's the situation:
+
+- Current: **2026-10-17 05:42 UTC**. Next fragen smoke window is **≥17:14 UTC** (~11.5h out) — no probe due.
+- Peer/triage pipeline: runs at **00:34 and 04:57 both hard-failed** (`UnknownError`, refs `err_319a192d` / `err_f089ebbe`) — now erroring, not just stub leads. Zero new signal.
+- No new human input, no program response, state unchanged.
+
+Emitting the idempotent cycle.
+
+```
+[DELTA] NO_DELTA — no probe due (fragen window ≥2026-10-17 17:14 UTC; now 05:42 UTC); no program/human input; state unchanged {"phase":"POC","target":"api"}. New negative signal: triage pipeline now HARD-ERRORS (00:34 err_319a192d, 04:57 err_f089ebbe UnknownError) — peer channel degraded from stub-only to broken.
+
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+(re-derived from own emitted axes; not copied — peers' gate_ease=10 on AUTH_HELPED endpoints is inflated)
+
+[HYP] Standing survivors only (all human-gated):
+1. Tariff Leak — fragen corpus 2.16 MB unauth — 70/MISCONFIG/HUMAN — baseline 2,159,143 B / normalized sha256 df5cd456….
+2. mark_all_read asymmetry — 50/AUTH/HUMAN_ONLY — GET inert, action param POST-only, no value yields 46 B.
+3. /post/create_user provisioning — 45/AUTH/AUTH_HELPED — 405 method-confounded; credentialed+control needed.
+
+[PARKED] awv 400-vs-404 (resolved, no impact); server-epoch disclosure (non-reportable); peer pipeline observability gap (now hard-erroring, out of my control).
+
+[NEXT] HOLD — single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs df5cd456…, raw size vs 2,159,143 B; Δ>~0.3% ⇒ escalate drift note, else NO_DELTA. HUMAN decisions (3) remain the only unblock: (a) corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED creds for /post/create_user.
+
+[LEARN] Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to hard-error — treat triage errors as absence of signal, not as a finding.
+
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no burst; all findings pre-disclosure.
+```
+
+Stopping here — nothing autonomous remains. Which do you want to answer first?
+
+1. Is the fragen tariff corpus intended-public calculator data or licensed partner data? (decides whether finding #1 is even reportable)
+2. Approve the POST action-vocabulary test on `mark_all_read.php`?
+3. Provide AUTH_HELPED credentials for `/post/create_user` + negative control?
+
+Or decline all → I stay parked until the 17:14 UTC smoke window.

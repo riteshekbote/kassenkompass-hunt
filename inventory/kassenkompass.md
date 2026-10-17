@@ -1935,3 +1935,8 @@ www.kassenkompass.de
 ## 2026-10-16 23:03:19 UTC
 
 ## 2026-10-17 01:15:35 UTC
+
+## 2026-10-17 05:44:52 UTC
+- NEW per-request cache-buster finding
+- CHANGED size 2,159,141→2,159,143
+- NEW server-time disclosure (non-reportable)
