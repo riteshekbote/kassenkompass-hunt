@@ -6251,3 +6251,11 @@
 - NEXT(hypotheses-bigpickle.txt): HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read actio
 - LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/
 - LEARN: REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
+
+## RANKED HYPOTHESES 2026-10-17 17:18:35 UTC
+- [70] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read actio
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/
+- LEARN: REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/
+- LEARN: REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.

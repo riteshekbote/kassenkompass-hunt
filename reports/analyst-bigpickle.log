@@ -85638,3 +85638,445 @@ Everything else is blocked on the same three decisions from last cycle:
 3. **AUTH_HELPED credentials** — a scoped X-API-Secret + approval for one credentialed vs. one negative-control POST to `/post/create_user` (hypothesis #3, P6.60). Stop-rule: abort if it would create live data.
 
 If you grant any of these, I'll proceed immediately. Otherwise the only remaining scheduled action is the fragen smoke at ≥17:14 UTC — tell me if you want me to wait for it in this session or leave it to the next cycle.
+===== ANALYST bigpickle 2026-10-17 17:18:35 UTC =====
+[0m
+> build · big-pickle
+[0m
+Let me start by exploring the repository structure to understand the context better. The task involves analyzing the kassenkompass knowledge base - there might be code, scripts, or other files in the repo.
+[0m$ [0mls -la /home/runner/work/kassenkompass-hunt/kassenkompass-hunt
+total 1524
+drwxr-xr-x 12 runner runner   4096 Oct 17 16:58 .
+drwxr-xr-x  3 runner runner   4096 Oct 17 16:58 ..
+drwxr-xr-x  7 runner runner   4096 Oct 17 16:58 .git
+drwxr-xr-x  3 runner runner   4096 Oct 17 16:58 .github
+-rw-r--r--  1 runner runner   1767 Oct 17 16:58 README.md
+-rw-r--r--  1 runner runner    238 Oct 17 16:58 analyst-out.txt
+-rw-r--r--  1 runner runner 678393 Oct 17 16:58 analyst-prompt.txt
+-rw-r--r--  1 runner runner 674575 Oct 17 16:58 ctx.txt
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 inventory
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 knowledge
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 leads
+-rw-r--r--  1 runner runner 104141 Oct 17 16:58 probe-results.md
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 recon-notes
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 reports
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 reposcan-raw
+-rw-r--r--  1 runner runner   3231 Oct 17 16:58 scope.yml
+drwxr-xr-x  2 runner runner   4096 Oct 17 16:58 scripts
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_bigpickle.json
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_laguna.json
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_ling3.json
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_longcat.json
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_mimo.json
+-rw-r--r--  1 runner runner     33 Oct 17 16:58 state_nemotron3.json
+drwxr-xr-x  2 runner runner  16384 Oct 17 16:58 triage
+[0m
+## Objective
+- Continue passive-first bug bounty analysis of KassenKompass GmbH in-scope assets (api.kassenkompass.de, kassenkompass.de, www.kassenkompass.de, kassenkompass.net, awv.kassenkompass.de, kk-s3-01.s3.eu-central-1.amazonaws.com) while enforcing ≤1 rps, GET/HEAD/OPTIONS-only for live probes, and strict facts-vs-hypotheses separation. Maintain KB state (inventory, hypotheses, PRIO, LEARN, RISK) and emit NO_DELTA when surfaces remain stable.
+
+## Important Details
+- **Program scope**: KassenKompass GmbH (bugs.olivermaicher.eu). In-scope = company-owned infrastructure, comparison platforms, customer portals, APIs, websites, mobile applications and domains. Out-of-scope classes defined (DoS, policy, self-XSS, descriptive-only, etc.) must be enforced.
+- **Methodology guardrails**: passive-first, ≤1 rps, read-only probes only; sha256 any secret; require GET body comparison for route membership (root catch-all returns `content-length: 0` on HEAD). Never infer membership from HEAD alone. Treat 405 as method mismatch, not proof of auth state on gated POST-only routes.
+- **Self-critique corrections**: Host-header `Host:kassenkompass.de` → false positive (Cloudflare edge routing, homepage byte-identical modulo nonce). Encoded-separator access-control bypass claims REJECTED (literal vs encoded byte-identical under identical edge conditions) — routing normalization quirk, not WAF/access-control bypass. Raw `fragen.php` SHA256 is unstable (server-epoch cache-buster `/js/standard.js?v=<epoch>`) → use **normalized hash** for drift detection.
+- **API surface (stable)**: `api.kassenkompass.de` root 1167 B catalog (15 v1 + 1 v2, ver 1.0/2.0), content-length cosmetic drift class resolved (CL:0→absent→accurate). `/sync/` legacy envelope HTTP 200 + `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}` (67 B, pinned sha256 b93be961…). `v2/insurance_info/{kk_id}` only (42-name saturation), greedy segment match, `kk_id` not validated at routing. Auth map 15/15 (middleware A/B + legacy), `X-API-Secret` header is sole channel. Three pre-auth canonicalization oracles confirmed (401 `instance`, 405 `instance`, v2 404 `detail`), percent-decode-before-match host-wide (single-level decode), case-sensitive matching.
+- **Funnel (stable)**: 7 mirror entry points (`bonusrechner.php`, `daten`, `fragen`, `suche`, `vergleich2`, `abschluss`, `termin`) with step-scoped alias maps. Attribute asymmetry: `afilcode` non-HttpOnly, others `Secure; HttpOnly; path=/`. `device_id` emitted only on `vergleich2.php` (1yr Secure HttpOnly SameSite=Lax), `catoint` force-deleted. `bonusrechner_abschluss.php` has GET vs POST differential (“Account-ID nicht gefunden” only on valid form POST) — lead-gated.
+- **Tariff exposure (active surface)**: `kassenkompass.de/bonusrechner_fragen.php` ~2,159,139 B unauthenticated tariff corpus (ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant + pseudoKkIds=[99,100,101]). Drift ±0.3% on data refresh (size range observed ~2,152,258–2,159,141 B), data freshness ≤2025-12-22 (lastchange epochs 2025). `cache-control: no-store, no-cache, must-revalidate`, `cf-cache-status: DYNAMIC`, no ETag/Last-Modified, no rate limit observed in sustained 1 rps. `www.kassenkompass.de` mirror identical modulo dynamic cache-buster.
+- **Client JS surfaces**: `whitelabel_live.js` (11,359 B) postMessage receiver has no `event.origin`/`event.source` check (type-and-shape only), forces `wl-active`, suppresses 5 real statutory/trust elements via `textContent` (integrity-only, NOT XSS), wildcard `targetOrigin '*'`, not loaded on `bonusrechner.php`. `param_passthrough.js` (web1.0.1) harvests 16 URL params (length cap 128) into `sessionStorage.kkweb_pass_params` and re-injects into same-host funnel anchors/onclick CTAs (marketing-site/app split). `live-calculation.js` has orphaned unsigned read/write asymmetry (`data_sparsum` read, `setCookie('data_sparsum', ...)` commented out), sink `#resulteuro` via `textContent`.
+- **S3/origin inventory**: `kk-s3-01.s3.eu-central-1.amazonaws.com` — qid 1..180 (6 beyond page-refs), n-dimension extends (qid 60 n=2), byte-identical duplicates at n=1, non-image keys return 403, existence oracle established. `kassenkompass.net` — blanket 302 on all app-handled paths (no existence oracle for origin-bypass). `awv.kassenkompass.de` — root HTTP/2 400 (UA-independent), no Set-Cookie, SGTM/Stape container (ahcfuvbcz), GA4/FB confirmed.
+- **Standing survivors (human-gated)**: (1) `kassenkompass.de/bonusrechner_fragen.php` — Unauthenticated Competitive Intelligence Tariff Leak (confidence 70, severity gated on vendor data classification: intended-public vs licensed partner). (2) `kassenkompass.de/php/mark_all_read.php` — pre-auth action-router ordering asymmetry (confidence 50, POST-only action test required, HUMAN_ONLY). (3) `api.kassenkompass.de/post/create_user` — undocumented write endpoint (confidence 45, requires credentialed POST + negative control, AUTH_HELPED). 
+- **State**: Phase POC, target `api`. As of 2026-10-17 14:04:40 UTC, idempotent re-run emitted NO_DELTA; standing priorities reproduce exactly (fragen 8.50, mark_all_read 7.00, /post/create_user 6.60). Peer pipeline hard-erroring/stub-only (observability gap). Own traffic ≤1 rps, no burst (2026-09-11 WAF lesson applied). All findings pre-disclosure.
+
+## Work State
+### Completed
+- **Inventory & mapping**: All three in-scope hosts live (api/www/kassenkompass.de), `kassenkompass.net`, `awv.kassenkompass.de`, `kk-s3-01` mapped. 15/15 v1 auth map + v2 (middleware A/B + legacy `/sync/`), 42-name v2 enumeration saturated, `/post/*` separately mounted app discriminated at two path depths.
+- **API normalization/oracles**: 17-family normalization matrix complete (0 divergences); three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`); percent-decode-before-match host-wide (single-level), encoded separators decode, case-sensitive matching. Route-membership requires GET body comparison (HEAD CL:0 limitation).
+- **Funnel characterization**: 7 mirror entry points mapped with divergent alias maps, GET-vs-POST lead gate on abschluss.php, device_id behavior on vergleich2.php, attribute asymmetry confirmed.
+- **Tariff corpus**: 2.16 MB payload characterized (4+ blocks: ucatKkData/globalbudgetsData/kombiboniData/dataant), drift-on-refresh ±0.3% model confirmed across 10+ rotation windows, normalized-hash methodology established (cache-buster exclusion).
+- **Client bundles**: 4 public JS files read/mined (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js); no sourceMappingURL/.map and no credential-shaped literals found. Passive credential-discovery surface exhausted.
+- **False-positive closures**: Host-header, encoded-separator bypass, “405 = ungated” oracle, `/post/` requires X-API-Secret (method-confounded), case-variant widening, vhost/origin-bypass differentials, CORS classes (non-API funnel) — all killed by controlled tests.
+- **S3/edge characterization**: Existence oracle established for `kk-s3-01`, qid/n axes mapped, non-image keys 403; `kassenkompass.net` has no existence oracle (blanket 302). `awv.kassenkompass.de` UA-independent 400, no cross-subdomain cookie delivery primitive for `data_sparsum`.
+- **Idempotent state validation**: Multiple re-runs emitted NO_DELTA; priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+
+### Active
+- **24h smoke cadence for `bonusrechner_fragen.php`**: Next window ≥2026-10-17 17:14 UTC (single GET https://kassenkompass.de/bonusrechner_fragen.php + https://www.kassenkompass.de/bonusrechner_fragen.php), ≤1 rps. Compare normalized sha256 vs `df5cd456…` and raw size vs 2,159,143 B. Δ > ~0.3% → escalate drift note, else NO_DELTA.
+- **Standing survivors held**: Three hypotheses remain human-gated (fragen classification, `mark_all_read.php` POST action test, `/post/create_user` credentialed POST + negative control). No live probes beyond scheduled smoke due while gates open.
+
+### Blocked
+- **Peer pipeline observability gap**: 25+ consecutive triage cycles consumed header-only/stub peer leads (now hard-erroring) — absence of signal only, not a finding. Cannot rely on peer signal for prioritization this cycle.
+- **Human unblock decisions required** (only actions with positive expected value): (a) vendor data classification for `bonusrechner_fragen.php` corpus (intended-public vs licensed partner data), (b) explicit approval to perform POST test against `kassenkompass.de/php/mark_all_read.php` with valid action vocabulary (read-only rules disallow unapproved mutation paths), (c) AUTH_HELPED credentials + negative control for `api.kassenkompass.de/post/create_user` (POST required; read-only methods insufficient). 
+- **Methodological constraint**: `mark_all_read.php` action is POST-only (GET variants inert). `/post/create_user` provisioning cannot be proven with GET/HEAD/OPTIONS (405 method-confounded). Both require approved non-read-only tests with controls.
+
+## Next Move
+1. **Scheduled smoke probe (if due)**: At ≥2026-10-17 17:14 UTC, perform single anonymous GET to `https://kassenkompass.de/bonusrechner_fragen.php` and `https://www.kassenkompass.de/bonusrechner_fragen.php` at ≤1 rps each (or single-fire sequence). Normalize body (strip/cache-buster `standard.js?v=<epoch>` influence) and compare normalized sha256 vs `df5cd456…` and size vs 2,159,143 B. If within ±0.3% → record NO_DELTA; else record drift note with Δ and new normalized hash. Do not exceed 1 rps and do not perform any other live probes.
+2. **Await human decisions**: Do not execute (b) or (c) until explicit approvals provided. Track gates (a)-(c) as BLOCKED until resolved. Continue passive KB maintenance only while waiting.
+
+## Relevant Files
+- `inventory/kassenkompass.md` — host inventory, discovery state, live HTTP counts (source of truth for in-scope hosts).
+- `hypotheses-*.txt` / `state_*.json` — current hypotheses, PRIO lines (fragen 8.50, mark_all_read 7.00, /post/create_user 6.60), PARKED/FINAL, LEARN entries (idempotent re-run NO_DELTA, self-critique closures).
+- `probe-results.md` — request/response evidence, hashes (including pinned `/sync/` sha256 b93be961f0da5eb45934d8cf03473f317a82f3b8a9887dc00f2c0956d7349cc3), timings and method-by-method differentials (HEAD vs GET on `/cat_detail/`, encoded vs literal pairs).
+- `kassenkompass.de/js/standard.js` (67,969 B) — UI utilities, cache-buster injection source (`?v=<unix>`). 
+- `kassenkompass.de/js/live-calculation.js` (36,499 B) — orphaned `data_sparsum` read/write asymmetry (setCookie commented at ~line 642), sink `#resulteuro` via `textContent`.
+- `kassenkompass.de/js/param_passthrough.js` (5,449 B, v=web1.0.1) — 16-param harvest into `sessionStorage.kkweb_pass_params`, same-host funnel re-injection, marketing-site/app split.
+- `kassenkompass.de/js/whitelabel_live.js` (11,359 B) — postMessage receiver lacking `event.origin`/`event.source` check, forces `wl-active`, suppresses 5 real statutory/trust elements, wildcard `targetOrigin '*'`.
+- `kassenkompass.de/bonusrechner*.php` (entry, daten, fragen, suche, vergleich2, abschluss, termin) — funnel mirror entry points, alias maps, device_id/cookie behavior, GET-vs-POST lead gate on `abschluss.php`.
+- `kassenkompass.de/php/mark_all_read.php` (+ siblings `mark_read`, `send_message`, `load_messages`) — shared `/php/` code path, action-router pre-auth ordering surface (HUMAN_ONLY POST test).
+- `api.kassenkompass.de/` root catalog (1167 B, sha256 644b1ec7…) and `/sync/` (67 B), `v2/insurance_info/*`, `/post/help` (344 B JSON), `/post/create_user` (405 POST-only) — API surface, discriminators and envelope fingerprints.
+- `kk-s3-01.s3.eu-central-1.amazonaws.com` probes — qid 1..180, n-dimension (qid 60 n=2), existence oracle (200 vs 403 AccessDenied), ETag `52f04d11…` (n=1 set), non-image keys 403.
+- `awv.kassenkompass.de`, `kassenkompass.net`, `www.kassenkompass.de` — GTM/Stape, blanket-302 existence-oracle absence, mirror behavior (apex vs www differ by cache-buster byte only).
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[0m$ [0mcat state_bigpickle.json | head -c 100; echo ""
+{"phase": "POC", "target": "api"}
+[0m
+[0m$ [0mcat hypotheses-*.txt 2>&1 | head -100
+cat: 'hypotheses-*.txt': No such file or directory
+[0m
+[0m$ [0mfind . -name 'hypotheses*' 2>&1 | head -15
+./reports/hypotheses.md
+./reports/hypotheses-ling3.txt
+./reports/hypotheses-laguna.txt
+./reports/hypotheses-bigpickle.txt
+./reports/hypotheses-nemotron3.txt
+./reports/hypotheses-longcat.txt
+[0m
+[0m$ [0mcat reports/hypotheses-bigpickle.txt | head -200
+## 2026-10-17 14:04:30 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve ~2.16 MB unauthenticated; last smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B, inside ±0.3%); no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant + pseudoKkIds=[99,100,101]; credential vector excluded (0/13 corpus + 0/4 bundles).
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action => 200/59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param POST-only (GET 0-differential); no action value yet observed to yield 46 B unauthenticated.
+evidence_needed: recognized action yielding != 59 B unauthenticated (POST under approval).
+verify_steps: POST mark_all_read.php action ∈ {mark_all_read, mark_read, send_message, load_messages}, no session; compare vs 59 B baseline; no mutation intended.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* separately mounted outside X-API-Secret (HEAD differential: /delete/1→401 vs /post/→405); /post/help advertises POST /post/create_user; namespace closed at 2 members; 405 method-confounded by gated POST-only /cat_detail/; no ACAO on preflight; method-override ignored.
+evidence_needed: credentialed POST + negative control (valid vs invalid/missing X-API-Secret), minimal JSON.
+verify_steps: (AUTH_HELPED) POST with valid secret, then without/invalid; compare; stop if it would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+[PARKED] awv 400-vs-404: resolved single-valued, no impact.
+[PARKED] server-epoch cache-buster disclosure: non-reportable class.
+[PARKED] peer pipeline observability gap: hard-erroring, out of my control; treat as absence of signal.
+[FINAL] 1. Tariff Leak (70) — HUMAN classification gate. 2. mark_all_read router ordering (50) — HUMAN_ONLY POST gate. 3. /post/create_user provisioning (45) — AUTH_HELPED credential gate. None dropped (all ≥40, none REJECTED-class, all have verify steps).
+[NEXT] HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED credentials for /post/create_user. No PROBE due (fragen window ≥2026-10-17 17:14 UTC; API within drift window).
+[LEARN] ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+[LEARN] REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
+[RISK] KassenKompass GmbH = 70 (held). All findings pre-disclosure; own traffic single-fire ≤1 rps, none beyond scheduled smoke; no burst (2026-09-11 WAF lesson applied).
+[0m
+[0m$ [0mcat reports/hypotheses-bigpickle.txt | tail -60
+## 2026-10-17 14:04:30 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve ~2.16 MB unauthenticated; last smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B, inside ±0.3%); no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant + pseudoKkIds=[99,100,101]; credential vector excluded (0/13 corpus + 0/4 bundles).
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action => 200/59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param POST-only (GET 0-differential); no action value yet observed to yield 46 B unauthenticated.
+evidence_needed: recognized action yielding != 59 B unauthenticated (POST under approval).
+verify_steps: POST mark_all_read.php action ∈ {mark_all_read, mark_read, send_message, load_messages}, no session; compare vs 59 B baseline; no mutation intended.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* separately mounted outside X-API-Secret (HEAD differential: /delete/1→401 vs /post/→405); /post/help advertises POST /post/create_user; namespace closed at 2 members; 405 method-confounded by gated POST-only /cat_detail/; no ACAO on preflight; method-override ignored.
+evidence_needed: credentialed POST + negative control (valid vs invalid/missing X-API-Secret), minimal JSON.
+verify_steps: (AUTH_HELPED) POST with valid secret, then without/invalid; compare; stop if it would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+[PARKED] awv 400-vs-404: resolved single-valued, no impact.
+[PARKED] server-epoch cache-buster disclosure: non-reportable class.
+[PARKED] peer pipeline observability gap: hard-erroring, out of my control; treat as absence of signal.
+[FINAL] 1. Tariff Leak (70) — HUMAN classification gate. 2. mark_all_read router ordering (50) — HUMAN_ONLY POST gate. 3. /post/create_user provisioning (45) — AUTH_HELPED credential gate. None dropped (all ≥40, none REJECTED-class, all have verify steps).
+[NEXT] HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED credentials for /post/create_user. No PROBE due (fragen window ≥2026-10-17 17:14 UTC; API within drift window).
+[LEARN] ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+[LEARN] REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
+[RISK] KassenKompass GmbH = 70 (held). All findings pre-disclosure; own traffic single-fire ≤1 rps, none beyond scheduled smoke; no burst (2026-09-11 WAF lesson applied).
+[0m
+The current hypotheses show 3 active findings with human gates. The next scheduled action is a smoke probe for bonusrechner_fragen.php at ≥2026-10-17 17:14 UTC to check for drift in the ~2.16MB tariff corpus. Let us look at the current time and also examine the probe results to understand the baseline.
+[0m$ [0mdate -u; echo "---"; grep -B5 -A40 "bonusrechner_fragen" probe-results.md | head -120
+Sat Oct 17 17:09:11 UTC 2026
+---
+## 2026-09-06 12:51:44 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=EVIL&jid=VICTIM123&agn=ADV456 -> 200 len=?
+https://kassenkompass.de/vergleich.php -> HTTP 404
+https://kassenkompass.de/bonusrechner.php?jid=X&customerid=Y -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM&agn=ADV123&ppn=PART456 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?lizzen=TEST -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php?lizzen=KKL99&jid=KKJ99&agn=KKA9&ppn=KKP9&connectionnumber=KKC99&employeenumber=KKE99 -> 200 len=?
+
+## 2026-09-06 16:14:19 UTC
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM&agn=ADV123&ppn=PART456 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+
+## 2026-09-06 18:32:33 UTC
+https://kassenkompass.de/bonusrechner.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php?jid=ATTACKER999&agn=ADV999&ppn=PART999 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner.php -> 200 len=?
+
+## 2026-09-06 20:53:51 UTC
+https://kassenkompass.de/bonusrechner_daten.php?jid=VICTIM123&agn=ADV456&ppn=PART789 -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
+
+## 2026-09-06 22:53:55 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/%2e%2e%2f1 -> HTTP 404
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-07 00:54:02 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://api.kassenkompass.de/user/{ext_id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/cancel/{id_tenant_B -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/1/extra -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info//1 -> HTTP 401
+https://api.kassenkompass.de/v2/insurance_info/%2e%2e%2f1 -> HTTP 404
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-07 05:58:24 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/ -> 200 len=?
+https://kassenkompass.de/bonusrechner.php -> 200 len=?
+
+## 2026-09-07 12:16:56 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-07 18:00:51 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-07 21:29:23 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-07 23:48:11 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-08 04:14:47 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=ATTACKER_AFIL&jid=VICTIM_JID&agn=VICTIM_AGN&ppn=VICTIM_PPN -> 200 len=?
+https://kassenkompass.de/bonusrechner_daten.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_suche.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_vergleich2.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/termin.php -> 200 len=?
+
+## 2026-09-08 09:16:07 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-09-08 13:49:34 UTC
+https://kassenkompass.de/bonusrechner.php?lizenz=KKA9&jid=KKJ99&agn=KKG77&ppn=KKP9&employeenumber=KKE99 -> 200 len=?
+https://kassenkompass.de/bonusrechner_abschluss.php -> 200 len=?
+[0m
+[0m$ [0mgrep -n "fragen" probe-results.md | tail -10
+2020:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2021:https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2027:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2028:https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2036:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2047:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2053:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2054:https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2060:https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+2061:https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+[0m
+[0m$ [0msed -n '2010,2070p' probe-results.md
+## 2026-10-15 20:28:29 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/js/whitelabel_live.js -> 200 len=11359
+
+## 2026-10-15 23:20:03 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-16 01:35:31 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-16 06:42:04 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-10-16 12:14:09 UTC
+
+
+## 2026-10-16 16:47:28 UTC
+
+
+## 2026-10-16 19:53:47 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-10-16 23:03:19 UTC
+
+
+## 2026-10-17 01:15:43 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-17 05:45:01 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-17 10:43:16 UTC
+
+
+## 2026-10-17 14:04:40 UTC
+[0m
+The hypotheses file says the last smoke for bonusrechner_fragen.php was on 2026-10-16 19:43 UTC with size 2,159,143 B and the next window is ≥2026-10-17 17:14 UTC. Current time is 2026-10-17 17:09:11 UTC - so we are very close to the window (about 5 minutes away). The next action is to perform the scheduled smoke probe at ≤1 rps for both apex and www, comparing normalized hashes/sizes. Let us also look at the stored hashes from earlier probe results.
+[0m$ [0mgrep -B2 -A10 "bonusrechner_fragen" probe-results.md | grep -B5 -A15 '2026-10-16 19:53' 2>&1 | head -30
+## 2026-10-16 16:47:28 UTC
+
+
+## 2026-10-16 19:53:47 UTC
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+
+## 2026-10-16 23:03:19 UTC
+
+
+## 2026-10-17 01:15:43 UTC
+https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://www.kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
+https://kassenkompass.de/php/mark_all_read.php -> 200 len=0
+https://api.kassenkompass.de/post/help -> HTTP 405
+https://api.kassenkompass.de/post/create_user -> HTTP 405
+
+## 2026-10-17 05:45:01 UTC
+[0m
+[0m$ [0mgrep -rn "df5cd456" 2>&1 | head -10
+leads/lead-bigpickle.md:11739:reasoning: Carried unchanged ... now 2,159,143 B at 2026-10-16 19:43 UTC (prior latest 2,159,141; +2 B / +0.00009%, inside ±0.3% drift band); no-store+CF-DYNAMIC, no validators, no rate limit; data structures intact; credential vector excluded (0/13 corpus + 0/4 bundles). Raw page sha256 now known to be per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; normalized content sha256 = df5cd456… stable across apex/www/repeat. Severity gated solely on data classification.
+leads/lead-bigpickle.md:11755:verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare `df5cd456…`).
+leads/lead-bigpickle.md:11902:reasoning: Carried unchanged ... now 2,159,143 B at 2026-10-16 19:43 UTC (prior latest 2,159,141; +2 B / +0.00009%, inside ±0.3% drift band); no-store+CF-DYNAMIC, no validators, no rate limit; data structures intact; credential vector excluded (0/13 corpus + 0/4 bundles). Raw page sha256 now known to be per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; normalized content sha256 = df5cd456… stable across apex/www/repeat. Severity gated solely on data classification.
+leads/lead-bigpickle.md:11918:verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare `df5cd456…`).
+leads/lead-bigpickle.md:11956:[NEXT] HOLD — single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs df5cd456…, raw size vs 2,159,143 B; Δ>~0.3% ⇒ escalate drift note, else NO_DELTA. HUMAN decisions (3) remain the only unblock: (a) corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED creds for /post/create_user.
+leads/lead-bigpickle.md:11970:verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+analyst-out.txt:59:- **24h smoke cadence for `bonusrechner_fragen.php`**: Next window ≥2026-10-17 17:14 UTC (single GET https://kassenkompass.de/bonusrechner_fragen.php + https://www.kassenkompass.de/bonusrechner_fragen.php), ≤1 rps. Compare normalized sha256 vs `df5cd456…` and raw size vs 2,159,143 B. Δ > ~0.3% → escalate drift note, else NO_DELTA.
+analyst-out.txt:68:1. **Scheduled smoke probe (if due)**: At ≥2026-10-17 17:14 UTC, perform single anonymous GET to `https://kassenkompass.de/bonusrechner_fragen.php` and `https://www.kassenkompass.de/bonusrechner_fragen.php` at ≤1 rps each (or single-fire sequence). Normalize body (strip/cache-buster `standard.js?v=<epoch>` influence) and compare normalized sha256 vs `df5cd456…` and size vs 2,159,143 B. If within ±0.3% → record NO_DELTA; else record drift note with Δ and new normalized hash. Do not exceed 1 rps and do not perform any other live probes.
+analyst-out.txt:110:verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+analyst-out.txt:151:verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+[0m
+The current time is 2026-10-17 17:09:11 UTC and the window for the scheduled smoke probe opens at ≥2026-10-17 17:14 UTC. That’s ~5 minutes from now. We must wait until the window opens - cannot probe before then. Also we must adhere to ≤1 rps and only do the scheduled probe (no other live probes). Let us wait for the window and then perform the single-fire probe for both apex and www.
+[0m$ [0msleep 300 && echo "done waiting"
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0msleep 300; echo "done"
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0msleep 240; echo "done" 2>&1 | tail -0
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
+[0m$ [0msleep 300; echo "READY" 2>&1 | tail -1
+(no output)
+
+<shell_metadata>
+shell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.
+</shell_metadata>
+[0m
