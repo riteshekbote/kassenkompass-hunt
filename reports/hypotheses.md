@@ -6243,3 +6243,5 @@
 - LEARN: Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift sign
 - LEARN: Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift sign
 - LEARN: Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to ha
+
+## RANKED HYPOTHESES 2026-10-17 10:43:16 UTC

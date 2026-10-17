@@ -1940,3 +1940,5 @@ www.kassenkompass.de
 - NEW per-request cache-buster finding
 - CHANGED size 2,159,141→2,159,143
 - NEW server-time disclosure (non-reportable)
+
+## 2026-10-17 10:43:16 UTC

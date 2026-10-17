@@ -11956,3 +11956,4 @@ testability: AUTH_HELPED
 [NEXT] HOLD — single GET https://kassenkompass.de/bonusrechner_fragen.php (+ www mirror) at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs df5cd456…, raw size vs 2,159,143 B; Δ>~0.3% ⇒ escalate drift note, else NO_DELTA. HUMAN decisions (3) remain the only unblock: (a) corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED creds for /post/create_user.
 [LEARN] Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to hard-error — treat triage errors as absence of signal, not as a finding.
 [RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no burst; all findings pre-disclosure.
+## 2026-10-17 10:43:06 UTC [target] (model bigpickle)
