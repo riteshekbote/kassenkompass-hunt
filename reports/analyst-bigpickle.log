@@ -83032,3 +83032,75 @@ https://kassenkompass.de/bonusrechner_fragen.php -> 200 len=?
 The work is currently in HOLD state until **2026-10-17 17:14 UTC** to re-probe `bonusrechner_fragen.php`. The next actionable step is time-dependent (single GET to apex+www to check for size/hash drift). All other work is blocked pending human/credentialed approval.
 
 I'll stop here and wait for the time window or further instructions.
+===== ANALYST bigpickle 2026-10-17 01:15:35 UTC =====
+[0m
+> build · big-pickle
+[0m
+[0m$ [0mdate -u '+%Y-%m-%d %H:%M:%S UTC'
+2026-10-17 01:13:18 UTC
+[0m
+## Objective
+- Act as senior bug bounty analyst for KassenKompass GmbH (report channel: bugs.olivermaicher.eu), running an 8-step per-cycle analysis (DELTA → PRIORITIZE → HYPOTHESES → SELF-CRITIQUE → NEXT → LEARNING → RISK) over a read-only, ≤1 rps, GET/HEAD/OPTIONS-only engagement against api.kassenkompass.de / kassenkompass.de / kassenkompass.net / www / awv / kk-s3-01.
+- Output ONLY structured blocks ([PRIO]/[HYP]/[PARKED]/[FINAL]/[NEXT]/[LEARN]/[RISK]); do not invent vulnerabilities; facts vs hypotheses strictly separated.
+
+## Important Details
+- Scope: only KassenKompass GmbH-owned infrastructure (scope.yml + inventory/kassenkompass.md); rejected classes list is long (DoS, descriptive-headers-only, robots.txt, OPTIONS/TRACE, cookie flags on non-sensitive data, username enumeration, rate-limit policy, clickjacking w/o exploit, mail config, etc.).
+- My state: `{"phase": "POC", "target": "api"}`.
+- Passive-first; no mutating probes; no credentialed tests without AUTH_HELPED/HUMAN approval; sha256 any secret; ≤1 rps (a 2026-09-11 burst triggered a transient WAF IP-block "Ihre IP wurde voruebergehend gesperrt").
+- Standing scores must always be re-derived from own emitted axes, never copied (peers' [PRIO] lines reproducibly don't reproduce: gate_ease=10 on AUTH_HELPED endpoints inflates them).
+- Idempotent re-runs must emit NO_DELTA; do not re-emit refuted peer finals.
+- Current standing priorities (formula-consistent): fragen 8.50 (attack_surface=10, business_value=9, tech_exposure=7, gate_ease=10, cloud_surface=2, freshness=10), mark_all_read 7.00, /post/create_user 6.60.
+- Standing risk: KassenKompass GmbH = 70 (held).
+
+## Work State
+
+### Completed
+- api.kassenkompass.de fully mapped: 15 v1 + 1 v2 (`/v2/insurance_info/{kk_id}`) catalog disclosed unauthenticated (root 1167 B, sha256 `644b1ec7…`, accurate content-length; CL:0→absent→accurate drift class resolved as cosmetic).
+- Auth map: middleware A (8 routes + v2), middleware B = kk_webapp-delegation `{user/{ext_id}, delete/{id}, cancel/{id}}`, `/sync/` legacy HTTP-200 envelope (67 B `{"table":401,"success":false,"message":"X-API-Secret Header fehlt"}`, sha256 `b93be961…`), `/health/` (22 B `{"status":"ok"}`, sha256 `4af26797…`) unauthenticated; `/post/` separately mounted outside X-API-Secret, namespace closed at 2 members (`help`, `create_user`).
+- Normalization matrix COMPLETE: 17 route families, 0 divergences; percent-decode-before-match host-wide (v1+v2), single decode level, encoded separators decode, case-sensitive; three pre-auth canonicalization oracles (401 `instance`, 405 `instance`, v2 404 `detail`); HEAD structurally unable to close route-membership (catch-all returns CL:0, omits `instance`).
+- REJECTED classes firmly closed: encoded-separator access-control bypass (byte-identical encoded vs literal, no differential); "unauthenticated user provisioning" via /post/create_user (405 method-confounded by gated POST-only /cat_detail/); CORS on api/.net/funnel (no ACAO anywhere); Host-header vhost FP; CRLF injection on .net; wider S3 footprint (5 sibling buckets exist but all deny ListBucket); source-map/embedded-secret RAG over all 4 public JS bundles (standard.js, live-calculation.js, param_passthrough.js, whitelabel_live.js) — 0 sourceMappingURL, 0 credential literals; fragen corpus credential grep 0/13 patterns.
+- kassenkompass.de: 7 funnel cookie-mirror entries confirmed; fragen.php unauthenticated ~2.16 MB tariff corpus (no-store+CF-DYNAMIC, no validators, no rate limit across 100 req @1 rps), drift-on-refresh ±0.3% model; abschluss.php GET-vs-POST lead gate ("Account-ID nicht gefunden"); whitelabel_live.js postMessage no origin/source check (integrity-only, NOT XSS); param_passthrough.js 16 params/sessionStorage propagation; debug API (7 window.* functions).
+- awv root 400-vs-404 parked observation RESOLVED (400 under both UAs, no Set-Cookie) — no security impact.
+- Last cycle (2026-10-16 22:54 UTC): fragen smoke executed — 2,159,143 B (Δ+2 B vs 2,159,141), normalized content sha256 `df5cd456…` stable across apex/www/repeat; discovered raw-page sha256 is per-request unreproducible due to `/js/standard.js?v=<server-epoch>` cache-buster; server-time disclosure noted as non-reportable.
+
+### Active
+- Survivors (all human-gated): (1) Tariff Leak 70/MISCONFIG/HUMAN; (2) mark_all_read asymmetry 50/AUTH/HUMAN_ONLY; (3) /post/create_user 45/AUTH/AUTH_HELPED. No autonomous verification remains.
+
+### Blocked
+- fragen severity gated on vendor data classification — needs HUMAN question: intended-public calculator data vs licensed partner tariff data.
+- mark_all_read decisive test needs HUMAN approval for POST with action vocabulary {mark_all_read, mark_read, send_message, load_messages} (GET is inert — action is POST-only; every unauth action returns 59 B "Ungültige Action", no value yields 46 B "Nicht angemeldet").
+- /post/create_user needs AUTH_HELPED: credentialed POST + negative control.
+- Peer pipeline observability gap: 25+ consecutive triage cycles with header-only/stub leads; reposcan "TARGET_ORG not configured".
+
+## Next Move
+1. HOLD until ≥2026-10-17 17:14 UTC, then single GET `https://kassenkompass.de/bonusrechner_fragen.php` (+ www mirror) at ≤1 rps; compare normalized content sha256 vs `df5cd456…` (raw size baseline 2,159,143 B at 2026-10-16 19:43 UTC); otherwise emit NO_DELTA.
+2. HUMAN asks program owner the corpus-classification question; HUMAN approval for mark_all_read POST test; AUTH_HELPED for /post/create_user.
+
+## Relevant Files
+- (none — conversation context is a knowledge-base/state dump; no local files referenced)
+Continue if you have next steps, or stop and ask for clarification if you are unsure how to proceed.
+[DELTA] NO_DELTA — no new probe due (next fragen smoke window ≥2026-10-17 17:14 UTC; now 01:13 UTC), no new peer/program input, state unchanged (`{"phase": "POC", "target": "api"}`).
+
+[PRIO] No re-emission (idempotent; standing scores unchanged: fragen 8.50, mark_all_read 7.00, /post/create_user 6.60 — re-derived from own axes, not copied).
+
+[HYP] Standing survivors only (all human-gated):
+1. Tariff Leak — fragen corpus 2.16 MB unauthenticated — 70/MISCONFIG/HUMAN — intact, hash baseline `df5cd456…` (normalized), size 2,159,143 B.
+2. mark_all_read asymmetry — 50/AUTH/HUMAN_ONLY — GET inert, POST-only action untested.
+3. /post/create_user provisioning — 45/AUTH/AUTH_HELPED — method-confounding unresolved without credentialed control.
+
+[PARKED] awv 400-vs-404 (resolved, no impact); server-time disclosure in `standard.js?v=<epoch>` (non-reportable); peer pipeline observability gap (25+ stub cycles, out of my control).
+
+[NEXT]
+1. HOLD — single GET `https://kassenkompass.de/bonusrechner_fragen.php` + www mirror at ≥2026-10-17 17:14 UTC, ≤1 rps; compare normalized sha256 vs `df5cd456…`, raw size vs 2,159,143 B; Δ>~0.3% beyond epoch-buster noise ⇒ escalate drift note, else NO_DELTA.
+2. HUMAN decision needed to unblock (3 items):
+   - Is the fragen tariff corpus intended-public calculator data or licensed partner data? (determines whether #1 is reportable at all)
+   - Approve POST to `/` with action vocabulary {mark_all_read, mark_read, send_message, load_messages}? (unauth GET shows no value leak; POST is the only decisive test)
+   - AUTH_HELPED: credentialed POST to `/post/create_user` + negative control?
+
+[LEARN] Raw page sha256 of fragen.php is per-request unstable (server-epoch cache-buster in inlined `/js/standard.js?v=`); normalized hash is the only usable drift signal — always normalize before compare.
+
+[RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no 2026-09-11-style burst; all findings pre-disclosure, nothing beyond enumeration performed this cycle.
+
+---
+
+Blocked on you — three decisions from [NEXT]#2 are the only thing that moves this engagement off HOLD. Which do you want to answer first (or decline all → I stay parked until the 17:14 UTC smoke window)?
