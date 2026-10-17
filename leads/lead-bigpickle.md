@@ -11957,3 +11957,42 @@ testability: AUTH_HELPED
 [LEARN] Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to hard-error — treat triage errors as absence of signal, not as a finding.
 [RISK] KassenKompass GmbH = 70 (held). Own traffic: single-fire, ≤1 rps, no burst; all findings pre-disclosure.
 ## 2026-10-17 10:43:06 UTC [target] (model bigpickle)
+## 2026-10-17 14:04:30 UTC [target] (model bigpickle)
+[PRIO] kassenkompass.de/bonusrechner_fragen.php, 8.50, attack_surface=10,business_value=9,tech_exposure=7,gate_ease=10,cloud_surface=2,freshness=10
+[PRIO] kassenkompass.de/php/mark_all_read.php, 7.00, attack_surface=8,business_value=6,tech_exposure=7,gate_ease=9,cloud_surface=2,freshness=9
+[PRIO] api.kassenkompass.de/post/create_user, 6.60, attack_surface=7,business_value=9,tech_exposure=8,gate_ease=2,cloud_surface=3,freshness=8
+[HYP] Unauthenticated Competitive Intelligence Tariff Leak
+class: MISCONFIG
+asset: kassenkompass.de/bonusrechner_fragen.php
+confidence: 70
+reasoning: apex+www serve ~2.16 MB unauthenticated; last smoke 2026-10-16 19:43 UTC = 2,159,143 B (Δ+2 B, inside ±0.3%); no-store+CF-DYNAMIC, no validators, no rate limit; ucatKkData 1.79 MB + globalbudgetsData + kombiboniData + dataant + pseudoKkIds=[99,100,101]; credential vector excluded (0/13 corpus + 0/4 bundles).
+evidence_needed: vendor data classification — intended-public calculator data vs licensed partner tariff data.
+verify_steps: no probing; normalized-hash smoke cadence; next at ≥2026-10-17 17:14 UTC (single GET ≤1 rps, compare normalized sha256 vs df5cd456…).
+impact: full tariff + budget + combination-rule corpus readable anonymously — MEDIUM-HIGH if licensed partner data, informational if intended-public.
+testability: HUMAN
+[HYP] Pre-Auth Action-Router Ordering Asymmetry in Shared /php/ Path
+class: AUTH
+asset: kassenkompass.de/php/mark_all_read.php
+confidence: 50
+reasoning: unauthenticated invalid-action => 200/59 B "Ungültige Action" while siblings mark_read/send_message/load_messages return 46 B "Nicht angemeldet"; action param POST-only (GET 0-differential); no action value yet observed to yield 46 B unauthenticated.
+evidence_needed: recognized action yielding != 59 B unauthenticated (POST under approval).
+verify_steps: POST mark_all_read.php action ∈ {mark_all_read, mark_read, send_message, load_messages}, no session; compare vs 59 B baseline; no mutation intended.
+impact: router-ordering disclosure now; unauthenticated mutation unproven — LOW.
+testability: HUMAN_ONLY
+[HYP] Undocumented User Provisioning on /post/create_user
+class: AUTH
+asset: api.kassenkompass.de/post/create_user
+confidence: 45
+reasoning: /post/* separately mounted outside X-API-Secret (HEAD differential: /delete/1→401 vs /post/→405); /post/help advertises POST /post/create_user; namespace closed at 2 members; 405 method-confounded by gated POST-only /cat_detail/; no ACAO on preflight; method-override ignored.
+evidence_needed: credentialed POST + negative control (valid vs invalid/missing X-API-Secret), minimal JSON.
+verify_steps: (AUTH_HELPED) POST with valid secret, then without/invalid; compare; stop if it would create live data.
+impact: unauthenticated provisioning if write succeeds — HIGH, unproven.
+testability: AUTH_HELPED
+[PARKED] awv 400-vs-404: resolved single-valued, no impact.
+[PARKED] server-epoch cache-buster disclosure: non-reportable class.
+[PARKED] peer pipeline observability gap: hard-erroring, out of my control; treat as absence of signal.
+[FINAL] 1. Tariff Leak (70) — HUMAN classification gate. 2. mark_all_read router ordering (50) — HUMAN_ONLY POST gate. 3. /post/create_user provisioning (45) — AUTH_HELPED credential gate. None dropped (all ≥40, none REJECTED-class, all have verify steps).
+[NEXT] HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read action test, (c) AUTH_HELPED credentials for /post/create_user. No PROBE due (fragen window ≥2026-10-17 17:14 UTC; API within drift window).
+[LEARN] ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+[LEARN] REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
+[RISK] KassenKompass GmbH = 70 (held). All findings pre-disclosure; own traffic single-fire ≤1 rps, none beyond scheduled smoke; no burst (2026-09-11 WAF lesson applied).

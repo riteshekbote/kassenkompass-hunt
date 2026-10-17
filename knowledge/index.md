@@ -1612,3 +1612,5 @@
 - 2026-10-17 REJECTED OTHER @ awv.kassenkompass.de: "root 404" inventory claims falsified by controlled paired measurement; `trace-id`/`x-robots-tag` are header-derived infra detail, explicitly non-reportable.
 - 2026-10-17 ...
 - 2026-10-17 Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to hard-error — treat triage errors as absence of signal, not as a finding.
+- 2026-10-17 ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/7.00/6.60).
+- 2026-10-17 REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.

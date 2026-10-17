@@ -6245,3 +6245,9 @@
 - LEARN: Idempotent re-run: no probe due + no input → NO_DELTA; priorities re-derived and reproduce exactly (8.50/7.00/6.60). Peer pipeline degraded from stub-only to ha
 
 ## RANKED HYPOTHESES 2026-10-17 10:43:16 UTC
+
+## RANKED HYPOTHESES 2026-10-17 14:04:40 UTC
+- [70] kassenkompass.de/bonusrechner_fragen.php: Unauthenticated Competitive Intelligence Tariff Leak (from art/lead_bigpickle.txt)
+- NEXT(hypotheses-bigpickle.txt): HUMAN: three unblock decisions remain the only action with positive expected value — (a) fragen corpus classification, (b) POST approval for mark_all_read actio
+- LEARN: ACCEPTED OTHER @ method: idempotent re-run emits NO_DELTA — no probe due, no new input; priorities re-derived from own emitted axes and reproduce exactly (8.50/
+- LEARN: REJECTED OTHER @ pipeline: peer triage hard-errors treated as absence of signal, not as a finding.
